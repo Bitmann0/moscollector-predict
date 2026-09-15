@@ -11,7 +11,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 FMT = {
     "pr_auc": 4, "precision_at_k": 3, "recall_at_k": 3, "lift_at_k": 1,
     "precision": 3, "recall": 3, "brier": 4, "base_rate": 5,
-    "op_precision": 3, "op_recall": 3,
+    "op_precision": 3, "op_recall": 3, "p_at_r50": 3,
 }
 
 
@@ -30,8 +30,8 @@ def head_a_report() -> str:
     chosen = choice.read_text(encoding="utf-8") if choice.exists() else "не зафиксирован"
 
     cols = [c for c in ("step", "note", "n_pos", "base_rate", "pr_auc",
-                        "precision_at_k", "recall_at_k", "lift_at_k",
-                        "op_precision", "op_recall", "n_features")
+                        "precision_at_k", "lift_at_k",
+                        "op_precision", "op_recall", "p_at_r50", "n_features")
             if c in a.columns]
     table = _round(a.select(cols)).to_pandas().to_markdown(index=False)
 
@@ -72,8 +72,8 @@ def heads_report() -> str:
     if sub.is_empty():
         return "# Головы A′, B, C, D\n\nПрогонов нет."
     cols = [c for c in ("head", "step", "note", "n_pos", "base_rate", "pr_auc",
-                        "precision_at_k", "recall_at_k", "lift_at_k",
-                        "op_precision", "op_recall")
+                        "precision_at_k", "lift_at_k",
+                        "op_precision", "op_recall", "p_at_r50")
             if c in sub.columns]
     table = _round(sub.select(cols)).to_pandas().to_markdown(index=False)
     cfg_rows = "\n".join(
@@ -98,7 +98,7 @@ def final_report() -> str:
         return "# Финальная оценка\n\nЗамер на отложенном периоде не выполнен."
     df = _round(pl.read_csv(path))
     cols = [c for c in ("head", "title", "n", "n_pos", "base_rate", "pr_auc",
-                        "op_precision", "op_recall", "precision_at_k", "lift_at_k",
+                        "op_precision", "op_recall", "p_at_r50", "lift_at_k",
                         "meets_target")
             if c in df.columns]
     table = df.select(cols).to_pandas().to_markdown(index=False)
@@ -112,6 +112,10 @@ def final_report() -> str:
         "2025-10-01 … 2025-12-31 и к отложенному периоду применён без изменений.",
         "", table, "",
         f"Цель ТЗ (Precision > 0.7 и Recall > 0.5) достигнута: **{hit}**.", "",
+        "`p_at_r50` — точность в точке, где Recall достигает 0.5, то есть цена "
+        "половины пойманных событий в ложных срабатываниях. В отличие от "
+        "максимума точности по всем порогам, эта величина не вырождается в 1.0 "
+        "на одном верхнем алерте.", "",
         "`op_precision` и `op_recall` — точка с максимальным Recall среди тех, "
         "где Precision не ниже 0.7. Именно так проверяется требование ТЗ: "
         "вопрос не в точности при произвольном бюджете, а в существовании порога, "

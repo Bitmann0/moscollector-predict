@@ -44,6 +44,31 @@ def test_lift_is_one_for_random_ranking():
     assert metrics.lift(y, p, k=1000) == pytest.approx(1.0, abs=0.25)
 
 
+def test_pr_auc_norm_is_zero_for_random_ranking():
+    rng = np.random.default_rng(21)
+    for br in (0.01, 0.2, 0.6):
+        y = (rng.random(20000) < br).astype(int)
+        p = rng.random(20000)
+        assert metrics.pr_auc_norm(y, p) == pytest.approx(0.0, abs=0.03)
+
+
+def test_pr_auc_norm_is_one_for_perfect_ranking():
+    y = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+    p = np.array([0.9, 0.8, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+    assert metrics.pr_auc_norm(y, p) == pytest.approx(1.0)
+
+
+def test_pr_auc_norm_does_not_reward_inflating_base_rate():
+    """Сырой PR-AUC 0.96 при базовой ставке 0.62 хуже, чем 0.28 при 0.03."""
+    rng = np.random.default_rng(22)
+    y_common = (rng.random(20000) < 0.62).astype(int)
+    p_common = np.clip(y_common * 0.5 + rng.normal(0, 0.45, 20000), 0, 1)
+    y_rare = (rng.random(20000) < 0.03).astype(int)
+    p_rare = np.clip(y_rare * 0.8 + rng.normal(0, 0.30, 20000), 0, 1)
+    assert metrics.pr_auc(y_common, p_common) > metrics.pr_auc(y_rare, p_rare)
+    assert metrics.pr_auc_norm(y_rare, p_rare) > metrics.pr_auc_norm(y_common, p_common)
+
+
 def test_precision_at_recall_is_one_for_perfect_ranking():
     y = np.array([1, 1, 1, 0, 0, 0, 0, 0])
     p = np.array([0.9, 0.8, 0.7, 0.1, 0.1, 0.1, 0.1, 0.1])

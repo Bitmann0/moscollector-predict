@@ -18,6 +18,22 @@ def lift(y: np.ndarray, p: np.ndarray, k: int) -> float:
     return precision_at_k(y, p, k) / br if br > 0 else float("nan")
 
 
+def pr_auc_norm(y: np.ndarray, p: np.ndarray) -> float:
+    """Доля отрыва от случайного ранжирования, которую забрала модель.
+
+    PR-AUC случайного ранжировщика равен базовой ставке, поэтому сырой PR-AUC
+    нельзя сравнивать между постановками с разной редкостью события: 0.96 при
+    базовой ставке 0.62 хуже, чем 0.28 при базовой ставке 0.03. Нормировка даёт
+    0 для случайного и 1 для идеального при любой базовой ставке и не
+    вознаграждает раздувание доли позитивов.
+    """
+    br = base_rate(y)
+    a = pr_auc(y, p)
+    if a != a or br >= 1.0:
+        return float("nan")
+    return float((a - br) / (1.0 - br))
+
+
 def _top_k_mask(p: np.ndarray, k: int) -> np.ndarray:
     k = min(int(k), len(p))
     mask = np.zeros(len(p), dtype=bool)
@@ -151,6 +167,7 @@ def summary(y: np.ndarray, p: np.ndarray, budget: int) -> dict:
         "n_pos": int(y.sum()),
         "base_rate": base_rate(y),
         "pr_auc": pr_auc(y, p),
+        "pr_auc_norm": pr_auc_norm(y, p),
         "precision_at_k": precision_at_k(y, p, budget),
         "recall_at_k": recall_at_k(y, p, budget),
         "lift_at_k": lift(y, p, budget),

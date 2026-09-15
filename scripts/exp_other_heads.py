@@ -64,6 +64,14 @@ def run_head(head: str, cfg: dict) -> None:
     join_keys = [k for k in ("ch", "obj", "seg", "day")
                  if k in feats.columns and k in lab.columns]
     joined = feats.join(lab, on=join_keys, how="inner")
+    # Бейзлайн считается на тех же тестовых фолдах, что и модель: иначе
+    # сравнение идёт на разных выборках с разной базовой ставкой.
+    days_col = joined["day"].to_numpy()
+    test_mask = np.zeros(len(days_col), dtype=bool)
+    for s in splits:
+        test_mask |= ((days_col >= np.datetime64(s.test_start))
+                      & (days_col <= np.datetime64(s.test_end)))
+    joined = joined.filter(pl.Series(test_mask))
     y = joined["y"].to_numpy()
 
     # B1: текущая практика — скор по активности за прошлую неделю
@@ -74,22 +82,28 @@ def run_head(head: str, cfg: dict) -> None:
         )
         experiments.log({"head": head, "step": "B1",
                          "note": f"правило ОДС: {rule_col}", **b1})
-        print(f"{head:8} B1 {'правило ОДС':26} PR-AUC={b1['pr_auc']:.4f}  "
-              f"P@k={b1['precision_at_k']:.3f}  R@k={b1['recall_at_k']:.3f}", flush=True)
+        print(f"{head:8} B1 {'правило ОДС':26} база={b1['base_rate']:.4f}  "
+              f"PR-AUC={b1['pr_auc']:.4f}  норм={b1['pr_auc_norm']:.4f}  "
+              f"lift={b1['lift_at_k']:.1f}  P@R50={b1['p_at_r50']:.3f}", flush=True)
     del joined
 
     out = train.run(head, feats, lab, splits, budget_per_day=cfg["budget_per_day"])
     m = out["mean"]
     experiments.log({"head": head, "step": "B5", "note": cfg["title"],
                      "n_features": len(out["feature_names"]), **m})
-    print(f"{head:8} B5 {cfg['title']:26} PR-AUC={m.get('pr_auc', float('nan')):.4f}  "
-          f"P@k={m.get('precision_at_k', float('nan')):.3f}  "
-          f"R@k={m.get('recall_at_k', float('nan')):.3f}  "
+    br = m.get("base_rate", float("nan"))
+    print(f"{head:8} B5 {cfg['title']:26} база={br:.4f}  "
+          f"PR-AUC={m.get('pr_auc', float('nan')):.4f}  "
+          f"норм={m.get('pr_auc_norm', float('nan')):.4f}  "
           f"lift={m.get('lift_at_k', float('nan')):.1f}  "
+          f"P@R50={m.get('p_at_r50', float('nan')):.3f}  "
           f"maxP={m.get('op_precision', float('nan')):.3f}@R="
           f"{m.get('op_recall', float('nan')):.3f}  "
-          f"позитивов={m.get('n_pos', 0):,}  "
-          f"база={m.get('base_rate', float('nan')):.4f}", flush=True)
+          f"позитивов={m.get('n_pos', 0):,}", flush=True)
+    if br == br and br > 0.25:
+        print(f"   ВНИМАНИЕ: позитивов больше четверти — при такой базовой "
+              f"ставке порог Precision 0.7 берётся почти даром, "
+              f"судить нужно по нормированному PR-AUC", flush=True)
 
     if out["model"] is not None:
         print("   топ-10 признаков: " + ", ".join(

@@ -10,6 +10,8 @@ import polars as pl
 from mkl import cv, db, experiments, labels, metrics, store, train
 from mkl.config import EMBARGO_DAYS, HOLDOUT_START, PATHS
 
+__all__ = ["MAX_USEFUL_BASE_RATE"]
+
 sys.stdout.reconfigure(encoding="utf-8")
 
 TRAIN_END = HOLDOUT_START - dt.timedelta(days=1)
@@ -52,10 +54,11 @@ def evaluate(step: str, feats, lab, splits, params=None, cols=None,
     m = out["mean"]
     experiments.log({"head": "A", "step": step, "note": note,
                      "n_features": len(out["feature_names"]), **m, **(extra or {})})
-    print(f"  {step:4} {note:32} PR-AUC={m.get('pr_auc', float('nan')):.4f}  "
-          f"P@k={m.get('precision_at_k', float('nan')):.3f}  "
-          f"R@k={m.get('recall_at_k', float('nan')):.3f}  "
+    print(f"  {step:4} {note:32} база={m.get('base_rate', float('nan')):.4f}  "
+          f"PR-AUC={m.get('pr_auc', float('nan')):.4f}  "
+          f"норм={m.get('pr_auc_norm', float('nan')):.4f}  "
           f"lift={m.get('lift_at_k', float('nan')):.1f}  "
+          f"P@R50={m.get('p_at_r50', float('nan')):.3f}  "
           f"maxP={m.get('op_precision', float('nan')):.3f}@R="
           f"{m.get('op_recall', float('nan')):.3f}", flush=True)
     return out
@@ -68,17 +71,28 @@ def evaluate(step: str, feats, lab, splits, params=None, cols=None,
 TEST_DAYS = 90
 
 
-def _score(mean: dict) -> tuple[float, float]:
-    """Приоритет — достижимая Precision, затем Recall при ней.
+# Постановка, где положительным оказывается больше четверти сущностей,
+# операционно бессмысленна: диспетчеру нечего приоритизировать, если «рискует»
+# каждый второй канал. Такие конфигурации отбрасываются до сравнения.
+MAX_USEFUL_BASE_RATE = 0.25
 
-    Это прямая формулировка цели ТЗ. PR-AUC и lift для выбора между метками
-    непригодны: PR-AUC несравним при разных базовых ставках, а lift штрафует
-    как раз те постановки, которые дают нужную абсолютную точность.
+
+def _score(mean: dict) -> tuple[float, float]:
+    """Нормированный PR-AUC среди операционно осмысленных постановок.
+
+    Прямой отбор по цели ТЗ оказался геймуемым: критерий выбирал конфигурацию
+    с базовой ставкой 62%, где Precision 0.7 достигает даже случайный
+    ранжировщик, а Recall 0.99 означает «тревога почти на всё». Сырой PR-AUC
+    несравним между постановками разной редкости, lift штрафует частые
+    события. Нормировка (PR-AUC минус базовая ставка) / (1 минус базовая
+    ставка) даёт 0 для случайного и 1 для идеального при любой редкости.
     """
     def f(key: str) -> float:
         v = mean.get(key, 0.0)
         return v if v == v else 0.0
-    return f("op_precision"), f("op_recall")
+    if f("base_rate") > MAX_USEFUL_BASE_RATE:
+        return (-1.0, 0.0)
+    return f("pr_auc_norm"), f("op_recall")
 
 
 def make_splits(lab: pl.DataFrame, n_splits: int = 3) -> list:
@@ -101,10 +115,10 @@ def main() -> None:
     print(f"  -> выбрано окно: {window_start}\n", flush=True)
 
     print("=== E1: вариант метки ===", flush=True)
-    print("Критерий — цель ТЗ: достижимая Precision и Recall при ней.", flush=True)
-    print("Ни PR-AUC, ни lift для этого не годятся: первый несравним между", flush=True)
-    print("метками с разной базовой ставкой, второй штрафует метки с высокой", flush=True)
-    print("базовой ставкой, хотя именно они дают нужную абсолютную точность.", flush=True)
+    print("Критерий — нормированный PR-AUC среди постановок с базовой ставкой", flush=True)
+    print(f"не выше {MAX_USEFUL_BASE_RATE:.0%}. Прямой отбор по цели ТЗ геймуется:", flush=True)
+    print("он тянет к конфигурациям, где позитивов больше половины и точность", flush=True)
+    print("0.7 достигает даже случайный ранжировщик.", flush=True)
     e1 = {}
     feats_s = load_features(window_start)
     for variant in ("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"):
@@ -127,9 +141,8 @@ def main() -> None:
 
     print("=== E2: горизонт и состав популяции ===", flush=True)
     print("ТЗ требует горизонт НЕ МЕНЕЕ 24 ч, поэтому 3 и 7 суток допустимы.", flush=True)
-    print("Критерий здесь — сама цель ТЗ (достижимая Precision при Recall),", flush=True)
-    print("а не lift: lift штрафует сужение популяции, хотя оно поднимает", flush=True)
-    print("абсолютную точность, которую и требует заказчик.", flush=True)
+    print("Тот же критерий: удлинение горизонта поднимает долю позитивов, и без", flush=True)
+    print("ограничения на базовую ставку отбор выродился бы в «тревога на всё».", flush=True)
     e2 = {}
     for horizon in (1, 3, 7):
         for eligible in (False, True):
