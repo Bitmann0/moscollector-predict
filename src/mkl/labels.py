@@ -98,6 +98,18 @@ def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1,
     _emit(con, table, events, "ch", horizon_days)
 
 
+def build_sensor_failure_strict(con, horizon_days: int = 1) -> None:
+    """Аномальное поведение конкретного датчика: устойчивый отказ или пропуск
+    суток у канала, до того отчитывавшегося 25 из 30 суток.
+
+    Отличается от основной метки редкостью события (около 1,4% против 23%):
+    L5 отвечает на вопрос «останется ли канал доступен завтра», а эта метка —
+    «какой именно датчик ведёт себя не как обычно», то есть куда ехать бригаде.
+    """
+    build_sensor_failure(con, variant="L8", horizon_days=horizon_days,
+                         table="label_failure_strict")
+
+
 def build_sensor_degradation(con, horizon_days: int = 1) -> None:
     """Деградация датчика: переход в состояние неисправности в ближайшие сутки.
 

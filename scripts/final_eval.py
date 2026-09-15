@@ -34,6 +34,7 @@ def _choice() -> dict:
 BUILDERS = {
     "A": lambda con, h: labels.build_sensor_failure(
         con, variant=_choice()["variant"], horizon_days=h),
+    "A_strict": labels.build_sensor_failure_strict,
     "A_deg": labels.build_sensor_degradation,
     "A_prime": labels.build_group_outage,
     "B": labels.build_fire,

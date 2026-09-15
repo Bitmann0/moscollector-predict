@@ -7,6 +7,15 @@ A:
   embargo_days: 31
   budget_per_day: 20
 
+A_strict:
+  title: Аномалия датчика
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_failure_strict
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 20
+
 A_deg:
   title: Деградация датчика
   entity: [ch, day]

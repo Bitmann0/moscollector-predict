@@ -22,7 +22,7 @@ def _round(df: pl.DataFrame) -> pl.DataFrame:
 
 
 def head_a_report() -> str:
-    df = experiments.load()
+    df = experiments.latest_run()
     if df.is_empty():
         return "# Голова A\n\nЖурнал экспериментов пуст."
     a = df.filter(pl.col("head") == "A")
@@ -64,11 +64,12 @@ def head_a_report() -> str:
 
 
 def heads_report() -> str:
-    df = experiments.load()
+    df = experiments.latest_run()
     if df.is_empty():
         return "# Головы A′, B, C, D\n\nЖурнал пуст."
     heads = serve.load_heads()
-    sub = df.filter(pl.col("head").is_in(["A_prime", "B", "C", "D"]))
+    sub = df.filter(pl.col("head").is_in(
+        ["A_strict", "A_deg", "A_prime", "B", "C", "D"]))
     if sub.is_empty():
         return "# Головы A′, B, C, D\n\nПрогонов нет."
     cols = [c for c in ("head", "step", "note", "n_pos", "base_rate", "pr_auc",

@@ -28,6 +28,7 @@ def _window_start() -> dt.date:
 WINDOW_START = _window_start()
 
 BUILDERS = {
+    "A_strict": labels.build_sensor_failure_strict,
     "A_deg": labels.build_sensor_degradation,
     "A_prime": labels.build_group_outage,
     "B": labels.build_fire,
@@ -113,7 +114,7 @@ def run_head(head: str, cfg: dict) -> None:
 
 def main() -> None:
     heads = serve.load_heads()
-    for head in ("A_deg", "A_prime", "B", "C", "D"):
+    for head in ("A_strict", "A_deg", "A_prime", "B", "C", "D"):
         print(flush=True)
         run_head(head, heads[head])
 
