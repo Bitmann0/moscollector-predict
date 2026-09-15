@@ -1,0 +1,44 @@
+A:
+  title: Отказ датчика
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_failure
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 20
+
+A_prime:
+  title: Массовый отказ объекта
+  entity: [obj, day]
+  feature_set: object
+  label: label_group_outage
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 5
+
+B:
+  title: Пожарный риск участка
+  entity: [obj, seg, day]
+  feature_set: segment
+  label: label_fire
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 10
+
+C:
+  title: Несанкционированный доступ
+  entity: [obj, day]
+  feature_set: object
+  label: label_intrusion
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 5
+
+D:
+  title: Износ агрегатов
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_wear
+  horizon_days: 7
+  embargo_days: 37
+  budget_per_day: 3

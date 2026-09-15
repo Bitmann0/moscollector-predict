@@ -31,7 +31,8 @@ def feature_columns(df: pl.DataFrame) -> list[str]:
 
 
 def _matrix(df: pl.DataFrame, cols: list[str]) -> np.ndarray:
-    return df.select(cols).to_numpy()
+    """float32 вместо float64: на 15 млн строк и 60 признаках это 3,6 ГБ вместо 7,2."""
+    return df.select([pl.col(c).cast(pl.Float32) for c in cols]).to_numpy()
 
 
 def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
