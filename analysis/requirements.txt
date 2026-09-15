@@ -1,0 +1,6 @@
+# Versions used for the original audit. Install in a separate audit environment.
+duckdb==1.5.5
+py7zr==1.1.3
+pandas==3.0.1
+pypdf==6.10.0
+matplotlib==3.11.2

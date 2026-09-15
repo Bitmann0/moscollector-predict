@@ -19,3 +19,10 @@ docs/source/
 # При этом сохраняем структуру каталогов.
 !data/.gitkeep
 !docs/.gitkeep
+
+# Reproducible audit outputs are tracked; bulk data and execution caches stay local.
+analysis/deps/
+analysis/extracted/
+analysis/duckdb_tmp/
+analysis/*.duckdb*
+analysis/tz_page-*.png

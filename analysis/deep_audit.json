@@ -1,0 +1,2246 @@
+{
+  "missing_dates": {
+    "2019": [],
+    "2020": [],
+    "2021": [],
+    "2022": [],
+    "2023": [],
+    "2024": [
+      "2024-04-07",
+      "2024-04-08"
+    ],
+    "2025": [],
+    "2026": [
+      "2026-06-01"
+    ]
+  },
+  "daily_extremes": {
+    "2019": {
+      "lowest": [
+        {
+          "event_date": "2019-01-01",
+          "n": 19140,
+          "alarms": 17,
+          "channels": 483
+        },
+        {
+          "event_date": "2019-01-12",
+          "n": 22011,
+          "alarms": 21,
+          "channels": 320
+        },
+        {
+          "event_date": "2019-01-27",
+          "n": 23071,
+          "alarms": 28,
+          "channels": 463
+        },
+        {
+          "event_date": "2019-03-03",
+          "n": 23186,
+          "alarms": 57,
+          "channels": 365
+        },
+        {
+          "event_date": "2019-01-13",
+          "n": 23354,
+          "alarms": 25,
+          "channels": 428
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2019-10-15",
+          "n": 123388,
+          "alarms": 464,
+          "channels": 2597
+        },
+        {
+          "event_date": "2019-10-17",
+          "n": 118794,
+          "alarms": 503,
+          "channels": 2843
+        },
+        {
+          "event_date": "2019-09-10",
+          "n": 105653,
+          "alarms": 212,
+          "channels": 1585
+        },
+        {
+          "event_date": "2019-05-30",
+          "n": 96614,
+          "alarms": 337,
+          "channels": 2400
+        },
+        {
+          "event_date": "2019-08-20",
+          "n": 95910,
+          "alarms": 1887,
+          "channels": 1583
+        }
+      ]
+    },
+    "2020": {
+      "lowest": [
+        {
+          "event_date": "2020-01-07",
+          "n": 22529,
+          "alarms": 66,
+          "channels": 482
+        },
+        {
+          "event_date": "2020-04-01",
+          "n": 23921,
+          "alarms": 154,
+          "channels": 945
+        },
+        {
+          "event_date": "2020-04-05",
+          "n": 24159,
+          "alarms": 107,
+          "channels": 587
+        },
+        {
+          "event_date": "2020-03-21",
+          "n": 24498,
+          "alarms": 280,
+          "channels": 664
+        },
+        {
+          "event_date": "2020-03-30",
+          "n": 24540,
+          "alarms": 182,
+          "channels": 1094
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2020-10-29",
+          "n": 355859,
+          "alarms": 575,
+          "channels": 2298
+        },
+        {
+          "event_date": "2020-10-28",
+          "n": 240298,
+          "alarms": 483,
+          "channels": 1864
+        },
+        {
+          "event_date": "2020-10-17",
+          "n": 235481,
+          "alarms": 299,
+          "channels": 1295
+        },
+        {
+          "event_date": "2020-10-21",
+          "n": 209979,
+          "alarms": 379,
+          "channels": 1973
+        },
+        {
+          "event_date": "2020-10-23",
+          "n": 203953,
+          "alarms": 587,
+          "channels": 1509
+        }
+      ]
+    },
+    "2021": {
+      "lowest": [
+        {
+          "event_date": "2021-11-28",
+          "n": 37590,
+          "alarms": 54,
+          "channels": 385
+        },
+        {
+          "event_date": "2021-11-27",
+          "n": 41065,
+          "alarms": 144,
+          "channels": 472
+        },
+        {
+          "event_date": "2021-06-30",
+          "n": 64182,
+          "alarms": 230,
+          "channels": 2334
+        },
+        {
+          "event_date": "2021-12-01",
+          "n": 66328,
+          "alarms": 486,
+          "channels": 2718
+        },
+        {
+          "event_date": "2021-11-29",
+          "n": 66886,
+          "alarms": 468,
+          "channels": 1272
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2021-08-11",
+          "n": 215649,
+          "alarms": 1233,
+          "channels": 3316
+        },
+        {
+          "event_date": "2021-08-12",
+          "n": 209364,
+          "alarms": 358,
+          "channels": 1731
+        },
+        {
+          "event_date": "2021-08-18",
+          "n": 204678,
+          "alarms": 2083,
+          "channels": 2079
+        },
+        {
+          "event_date": "2021-05-19",
+          "n": 202693,
+          "alarms": 36047,
+          "channels": 1751
+        },
+        {
+          "event_date": "2021-08-16",
+          "n": 202435,
+          "alarms": 300,
+          "channels": 1888
+        }
+      ]
+    },
+    "2022": {
+      "lowest": [
+        {
+          "event_date": "2022-12-10",
+          "n": 43938,
+          "alarms": 82,
+          "channels": 611
+        },
+        {
+          "event_date": "2022-12-11",
+          "n": 44759,
+          "alarms": 89,
+          "channels": 460
+        },
+        {
+          "event_date": "2022-12-03",
+          "n": 45493,
+          "alarms": 28,
+          "channels": 408
+        },
+        {
+          "event_date": "2022-11-22",
+          "n": 46729,
+          "alarms": 143,
+          "channels": 1247
+        },
+        {
+          "event_date": "2022-12-04",
+          "n": 47939,
+          "alarms": 128,
+          "channels": 356
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2022-07-07",
+          "n": 201799,
+          "alarms": 503,
+          "channels": 1930
+        },
+        {
+          "event_date": "2022-06-29",
+          "n": 198985,
+          "alarms": 431,
+          "channels": 2215
+        },
+        {
+          "event_date": "2022-02-01",
+          "n": 192668,
+          "alarms": 303,
+          "channels": 1671
+        },
+        {
+          "event_date": "2022-07-08",
+          "n": 188127,
+          "alarms": 455,
+          "channels": 2518
+        },
+        {
+          "event_date": "2022-06-30",
+          "n": 187686,
+          "alarms": 493,
+          "channels": 2062
+        }
+      ]
+    },
+    "2023": {
+      "lowest": [
+        {
+          "event_date": "2023-11-12",
+          "n": 29388,
+          "alarms": 35,
+          "channels": 743
+        },
+        {
+          "event_date": "2023-11-11",
+          "n": 32816,
+          "alarms": 72,
+          "channels": 633
+        },
+        {
+          "event_date": "2023-03-05",
+          "n": 44827,
+          "alarms": 86,
+          "channels": 364
+        },
+        {
+          "event_date": "2023-03-11",
+          "n": 46120,
+          "alarms": 32,
+          "channels": 495
+        },
+        {
+          "event_date": "2023-02-26",
+          "n": 46684,
+          "alarms": 85,
+          "channels": 489
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2023-11-27",
+          "n": 293954,
+          "alarms": 312,
+          "channels": 1183
+        },
+        {
+          "event_date": "2023-11-28",
+          "n": 266914,
+          "alarms": 176,
+          "channels": 1275
+        },
+        {
+          "event_date": "2023-11-29",
+          "n": 258009,
+          "alarms": 211,
+          "channels": 1498
+        },
+        {
+          "event_date": "2023-11-26",
+          "n": 199428,
+          "alarms": 850,
+          "channels": 595
+        },
+        {
+          "event_date": "2023-11-25",
+          "n": 193749,
+          "alarms": 32,
+          "channels": 442
+        }
+      ]
+    },
+    "2024": {
+      "lowest": [
+        {
+          "event_date": "2024-04-09",
+          "n": 799,
+          "alarms": 105,
+          "channels": 103
+        },
+        {
+          "event_date": "2024-04-06",
+          "n": 4412,
+          "alarms": 3,
+          "channels": 153
+        },
+        {
+          "event_date": "2024-04-10",
+          "n": 28015,
+          "alarms": 584,
+          "channels": 2556
+        },
+        {
+          "event_date": "2024-11-10",
+          "n": 31208,
+          "alarms": 191,
+          "channels": 457
+        },
+        {
+          "event_date": "2024-11-09",
+          "n": 32242,
+          "alarms": 182,
+          "channels": 539
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2024-08-13",
+          "n": 231858,
+          "alarms": 271,
+          "channels": 1539
+        },
+        {
+          "event_date": "2024-02-28",
+          "n": 223430,
+          "alarms": 1570,
+          "channels": 2715
+        },
+        {
+          "event_date": "2024-08-14",
+          "n": 212584,
+          "alarms": 148,
+          "channels": 1540
+        },
+        {
+          "event_date": "2024-08-11",
+          "n": 207323,
+          "alarms": 93,
+          "channels": 812
+        },
+        {
+          "event_date": "2024-02-27",
+          "n": 204283,
+          "alarms": 196,
+          "channels": 1447
+        }
+      ]
+    },
+    "2025": {
+      "lowest": [
+        {
+          "event_date": null,
+          "n": 1,
+          "alarms": 0,
+          "channels": 0
+        },
+        {
+          "event_date": "2025-11-08",
+          "n": 42398,
+          "alarms": 25,
+          "channels": 457
+        },
+        {
+          "event_date": "2025-11-09",
+          "n": 43128,
+          "alarms": 51,
+          "channels": 1636
+        },
+        {
+          "event_date": "2025-11-13",
+          "n": 57931,
+          "alarms": 318,
+          "channels": 2728
+        },
+        {
+          "event_date": "2025-11-12",
+          "n": 59737,
+          "alarms": 216,
+          "channels": 1409
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2025-12-04",
+          "n": 248584,
+          "alarms": 3139,
+          "channels": 5187
+        },
+        {
+          "event_date": "2025-09-09",
+          "n": 235934,
+          "alarms": 1252,
+          "channels": 2405
+        },
+        {
+          "event_date": "2025-09-08",
+          "n": 217506,
+          "alarms": 606,
+          "channels": 1949
+        },
+        {
+          "event_date": "2025-08-05",
+          "n": 212021,
+          "alarms": 2640,
+          "channels": 2439
+        },
+        {
+          "event_date": "2025-07-21",
+          "n": 208135,
+          "alarms": 2752,
+          "channels": 2362
+        }
+      ]
+    },
+    "2026": {
+      "lowest": [
+        {
+          "event_date": "2026-01-11",
+          "n": 128489,
+          "alarms": 141,
+          "channels": 1269
+        },
+        {
+          "event_date": "2026-01-25",
+          "n": 130177,
+          "alarms": 208,
+          "channels": 741
+        },
+        {
+          "event_date": "2026-01-03",
+          "n": 133401,
+          "alarms": 1239,
+          "channels": 462
+        },
+        {
+          "event_date": "2026-01-24",
+          "n": 134224,
+          "alarms": 231,
+          "channels": 1465
+        },
+        {
+          "event_date": "2026-01-07",
+          "n": 134585,
+          "alarms": 1287,
+          "channels": 1437
+        }
+      ],
+      "highest": [
+        {
+          "event_date": "2026-04-20",
+          "n": 229864,
+          "alarms": 2513,
+          "channels": 2641
+        },
+        {
+          "event_date": "2026-04-21",
+          "n": 227731,
+          "alarms": 1347,
+          "channels": 2884
+        },
+        {
+          "event_date": "2026-04-14",
+          "n": 211778,
+          "alarms": 6056,
+          "channels": 2834
+        },
+        {
+          "event_date": "2026-04-17",
+          "n": 210142,
+          "alarms": 4457,
+          "channels": 2325
+        },
+        {
+          "event_date": "2026-05-28",
+          "n": 209131,
+          "alarms": 729,
+          "channels": 2252
+        }
+      ]
+    }
+  },
+  "duplicates": {
+    "2019": {
+      "duplicate_ids": 1491,
+      "excess_rows": 1491,
+      "conflicting_ids": 0,
+      "exact_duplicate_excess": 1491,
+      "max_multiplicity": 2,
+      "examples": [
+        {
+          "id": 1510303694,
+          "channel": 143687,
+          "event_date": "2019-07-05",
+          "ts": "2019-07-05 10:58:38",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 1510303694,
+          "channel": 143687,
+          "event_date": "2019-07-05",
+          "ts": "2019-07-05 10:58:38",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 1510329259,
+          "channel": 143711,
+          "event_date": "2019-07-05",
+          "ts": "2019-07-05 11:17:30",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 1510329259,
+          "channel": 143711,
+          "event_date": "2019-07-05",
+          "ts": "2019-07-05 11:17:30",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 1510410237,
+          "channel": 143687,
+          "event_date": "2019-07-05",
+          "ts": "2019-07-05 12:20:15",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Обнаружено движение"
+        },
+        {
+          "id": 1510410237,
+          "channel": 143687,
+          "event_date": "2019-07-05",
+          "ts": "2019-07-05 12:20:15",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Обнаружено движение"
+        }
+      ]
+    },
+    "2021": {
+      "duplicate_ids": 775099,
+      "excess_rows": 775099,
+      "conflicting_ids": 775099,
+      "exact_duplicate_excess": 0,
+      "max_multiplicity": 2,
+      "examples": [
+        {
+          "id": 2084219199,
+          "channel": 197083,
+          "event_date": "2021-07-04",
+          "ts": "2021-07-04 22:23:54",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Неопределен"
+        },
+        {
+          "id": 2084219199,
+          "channel": 196743,
+          "event_date": "2021-12-27",
+          "ts": "2021-12-27 15:21:46",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.01"
+        },
+        {
+          "id": 2084228867,
+          "channel": 197179,
+          "event_date": "2021-07-04",
+          "ts": "2021-07-04 22:59:32",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Норма"
+        },
+        {
+          "id": 2084228867,
+          "channel": 196735,
+          "event_date": "2021-12-27",
+          "ts": "2021-12-27 15:33:07",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.00"
+        },
+        {
+          "id": 2086164102,
+          "channel": 121152,
+          "event_date": "2021-07-07",
+          "ts": "2021-07-07 00:18:01",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Неопределен"
+        },
+        {
+          "id": 2086164102,
+          "channel": 196785,
+          "event_date": "2021-12-29",
+          "ts": "2021-12-29 05:54:17",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.01"
+        }
+      ]
+    },
+    "2022": {
+      "duplicate_ids": 667317,
+      "excess_rows": 667317,
+      "conflicting_ids": 667317,
+      "exact_duplicate_excess": 0,
+      "max_multiplicity": 2,
+      "examples": [
+        {
+          "id": 2476271015,
+          "channel": 147212,
+          "event_date": "2022-10-02",
+          "ts": "2022-10-02 21:41:43",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.10"
+        },
+        {
+          "id": 2476271015,
+          "channel": 269070,
+          "event_date": "2022-12-05",
+          "ts": "2022-12-05 11:28:28",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 2476276821,
+          "channel": 196779,
+          "event_date": "2022-10-02",
+          "ts": "2022-10-02 21:49:46",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.00"
+        },
+        {
+          "id": 2476276821,
+          "channel": 93696,
+          "event_date": "2022-12-05",
+          "ts": "2022-12-05 11:32:22",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Неопределен"
+        },
+        {
+          "id": 2480745322,
+          "channel": 196785,
+          "event_date": "2022-10-06",
+          "ts": "2022-10-06 03:56:19",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.00"
+        },
+        {
+          "id": 2480745322,
+          "channel": 50967,
+          "event_date": "2022-12-11",
+          "ts": "2022-12-11 17:16:24",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Не замкнут"
+        }
+      ]
+    },
+    "2023": {
+      "duplicate_ids": 785998,
+      "excess_rows": 789301,
+      "conflicting_ids": 226852,
+      "exact_duplicate_excess": 562449,
+      "max_multiplicity": 3,
+      "examples": [
+        {
+          "id": 2725468233,
+          "channel": 268798,
+          "event_date": "2023-04-06",
+          "ts": "2023-04-06 02:53:24",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.01"
+        },
+        {
+          "id": 2725468233,
+          "channel": 285854,
+          "event_date": "2023-11-26",
+          "ts": "2023-11-26 08:40:02",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 2725468233,
+          "channel": 285854,
+          "event_date": "2023-11-26",
+          "ts": "2023-11-26 08:40:02",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Движения нет"
+        },
+        {
+          "id": 2725495247,
+          "channel": 213363,
+          "event_date": "2023-04-06",
+          "ts": "2023-04-06 03:22:48",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.02"
+        },
+        {
+          "id": 2725495247,
+          "channel": 3073,
+          "event_date": "2023-11-26",
+          "ts": "2023-11-26 10:04:07",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Обнаружено движение"
+        },
+        {
+          "id": 2725495247,
+          "channel": 3073,
+          "event_date": "2023-11-26",
+          "ts": "2023-11-26 10:04:07",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Обнаружено движение"
+        },
+        {
+          "id": 2727107420,
+          "channel": 116069,
+          "event_date": "2023-04-07",
+          "ts": "2023-04-07 08:32:30",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "0.00"
+        },
+        {
+          "id": 2727107420,
+          "channel": 231917,
+          "event_date": "2023-11-28",
+          "ts": "2023-11-28 13:59:08",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Обнаружено движение"
+        },
+        {
+          "id": 2727107420,
+          "channel": 231917,
+          "event_date": "2023-11-28",
+          "ts": "2023-11-28 13:59:08",
+          "alarm_raw": "f",
+          "alarm": false,
+          "sensor_value": "Обнаружено движение"
+        }
+      ]
+    },
+    "2025": {
+      "duplicate_ids": 0,
+      "excess_rows": null,
+      "conflicting_ids": 0,
+      "exact_duplicate_excess": null,
+      "max_multiplicity": null,
+      "examples": []
+    }
+  },
+  "invalid_rows": [
+    {
+      "id": null,
+      "channel": null,
+      "event_date": null,
+      "ts": null,
+      "alarm_raw": "тревожное",
+      "alarm": null,
+      "sensor_value": "значение_датчика"
+    }
+  ],
+  "unique_channels": [
+    {
+      "n": 12627
+    }
+  ],
+  "unused_catalog_channels": [],
+  "top_text_signals": [
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Движения нет",
+      "alarm": false,
+      "n": 25501142,
+      "channels": 804
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Обнаружено движение",
+      "alarm": false,
+      "n": 25297913,
+      "channels": 804
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 2753658,
+      "channels": 762
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Движения нет",
+      "alarm": false,
+      "n": 2728309,
+      "channels": 88
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Обнаружено движение",
+      "alarm": false,
+      "n": 2723868,
+      "channels": 85
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 2643079,
+      "channels": 762
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 2368802,
+      "channels": 917
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Не замкнут",
+      "alarm": false,
+      "n": 2176692,
+      "channels": 883
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 1808800,
+      "channels": 4337
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 1322604,
+      "channels": 1136
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 1124758,
+      "channels": 2330
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 1100024,
+      "channels": 1136
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Обесточен",
+      "alarm": false,
+      "n": 1064438,
+      "channels": 953
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Есть питание",
+      "alarm": false,
+      "n": 1064405,
+      "channels": 949
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Выключен",
+      "alarm": false,
+      "n": 933685,
+      "channels": 801
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Включен",
+      "alarm": false,
+      "n": 925045,
+      "channels": 801
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 836611,
+      "channels": 957
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 811628,
+      "channels": 929
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 645664,
+      "channels": 4337
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Выключен",
+      "alarm": false,
+      "n": 632600,
+      "channels": 354
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 629717,
+      "channels": 801
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 629135,
+      "channels": 784
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Выключен",
+      "alarm": false,
+      "n": 613838,
+      "channels": 180
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Включен",
+      "alarm": false,
+      "n": 552880,
+      "channels": 354
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Включен",
+      "alarm": false,
+      "n": 506623,
+      "channels": 180
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 469929,
+      "channels": 529
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 404033,
+      "channels": 529
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 358615,
+      "channels": 354
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 310247,
+      "channels": 397
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 309287,
+      "channels": 180
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 282058,
+      "channels": 345
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 250462,
+      "channels": 472
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 246676,
+      "channels": 472
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 235461,
+      "channels": 804
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Не замкнут",
+      "alarm": true,
+      "n": 229713,
+      "channels": 397
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Обнаружено движение",
+      "alarm": true,
+      "n": 203207,
+      "channels": 798
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 198016,
+      "channels": 179
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Дыма нет",
+      "alarm": false,
+      "n": 165823,
+      "channels": 4337
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 153840,
+      "channels": 917
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 152266,
+      "channels": 600
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 132939,
+      "channels": 804
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Движения нет",
+      "alarm": false,
+      "n": 124407,
+      "channels": 21
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Обнаружено движение",
+      "alarm": false,
+      "n": 124258,
+      "channels": 9
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Выключен",
+      "alarm": false,
+      "n": 122201,
+      "channels": 543
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "alarm": false,
+      "n": 121855,
+      "channels": 3748
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Включен",
+      "alarm": false,
+      "n": 116096,
+      "channels": 142
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 111534,
+      "channels": 600
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Не замкнут",
+      "alarm": true,
+      "n": 110969,
+      "channels": 295
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Разговор",
+      "alarm": false,
+      "n": 106728,
+      "channels": 751
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Не замкнут",
+      "alarm": false,
+      "n": 99192,
+      "channels": 4
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 97569,
+      "channels": 180
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Не замкнут",
+      "alarm": false,
+      "n": 94086,
+      "channels": 122
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Вызов",
+      "alarm": false,
+      "n": 92636,
+      "channels": 715
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Обесточен",
+      "alarm": true,
+      "n": 85619,
+      "channels": 180
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Работают все насосы в АНС",
+      "alarm": true,
+      "n": 80366,
+      "channels": 51
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "На охране",
+      "alarm": false,
+      "n": 78436,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Снято с охраны",
+      "alarm": false,
+      "n": 78421,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Обесточен",
+      "alarm": true,
+      "n": 74749,
+      "channels": 235
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 70704,
+      "channels": 235
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 69623,
+      "channels": 397
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "alarm": true,
+      "n": 53679,
+      "channels": 178
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "alarm": false,
+      "n": 44424,
+      "channels": 2069
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 43646,
+      "channels": 289
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "alarm": true,
+      "n": 42433,
+      "channels": 4337
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Обесточен",
+      "alarm": false,
+      "n": 41775,
+      "channels": 148
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Рычаг норма",
+      "alarm": false,
+      "n": 41466,
+      "channels": 762
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Есть питание",
+      "alarm": false,
+      "n": 41349,
+      "channels": 139
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 40387,
+      "channels": 43
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "01.01.1970 03:00:01",
+      "alarm": false,
+      "n": 40240,
+      "channels": 29
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "01.01.1970 03:00:00",
+      "alarm": false,
+      "n": 40225,
+      "channels": 29
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 37210,
+      "channels": 80
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Не замкнут",
+      "alarm": true,
+      "n": 37202,
+      "channels": 893
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Рычаг сдернут",
+      "alarm": false,
+      "n": 36003,
+      "channels": 762
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 35245,
+      "channels": 80
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 25297,
+      "channels": 294
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Питание от сети",
+      "alarm": false,
+      "n": 22884,
+      "channels": 80
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 22452,
+      "channels": 130
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Питание от батарей",
+      "alarm": true,
+      "n": 20125,
+      "channels": 80
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "В норме от +3 до +40",
+      "alarm": false,
+      "n": 18023,
+      "channels": 590
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 17989,
+      "channels": 55
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 15830,
+      "channels": 29
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 14151,
+      "channels": 55
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Работают все насосы в АНС",
+      "alarm": true,
+      "n": 11418,
+      "channels": 8
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "alarm": false,
+      "n": 11303,
+      "channels": 166
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Обесточен",
+      "alarm": false,
+      "n": 10658,
+      "channels": 166
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 10643,
+      "channels": 98
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "Обнаружен газ",
+      "alarm": true,
+      "n": 10089,
+      "channels": 529
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 9897,
+      "channels": 130
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Не замкнут",
+      "alarm": true,
+      "n": 9618,
+      "channels": 29
+    },
+    {
+      "sensor_type": null,
+      "sensor_value": "Неисправен",
+      "alarm": true,
+      "n": 9589,
+      "channels": 222
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Не замкнут",
+      "alarm": false,
+      "n": 9355,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Не определено",
+      "alarm": true,
+      "n": 9197,
+      "channels": 400
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Температура ниже 3ºC",
+      "alarm": true,
+      "n": 8840,
+      "channels": 382
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "alarm": false,
+      "n": 8606,
+      "channels": 135
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Устройства на объекте исправны",
+      "alarm": false,
+      "n": 8128,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Норма",
+      "alarm": false,
+      "n": 8116,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Неопределен",
+      "alarm": false,
+      "n": 8108,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Много неисправных устройств",
+      "alarm": true,
+      "n": 8097,
+      "channels": 47
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "alarm": false,
+      "n": 7988,
+      "channels": 164
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Обесточен",
+      "alarm": false,
+      "n": 7954,
+      "channels": 163
+    }
+  ],
+  "numeric_extremes": [
+    {
+      "sensor_type": "Датчик температуры",
+      "min_value": -3276.0,
+      "max_value": 999.0,
+      "n": 1064234
+    },
+    {
+      "sensor_type": "ИБП",
+      "min_value": 0.0,
+      "max_value": 100.0,
+      "n": 4721
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "min_value": -10.23,
+      "max_value": 327.68,
+      "n": 223065444
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "min_value": 0.0,
+      "max_value": 995.0,
+      "n": 5
+    },
+    {
+      "sensor_type": "КД АВ",
+      "min_value": 0.0,
+      "max_value": 0.0,
+      "n": 1
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "min_value": 4.9,
+      "max_value": 10.0,
+      "n": 5
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "min_value": 0.0,
+      "max_value": 35.3,
+      "n": 4
+    }
+  ],
+  "bad_numeric_examples": [
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196790,
+      "sensor_value": "-0.01",
+      "n": 64833
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196786,
+      "sensor_value": "-0.01",
+      "n": 63950
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196727,
+      "sensor_value": "-0.01",
+      "n": 45483
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196780,
+      "sensor_value": "-0.01",
+      "n": 44130
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196745,
+      "sensor_value": "-0.01",
+      "n": 43672
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196732,
+      "sensor_value": "-0.01",
+      "n": 41515
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196765,
+      "sensor_value": "-0.02",
+      "n": 38116
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196726,
+      "sensor_value": "-0.03",
+      "n": 37634
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196759,
+      "sensor_value": "-0.01",
+      "n": 37274
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196775,
+      "sensor_value": "-0.06",
+      "n": 34822
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196738,
+      "sensor_value": "-0.01",
+      "n": 33433
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196763,
+      "sensor_value": "-0.01",
+      "n": 33417
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196742,
+      "sensor_value": "-0.03",
+      "n": 32756
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196786,
+      "sensor_value": "-0.02",
+      "n": 32242
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196726,
+      "sensor_value": "-0.02",
+      "n": 31269
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196775,
+      "sensor_value": "-0.07",
+      "n": 30275
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196792,
+      "sensor_value": "-0.01",
+      "n": 28140
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196764,
+      "sensor_value": "-0.01",
+      "n": 27280
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196796,
+      "sensor_value": "-0.01",
+      "n": 27009
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196775,
+      "sensor_value": "-0.04",
+      "n": 26971
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196752,
+      "sensor_value": "-0.01",
+      "n": 26089
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196764,
+      "sensor_value": "-0.02",
+      "n": 25660
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196768,
+      "sensor_value": "-0.01",
+      "n": 25599
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196742,
+      "sensor_value": "-0.02",
+      "n": 25330
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "channel": 196765,
+      "sensor_value": "-0.03",
+      "n": 23790
+    }
+  ],
+  "sample_overlap": [
+    {
+      "matching_pairs": 739,
+      "sample_ids": 739,
+      "same_ts": 0,
+      "conflicting_payload": 739,
+      "earliest_original": "2024-08-08 08:17:52",
+      "latest_original": "2024-08-08 13:45:09"
+    }
+  ],
+  "sample_overlap_examples": [
+    {
+      "id": 3441204286,
+      "sample_ts": "2026-08-01 00:11:45",
+      "archive_ts": "2024-08-08 08:17:52",
+      "channel": 95453
+    },
+    {
+      "id": 3441212809,
+      "sample_ts": "2026-08-01 00:54:14",
+      "archive_ts": "2024-08-08 08:28:24",
+      "channel": 333782
+    },
+    {
+      "id": 3441218821,
+      "sample_ts": "2026-08-01 01:13:06",
+      "archive_ts": "2024-08-08 08:32:45",
+      "channel": 210643
+    },
+    {
+      "id": 3441219174,
+      "sample_ts": "2026-08-01 01:15:50",
+      "archive_ts": "2024-08-08 08:33:00",
+      "channel": 196150
+    },
+    {
+      "id": 3441219203,
+      "sample_ts": "2026-08-01 01:15:53",
+      "archive_ts": "2024-08-08 08:33:02",
+      "channel": 196140
+    },
+    {
+      "id": 3441220536,
+      "sample_ts": "2026-08-01 01:21:30",
+      "archive_ts": "2024-08-08 08:34:03",
+      "channel": 333641
+    }
+  ],
+  "prefix_join": [
+    {
+      "channels": 11485,
+      "prefixes": 32,
+      "naive_prefix_matching_rows": 396
+    }
+  ],
+  "hourly_peak": [
+    {
+      "hour_start": "2025-11-06 11:00:00",
+      "n": 42571
+    },
+    {
+      "hour_start": "2025-11-06 10:00:00",
+      "n": 29751
+    },
+    {
+      "hour_start": "2020-10-28 13:00:00",
+      "n": 23692
+    },
+    {
+      "hour_start": "2020-02-21 14:00:00",
+      "n": 23021
+    },
+    {
+      "hour_start": "2020-07-22 09:00:00",
+      "n": 21141
+    },
+    {
+      "hour_start": "2020-02-21 16:00:00",
+      "n": 21054
+    },
+    {
+      "hour_start": "2020-02-21 15:00:00",
+      "n": 20990
+    },
+    {
+      "hour_start": "2020-02-21 12:00:00",
+      "n": 20559
+    },
+    {
+      "hour_start": "2020-02-21 13:00:00",
+      "n": 20403
+    },
+    {
+      "hour_start": "2023-11-27 08:00:00",
+      "n": 19614
+    }
+  ],
+  "state_onsets": [
+    {
+      "yr": 2019,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 2405,
+      "transitions": 2378,
+      "channels": 201,
+      "after_long_gap": 90
+    },
+    {
+      "yr": 2019,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 5010,
+      "transitions": 4943,
+      "channels": 377,
+      "after_long_gap": 1491
+    },
+    {
+      "yr": 2019,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 3749,
+      "transitions": 3749,
+      "channels": 103,
+      "after_long_gap": 133
+    },
+    {
+      "yr": 2019,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 12407,
+      "transitions": 12405,
+      "channels": 89,
+      "after_long_gap": 276
+    },
+    {
+      "yr": 2019,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 13974,
+      "transitions": 13972,
+      "channels": 113,
+      "after_long_gap": 135
+    },
+    {
+      "yr": 2020,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 21796,
+      "transitions": 20408,
+      "channels": 810,
+      "after_long_gap": 256
+    },
+    {
+      "yr": 2020,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 11441,
+      "transitions": 11401,
+      "channels": 1380,
+      "after_long_gap": 1830
+    },
+    {
+      "yr": 2020,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 9878,
+      "transitions": 9871,
+      "channels": 141,
+      "after_long_gap": 131
+    },
+    {
+      "yr": 2020,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 9235,
+      "transitions": 9235,
+      "channels": 126,
+      "after_long_gap": 429
+    },
+    {
+      "yr": 2020,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 11066,
+      "transitions": 11064,
+      "channels": 139,
+      "after_long_gap": 77
+    },
+    {
+      "yr": 2021,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 1040951,
+      "transitions": 806274,
+      "channels": 834,
+      "after_long_gap": 354
+    },
+    {
+      "yr": 2021,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 11590,
+      "transitions": 11566,
+      "channels": 2055,
+      "after_long_gap": 4073
+    },
+    {
+      "yr": 2021,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 16013,
+      "transitions": 16013,
+      "channels": 161,
+      "after_long_gap": 257
+    },
+    {
+      "yr": 2021,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 10556,
+      "transitions": 10556,
+      "channels": 150,
+      "after_long_gap": 700
+    },
+    {
+      "yr": 2021,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 14415,
+      "transitions": 14414,
+      "channels": 153,
+      "after_long_gap": 132
+    },
+    {
+      "yr": 2022,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 23089,
+      "transitions": 22659,
+      "channels": 1466,
+      "after_long_gap": 576
+    },
+    {
+      "yr": 2022,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 25491,
+      "transitions": 25466,
+      "channels": 3714,
+      "after_long_gap": 13687
+    },
+    {
+      "yr": 2022,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 9369,
+      "transitions": 9367,
+      "channels": 209,
+      "after_long_gap": 538
+    },
+    {
+      "yr": 2022,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 7006,
+      "transitions": 7003,
+      "channels": 135,
+      "after_long_gap": 417
+    },
+    {
+      "yr": 2022,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 13873,
+      "transitions": 13872,
+      "channels": 167,
+      "after_long_gap": 596
+    },
+    {
+      "yr": 2023,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 4642,
+      "transitions": 4565,
+      "channels": 1000,
+      "after_long_gap": 346
+    },
+    {
+      "yr": 2023,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 35971,
+      "transitions": 35853,
+      "channels": 3742,
+      "after_long_gap": 16001
+    },
+    {
+      "yr": 2023,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 7953,
+      "transitions": 7951,
+      "channels": 210,
+      "after_long_gap": 569
+    },
+    {
+      "yr": 2023,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 5820,
+      "transitions": 5820,
+      "channels": 140,
+      "after_long_gap": 316
+    },
+    {
+      "yr": 2023,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 12750,
+      "transitions": 12750,
+      "channels": 169,
+      "after_long_gap": 619
+    },
+    {
+      "yr": 2024,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 5078,
+      "transitions": 4948,
+      "channels": 1086,
+      "after_long_gap": 409
+    },
+    {
+      "yr": 2024,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 30374,
+      "transitions": 30358,
+      "channels": 3744,
+      "after_long_gap": 14223
+    },
+    {
+      "yr": 2024,
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Неисправен",
+      "n": 4,
+      "transitions": 3,
+      "channels": 1,
+      "after_long_gap": 0
+    },
+    {
+      "yr": 2024,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 9179,
+      "transitions": 9179,
+      "channels": 209,
+      "after_long_gap": 867
+    },
+    {
+      "yr": 2024,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 6322,
+      "transitions": 6322,
+      "channels": 139,
+      "after_long_gap": 444
+    },
+    {
+      "yr": 2024,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 14133,
+      "transitions": 14133,
+      "channels": 169,
+      "after_long_gap": 752
+    },
+    {
+      "yr": 2025,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 9973,
+      "transitions": 9625,
+      "channels": 1258,
+      "after_long_gap": 615
+    },
+    {
+      "yr": 2025,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 28303,
+      "transitions": 28280,
+      "channels": 4336,
+      "after_long_gap": 9953
+    },
+    {
+      "yr": 2025,
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Неисправен",
+      "n": 4,
+      "transitions": 2,
+      "channels": 1,
+      "after_long_gap": 0
+    },
+    {
+      "yr": 2025,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 12678,
+      "transitions": 12678,
+      "channels": 234,
+      "after_long_gap": 839
+    },
+    {
+      "yr": 2025,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 6056,
+      "transitions": 6042,
+      "channels": 157,
+      "after_long_gap": 439
+    },
+    {
+      "yr": 2025,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 14432,
+      "transitions": 14431,
+      "channels": 180,
+      "after_long_gap": 784
+    },
+    {
+      "yr": 2026,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "n": 59852,
+      "transitions": 57559,
+      "channels": 601,
+      "after_long_gap": 294
+    },
+    {
+      "yr": 2026,
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "n": 15931,
+      "transitions": 15911,
+      "channels": 4336,
+      "after_long_gap": 4176
+    },
+    {
+      "yr": 2026,
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "n": 9196,
+      "transitions": 9195,
+      "channels": 234,
+      "after_long_gap": 434
+    },
+    {
+      "yr": 2026,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "n": 4203,
+      "transitions": 4203,
+      "channels": 128,
+      "after_long_gap": 206
+    },
+    {
+      "yr": 2026,
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "n": 13387,
+      "transitions": 13381,
+      "channels": 180,
+      "after_long_gap": 334
+    }
+  ],
+  "simultaneous_conflicts_operational": [
+    {
+      "sensor_type": "Состояние насоса",
+      "conflicting_channel_seconds": 233162
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "conflicting_channel_seconds": 183304
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "conflicting_channel_seconds": 2062
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "conflicting_channel_seconds": 266713
+    }
+  ]
+}

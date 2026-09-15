@@ -1,0 +1,122 @@
+[
+  {
+    "sensor_type": "Газовый датчик",
+    "n": 224012118,
+    "alarms": 53849,
+    "channels": 529
+  },
+  {
+    "sensor_type": "Датчик движения",
+    "n": 51473736,
+    "alarms": 204944,
+    "channels": 804
+  },
+  {
+    "sensor_type": null,
+    "n": 9439855,
+    "alarms": 151740,
+    "channels": 1142
+  },
+  {
+    "sensor_type": "Состояние УИР-Р",
+    "n": 5684500,
+    "alarms": 6079,
+    "channels": 762
+  },
+  {
+    "sensor_type": "КД Дверь",
+    "n": 4986555,
+    "alarms": 37515,
+    "channels": 917
+  },
+  {
+    "sensor_type": "Датчик дыма",
+    "n": 3961622,
+    "alarms": 1170658,
+    "channels": 4337
+  },
+  {
+    "sensor_type": "Состояние фазы",
+    "n": 3805421,
+    "alarms": 25985,
+    "channels": 957
+  },
+  {
+    "sensor_type": "Переключатель",
+    "n": 3118061,
+    "alarms": 477,
+    "channels": 801
+  },
+  {
+    "sensor_type": "Состояние вентилятора",
+    "n": 1987797,
+    "alarms": 145702,
+    "channels": 354
+  },
+  {
+    "sensor_type": "Состояние насоса",
+    "n": 1976744,
+    "alarms": 317979,
+    "channels": 180
+  },
+  {
+    "sensor_type": "Датчик температуры",
+    "n": 1409472,
+    "alarms": 60087,
+    "channels": 600
+  },
+  {
+    "sensor_type": "КД АВ",
+    "n": 620739,
+    "alarms": 231019,
+    "channels": 397
+  },
+  {
+    "sensor_type": "Тепловой датчик",
+    "n": 501064,
+    "alarms": 2278,
+    "channels": 472
+  },
+  {
+    "sensor_type": "Состояние охраны",
+    "n": 315661,
+    "alarms": 8097,
+    "channels": 47
+  },
+  {
+    "sensor_type": "ИБП",
+    "n": 125930,
+    "alarms": 22351,
+    "channels": 80
+  },
+  {
+    "sensor_type": "Ручной извещатель",
+    "n": 46070,
+    "alarms": 11768,
+    "channels": 130
+  },
+  {
+    "sensor_type": "КД Люк",
+    "n": 36059,
+    "alarms": 3839,
+    "channels": 55
+  },
+  {
+    "sensor_type": "Стекло",
+    "n": 31687,
+    "alarms": 9619,
+    "channels": 29
+  },
+  {
+    "sensor_type": "Датчик затопления",
+    "n": 12424,
+    "alarms": 3739,
+    "channels": 25
+  },
+  {
+    "sensor_type": "9-секционный люк",
+    "n": 502,
+    "alarms": 87,
+    "channels": 9
+  }
+]

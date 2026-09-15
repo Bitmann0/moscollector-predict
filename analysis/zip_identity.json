@@ -1,0 +1,57 @@
+[
+  {
+    "file": "ext-journal-2019.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2020.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2021.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2022.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2023.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2024.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2025.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "ext-journal-2026.7z",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "журнал_событий_пример.csv",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "справочник_каналов_датчиков.csv",
+    "size_match": true,
+    "crc_match": true
+  },
+  {
+    "file": "справочник_объектов_диспетчер.csv",
+    "size_match": true,
+    "crc_match": true
+  }
+]
