@@ -210,12 +210,28 @@ def main() -> None:
                  if c.startswith("nbr_") or c == "val_minus_seg_mean"]
     base_cols = [c for c in feats.columns if c not in peer_cols + spat_cols]
 
-    evaluate("B3", feats, lab, splits, cols=base_cols, note="LightGBM без peer/spatial")
-    evaluate("B4", feats, lab, splits, cols=base_cols + peer_cols, note="+ peer-relative")
-    best = evaluate("B5", feats, lab, splits, note="+ пространственные")
-    evaluate("B7", feats, lab, splits,
-             params={"n_estimators": 1200, "learning_rate": 0.02, "num_leaves": 127},
-             note="долгое обучение")
+    # Ступень наращивается от лучшей предыдущей, а не от фиксированного набора:
+    # иначе долгое обучение достаётся конфигурации, уже отклонённой замером.
+    ladder = {}
+    ladder["B3"] = (base_cols,
+                    evaluate("B3", feats, lab, splits, cols=base_cols,
+                             note="LightGBM без peer/spatial"))
+    ladder["B4"] = (base_cols + peer_cols,
+                    evaluate("B4", feats, lab, splits, cols=base_cols + peer_cols,
+                             note="+ peer-relative"))
+    ladder["B5"] = (None, evaluate("B5", feats, lab, splits, note="+ пространственные"))
+
+    winner = max(ladder, key=lambda k: _score(ladder[k][1]["mean"]))
+    cols_best = ladder[winner][0]
+    print(f"  -> лучший набор признаков: {winner}", flush=True)
+
+    best = evaluate("B6", feats, lab, splits, cols=cols_best,
+                    params={"n_estimators": 1200, "learning_rate": 0.02,
+                            "num_leaves": 127},
+                    note=f"долгое обучение на наборе {winner}")
+    if _score(best["mean"]) < _score(ladder[winner][1]["mean"]):
+        print("  B6 не побил предыдущую ступень — откат к ней", flush=True)
+        best = ladder[winner][1]
 
     print("\n=== топ-20 признаков по gain (B5) ===", flush=True)
     print(train.importance(best["model"], best["feature_names"], top=20).to_pandas()

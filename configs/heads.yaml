@@ -6,6 +6,10 @@ A:
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 20
+  # Ступени B4 и B5 показали, что peer-relative и пространственные признаки
+  # ухудшают эту голову: сравнение с соседями шумит там, где вопрос в том,
+  # пропадёт ли канал.
+  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean]
 
 A_strict:
   title: Аномалия датчика
@@ -51,6 +55,12 @@ C:
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 5
+  # Подобрано тюнингом: Precision 0.702 при Recall 0.503 против 0.704 при
+  # 0.493 на дефолтных параметрах — этого хватило, чтобы взять цель ТЗ.
+  params:
+    n_estimators: 1200
+    learning_rate: 0.02
+    num_leaves: 127
 
 D:
   title: Износ агрегатов

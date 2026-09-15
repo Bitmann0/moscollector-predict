@@ -58,13 +58,24 @@ def load_labels(head: str, cfg: dict) -> pl.DataFrame:
     return df
 
 
+def _apply_feature_policy(feats: pl.DataFrame, cfg: dict) -> pl.DataFrame:
+    """Убрать семейства признаков, отклонённые лестницей для этой головы."""
+    drop = cfg.get("drop_feature_prefixes") or []
+    if not drop:
+        return feats
+    keep = [c for c in feats.columns if not any(c.startswith(p) for p in drop)]
+    return feats.select(keep)
+
+
 def evaluate_head(head: str, cfg: dict) -> dict | None:
     lab = load_labels(head, cfg)
-    feats = store.read_slice(cfg["feature_set"], WINDOW_START, HOLDOUT_END)
+    feats = _apply_feature_policy(
+        store.read_slice(cfg["feature_set"], WINDOW_START, HOLDOUT_END), cfg)
     train_end = VAL_START - dt.timedelta(days=cfg["embargo_days"] + 1)
 
     fit = train.run(head, feats, lab,
                     [Split(WINDOW_START, train_end, VAL_START, VAL_END)],
+                    params=cfg.get("params"),
                     budget_per_day=cfg["budget_per_day"])
     if fit["model"] is None:
         print(f"{head:8} обучить не удалось — пропуск", flush=True)

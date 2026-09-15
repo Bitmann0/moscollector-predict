@@ -45,6 +45,21 @@ def test_feature_columns_excludes_keys_and_target():
     assert set(cols) == {"x", "noise"}
 
 
+def test_all_backends_learn_the_same_signal():
+    """Смена семейства бустинга не должна ломать интерфейс обучения."""
+    days, feats, labels = _dataset()
+    splits = cv.walk_forward(days, n_splits=1, test_days=30, embargo_days=31)
+    for backend, params in [("lgbm", {"n_estimators": 40}),
+                            ("xgb", {"n_estimators": 40}),
+                            ("cat", {"iterations": 40})]:
+        out = train.run("test", feats, labels, splits, params=params,
+                        budget_per_day=5, backend=backend)
+        assert out["mean"]["pr_auc"] > 0.5, backend
+        assert out["backend"] == backend
+        top = train.importance(out["model"], out["feature_names"], top=1)
+        assert top["feature"][0] == "x", backend
+
+
 def test_importance_ranks_the_informative_feature_first():
     days, feats, labels = _dataset()
     splits = cv.walk_forward(days, n_splits=1, test_days=30, embargo_days=31)

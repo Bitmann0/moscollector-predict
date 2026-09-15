@@ -51,6 +51,8 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
 
     feats = (store.latest_snapshot(cfg["feature_set"]) if asof is None
              else store.read_slice(cfg["feature_set"], asof, asof))
+    # Порядок и состав колонок берутся из артефакта модели, а не из фичестора:
+    # так лишний признак, добавленный позже, не сдвинет вектор на инференсе.
     missing = [c for c in art["features"] if c not in feats.columns]
     if missing:
         raise ValueError(
