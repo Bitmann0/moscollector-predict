@@ -58,7 +58,7 @@ def test_feature_value_does_not_change_when_future_rows_added():
         _daily_table(con)
         for d, n in days:
             _insert(con, d, n)
-        compute.build_all(con, with_weather=False)
+        compute.build_all(con, with_weather=False, with_episode_history=False)
         v = con.execute(
             "SELECT n_events_w7 FROM feat_ext WHERE day = DATE '2025-01-01'"
         ).fetchone()[0]
@@ -76,7 +76,7 @@ def test_lifecycle_feature_does_not_change_when_future_rows_added():
         _daily_table(con)
         for d, n in days:
             _insert(con, d, n)
-        compute.build_all(con, with_weather=False)
+        compute.build_all(con, with_weather=False, with_episode_history=False)
         v = con.execute(
             "SELECT cum_events FROM feat_ext WHERE day = DATE '2025-01-01'"
         ).fetchone()[0]
@@ -91,7 +91,7 @@ def test_object_aggregation_sums_channels():
     _daily_table(con)
     _insert(con, "2025-01-01", 10, ch=1, picket=10.0)
     _insert(con, "2025-01-01", 20, ch=2, picket=20.0)
-    compute.build_all(con, with_weather=False)
+    compute.build_all(con, with_weather=False, with_episode_history=False)
     compute.build_object_level(con)
     row = con.execute(
         "SELECT n_channels, n_events FROM feat_object"
@@ -105,7 +105,7 @@ def test_segment_aggregation_splits_by_kilometre():
     _daily_table(con)
     _insert(con, "2025-01-01", 10, ch=1, picket=5.0)
     _insert(con, "2025-01-01", 20, ch=2, picket=95.0)
-    compute.build_all(con, with_weather=False)
+    compute.build_all(con, with_weather=False, with_episode_history=False)
     compute.build_segment_level(con)
     got = dict(con.execute("SELECT seg, n_events FROM feat_segment").fetchall())
     assert got == {0: 10, 9: 20}

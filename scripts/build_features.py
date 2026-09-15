@@ -9,10 +9,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 t0 = time.time()
 con = db.connect()
-con.execute(
-    "CREATE VIEW daily_channel AS SELECT * FROM read_parquet("
-    f"'{PATHS.interim / 'daily_channel.parquet'}')"
-)
+db.attach_parquet(con, "daily_channel", "episodes", "group_outages")
 
 compute.build_all(con)
 print(f"фичи канала построены [{time.time() - t0:.0f}s]", flush=True)

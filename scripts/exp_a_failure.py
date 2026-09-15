@@ -39,11 +39,10 @@ def load_labels(window_start: dt.date, variant: str,
     return df
 
 
-def load_features(window_start: dt.date, stride: int = 1) -> pl.DataFrame:
-    f = store.read_slice("sensor", window_start, TRAIN_END)
-    if stride > 1:
-        f = f.filter(pl.col("day").dt.ordinal_day() % stride == 0)
-    return f
+def load_features(window_start: dt.date) -> pl.DataFrame:
+    """Без прореживания суток: оно режет и без того редкие позитивы и делает
+    сравнение конфигураций неотличимым от шума."""
+    return store.read_slice("sensor", window_start, TRAIN_END)
 
 
 def evaluate(step: str, feats, lab, splits, params=None, cols=None,
@@ -62,9 +61,16 @@ def evaluate(step: str, feats, lab, splits, params=None, cols=None,
     return out
 
 
+# Тестовые окна по 90 суток, а не по 30: при базовой ставке 0,06% в 30-суточном
+# окне оказывается пара десятков позитивов, и PR-AUC на них шумит сильнее, чем
+# отличаются сравниваемые конфигурации — первые прогоны давали противоположные
+# ответы на один и тот же вопрос.
+TEST_DAYS = 90
+
+
 def make_splits(lab: pl.DataFrame, n_splits: int = 3) -> list:
     days = sorted(lab["day"].unique().to_list())
-    return cv.walk_forward(days, n_splits=n_splits, test_days=30,
+    return cv.walk_forward(days, n_splits=n_splits, test_days=TEST_DAYS,
                            embargo_days=EMBARGO_DAYS)
 
 
@@ -73,8 +79,8 @@ def main() -> None:
     e0 = {}
     for name, start in [("2019+", dt.date(2019, 1, 1)), ("2023+", dt.date(2023, 1, 1))]:
         lab = load_labels(start, "L3")
-        feats = load_features(start, stride=3)
-        out = evaluate("E0", feats, lab, make_splits(lab, 2), note=f"окно {name}",
+        feats = load_features(start)
+        out = evaluate("E0", feats, lab, make_splits(lab, 3), note=f"окно {name}",
                        params={"n_estimators": 200}, extra={"window": name})
         e0[name] = out["mean"].get("pr_auc", float("nan"))
         del feats, lab
@@ -85,13 +91,13 @@ def main() -> None:
     print("Сравнение по lift, а не по PR-AUC: у меток разная базовая ставка,", flush=True)
     print("и PR-AUC между ними несравним напрямую.", flush=True)
     e1 = {}
-    feats_s = load_features(window_start, stride=3)
+    feats_s = load_features(window_start)
     for variant in ("L1", "L2", "L3", "L4", "L5", "L6"):
         lab = load_labels(window_start, variant)
         if lab["y"].sum() == 0:
             print(f"  {variant}: позитивов нет, пропуск", flush=True)
             continue
-        out = evaluate("E1", feats_s, lab, make_splits(lab, 2), note=f"метка {variant}",
+        out = evaluate("E1", feats_s, lab, make_splits(lab, 3), note=f"метка {variant}",
                        params={"n_estimators": 200}, extra={"variant": variant})
         e1[variant] = out["mean"].get("lift_at_k", float("nan"))
 
@@ -115,7 +121,7 @@ def main() -> None:
             if lab_h.is_empty() or lab_h["y"].sum() == 0:
                 continue
             tag = f"{horizon} сут, {'только отказывавшие' if eligible else 'все каналы'}"
-            out = evaluate("E2", feats_s, lab_h, make_splits(lab_h, 2), note=tag,
+            out = evaluate("E2", feats_s, lab_h, make_splits(lab_h, 3), note=tag,
                            params={"n_estimators": 200},
                            extra={"horizon_days": horizon, "eligible_only": eligible})
             m = out["mean"]

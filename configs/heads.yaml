@@ -7,6 +7,15 @@ A:
   embargo_days: 31
   budget_per_day: 20
 
+A_deg:
+  title: Деградация датчика
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_degradation
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 30
+
 A_prime:
   title: Массовый отказ объекта
   entity: [obj, day]

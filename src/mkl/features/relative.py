@@ -115,8 +115,10 @@ def add_spatial_features(con: duckdb.DuckDBPyConnection, radius_seg: int = 1) ->
            ({sum_expr('seg_alarms')}) - p.n_alarms AS nbr_alarms,
            ({sum_expr('seg_fire')})   - p.n_fire   AS nbr_fire,
            ({sum_expr('seg_channels')}) - 1        AS nbr_channels,
-           greatest({', '.join(f'coalesce(s{i}.seg_val_max, -1e9)' for i in range(n))})
-             AS nbr_val_max,
+           -- nullif убирает сентинел: без него отсутствие соседей попало бы
+           -- в модель как настоящее значение -1e9.
+           nullif(greatest({', '.join(f'coalesce(s{i}.seg_val_max, -1e9)' for i in range(n))}),
+                  -1e9) AS nbr_val_max,
            CASE WHEN p.val_mean IS NOT NULL AND s{radius_seg}.seg_val_mean IS NOT NULL
                 THEN p.val_mean - s{radius_seg}.seg_val_mean END AS val_minus_seg_mean
     FROM feat_peer p

@@ -66,6 +66,14 @@ def test_spatial_ignores_distant_segment(con):
     assert got[1] == 0
 
 
+def test_nbr_val_max_is_null_without_neighbours(con):
+    """Отсутствие соседей должно быть NULL, а не числовым сентинелом."""
+    _row(con, 1, "2025-01-01", 10.0, val_max=None)
+    relative.add_peer_features(con)
+    relative.add_spatial_features(con, radius_seg=1)
+    assert con.execute("SELECT nbr_val_max FROM feat_spatial").fetchone()[0] is None
+
+
 def test_age_days_counts_from_first_seen(con):
     _row(con, 1, "2025-01-01", 10.0)
     _row(con, 1, "2025-01-11", 10.0)

@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-15T14:57:38'
+  built_at: '2026-09-15T15:05:04'
   columns:
   - n_channels
   - n_events
@@ -86,7 +86,7 @@ object:
   n_rows: 162294
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-15T14:57:41'
+  built_at: '2026-09-15T15:05:10'
   columns:
   - n_channels
   - n_events
@@ -155,7 +155,7 @@ segment:
   n_rows: 1091219
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-15T14:57:35'
+  built_at: '2026-09-15T15:04:57'
   columns:
   - stype
   - sys
@@ -243,6 +243,10 @@ sensor:
   - n_duty_cycles_w30
   - cum_duty_cycles
   - days_since_prior_failure
+  - n_prior_episodes
+  - days_since_prior_episode
+  - episodes_per_year
+  - bad_days_per_year
   - dow
   - month
   - is_weekend
@@ -262,6 +266,7 @@ sensor:
     alarm_rate: DOUBLE
     alarms_accel: DOUBLE
     bad_accel: DOUBLE
+    bad_days_per_year: DOUBLE
     ch: BIGINT
     chatter_rate: DOUBLE
     cum_alarms: HUGEINT
@@ -270,10 +275,12 @@ sensor:
     day: DATE
     days_since_last_alarm: BIGINT
     days_since_last_bad: BIGINT
+    days_since_prior_episode: BIGINT
     days_since_prior_failure: BIGINT
     dow: BIGINT
     doy_cos: DOUBLE
     doy_sin: DOUBLE
+    episodes_per_year: DOUBLE
     events_accel: DOUBLE
     events_vs_own_w30: DOUBLE
     events_z_own_w30: DOUBLE
@@ -309,6 +316,7 @@ sensor:
     n_fire: BIGINT
     n_intrusion: BIGINT
     n_ok: BIGINT
+    n_prior_episodes: HUGEINT
     n_prior_failures: HUGEINT
     n_transitions: BIGINT
     n_transitions_w30: HUGEINT

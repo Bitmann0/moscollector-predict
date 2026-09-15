@@ -7,6 +7,7 @@ def build_all(con: duckdb.DuckDBPyConnection,
               windows: tuple[int, ...] = (7, 30),
               radius_seg: int = 1,
               with_weather: bool = True,
+              with_episode_history: bool = True,
               source: str = "daily_channel") -> None:
     """Единственный путь получения фич — и на обучении, и на инференсе.
 
@@ -18,7 +19,11 @@ def build_all(con: duckdb.DuckDBPyConnection,
     relative.add_spatial_features(con, radius_seg=radius_seg)
     relative.add_object_context(con)
     lifecycle.add_lifecycle_features(con, source="feat_objctx")
-    external.add_calendar(con)
+    if with_episode_history:
+        lifecycle.add_episode_history(con, source="feat_full")
+        external.add_calendar(con, source="feat_ephist")
+    else:
+        external.add_calendar(con, source="feat_full")
     # Вызывается всегда: без кэша погоды колонки создаются пустыми, чтобы схема
     # фичестора не зависела от доступности внешнего источника.
     if with_weather:

@@ -1,5 +1,48 @@
 import duckdb
 
+from ..config import MAX_FAILURE_DURATION_S, MIN_FAILURE_DURATION_S
+
+
+def add_episode_history(con: duckdb.DuckDBPyConnection,
+                        source: str = "feat_full") -> None:
+    """История ЗАВЕРШЁННЫХ отказных эпизодов канала.
+
+    Не циркулярно: считаются только эпизоды, закончившиеся не позже текущих
+    суток, а метка спрашивает про эпизоды, начинающиеся строго позже. Канал,
+    отказывавший пять раз за год, заметно вероятнее откажет снова — без этого
+    признака модель вынуждена выводить склонность к отказам из сырых счётчиков.
+    """
+    con.execute(f"""
+    CREATE OR REPLACE TABLE _ep_ends AS
+    SELECT ch, CAST(t_end AS DATE) AS day, count(*) AS n_ep
+    FROM episodes
+    WHERE dur_s >= {MIN_FAILURE_DURATION_S} AND dur_s <= {MAX_FAILURE_DURATION_S}
+      AND NOT is_group
+    GROUP BY ch, CAST(t_end AS DATE)
+    """)
+    con.execute(f"""
+    CREATE OR REPLACE TABLE feat_ephist AS
+    WITH j AS (
+      SELECT f.*, coalesce(e.n_ep, 0) AS ep_today
+      FROM {source} f
+      LEFT JOIN _ep_ends e ON e.ch = f.ch AND e.day = f.day
+    )
+    SELECT * EXCLUDE (ep_today),
+           sum(ep_today) OVER hist AS n_prior_episodes,
+           date_diff('day',
+             max(CASE WHEN ep_today > 0 THEN day END) OVER hist,
+             day) AS days_since_prior_episode,
+           CASE WHEN age_days > 30
+                THEN 365.0 * sum(ep_today) OVER hist / age_days
+                END AS episodes_per_year,
+           CASE WHEN age_days > 30
+                THEN 365.0 * n_prior_failures / age_days
+                END AS bad_days_per_year
+    FROM j
+    WINDOW hist AS (PARTITION BY ch ORDER BY day
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+    """)
+
 
 def add_lifecycle_features(con: duckdb.DuckDBPyConnection,
                            source: str = "feat_spatial") -> None:

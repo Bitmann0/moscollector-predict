@@ -62,7 +62,8 @@ def _emit(con: duckdb.DuckDBPyConnection, table: str, events_sql: str,
     """)
 
 
-def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1) -> None:
+def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1,
+                         table: str = "label_failure") -> None:
     """L1 любой Неисправен; L2 эпизод >= 1 ч; L3 = L2 без групповых;
     L4 молчание суток при живом канале; L5 = L6 объединить L4;
     L6 = L3 с требованием, что канал был жив и эпизод не превратился в списание."""
@@ -80,7 +81,19 @@ def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1) -> Non
           SELECT ch AS eid, CAST(t_start AS DATE) AS event_day FROM episodes
           WHERE {_VARIANT_FILTER[variant]}
         """
-    _emit(con, "label_failure", events, "ch", horizon_days)
+    _emit(con, table, events, "ch", horizon_days)
+
+
+def build_sensor_degradation(con, horizon_days: int = 1) -> None:
+    """Деградация датчика: переход в состояние неисправности в ближайшие сутки.
+
+    ТЗ прямо называет основой прогноза «анализ паттернов ложных сработок и
+    частоты шума», а это ровно дребезг `Неисправен`: 1,81 млн мгновенных
+    эпизодов из 1,86 млн. Отдельная от устойчивого отказа цель: дребезг —
+    повод включить датчик в план обслуживания, отказ — повод выехать сейчас.
+    """
+    build_sensor_failure(con, variant="L1", horizon_days=horizon_days,
+                         table="label_degradation")
 
 
 def build_group_outage(con, horizon_days: int = 1) -> None:

@@ -16,6 +16,7 @@ TRAIN_END = HOLDOUT_START - dt.timedelta(days=1)
 WINDOW_START = dt.date(2023, 1, 1)
 
 BUILDERS = {
+    "A_deg": labels.build_sensor_degradation,
     "A_prime": labels.build_group_outage,
     "B": labels.build_fire,
     "C": labels.build_intrusion,
@@ -73,7 +74,10 @@ def run_head(head: str, cfg: dict) -> None:
           f"P@k={m.get('precision_at_k', float('nan')):.3f}  "
           f"R@k={m.get('recall_at_k', float('nan')):.3f}  "
           f"lift={m.get('lift_at_k', float('nan')):.1f}  "
-          f"позитивов={m.get('n_pos', 0):,}", flush=True)
+          f"maxP={m.get('op_precision', float('nan')):.3f}@R="
+          f"{m.get('op_recall', float('nan')):.3f}  "
+          f"позитивов={m.get('n_pos', 0):,}  "
+          f"база={m.get('base_rate', float('nan')):.4f}", flush=True)
 
     if out["model"] is not None:
         print("   топ-10 признаков: " + ", ".join(
@@ -83,7 +87,7 @@ def run_head(head: str, cfg: dict) -> None:
 
 def main() -> None:
     heads = serve.load_heads()
-    for head in ("A_prime", "B", "C", "D"):
+    for head in ("A_deg", "A_prime", "B", "C", "D"):
         print(flush=True)
         run_head(head, heads[head])
 
