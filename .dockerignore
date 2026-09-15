@@ -1,6 +1,7 @@
 .git
 .github
 .venv
+.venv-ml
 __pycache__
 .pytest_cache
 .ruff_cache
@@ -8,6 +9,11 @@ __pycache__
 *.zip
 *.7z
 data/raw
+data/processed
+data/models
+analysis/extracted
+analysis/duckdb_tmp
+analysis/*.duckdb*
 data/*.db
 docs/source
 tests

@@ -1,0 +1,8 @@
+# Direct dependency versions used by the first recorded-signal experiment (Python 3.12).
+-e .[ml]
+numpy==2.5.3
+pandas==2.3.3
+scikit-learn==1.9.1
+joblib==1.6.0
+duckdb==1.5.5
+py7zr==1.1.3
