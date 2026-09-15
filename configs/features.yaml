@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-15T14:50:43'
+  built_at: '2026-09-15T14:57:38'
   columns:
   - n_channels
   - n_events
@@ -86,7 +86,7 @@ object:
   n_rows: 162294
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-15T14:50:47'
+  built_at: '2026-09-15T14:57:41'
   columns:
   - n_channels
   - n_events
@@ -155,7 +155,7 @@ segment:
   n_rows: 1091219
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-15T14:50:39'
+  built_at: '2026-09-15T14:57:35'
   columns:
   - stype
   - sys
@@ -222,6 +222,20 @@ sensor:
   - nbr_channels
   - nbr_val_max
   - val_minus_seg_mean
+  - obj_n_channels
+  - obj_n_bad
+  - obj_n_alarms
+  - obj_n_events
+  - obj_n_bad_w7
+  - obj_n_bad_w30
+  - obj_n_alarms_w7
+  - obj_channels_bad
+  - obj_frac_bad
+  - obj_silence_z_mean
+  - obj_silence_z_max
+  - obj_days_since_bad_mean
+  - share_obj_alarms
+  - share_obj_bad
   - age_days
   - cum_events
   - cum_alarms
@@ -305,6 +319,18 @@ sensor:
     nbr_fire: HUGEINT
     nbr_val_max: DOUBLE
     obj: VARCHAR
+    obj_channels_bad: BIGINT
+    obj_days_since_bad_mean: DOUBLE
+    obj_frac_bad: DOUBLE
+    obj_n_alarms: HUGEINT
+    obj_n_alarms_w7: HUGEINT
+    obj_n_bad: HUGEINT
+    obj_n_bad_w30: HUGEINT
+    obj_n_bad_w7: HUGEINT
+    obj_n_channels: BIGINT
+    obj_n_events: HUGEINT
+    obj_silence_z_max: DOUBLE
+    obj_silence_z_mean: DOUBLE
     pareto_rank_obj: BIGINT
     peer_count: BIGINT
     peer_mean_bad: DOUBLE
@@ -317,6 +343,8 @@ sensor:
     picket: DOUBLE
     precip_mm: DOUBLE
     seg: INTEGER
+    share_obj_alarms: DOUBLE
+    share_obj_bad: DOUBLE
     silence_ratio: DOUBLE
     silence_z: DOUBLE
     snow_depth_cm: DOUBLE

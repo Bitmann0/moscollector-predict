@@ -22,7 +22,8 @@ DEFAULT_PARAMS = {
 
 KEYS = ("ch", "obj", "seg", "day")
 METRIC_KEYS = ("pr_auc", "precision_at_k", "recall_at_k", "lift_at_k",
-               "precision", "recall", "brier", "base_rate")
+               "precision", "recall", "brier", "base_rate",
+               "op_precision", "op_recall", "op_k")
 
 
 def feature_columns(df: pl.DataFrame) -> list[str]:
@@ -72,6 +73,7 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
     if folds:
         mean["n_pos"] = int(np.sum([f["n_pos"] for f in folds]))
         mean["n"] = int(np.sum([f["n"] for f in folds]))
+        mean["op_feasible_folds"] = int(sum(f["op_feasible"] for f in folds))
     return {"head": head, "folds": folds, "mean": mean,
             "model": model, "feature_names": cols}
 

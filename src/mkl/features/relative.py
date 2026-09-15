@@ -37,6 +37,48 @@ def add_peer_features(con: duckdb.DuckDBPyConnection, source: str = "feat_base")
     """)
 
 
+def add_object_context(con: duckdb.DuckDBPyConnection,
+                       source: str = "feat_spatial") -> None:
+    """Состояние объекта как контекст для отдельного канала.
+
+    86% отказов в данных — групповые: падает концентратор, линия или питание.
+    Значит вероятность отказа конкретного канала сильнее всего зависит от того,
+    что происходит с его объектом, а не только с ним самим.
+    """
+    con.execute(f"""
+    CREATE OR REPLACE TABLE obj_daily AS
+    SELECT obj, day,
+           count(*)                                   AS obj_n_channels,
+           sum(n_bad)                                 AS obj_n_bad,
+           sum(n_alarms)                              AS obj_n_alarms,
+           sum(n_events)                              AS obj_n_events,
+           sum(n_bad_w7)                              AS obj_n_bad_w7,
+           sum(n_bad_w30)                             AS obj_n_bad_w30,
+           sum(n_alarms_w7)                           AS obj_n_alarms_w7,
+           count(*) FILTER (WHERE n_bad > 0)          AS obj_channels_bad,
+           avg(CAST(n_bad > 0 AS DOUBLE))             AS obj_frac_bad,
+           avg(silence_z)                             AS obj_silence_z_mean,
+           max(silence_z)                             AS obj_silence_z_max,
+           avg(days_since_last_bad)                   AS obj_days_since_bad_mean
+    FROM {source} WHERE obj IS NOT NULL
+    GROUP BY obj, day
+    """)
+    con.execute(f"""
+    CREATE OR REPLACE TABLE feat_objctx AS
+    SELECT s.*,
+           o.obj_n_channels, o.obj_n_bad, o.obj_n_alarms, o.obj_n_events,
+           o.obj_n_bad_w7, o.obj_n_bad_w30, o.obj_n_alarms_w7,
+           o.obj_channels_bad, o.obj_frac_bad,
+           o.obj_silence_z_mean, o.obj_silence_z_max, o.obj_days_since_bad_mean,
+           CASE WHEN o.obj_n_alarms > 0
+                THEN CAST(s.n_alarms AS DOUBLE) / o.obj_n_alarms END AS share_obj_alarms,
+           CASE WHEN o.obj_n_bad > 0
+                THEN CAST(s.n_bad AS DOUBLE) / o.obj_n_bad END AS share_obj_bad
+    FROM {source} s
+    LEFT JOIN obj_daily o ON o.obj = s.obj AND o.day = s.day
+    """)
+
+
 def add_spatial_features(con: duckdb.DuckDBPyConnection, radius_seg: int = 1) -> None:
     """Соседство по пикетам через сегментные агрегаты.
 

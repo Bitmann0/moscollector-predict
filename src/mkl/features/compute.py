@@ -16,7 +16,8 @@ def build_all(con: duckdb.DuckDBPyConnection,
     base.add_rolling_windows(con, windows=windows, source=source)
     relative.add_peer_features(con)
     relative.add_spatial_features(con, radius_seg=radius_seg)
-    lifecycle.add_lifecycle_features(con)
+    relative.add_object_context(con)
+    lifecycle.add_lifecycle_features(con, source="feat_objctx")
     external.add_calendar(con)
     # Вызывается всегда: без кэша погоды колонки создаются пустыми, чтобы схема
     # фичестора не зависела от доступности внешнего источника.

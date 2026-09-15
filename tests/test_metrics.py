@@ -44,6 +44,53 @@ def test_lift_is_one_for_random_ranking():
     assert metrics.lift(y, p, k=1000) == pytest.approx(1.0, abs=0.25)
 
 
+def test_target_operating_point_found_for_perfect_ranking():
+    y = np.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+    p = np.array([0.9, 0.8, 0.7, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+    out = metrics.target_operating_point(y, p, min_precision=0.7)
+    assert out["feasible"]
+    assert out["precision"] >= 0.7
+    assert out["recall"] == pytest.approx(1.0)
+
+
+def test_target_operating_point_infeasible_for_random_ranking():
+    rng = np.random.default_rng(7)
+    y = (rng.random(5000) < 0.01).astype(int)
+    p = rng.random(5000)
+    out = metrics.target_operating_point(y, p, min_precision=0.7)
+    assert not out["feasible"]
+    assert "max_precision" in out
+
+
+def test_target_operating_point_maximises_recall_under_constraint():
+    y = np.array([1, 1, 0, 1, 0, 0, 0, 0])
+    p = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2])
+    out = metrics.target_operating_point(y, p, min_precision=0.7)
+    assert out["feasible"]
+    assert out["k"] == 4, "берём самую глубокую точку, где точность ещё держится"
+    assert out["recall"] == pytest.approx(1.0)
+
+
+def test_target_operating_point_handles_no_positives():
+    assert not metrics.target_operating_point(np.zeros(10), np.random.rand(10))["feasible"]
+
+
+def test_budget_curve_precision_falls_as_budget_grows():
+    rng = np.random.default_rng(3)
+    y = (rng.random(5000) < 0.05).astype(int)
+    p = np.clip(y * 0.6 + rng.normal(0, 0.2, 5000), 0, 1)
+    curve = metrics.budget_curve(y, p, (10, 100, 1000))
+    assert [c["budget"] for c in curve] == [10, 100, 1000]
+    assert curve[0]["precision"] >= curve[-1]["precision"]
+    assert curve[0]["recall"] <= curve[-1]["recall"]
+
+
+def test_budget_curve_skips_budgets_larger_than_data():
+    y = np.array([0, 1, 0, 1])
+    p = np.array([0.1, 0.9, 0.2, 0.8])
+    assert [c["budget"] for c in metrics.budget_curve(y, p, (2, 99))] == [2]
+
+
 def test_summary_reports_required_keys():
     y = np.array([0, 1, 0, 1])
     p = np.array([0.2, 0.8, 0.3, 0.7])

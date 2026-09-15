@@ -18,9 +18,13 @@ _VARIANT_FILTER = {
     "L6": f"dur_s >= {MIN_FAILURE_DURATION_S} AND NOT is_group AND {_ALIVE}",
 }
 
+# Событием считается ПЕРВЫЕ пропущенные сутки, а не день возобновления работы:
+# иначе при горизонте 24 ч метка не может сработать в принципе, ведь разрыв по
+# определению длится не меньше двух суток.
 _SILENCE_SQL = """
-  SELECT ch AS eid, day AS event_day FROM (
+  SELECT ch AS eid, prev_day + INTERVAL 1 DAY AS event_day FROM (
     SELECT ch, day,
+           lag(day) OVER (PARTITION BY ch ORDER BY day) AS prev_day,
            date_diff('day', lag(day) OVER (PARTITION BY ch ORDER BY day), day) AS gap_days,
            count(*) OVER (PARTITION BY ch ORDER BY day
                           RANGE BETWEEN INTERVAL 30 DAY PRECEDING AND CURRENT ROW) AS recent_days
@@ -41,17 +45,20 @@ def _emit(con: duckdb.DuckDBPyConnection, table: str, events_sql: str,
     иначе фичи, посчитанные на конец day, увидели бы собственную метку.
     """
     base = base_sql or f"SELECT DISTINCT {entity} AS eid, day FROM daily_channel"
+    # Целевые события материализуются отдельной таблицей: коррелированный EXISTS
+    # над CTE с оконными функциями DuckDB считает неверно и молча отдаёт ноль.
+    con.execute(f"CREATE OR REPLACE TEMP TABLE _tgt AS SELECT DISTINCT eid, event_day FROM ({events_sql})")
+    con.execute(f"CREATE OR REPLACE TEMP TABLE _base AS {base}")
     con.execute(f"""
     CREATE OR REPLACE TABLE {table} AS
-    WITH base AS ({base}), tgt AS ({events_sql})
     SELECT b.eid AS {entity}, b.day,
-           CASE WHEN EXISTS (
-             SELECT 1 FROM tgt t
-             WHERE t.eid = b.eid
-               AND t.event_day >  b.day
-               AND t.event_day <= b.day + INTERVAL {horizon_days} DAY
-           ) THEN 1 ELSE 0 END AS y
-    FROM base b
+           CASE WHEN count(t.eid) > 0 THEN 1 ELSE 0 END AS y
+    FROM _base b
+    LEFT JOIN _tgt t
+      ON t.eid = b.eid
+     AND t.event_day >  b.day
+     AND t.event_day <= b.day + INTERVAL {horizon_days} DAY
+    GROUP BY b.eid, b.day
     """)
 
 

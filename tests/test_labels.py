@@ -88,6 +88,22 @@ def test_L6_accepts_live_channel_with_bounded_episode(con):
     assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 1
 
 
+def test_L4_silence_produces_positives(con):
+    """Канал пропустил сутки после месяца регулярной работы — это молчание."""
+    con.execute("DELETE FROM daily_channel")
+    for d in list(range(1, 16)) + [18, 19, 20]:
+        con.execute(
+            "INSERT INTO daily_channel VALUES (1, ?, 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)",
+            [f"2025-01-{d:02d}"],
+        )
+    labels.build_sensor_failure(con, variant="L4", horizon_days=1)
+    total = con.execute("SELECT sum(y) FROM label_failure").fetchone()[0]
+    assert total > 0, "разрыв 15 -> 18 января обязан дать положительную метку"
+    pos = [str(r[0]) for r in con.execute(
+        "SELECT day FROM label_failure WHERE y=1 ORDER BY day").fetchall()]
+    assert "2025-01-15" in pos
+
+
 def test_horizon_widens_positive_window(con):
     _episode(con, "2025-01-08 03:00:00", "2025-01-08 09:00:00", 21600)
     labels.build_sensor_failure(con, variant="L2", horizon_days=7)

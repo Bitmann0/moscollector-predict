@@ -56,7 +56,9 @@ def evaluate(step: str, feats, lab, splits, params=None, cols=None,
     print(f"  {step:4} {note:32} PR-AUC={m.get('pr_auc', float('nan')):.4f}  "
           f"P@k={m.get('precision_at_k', float('nan')):.3f}  "
           f"R@k={m.get('recall_at_k', float('nan')):.3f}  "
-          f"lift={m.get('lift_at_k', float('nan')):.1f}", flush=True)
+          f"lift={m.get('lift_at_k', float('nan')):.1f}  "
+          f"maxP={m.get('op_precision', float('nan')):.3f}@R="
+          f"{m.get('op_recall', float('nan')):.3f}", flush=True)
     return out
 
 
@@ -103,6 +105,9 @@ def main() -> None:
 
     print("=== E2: горизонт и состав популяции ===", flush=True)
     print("ТЗ требует горизонт НЕ МЕНЕЕ 24 ч, поэтому 3 и 7 суток допустимы.", flush=True)
+    print("Критерий здесь — сама цель ТЗ (достижимая Precision при Recall),", flush=True)
+    print("а не lift: lift штрафует сужение популяции, хотя оно поднимает", flush=True)
+    print("абсолютную точность, которую и требует заказчик.", flush=True)
     e2 = {}
     for horizon in (1, 3, 7):
         for eligible in (False, True):
@@ -113,8 +118,13 @@ def main() -> None:
             out = evaluate("E2", feats_s, lab_h, make_splits(lab_h, 2), note=tag,
                            params={"n_estimators": 200},
                            extra={"horizon_days": horizon, "eligible_only": eligible})
-            e2[(horizon, eligible)] = out["mean"].get("lift_at_k", float("nan"))
-    horizon, eligible = max(e2, key=lambda k: (e2[k] if e2[k] == e2[k] else -1))
+            m = out["mean"]
+            # Приоритет — достижимая точность; PR-AUC как тайбрейк.
+            e2[(horizon, eligible)] = (
+                m.get("op_precision", 0.0) if m.get("op_precision") == m.get("op_precision") else 0.0,
+                m.get("pr_auc", 0.0) if m.get("pr_auc") == m.get("pr_auc") else 0.0,
+            )
+    horizon, eligible = max(e2, key=lambda k: e2[k])
     print(f"  -> выбран горизонт {horizon} сут, "
           f"популяция: {'только отказывавшие' if eligible else 'все каналы'}\n", flush=True)
     del feats_s
