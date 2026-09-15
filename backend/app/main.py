@@ -26,6 +26,13 @@ class FeedbackCreate(BaseModel):
     author: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
 
 
+class RequestTransition(BaseModel):
+    expected_status: Literal["draft", "in_progress", "completed", "cancelled"]
+    status: Literal["in_progress", "completed", "cancelled"]
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=2000)]
+    author: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.load_error = None
@@ -151,6 +158,24 @@ def auto_create_maintenance_requests() -> dict:
         if created:
             created_items.append(item)
     return {"created": len(created_items), "items": created_items}
+
+
+@app.get("/api/v1/maintenance-requests/{request_id}")
+def request_detail(request_id: int) -> dict:
+    try:
+        return app.state.repository.request_detail(request_id)
+    except KeyError as error:
+        raise HTTPException(status_code=404, detail="Заявка не найдена") from error
+
+
+@app.patch("/api/v1/maintenance-requests/{request_id}")
+def transition_request(request_id: int, payload: RequestTransition) -> dict:
+    try:
+        return app.state.repository.transition(request_id, **payload.model_dump())
+    except KeyError as error:
+        raise HTTPException(status_code=404, detail="Заявка не найдена") from error
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 STATIC_DIR = Path(__file__).parent / "static"

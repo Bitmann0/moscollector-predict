@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -13,13 +14,19 @@ class MaintenanceRepository:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self):
         connection = sqlite3.connect(self.path)
         connection.row_factory = sqlite3.Row
-        return connection
+        try:
+            with connection:
+                yield connection
+        finally:
+            connection.close()
 
     def _initialize(self) -> None:
         with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
             connection.execute("""
                 CREATE TABLE IF NOT EXISTS forecast_feedback (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,6 +53,31 @@ class MaintenanceRepository:
                 )
                 """
             )
+            # Migrate the original per-status uniqueness constraint. Closed requests
+            # must not prevent a later maintenance cycle for the same channel.
+            schema = connection.execute(
+                "SELECT sql FROM sqlite_master WHERE name = 'maintenance_requests'"
+            ).fetchone()[0]
+            if "UNIQUE(channel_id, status)" in schema:
+                connection.execute("ALTER TABLE maintenance_requests RENAME TO requests_legacy")
+                connection.execute(schema.replace(
+                    ",\n                    UNIQUE(channel_id, status)", ""
+                ))
+                connection.execute(
+                    "INSERT INTO maintenance_requests SELECT * FROM requests_legacy"
+                )
+                connection.execute("DROP TABLE requests_legacy")
+            connection.execute("""CREATE UNIQUE INDEX IF NOT EXISTS one_active_request
+                ON maintenance_requests(channel_id) WHERE status IN ('draft', 'in_progress')""")
+            connection.execute("""CREATE TABLE IF NOT EXISTS maintenance_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                request_id INTEGER NOT NULL,
+                previous_status TEXT NOT NULL,
+                status TEXT NOT NULL,
+                author TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""")
 
     def list(self) -> list[dict[str, Any]]:
         with self._connect() as connection:
@@ -59,7 +91,8 @@ class MaintenanceRepository:
         with self._connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
             existing = connection.execute(
-                "SELECT * FROM maintenance_requests WHERE channel_id = ? AND status = 'draft'",
+                "SELECT * FROM maintenance_requests WHERE channel_id = ? "
+                "AND status IN ('draft', 'in_progress')",
                 (forecast["channel_id"],),
             ).fetchone()
             if existing:
@@ -83,6 +116,44 @@ class MaintenanceRepository:
                 "SELECT * FROM maintenance_requests WHERE id = ?", (cursor.lastrowid,)
             ).fetchone()
         return dict(row), True
+
+    def request_detail(self, request_id: int) -> dict[str, Any]:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM maintenance_requests WHERE id = ?", (request_id,)
+            ).fetchone()
+            if row is None:
+                raise KeyError(request_id)
+            history = connection.execute(
+                "SELECT * FROM maintenance_history WHERE request_id = ? ORDER BY id",
+                (request_id,),
+            ).fetchall()
+        return {**dict(row), "history": [dict(item) for item in history]}
+
+    def transition(self, request_id: int, expected_status: str, status: str,
+                   author: str, reason: str) -> dict[str, Any]:
+        allowed = {"draft": {"in_progress", "cancelled"},
+                   "in_progress": {"completed", "cancelled"}}
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT status FROM maintenance_requests WHERE id = ?", (request_id,)
+            ).fetchone()
+            if row is None:
+                raise KeyError(request_id)
+            previous = row["status"]
+            if previous != expected_status:
+                raise ValueError("Заявка уже изменена. Обновите данные.")
+            if status not in allowed.get(previous, set()):
+                raise ValueError("Недопустимый переход статуса заявки")
+            connection.execute(
+                "UPDATE maintenance_requests SET status = ? WHERE id = ?", (status, request_id)
+            )
+            connection.execute("""INSERT INTO maintenance_history
+                (request_id, previous_status, status, author, reason, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (request_id, previous, status, author, reason, datetime.now(UTC).isoformat()))
+        return self.request_detail(request_id)
 
     def feedback(self, channel_id: int) -> list[dict[str, Any]]:
         with self._connect() as connection:
