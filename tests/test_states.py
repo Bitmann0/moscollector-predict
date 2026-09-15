@@ -62,6 +62,20 @@ def test_group_outage_flags_simultaneous_channels(con):
     assert solo == [(9,)]
 
 
+def test_gap_before_measures_dormancy(con):
+    """Канал, молчавший полгода, не должен выглядеть как внезапный отказ."""
+    _ins(con, [
+        (1, "2025-01-01 10:00:00", "Норма", "A"),
+        (1, "2025-07-01 10:00:00", "Обесточен", "A"),
+        (2, "2025-01-01 10:00:00", "Норма", "A"),
+        (2, "2025-01-01 11:00:00", "Обесточен", "A"),
+    ])
+    states.build_episodes(con)
+    got = dict(con.execute("SELECT ch, gap_before_s FROM episodes").fetchall())
+    assert got[1] > 180 * 86400
+    assert got[2] == 3600
+
+
 def test_numeric_channels_do_not_produce_episodes(con):
     con.execute(
         "INSERT INTO ev VALUES (1,1,'2025-01-01 10:00:00','2025-01-01',false,"

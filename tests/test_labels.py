@@ -13,7 +13,8 @@ def con():
         n_fire BIGINT, n_intrusion BIGINT, picket DOUBLE)""")
     c.execute("""CREATE TABLE episodes (ch BIGINT, obj VARCHAR, stype VARCHAR,
                  t_start TIMESTAMP, t_end TIMESTAMP, dur_s BIGINT,
-                 n_events BIGINT, states VARCHAR, is_group BOOLEAN)""")
+                 n_events BIGINT, states VARCHAR, gap_before_s BIGINT,
+                 is_group BOOLEAN)""")
     c.execute("""CREATE TABLE group_outages (obj VARCHAR, bucket BIGINT,
                  t_start TIMESTAMP, t_end TIMESTAMP, n_channels BIGINT)""")
     for d in range(1, 11):
@@ -26,9 +27,9 @@ def con():
 
 
 def _episode(c, start, end, dur, is_group=False, states="Обесточен", ch=1,
-             stype="Датчик дыма"):
-    c.execute("INSERT INTO episodes VALUES (?, 'A', ?, ?, ?, ?, 3, ?, ?)",
-              [ch, stype, start, end, dur, states, is_group])
+             stype="Датчик дыма", gap_before_s=600):
+    c.execute("INSERT INTO episodes VALUES (?, 'A', ?, ?, ?, ?, 3, ?, ?, ?)",
+              [ch, stype, start, end, dur, states, gap_before_s, is_group])
 
 
 def test_label_marks_day_before_failure(con):
@@ -60,6 +61,30 @@ def test_L3_excludes_group_episodes(con):
     labels.build_sensor_failure(con, variant="L3", horizon_days=1)
     assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 0
     labels.build_sensor_failure(con, variant="L2", horizon_days=1)
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 1
+
+
+def test_L6_rejects_dormant_channel(con):
+    """Канал молчал полгода — это не отказ, а спящий или списанный канал."""
+    _episode(con, "2025-01-05 03:00:00", "2025-01-05 09:00:00", 21600,
+             gap_before_s=200 * 86400)
+    labels.build_sensor_failure(con, variant="L6", horizon_days=1)
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 0
+    labels.build_sensor_failure(con, variant="L3", horizon_days=1)
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 1
+
+
+def test_L6_rejects_decommissioning_length_episode(con):
+    """Эпизод длиной 200 суток — это вывод из эксплуатации, а не отказ."""
+    _episode(con, "2025-01-05 03:00:00", "2025-07-24 03:00:00", 200 * 86400)
+    labels.build_sensor_failure(con, variant="L6", horizon_days=1)
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 0
+
+
+def test_L6_accepts_live_channel_with_bounded_episode(con):
+    _episode(con, "2025-01-05 03:00:00", "2025-01-05 09:00:00", 21600,
+             gap_before_s=600)
+    labels.build_sensor_failure(con, variant="L6", horizon_days=1)
     assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 1
 
 

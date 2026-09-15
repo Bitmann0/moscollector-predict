@@ -34,6 +34,28 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
         )
     rolling = ",\n           ".join(parts)
 
+    # Признаки ускорения осмысленны только при наличии обоих окон.
+    accel = ""
+    if 7 in windows and 30 in windows:
+        accel = """,
+           -- Отношение сегодняшней активности к собственной базовой линии.
+           -- Аудит 250 отказов показал рост активности перед отказом
+           -- в 54% случаев, поэтому признак задан явно, а не сырыми счётчиками.
+           CASE WHEN n_events_mean_w30 > 0
+                THEN n_events / n_events_mean_w30 END AS events_vs_own_w30,
+           CASE WHEN n_events_std_w30 > 0
+                THEN (n_events - n_events_mean_w30) / n_events_std_w30
+                END AS events_z_own_w30,
+           CASE WHEN n_events_w30 > 0
+                THEN (n_events_w7 / 7.0) / (n_events_w30 / 30.0) END AS events_accel,
+           CASE WHEN n_alarms_w30 > 0
+                THEN (n_alarms_w7 / 7.0) / (n_alarms_w30 / 30.0) END AS alarms_accel,
+           CASE WHEN n_bad_w30 > 0
+                THEN (n_bad_w7 / 7.0) / (n_bad_w30 / 30.0) END AS bad_accel,
+           CASE WHEN n_active_days_w30 > 0
+                THEN CAST(n_active_days_w7 AS DOUBLE) / n_active_days_w30
+                END AS activity_days_ratio"""
+
     con.execute(f"""
     CREATE OR REPLACE TABLE feat_base AS
     WITH r AS (
@@ -74,6 +96,6 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
            CASE WHEN n_events > 0
                 THEN CAST(n_alarms AS DOUBLE) / n_events END AS alarm_rate,
            row_number() OVER (PARTITION BY obj, day ORDER BY n_alarms DESC, ch)
-             AS pareto_rank_obj
+             AS pareto_rank_obj{accel}
     FROM r
     """)

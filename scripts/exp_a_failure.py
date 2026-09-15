@@ -29,7 +29,8 @@ def load_labels(window_start: dt.date, variant: str,
     where = "day >= ? AND day <= ?"
     if eligible_only:
         where += (" AND ch IN (SELECT DISTINCT ch FROM episodes "
-                  "WHERE dur_s >= 3600 AND NOT is_group)")
+                  "WHERE dur_s >= 3600 AND NOT is_group AND dur_s <= 2592000 "
+                  "AND coalesce(gap_before_s, 0) <= 604800)")
     df = con.execute(
         f"SELECT ch, day, y FROM label_failure WHERE {where}",
         [window_start, TRAIN_END],
@@ -79,18 +80,26 @@ def main() -> None:
     print(f"  -> выбрано окно: {window_start}\n", flush=True)
 
     print("=== E1: вариант метки ===", flush=True)
+    print("Сравнение по lift, а не по PR-AUC: у меток разная базовая ставка,", flush=True)
+    print("и PR-AUC между ними несравним напрямую.", flush=True)
     e1 = {}
     feats_s = load_features(window_start, stride=3)
-    for variant in ("L1", "L2", "L3", "L4", "L5"):
+    for variant in ("L1", "L2", "L3", "L4", "L5", "L6"):
         lab = load_labels(window_start, variant)
         if lab["y"].sum() == 0:
             print(f"  {variant}: позитивов нет, пропуск", flush=True)
             continue
         out = evaluate("E1", feats_s, lab, make_splits(lab, 2), note=f"метка {variant}",
                        params={"n_estimators": 200}, extra={"variant": variant})
-        e1[variant] = out["mean"].get("pr_auc", float("nan"))
-    variant = max(e1, key=lambda k: (e1[k] if e1[k] == e1[k] else -1))
-    print(f"  -> выбрана метка: {variant}\n", flush=True)
+        e1[variant] = out["mean"].get("lift_at_k", float("nan"))
+
+    # L1 — это дребезг, а не отказ: p90 длительности 1,8 минуты. Держим его как
+    # референс «деградации», но голова A целится в устойчивый отказ, ради
+    # которого выезжает бригада. L4 — чистое молчание, тоже референс.
+    SUSTAINED = ("L2", "L3", "L5", "L6")
+    pool = {k: v for k, v in e1.items() if k in SUSTAINED}
+    variant = max(pool, key=lambda k: (pool[k] if pool[k] == pool[k] else -1))
+    print(f"  -> выбрана метка: {variant} (референс-метки L1/L4 в журнале)\n", flush=True)
 
     print("=== E2: горизонт и состав популяции ===", flush=True)
     print("ТЗ требует горизонт НЕ МЕНЕЕ 24 ч, поэтому 3 и 7 суток допустимы.", flush=True)
@@ -104,7 +113,7 @@ def main() -> None:
             out = evaluate("E2", feats_s, lab_h, make_splits(lab_h, 2), note=tag,
                            params={"n_estimators": 200},
                            extra={"horizon_days": horizon, "eligible_only": eligible})
-            e2[(horizon, eligible)] = out["mean"].get("pr_auc", float("nan"))
+            e2[(horizon, eligible)] = out["mean"].get("lift_at_k", float("nan"))
     horizon, eligible = max(e2, key=lambda k: (e2[k] if e2[k] == e2[k] else -1))
     print(f"  -> выбран горизонт {horizon} сут, "
           f"популяция: {'только отказывавшие' if eligible else 'все каналы'}\n", flush=True)

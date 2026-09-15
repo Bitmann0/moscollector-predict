@@ -1,11 +1,21 @@
 import duckdb
 
-from .config import EQUIPMENT_STYPES, MIN_FAILURE_DURATION_S
+from .config import (
+    EQUIPMENT_STYPES,
+    MAX_FAILURE_DURATION_S,
+    MAX_GAP_BEFORE_FAILURE_S,
+    MIN_FAILURE_DURATION_S,
+)
+
+# Канал был жив непосредственно перед отказом и отказ не превратился в списание.
+_ALIVE = (f"dur_s <= {MAX_FAILURE_DURATION_S} "
+          f"AND coalesce(gap_before_s, 0) <= {MAX_GAP_BEFORE_FAILURE_S}")
 
 _VARIANT_FILTER = {
     "L1": "states LIKE '%Неисправен%'",
     "L2": f"dur_s >= {MIN_FAILURE_DURATION_S}",
     "L3": f"dur_s >= {MIN_FAILURE_DURATION_S} AND NOT is_group",
+    "L6": f"dur_s >= {MIN_FAILURE_DURATION_S} AND NOT is_group AND {_ALIVE}",
 }
 
 _SILENCE_SQL = """
@@ -47,13 +57,14 @@ def _emit(con: duckdb.DuckDBPyConnection, table: str, events_sql: str,
 
 def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1) -> None:
     """L1 любой Неисправен; L2 эпизод >= 1 ч; L3 = L2 без групповых;
-    L4 молчание суток при живом канале; L5 = L3 объединить L4."""
+    L4 молчание суток при живом канале; L5 = L6 объединить L4;
+    L6 = L3 с требованием, что канал был жив и эпизод не превратился в списание."""
     if variant == "L4":
         events = _SILENCE_SQL
     elif variant == "L5":
         events = f"""
           SELECT ch AS eid, CAST(t_start AS DATE) AS event_day FROM episodes
-          WHERE dur_s >= {MIN_FAILURE_DURATION_S} AND NOT is_group
+          WHERE {_VARIANT_FILTER['L6']}
           UNION ALL
           {_SILENCE_SQL}
         """

@@ -13,7 +13,8 @@ def build_episodes(con: duckdb.DuckDBPyConnection, source: str = "ev") -> None:
     CREATE OR REPLACE TABLE episodes AS
     WITH s AS (
       SELECT ch, obj, stype, ts, val_raw,
-             CASE WHEN val_raw IN {_bad_sql()} THEN 1 ELSE 0 END AS bad
+             CASE WHEN val_raw IN {_bad_sql()} THEN 1 ELSE 0 END AS bad,
+             lag(ts) OVER (PARTITION BY ch ORDER BY ts) AS prev_ts
       FROM {source}
       WHERE val_num IS NULL
     ), g AS (
@@ -30,6 +31,9 @@ def build_episodes(con: duckdb.DuckDBPyConnection, source: str = "ev") -> None:
            CAST(epoch(max(ts)) - epoch(min(ts)) AS BIGINT) AS dur_s,
            count(*)         AS n_events,
            string_agg(DISTINCT val_raw, '|') AS states,
+           -- разрыв до предыдущего события канала: если он огромен, канал уже
+           -- спал и эпизод отражает не отказ, а дремлющий или списанный канал
+           CAST(epoch(min(ts)) - epoch(arg_min(prev_ts, ts)) AS BIGINT) AS gap_before_s,
            false            AS is_group
     FROM g WHERE bad = 1
     GROUP BY ch, grp

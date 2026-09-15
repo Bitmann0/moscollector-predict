@@ -53,5 +53,11 @@ EMBARGO_DAYS = 1 + MAX_FEATURE_WINDOW_DAYS
 EMBARGO_DAYS_WEAR = 7 + MAX_FEATURE_WINDOW_DAYS
 
 MIN_FAILURE_DURATION_S = 3600
+# Эпизод длиннее 30 суток — это не отказ, а вывод канала из эксплуатации.
+MAX_FAILURE_DURATION_S = 30 * 86400
+# Перед отказом канал обязан подавать признаки жизни: если предыдущее событие
+# было больше недели назад, он уже спал и предсказывать тут нечего.
+MAX_GAP_BEFORE_FAILURE_S = 7 * 86400
+
 GROUP_OUTAGE_MIN_CHANNELS = 4
 GROUP_OUTAGE_WINDOW_MIN = 5
