@@ -21,9 +21,11 @@ def build_all(con: duckdb.DuckDBPyConnection,
     lifecycle.add_lifecycle_features(con, source="feat_objctx")
     if with_episode_history:
         lifecycle.add_episode_history(con, source="feat_full")
-        external.add_calendar(con, source="feat_ephist")
+        lifecycle.add_weekday_profile(con, source="feat_ephist")
+        external.add_calendar(con, source="feat_dow")
     else:
-        external.add_calendar(con, source="feat_full")
+        lifecycle.add_weekday_profile(con, source="feat_full")
+        external.add_calendar(con, source="feat_dow")
     # Вызывается всегда: без кэша погоды колонки создаются пустыми, чтобы схема
     # фичестора не зависела от доступности внешнего источника.
     if with_weather:

@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-15T15:40:53'
+  built_at: '2026-09-15T21:55:56'
   columns:
   - n_channels
   - n_events
@@ -86,7 +86,7 @@ object:
   n_rows: 162294
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-15T15:41:06'
+  built_at: '2026-09-15T21:56:01'
   columns:
   - n_channels
   - n_events
@@ -155,7 +155,7 @@ segment:
   n_rows: 1091219
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-15T15:40:43'
+  built_at: '2026-09-15T21:55:51'
   columns:
   - stype
   - sys
@@ -251,6 +251,9 @@ sensor:
   - days_since_prior_episode
   - episodes_per_year
   - bad_days_per_year
+  - dow_active_rate
+  - days_since_same_dow
+  - dow_active_rate_w12
   - dow
   - month
   - is_weekend
@@ -281,7 +284,10 @@ sensor:
     days_since_last_bad: BIGINT
     days_since_prior_episode: BIGINT
     days_since_prior_failure: BIGINT
+    days_since_same_dow: BIGINT
     dow: BIGINT
+    dow_active_rate: DOUBLE
+    dow_active_rate_w12: DOUBLE
     doy_cos: DOUBLE
     doy_sin: DOUBLE
     episodes_per_year: DOUBLE

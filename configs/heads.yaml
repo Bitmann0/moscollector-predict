@@ -10,6 +10,13 @@ A:
   # ухудшают эту голову: сравнение с соседями шумит там, где вопрос в том,
   # пропадёт ли канал.
   drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean]
+  # Подобрано тюнингом на победившем наборе: Recall 0.584 при Precision 0.700
+  # против 0.556 на дефолтных параметрах.
+  params:
+    n_estimators: 800
+    learning_rate: 0.03
+    num_leaves: 255
+    min_child_samples: 200
 
 A_strict:
   title: Аномалия датчика

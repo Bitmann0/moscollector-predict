@@ -44,6 +44,35 @@ def add_episode_history(con: duckdb.DuckDBPyConnection,
     """)
 
 
+def add_weekday_profile(con: duckdb.DuckDBPyConnection,
+                        source: str = "feat_ephist") -> None:
+    """Профиль отчётности канала по дням недели.
+
+    Часть каналов штатно опрашивается не каждый день, и пропуск понедельника
+    у такого канала — норма, а не отказ. Голый признак дня недели этого не
+    различает: нужна доля тех же дней недели в прошлом, когда канал был
+    активен. Счёт накопительный и строго прошлый.
+    """
+    con.execute(f"""
+    CREATE OR REPLACE TABLE feat_dow AS
+    WITH f AS (SELECT ch, min(day) AS fs FROM {source} GROUP BY ch),
+         j AS (
+           SELECT s.*, dayofweek(s.day) AS _dow, f.fs
+           FROM {source} s JOIN f ON f.ch = s.ch
+         )
+    SELECT * EXCLUDE (_dow, fs),
+           CAST(row_number() OVER (PARTITION BY ch, _dow ORDER BY day) AS DOUBLE)
+             / (date_diff('day', fs, day) / 7 + 1) AS dow_active_rate,
+           date_diff('day',
+             lag(day) OVER (PARTITION BY ch, _dow ORDER BY day), day)
+             AS days_since_same_dow,
+           CAST(count(*) OVER (PARTITION BY ch, _dow ORDER BY day
+                RANGE BETWEEN INTERVAL 83 DAY PRECEDING AND CURRENT ROW) AS DOUBLE)
+             / 12.0 AS dow_active_rate_w12
+    FROM j
+    """)
+
+
 def add_lifecycle_features(con: duckdb.DuckDBPyConnection,
                            source: str = "feat_spatial") -> None:
     """Возраст и износ.

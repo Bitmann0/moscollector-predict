@@ -6,3 +6,5 @@ data/features/
 __pycache__/
 *.pyc
 mlruns/
+catboost_info/
+models/

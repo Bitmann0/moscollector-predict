@@ -15,7 +15,6 @@ from mkl.cv import Split
 
 sys.stdout.reconfigure(encoding="utf-8")
 
-WINDOW_START = dt.date(2023, 1, 1)
 VAL_START = dt.date(2025, 10, 1)
 VAL_END = dt.date(2025, 12, 31)
 
@@ -30,6 +29,9 @@ def _choice() -> dict:
                 out[k.strip()] = v.strip()
     return out
 
+
+# Окно обучения берётся из выбора эксперимента E0, а не задаётся заново.
+WINDOW_START = dt.date.fromisoformat(_choice().get("window_start", "2023-01-01"))
 
 BUILDERS = {
     "A": lambda con, h: labels.build_sensor_failure(
@@ -136,8 +138,8 @@ def main() -> None:
         out.write_csv(PATHS.reports / "final_metrics.csv")
         print("\n" + out.select([
             "head", "title", "n", "n_pos", "base_rate", "pr_auc",
-            "op_precision", "op_recall", "precision_at_k", "lift_at_k",
-            "meets_target",
+            "pr_auc_norm", "op_precision", "op_recall", "p_at_r50",
+            "lift_at_k", "meets_target",
         ]).to_pandas().to_string(index=False))
 
 
