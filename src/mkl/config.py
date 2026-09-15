@@ -59,5 +59,38 @@ MAX_FAILURE_DURATION_S = 30 * 86400
 # было больше недели назад, он уже спал и предсказывать тут нечего.
 MAX_GAP_BEFORE_FAILURE_S = 7 * 86400
 
+# Аппаратные переполнения в числовых каналах: температура приходит со
+# значениями -3276 (int16 underflow) и 999, газ упирается в 327.68 = 2^15/100.
+# Без отсечки любой остаток и дрейф считаются по мусору.
+VALUE_LIMITS = {
+    "Датчик температуры": (-60.0, 150.0),
+    "Газовый датчик": (0.0, 327.67),
+}
+GAS_SATURATION = 327.68
+
 GROUP_OUTAGE_MIN_CHANNELS = 4
 GROUP_OUTAGE_WINDOW_MIN = 5
+
+
+# Единственный источник фолбэков конфигурации головы A. Раньше каждый скрипт
+# держал свой дефолт, и final_eval по умолчанию мерил метку L6 на окне 2023,
+# тогда как эксперименты выбрали L5 на 2019 — расхождение маскировалось тем,
+# что файл выбора всегда существовал.
+HEAD_A_DEFAULTS = {
+    "window_start": "2019-01-01",
+    "variant": "L5",
+    "horizon_days": "1",
+    "eligible_only": "False",
+}
+
+
+def head_a_choice() -> dict:
+    """Конфигурация головы A, выбранная экспериментами E0-E2."""
+    out = dict(HEAD_A_DEFAULTS)
+    path = PATHS.reports / "head_a_choice.txt"
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if "=" in line:
+                k, v = line.split("=", 1)
+                out[k.strip()] = v.strip()
+    return out

@@ -1,6 +1,6 @@
 import duckdb
 
-from . import base, external, lifecycle, relative
+from . import base, external, lifecycle, relative, telemetry
 
 
 def build_all(con: duckdb.DuckDBPyConnection,
@@ -15,6 +15,9 @@ def build_all(con: duckdb.DuckDBPyConnection,
     обучение и скоринг обязаны вызывать именно эту функцию.
     """
     base.add_rolling_windows(con, windows=windows, source=source)
+    telemetry.add_value_features(con, source="feat_base")
+    telemetry.add_value_drift(con, source="feat_value")
+    con.execute("CREATE OR REPLACE TABLE feat_base AS SELECT * FROM feat_value")
     relative.add_peer_features(con)
     relative.add_spatial_features(con, radius_seg=radius_seg)
     relative.add_object_context(con)

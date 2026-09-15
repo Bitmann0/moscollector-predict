@@ -178,3 +178,71 @@ def summary(y: np.ndarray, p: np.ndarray, budget: int) -> dict:
         "brier": (float(brier_score_loss(y, np.clip(p, 0, 1)))
                   if len(np.unique(y)) > 1 else float("nan")),
     }
+
+
+def episode_summary(entity: np.ndarray, day: np.ndarray, y: np.ndarray,
+                    p: np.ndarray, horizon_days: int = 1) -> dict:
+    """Метрика на уровне эпизодов, а не канало-суток.
+
+    Подряд идущие положительные сутки одной сущности — один эпизод: канал,
+    лежащий месяц, должен считаться одним событием, которое надо было
+    предсказать один раз, а не тридцатью независимыми попаданиями. Посуточный
+    счёт завышает качество тем сильнее, чем длиннее отказы: на отложенном
+    периоде 5% эпизодов длиной 8-30 суток давали 28% положительных суток.
+
+    Эпизод считается пойманным, если хотя бы в одни сутки внутри окна
+    горизонта перед его началом скор превысил порог. Точность считается по
+    сущностям-суткам, как обычно, потому что ложная тревога стоит работы
+    диспетчера независимо от того, в какой эпизод она попала.
+    """
+    entity = np.asarray(entity)
+    day = np.asarray(day, dtype="datetime64[D]")
+    y = np.asarray(y).astype(int)
+    p = np.asarray(p, dtype=float)
+
+    order = np.lexsort((day, entity))
+    e, d, yy, pp = entity[order], day[order], y[order], p[order]
+
+    # начало эпизода: позитив, перед которым у той же сущности не было позитива
+    # в предыдущие сутки
+    prev_e = np.roll(e, 1)
+    prev_d = np.roll(d, 1)
+    prev_y = np.roll(yy, 1)
+    same = (e == prev_e) & ((d - prev_d) == np.timedelta64(1, "D"))
+    # Первая строка после сортировки не имеет предшественника, поэтому
+    # продолжением эпизода быть не может.
+    if len(same):
+        same[0] = False
+    starts = (yy == 1) & ~(same & (prev_y == 1))
+
+    n_ep = int(starts.sum())
+    if n_ep == 0:
+        return {"episodes": 0, "episode_recall": float("nan"),
+                "episode_precision": float("nan")}
+
+    def recall_at(threshold: float) -> float:
+        hit = pp >= threshold
+        caught = 0
+        idx = np.flatnonzero(starts)
+        for i in idx:
+            lo = d[i] - np.timedelta64(horizon_days, "D")
+            j = i
+            ok = False
+            while j >= 0 and e[j] == e[i] and d[j] >= lo:
+                if hit[j]:
+                    ok = True
+                    break
+                j -= 1
+            caught += ok
+        return caught / n_ep
+
+    thr = threshold_for_budget(p, int(np.ceil(0.7 * n_ep)))
+    pred = p >= thr
+    tp_days = int((pred & (y == 1)).sum())
+    return {
+        "episodes": n_ep,
+        "episode_recall": recall_at(thr),
+        "episode_precision": float(tp_days / pred.sum()) if pred.sum() else float("nan"),
+        "episode_threshold": float(thr),
+        "days_per_episode": float(y.sum() / n_ep),
+    }

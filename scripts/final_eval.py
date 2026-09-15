@@ -9,7 +9,7 @@ import time
 
 import polars as pl
 
-from mkl import calibrate, db, experiments, labels, metrics, serve, store, train
+from mkl import config, calibrate, db, experiments, labels, metrics, serve, store, train
 from mkl.config import HOLDOUT_END, HOLDOUT_START, PATHS
 from mkl.cv import Split
 
@@ -19,15 +19,7 @@ VAL_START = dt.date(2025, 10, 1)
 VAL_END = dt.date(2025, 12, 31)
 
 def _choice() -> dict:
-    """Конфигурация головы A, выбранная экспериментами E0–E2."""
-    out = {"variant": "L6", "horizon_days": "1", "eligible_only": "False"}
-    path = PATHS.reports / "head_a_choice.txt"
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if "=" in line:
-                k, v = line.split("=", 1)
-                out[k.strip()] = v.strip()
-    return out
+    return config.head_a_choice()
 
 
 # Окно обучения берётся из выбора эксперимента E0, а не задаётся заново.

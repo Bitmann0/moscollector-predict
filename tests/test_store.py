@@ -3,25 +3,17 @@ import datetime as dt
 import duckdb
 import pytest
 
+from conftest import PANEL_SCHEMA, insert_day
 from mkl import store
 from mkl.features import compute
 
 
 def _daily_table(con):
-    con.execute("""CREATE TABLE daily_channel (
-        ch BIGINT, day DATE, obj VARCHAR, stype VARCHAR, sys VARCHAR, picket DOUBLE,
-        n_events BIGINT, n_alarms BIGINT, n_bad BIGINT, n_ok BIGINT,
-        n_fire BIGINT, n_intrusion BIGINT,
-        n_flood BIGINT, n_on BIGINT, n_all_pumps BIGINT,
-        n_transitions BIGINT,
-        n_chatter_1min BIGINT, max_gap_s BIGINT, med_gap_s DOUBLE,
-        val_min DOUBLE, val_max DOUBLE, val_mean DOUBLE, val_std DOUBLE)""")
+    con.execute(PANEL_SCHEMA)
 
 
 def _insert(con, day, n_events, ch=1, picket=10.0):
-    con.execute("""INSERT INTO daily_channel VALUES
-        (?,?,'A','Датчик дыма','s',?,?,0,0,0,0,0,0,0,0,0,0,0,0.0,NULL,NULL,NULL,NULL)""",
-        [ch, day, picket, n_events])
+    insert_day(con, ch=ch, day=day, picket=picket, n_events=n_events)
 
 
 def test_registry_lists_every_feature_column(tmp_path, monkeypatch):

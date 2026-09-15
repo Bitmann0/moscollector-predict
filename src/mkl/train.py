@@ -67,7 +67,8 @@ def _build_model(backend: str, params: dict | None, spw: float):
 KEYS = ("ch", "obj", "seg", "day")
 METRIC_KEYS = ("pr_auc", "pr_auc_norm", "precision_at_k", "recall_at_k",
                "lift_at_k", "precision", "recall", "brier", "base_rate",
-               "op_precision", "op_recall", "op_k", "p_at_r50")
+               "op_precision", "op_recall", "op_k", "p_at_r50",
+               "episode_recall", "episode_precision", "days_per_episode")
 
 
 def feature_columns(df: pl.DataFrame) -> list[str]:
@@ -82,7 +83,8 @@ def _matrix(df: pl.DataFrame, cols: list[str]) -> np.ndarray:
 
 def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         splits: list[Split], params: dict | None = None,
-        budget_per_day: int = 20, backend: str = "lgbm") -> dict:
+        budget_per_day: int = 20, backend: str = "lgbm",
+        horizon_days: int = 1) -> dict:
     """Обучение головы по walk-forward схеме.
 
     Дисбаланс лечится только scale_pos_weight — никакого oversampling:
@@ -114,6 +116,14 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         proba = model.predict_proba(X[te_m])[:, 1]
         n_days = (s.test_end - s.test_start).days + 1
         res = metrics.summary(yte, proba, budget=budget_per_day * n_days)
+        # Эпизодный замер рядом с посуточным: длинный отказ должен считаться
+        # одним событием, а не серией независимых попаданий.
+        ent_col = next((k for k in KEYS if k != "day" and k in data.columns), None)
+        if ent_col is not None:
+            te = data.filter(pl.Series(te_m))
+            res.update(metrics.episode_summary(
+                te[ent_col].to_numpy(), te["day"].to_numpy(), yte, proba,
+                horizon_days=horizon_days))
         res["test_start"], res["test_end"] = str(s.test_start), str(s.test_end)
         folds.append(res)
 
@@ -121,6 +131,7 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
             if folds else {})
     if folds:
         mean["n_pos"] = int(np.sum([f["n_pos"] for f in folds]))
+        mean["episodes"] = int(np.sum([f.get("episodes", 0) for f in folds]))
         mean["n"] = int(np.sum([f["n"] for f in folds]))
         mean["op_feasible_folds"] = int(sum(f["op_feasible"] for f in folds))
     return {"head": head, "folds": folds, "mean": mean, "backend": backend,

@@ -32,6 +32,14 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
             f"count(*) OVER (PARTITION BY ch ORDER BY day "
             f"RANGE BETWEEN INTERVAL {w - 1} DAY PRECEDING AND CURRENT ROW) AS n_active_days_w{w}"
         )
+        for c, agg in (("chatter_psi", "avg"), ("chatter_psi", "max"),
+                       ("night_frac", "avg"), ("max_10min", "max"),
+                       ("n_flood_bins", "sum")):
+            parts.append(
+                f"{agg}(CAST({c} AS DOUBLE)) OVER (PARTITION BY ch ORDER BY day "
+                f"RANGE BETWEEN INTERVAL {w - 1} DAY PRECEDING AND CURRENT ROW) "
+                f"AS {c}_{agg}_w{w}"
+            )
     rolling = ",\n           ".join(parts)
 
     # Признаки ускорения осмысленны только при наличии обоих окон.
@@ -73,6 +81,11 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
       SELECT ch, day, obj, stype, sys, picket,
              n_events, n_alarms, n_bad, n_ok, n_fire, n_intrusion,
              n_flood, n_on, n_all_pumps,
+             val_ok_min, val_ok_max, val_ok_mean, val_ok_med, n_val_ok, n_val_bad,
+             n_saturated, n_distinct_vals, n_val_nonzero, n_val_gt005,
+             n_val_gt02, max_flat_run, max_10min, max_alarm_10min,
+             n_flood_bins, chatter_psi, chatter_runs, last_alarm_hour,
+             night_frac, workhours_frac, night_alarm_frac, n_active_hours,
              n_chatter_1min, n_transitions,
              max_gap_s, med_gap_s, val_mean, val_std, val_min, val_max,
              prev_gap_days,

@@ -1,28 +1,18 @@
 import duckdb
 import pytest
 
+from conftest import insert_day
 from mkl.features import base
 
 
 @pytest.fixture
-def con():
-    c = duckdb.connect(":memory:")
-    c.execute("""CREATE TABLE daily_channel (
-        ch BIGINT, day DATE, obj VARCHAR, stype VARCHAR, sys VARCHAR, picket DOUBLE,
-        n_events BIGINT, n_alarms BIGINT, n_bad BIGINT, n_ok BIGINT,
-        n_fire BIGINT, n_intrusion BIGINT,
-        n_flood BIGINT, n_on BIGINT, n_all_pumps BIGINT,
-        n_transitions BIGINT,
-        n_chatter_1min BIGINT, max_gap_s BIGINT, med_gap_s DOUBLE,
-        val_min DOUBLE, val_max DOUBLE, val_mean DOUBLE, val_std DOUBLE)""")
-    yield c
-    c.close()
+def con(daily_con):
+    return daily_con
 
 
 def _day(c, ch, day, n_events=1, n_alarms=0, n_bad=0, max_gap_s=0):
-    c.execute("""INSERT INTO daily_channel VALUES
-        (?,?,'A','Датчик дыма','s',1.0,?,?,?,0,0,0,0,0,0,0,0,?,0.0,NULL,NULL,NULL,NULL)""",
-        [ch, day, n_events, n_alarms, n_bad, max_gap_s])
+    insert_day(c, ch=ch, day=day, n_events=n_events, n_alarms=n_alarms,
+               n_bad=n_bad, max_gap_s=max_gap_s)
 
 
 def test_rolling_window_excludes_future_days(con):

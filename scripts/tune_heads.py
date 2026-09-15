@@ -11,7 +11,7 @@ import sys
 import numpy as np
 import polars as pl
 
-from mkl import cv, db, experiments, labels, serve, store, train
+from mkl import config, cv, db, experiments, labels, serve, store, train
 from mkl.config import HOLDOUT_START, PATHS
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -32,14 +32,7 @@ GRID = [
 
 
 def choice() -> dict:
-    out = {"window_start": "2019-01-01", "variant": "L5", "horizon_days": "1"}
-    path = PATHS.reports / "head_a_choice.txt"
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if "=" in line:
-                k, v = line.split("=", 1)
-                out[k.strip()] = v.strip()
-    return out
+    return config.head_a_choice()
 
 
 def drop_rejected(feats: pl.DataFrame) -> pl.DataFrame:
