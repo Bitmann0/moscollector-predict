@@ -82,7 +82,16 @@ def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext")
            any_value(doy_sin) AS doy_sin, any_value(doy_cos) AS doy_cos,
            any_value(t_mean) AS t_mean, any_value(t_min) AS t_min,
            any_value(t_max) AS t_max, any_value(precip_mm) AS precip_mm,
-           any_value(snow_depth_cm) AS snow_depth_cm, any_value(t_range) AS t_range
+           any_value(snow_depth_cm) AS snow_depth_cm, any_value(t_range) AS t_range,
+           any_value(precip_24h) AS precip_24h, any_value(precip_48h) AS precip_48h,
+           any_value(precip_72h) AS precip_72h, any_value(snowmelt) AS snowmelt,
+           any_value(snow_delta) AS snow_delta,
+           sum(n_flood_bins) AS n_flood_bins,
+           max(max_alarm_10min) AS max_alarm_10min,
+           avg(chatter_psi) AS chatter_psi_mean,
+           max(chatter_psi) AS chatter_psi_max,
+           avg(night_frac) AS night_frac_mean,
+           avg(workhours_frac) AS workhours_frac_mean
     FROM {source} WHERE obj IS NOT NULL
     GROUP BY obj, day
     """)

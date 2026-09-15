@@ -84,7 +84,7 @@ def _matrix(df: pl.DataFrame, cols: list[str]) -> np.ndarray:
 def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         splits: list[Split], params: dict | None = None,
         budget_per_day: int = 20, backend: str = "lgbm",
-        horizon_days: int = 1) -> dict:
+        horizon_days: int = 1, half_life_days: float | None = None) -> dict:
     """Обучение головы по walk-forward схеме.
 
     Дисбаланс лечится только scale_pos_weight — никакого oversampling:
@@ -112,7 +112,14 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
             continue
         pos = int(ytr.sum())
         model = _build_model(backend, params, (len(ytr) - pos) / pos)
-        model.fit(X[tr_m], ytr)
+        if half_life_days:
+            # Вес по свежести: за 7,5 лет состав парка и конфигурация СМВУ
+            # менялись, старые строки полезны, но их вклад должен убывать.
+            from .stacking import recency_weights
+            model.fit(X[tr_m], ytr,
+                      sample_weight=recency_weights(days[tr_m], half_life_days))
+        else:
+            model.fit(X[tr_m], ytr)
         proba = model.predict_proba(X[te_m])[:, 1]
         n_days = (s.test_end - s.test_start).days + 1
         res = metrics.summary(yte, proba, budget=budget_per_day * n_days)

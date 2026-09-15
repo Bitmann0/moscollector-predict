@@ -49,10 +49,25 @@ def fetch_moscow_weather(start: dt.date, end: dt.date) -> pl.DataFrame | None:
     except (urllib.error.URLError, TimeoutError, OSError, KeyError) as exc:
         print(f"погода недоступна ({exc}); продолжаем без неё", flush=True)
         return None
-    df = df.with_columns([
+    df = df.sort("day").with_columns([
         (pl.col("t_max") - pl.col("t_min")).alias("t_range"),
         (pl.col("t_mean") * (pl.col("t_mean") < 0)).alias("frost_intensity"),
     ])
+    # Подтопление вызывают не сегодняшние осадки, а накопленные: вода доходит
+    # до коллектора с задержкой. Снеготаяние — переход температуры через ноль
+    # при ненулевой глубине снега.
+    df = df.with_columns([
+        pl.col("precip_mm").rolling_sum(1).alias("precip_24h"),
+        pl.col("precip_mm").rolling_sum(2, min_samples=1).alias("precip_48h"),
+        pl.col("precip_mm").rolling_sum(3, min_samples=1).alias("precip_72h"),
+        (pl.col("snow_depth_cm") - pl.col("snow_depth_cm").shift(1))
+            .alias("snow_delta"),
+    ])
+    df = df.with_columns(
+        pl.when((pl.col("t_max") > 0) & (pl.col("snow_depth_cm") > 0))
+          .then(pl.col("t_max") * pl.col("snow_depth_cm"))
+          .otherwise(0.0).alias("snowmelt")
+    )
     WEATHER_CACHE.parent.mkdir(parents=True, exist_ok=True)
     df.write_parquet(WEATHER_CACHE)
     return df
@@ -74,7 +89,9 @@ def add_calendar(con: duckdb.DuckDBPyConnection, source: str = "feat_full") -> N
 
 
 WEATHER_COLUMNS = ("t_mean", "t_min", "t_max", "precip_mm",
-                   "snow_depth_cm", "t_range", "frost_intensity")
+                   "snow_depth_cm", "t_range", "frost_intensity",
+                   "precip_24h", "precip_48h", "precip_72h",
+                   "snowmelt", "snow_delta")
 
 
 def add_weather(con: duckdb.DuckDBPyConnection) -> bool:
@@ -91,7 +108,8 @@ def add_weather(con: duckdb.DuckDBPyConnection) -> bool:
     con.execute(f"""
     CREATE OR REPLACE TABLE feat_ext AS
     SELECT e.*, w.t_mean, w.t_min, w.t_max, w.precip_mm, w.snow_depth_cm,
-           w.t_range, w.frost_intensity
+           w.t_range, w.frost_intensity, w.precip_24h, w.precip_48h,
+           w.precip_72h, w.snowmelt, w.snow_delta
     FROM feat_ext e
     LEFT JOIN read_parquet('{WEATHER_CACHE}') w ON w.day = e.day
     """)

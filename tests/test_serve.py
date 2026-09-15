@@ -40,3 +40,25 @@ def test_wear_head_has_wider_embargo_than_horizon():
     heads = serve.load_heads()
     for cfg in heads.values():
         assert cfg["embargo_days"] >= cfg["horizon_days"] + 30
+
+
+def test_per_object_budget_spreads_alerts():
+    """Глобальная отсечка сажает все алерты на худшие объекты."""
+    df = pl.DataFrame({
+        "obj": ["A"] * 5 + ["B"] * 5,
+        "ch": list(range(10)),
+        "risk": [0.9, 0.89, 0.88, 0.87, 0.86, 0.1, 0.09, 0.08, 0.07, 0.06],
+    })
+    glob = serve._apply_budget(df, budget=4, per_object=False)
+    assert set(glob.filter(pl.col("alert"))["obj"].to_list()) == {"A"}
+
+    per = serve._apply_budget(df, budget=4, per_object=True)
+    by_obj = per.filter(pl.col("alert")).group_by("obj").len().sort("obj")
+    assert by_obj["obj"].to_list() == ["A", "B"]
+    assert by_obj["len"].to_list() == [2, 2]
+
+
+def test_per_object_budget_falls_back_without_obj_column():
+    df = pl.DataFrame({"ch": [1, 2, 3], "risk": [0.9, 0.5, 0.1]})
+    out = serve._apply_budget(df, budget=1, per_object=True)
+    assert out["alert"].sum() == 1

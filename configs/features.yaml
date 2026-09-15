@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-15T23:38:49'
+  built_at: '2026-09-16T01:16:51'
   columns:
   - n_channels
   - n_events
@@ -45,9 +45,22 @@ object:
   - precip_mm
   - snow_depth_cm
   - t_range
+  - precip_24h
+  - precip_48h
+  - precip_72h
+  - snowmelt
+  - snow_delta
+  - n_flood_bins
+  - max_alarm_10min
+  - chatter_psi_mean
+  - chatter_psi_max
+  - night_frac_mean
+  - workhours_frac_mean
   dtypes:
     age_days_mean: DOUBLE
     age_days_min: BIGINT
+    chatter_psi_max: DOUBLE
+    chatter_psi_mean: DOUBLE
     day: DATE
     days_since_last_bad_mean: DOUBLE
     days_since_last_bad_min: BIGINT
@@ -57,6 +70,7 @@ object:
     frac_channels_bad: DOUBLE
     is_holiday: INTEGER
     is_weekend: INTEGER
+    max_alarm_10min: BIGINT
     month: BIGINT
     n_alarms: HUGEINT
     n_alarms_w30: HUGEINT
@@ -74,12 +88,17 @@ object:
     n_events_w7: HUGEINT
     n_fire: HUGEINT
     n_flood: HUGEINT
+    n_flood_bins: HUGEINT
     n_intrusion: HUGEINT
     n_prior_failures: HUGEINT
     n_pump_on: HUGEINT
     n_pumps: BIGINT
     n_transitions: HUGEINT
+    night_frac_mean: DOUBLE
     obj: VARCHAR
+    precip_24h: DOUBLE
+    precip_48h: DOUBLE
+    precip_72h: DOUBLE
     precip_mm: DOUBLE
     pump_bad: HUGEINT
     pump_switches: HUGEINT
@@ -87,18 +106,21 @@ object:
     silence_ratio_mean: DOUBLE
     silence_z_max: DOUBLE
     silence_z_mean: DOUBLE
+    snow_delta: DOUBLE
     snow_depth_cm: DOUBLE
+    snowmelt: DOUBLE
     t_max: DOUBLE
     t_mean: DOUBLE
     t_min: DOUBLE
     t_range: DOUBLE
+    workhours_frac_mean: DOUBLE
   keys:
   - day
   - obj
   n_rows: 162294
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-15T23:38:54'
+  built_at: '2026-09-16T01:16:56'
   columns:
   - n_channels
   - n_events
@@ -167,7 +189,7 @@ segment:
   n_rows: 1091219
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-15T23:38:44'
+  built_at: '2026-09-16T01:16:45'
   columns:
   - stype
   - sys
@@ -181,6 +203,28 @@ sensor:
   - n_flood
   - n_on
   - n_all_pumps
+  - val_ok_min
+  - val_ok_max
+  - val_ok_mean
+  - val_ok_med
+  - n_val_ok
+  - n_val_bad
+  - n_saturated
+  - n_distinct_vals
+  - n_val_nonzero
+  - n_val_gt005
+  - n_val_gt02
+  - max_flat_run
+  - max_10min
+  - max_alarm_10min
+  - n_flood_bins
+  - chatter_psi
+  - chatter_runs
+  - last_alarm_hour
+  - night_frac
+  - workhours_frac
+  - night_alarm_frac
+  - n_active_hours
   - n_chatter_1min
   - n_transitions
   - max_gap_s
@@ -200,6 +244,11 @@ sensor:
   - n_events_mean_w7
   - n_events_std_w7
   - n_active_days_w7
+  - chatter_psi_avg_w7
+  - chatter_psi_max_w7
+  - night_frac_avg_w7
+  - max_10min_max_w7
+  - n_flood_bins_sum_w7
   - n_events_w30
   - n_alarms_w30
   - n_bad_w30
@@ -208,6 +257,11 @@ sensor:
   - n_events_mean_w30
   - n_events_std_w30
   - n_active_days_w30
+  - chatter_psi_avg_w30
+  - chatter_psi_max_w30
+  - night_frac_avg_w30
+  - max_10min_max_w30
+  - n_flood_bins_sum_w30
   - last_alarm_day
   - last_bad_day
   - max_gap_q_s
@@ -227,6 +281,17 @@ sensor:
   - bad_accel
   - activity_days_ratio
   - gap_vs_own_rhythm
+  - val_med_base
+  - val_mad
+  - val_resid
+  - flat_run_ratio
+  - distinct_ratio
+  - sampling_ratio
+  - nonzero_frac
+  - nonzero_ratio
+  - bad_value_frac
+  - val_slope_w7
+  - val_slope_w30
   - peer_median_alarms
   - peer_mean_events
   - peer_std_events
@@ -282,6 +347,11 @@ sensor:
   - snow_depth_cm
   - t_range
   - frost_intensity
+  - precip_24h
+  - precip_48h
+  - precip_72h
+  - snowmelt
+  - snow_delta
   dtypes:
     activity_days_ratio: DOUBLE
     age_days: BIGINT
@@ -289,8 +359,15 @@ sensor:
     alarms_accel: DOUBLE
     bad_accel: DOUBLE
     bad_days_per_year: DOUBLE
+    bad_value_frac: DOUBLE
     ch: BIGINT
+    chatter_psi: DOUBLE
+    chatter_psi_avg_w30: DOUBLE
+    chatter_psi_avg_w7: DOUBLE
+    chatter_psi_max_w30: DOUBLE
+    chatter_psi_max_w7: DOUBLE
     chatter_rate: DOUBLE
+    chatter_runs: DOUBLE
     cum_alarms: HUGEINT
     cum_duty_cycles: HUGEINT
     cum_events: HUGEINT
@@ -300,6 +377,7 @@ sensor:
     days_since_prior_episode: BIGINT
     days_since_prior_failure: BIGINT
     days_since_same_dow: BIGINT
+    distinct_ratio: DOUBLE
     dow: BIGINT
     dow_active_rate: DOUBLE
     dow_active_rate_w12: DOUBLE
@@ -309,12 +387,19 @@ sensor:
     events_accel: DOUBLE
     events_vs_own_w30: DOUBLE
     events_z_own_w30: DOUBLE
+    flat_run_ratio: DOUBLE
     frost_intensity: DOUBLE
     gap_vs_own_rhythm: DOUBLE
     is_holiday: INTEGER
     is_weekend: INTEGER
     last_alarm_day: DATE
+    last_alarm_hour: BIGINT
     last_bad_day: DATE
+    max_10min: BIGINT
+    max_10min_max_w30: DOUBLE
+    max_10min_max_w7: DOUBLE
+    max_alarm_10min: BIGINT
+    max_flat_run: BIGINT
     max_gap_q_s: BIGINT
     max_gap_s: BIGINT
     mean_gap_q_s: DOUBLE
@@ -322,6 +407,7 @@ sensor:
     month: BIGINT
     n_active_days_w30: BIGINT
     n_active_days_w7: BIGINT
+    n_active_hours: BIGINT
     n_alarms: BIGINT
     n_alarms_w30: HUGEINT
     n_alarms_w7: HUGEINT
@@ -332,6 +418,7 @@ sensor:
     n_chatter_1min: BIGINT
     n_chatter_1min_w30: HUGEINT
     n_chatter_1min_w7: HUGEINT
+    n_distinct_vals: BIGINT
     n_duty_cycles_w30: HUGEINT
     n_events: BIGINT
     n_events_mean_w30: DOUBLE
@@ -342,19 +429,34 @@ sensor:
     n_events_w7: HUGEINT
     n_fire: BIGINT
     n_flood: BIGINT
+    n_flood_bins: BIGINT
+    n_flood_bins_sum_w30: DOUBLE
+    n_flood_bins_sum_w7: DOUBLE
     n_intrusion: BIGINT
     n_ok: BIGINT
     n_on: BIGINT
     n_prior_episodes: HUGEINT
     n_prior_failures: HUGEINT
+    n_saturated: BIGINT
     n_transitions: BIGINT
     n_transitions_w30: HUGEINT
     n_transitions_w7: HUGEINT
+    n_val_bad: BIGINT
+    n_val_gt005: BIGINT
+    n_val_gt02: BIGINT
+    n_val_nonzero: BIGINT
+    n_val_ok: BIGINT
     nbr_alarms: HUGEINT
     nbr_bad: HUGEINT
     nbr_channels: BIGINT
     nbr_fire: HUGEINT
     nbr_val_max: DOUBLE
+    night_alarm_frac: DOUBLE
+    night_frac: DOUBLE
+    night_frac_avg_w30: DOUBLE
+    night_frac_avg_w7: DOUBLE
+    nonzero_frac: DOUBLE
+    nonzero_ratio: DOUBLE
     obj: VARCHAR
     obj_channels_bad: BIGINT
     obj_days_since_bad_mean: DOUBLE
@@ -378,16 +480,22 @@ sensor:
     peer_std_events: DOUBLE
     peer_z_events: DOUBLE
     picket: DOUBLE
+    precip_24h: DOUBLE
+    precip_48h: DOUBLE
+    precip_72h: DOUBLE
     precip_mm: DOUBLE
     prev_gap_days: BIGINT
     prev_gap_days_max_w30: BIGINT
     prev_gap_days_mean_w30: DOUBLE
+    sampling_ratio: DOUBLE
     seg: INTEGER
     share_obj_alarms: DOUBLE
     share_obj_bad: DOUBLE
     silence_ratio: DOUBLE
     silence_z: DOUBLE
+    snow_delta: DOUBLE
     snow_depth_cm: DOUBLE
+    snowmelt: DOUBLE
     std_gap_q_s: DOUBLE
     stype: VARCHAR
     sys: VARCHAR
@@ -395,11 +503,21 @@ sensor:
     t_mean: DOUBLE
     t_min: DOUBLE
     t_range: DOUBLE
+    val_mad: DOUBLE
     val_max: DOUBLE
     val_mean: DOUBLE
+    val_med_base: DOUBLE
     val_min: DOUBLE
     val_minus_seg_mean: DOUBLE
+    val_ok_max: DOUBLE
+    val_ok_mean: DOUBLE
+    val_ok_med: DOUBLE
+    val_ok_min: DOUBLE
+    val_resid: DOUBLE
+    val_slope_w30: DOUBLE
+    val_slope_w7: DOUBLE
     val_std: DOUBLE
+    workhours_frac: DOUBLE
   keys:
   - ch
   - day
