@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+.env
+
+# Исходные выгрузки и локальное состояние сервиса не храним в Git.
+*.zip
+*.7z
+data/raw/
+data/*.db
+data/models/
+docs/source/
+
+# При этом сохраняем структуру каталогов.
+!data/.gitkeep
+!docs/.gitkeep

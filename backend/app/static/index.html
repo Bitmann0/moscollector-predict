@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#081525" />
+    <title>МосКоллектор · Предиктивный мониторинг</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">МК</span><div>МосКоллектор<small>Predict</small></div></div>
+      <nav>
+        <button class="nav-item active">◫ <span>Обзор рисков</span></button>
+        <button class="nav-item">⌁ <span>Карта объектов</span></button>
+        <button class="nav-item">≡ <span>Журнал прогнозов</span></button>
+        <button class="nav-item">⌕ <span>Заявки на ТО</span></button>
+      </nav>
+      <div class="model-card"><span class="pulse"></span><div><b>Baseline активен</b><small>Отказ датчика · v0.1</small></div></div>
+    </aside>
+
+    <main>
+      <header>
+        <div><p class="eyebrow">Ситуационный центр</p><h1>Предиктивный мониторинг</h1></div>
+        <div class="header-actions"><span id="updated">Обновление…</span><button id="auto-create" class="primary">Сформировать заявки</button></div>
+      </header>
+
+      <section id="notice" class="notice">Расчёт является ранжирующим baseline до подключения журнала подтверждённых неисправностей.</section>
+      <section class="metrics" id="metrics"></section>
+
+      <section class="dashboard-grid">
+        <article class="panel map-panel">
+          <div class="panel-head"><div><p class="eyebrow">Схема активных каналов</p><h2>Карта рисков</h2></div><div class="legend"><i class="critical"></i>Критический <i class="high"></i>Высокий <i class="medium"></i>Средний</div></div>
+          <div class="map" id="risk-map"><div class="map-lines"></div></div>
+        </article>
+        <article class="panel queue-panel">
+          <div class="panel-head"><div><p class="eyebrow">Требуют внимания</p><h2>Приоритетная очередь</h2></div><span id="queue-count" class="counter">0</span></div>
+          <div id="risk-queue" class="risk-queue"></div>
+        </article>
+      </section>
+
+      <section class="panel journal-panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Горизонт 24 часа</p><h2>Журнал прогнозов</h2></div>
+          <div class="filters"><input id="search" placeholder="Поиск по датчику или участку" /><select id="level"><option value="">Все уровни</option><option value="critical">Критический</option><option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option></select></div>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Канал / датчик</th><th>Участок</th><th>Фактор риска</th><th>Риск</th><th></th></tr></thead><tbody id="forecast-table"></tbody></table></div>
+      </section>
+    </main>
+    <div id="toast" class="toast"></div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
+
