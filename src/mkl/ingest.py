@@ -1,0 +1,125 @@
+import re
+import sys
+
+from .config import PATHS
+from .db import attach_events, connect
+
+_PICKET_RE = re.compile(r"ПК\s*(\d+(?:[.,]\d+)?)")
+
+_RAW_COLUMNS = (
+    "{'ид_события':'VARCHAR','ид_канала_данных':'VARCHAR','дата':'VARCHAR',"
+    "'время':'VARCHAR','тревожное':'VARCHAR','значение_датчика':'VARCHAR'}"
+)
+
+
+def parse_picket(name: str | None) -> float | None:
+    if not name:
+        return None
+    m = _PICKET_RE.search(name)
+    return float(m.group(1).replace(",", ".")) if m else None
+
+
+def parse_object(tag: str | None) -> str | None:
+    return tag.split(".")[0] if tag else None
+
+
+def build_channels() -> int:
+    con = connect()
+    src = PATHS.materials / "справочник_каналов_датчиков.csv"
+    dst = PATHS.interim / "channels.parquet"
+    con.execute(f"""
+        COPY (
+          SELECT TRY_CAST(ид_канала_данных AS BIGINT) AS ch,
+                 тип_инж_системы AS sys,
+                 тип_датчика     AS stype,
+                 тег_инженерной_системы AS tag,
+                 название_датчика AS sname,
+                 split_part(тег_инженерной_системы,'.',1) AS obj,
+                 TRY_CAST(replace(regexp_extract(название_датчика,
+                   'ПК\\s*(\\d+(?:[.,]\\d+)?)', 1), ',', '.') AS DOUBLE) AS picket
+          FROM read_csv('{src}', header=true)
+        ) TO '{dst}' (FORMAT PARQUET)
+    """)
+    n = con.execute(f"SELECT count(*) FROM read_parquet('{dst}')").fetchone()[0]
+    con.close()
+    return n
+
+
+def build_events(years: list[int]) -> dict[int, int]:
+    con = connect()
+    con.execute(
+        f"CREATE TABLE ref AS SELECT * FROM read_parquet('{PATHS.interim / 'channels.parquet'}')"
+    )
+    counts: dict[int, int] = {}
+    for y in years:
+        src = PATHS.raw / f"ext-journal-{y}.csv"
+        dst = PATHS.interim / f"events_year={y}.parquet"
+        con.execute(f"""
+        COPY (
+          SELECT DISTINCT ON (e.event_id)
+                 e.event_id, e.ch, (e.d + e.t) AS ts, e.d AS day, e.alarm,
+                 e.val AS val_raw, TRY_CAST(e.val AS DOUBLE) AS val_num,
+                 r.sys, r.stype, r.tag, r.sname, r.obj, r.picket
+          FROM (
+            SELECT TRY_CAST(ид_события AS BIGINT) AS event_id,
+                   TRY_CAST(ид_канала_данных AS BIGINT) AS ch,
+                   TRY_CAST(дата AS DATE) AS d,
+                   TRY_CAST(время AS TIME) AS t,
+                   lower(тревожное) IN ('t','true') AS alarm,
+                   значение_датчика AS val
+            FROM read_csv('{src}', all_varchar=true, header=true, columns={_RAW_COLUMNS})
+            WHERE ид_события <> 'ид_события'
+          ) e
+          LEFT JOIN ref r ON r.ch = e.ch
+          WHERE e.event_id IS NOT NULL AND e.ch IS NOT NULL AND e.d IS NOT NULL
+        ) TO '{dst}' (FORMAT PARQUET, COMPRESSION ZSTD, ROW_GROUP_SIZE 1000000)
+        """)
+        counts[y] = con.execute(f"SELECT count(*) FROM read_parquet('{dst}')").fetchone()[0]
+        print(f"  {y}: {counts[y]:,}", flush=True)
+    con.close()
+    return counts
+
+
+def quality_report() -> str:
+    con = connect()
+    attach_events(con)
+    df = con.execute("""
+        SELECT year(day) AS год,
+               count(*) AS события,
+               count(DISTINCT ch) AS каналы,
+               count(*) FILTER (WHERE stype IS NULL) AS без_справочника,
+               count(*) FILTER (WHERE alarm) AS тревоги,
+               count(*) FILTER (WHERE val_num IS NOT NULL) AS числовые
+        FROM ev GROUP BY 1 ORDER BY 1
+    """).df()
+    total = con.execute(
+        "SELECT count(*), count(DISTINCT ch), min(day), max(day) FROM ev"
+    ).fetchone()
+    con.close()
+    lines = [
+        "# Отчёт качества данных",
+        "",
+        f"Событий после дедупликации: **{total[0]:,}**. Каналов: **{total[1]:,}**. "
+        f"Период: {total[2]} … {total[3]}.",
+        "",
+        df.to_markdown(index=False),
+        "",
+        "Обработанные дефекты: дубли `ид_события` снимаются `DISTINCT ON`; "
+        "строки-заголовки внутри годовых файлов отсекаются фильтром "
+        "`ид_события <> 'ид_события'`; каналы вне справочника сохраняются "
+        "с пустыми метаданными и видны в колонке «без_справочника».",
+    ]
+    return "\n".join(lines)
+
+
+def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
+    print(f"справочник каналов: {build_channels():,}")
+    build_events(list(range(2019, 2027)))
+    report = quality_report()
+    (PATHS.reports / "data_quality.md").write_text(report, encoding="utf-8")
+    print(report)
+
+
+if __name__ == "__main__":
+    main()
