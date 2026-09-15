@@ -2,11 +2,14 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from app.model import DataValidationError, build_forecasts, load_frames
 
 
-def channels() -> pd.DataFrame:
-    return pd.DataFrame(
+@pytest.fixture
+def sample_data_dir(tmp_path: Path) -> Path:
+    """Создаёт автономную обезличенную выгрузку для API-тестов."""
+    data_dir = tmp_path / "raw"
+    data_dir.mkdir()
+    channels = pd.DataFrame(
         [
             {
                 "ид_канала_данных": 10,
@@ -24,44 +27,31 @@ def channels() -> pd.DataFrame:
             },
         ]
     )
-
-
-def events() -> pd.DataFrame:
-    rows = []
+    events = []
     for index in range(12):
-        rows.append(
+        timestamp = pd.Timestamp("2026-08-01 10:00:00") + pd.Timedelta(index * 10, unit="s")
+        events.append(
             {
-                "ид_события": index,
+                "ид_события": index + 1,
                 "ид_канала_данных": 10,
-                "timestamp": pd.Timestamp("2026-08-01 10:00")
-                + pd.Timedelta(index * 10, unit="s"),
+                "дата": timestamp.date().isoformat(),
+                "время": timestamp.time().isoformat(),
                 "тревожное": index < 4,
                 "значение_датчика": "42",
-                "numeric_value": 42.0,
             }
         )
     for index in range(3):
-        rows.append(
+        timestamp = pd.Timestamp("2026-08-01 10:00:00") + pd.Timedelta(index, unit="h")
+        events.append(
             {
                 "ид_события": 100 + index,
                 "ид_канала_данных": 20,
-                "timestamp": pd.Timestamp("2026-08-01 10:00") + pd.Timedelta(index, unit="h"),
+                "дата": timestamp.date().isoformat(),
+                "время": timestamp.time().isoformat(),
                 "тревожное": False,
                 "значение_датчика": str(index % 2),
-                "numeric_value": float(index % 2),
             }
         )
-    return pd.DataFrame(rows)
-
-
-def test_noisy_alarm_channel_ranked_above_quiet_channel() -> None:
-    forecasts = build_forecasts(events(), channels())
-    assert forecasts[0].channel_id == 10
-    assert forecasts[0].risk_score > forecasts[1].risk_score
-    assert forecasts[0].horizon_hours == 24
-    assert forecasts[0].factors
-
-
-def test_missing_files_have_actionable_error(tmp_path: Path) -> None:
-    with pytest.raises(DataValidationError, match="Не найдены входные файлы"):
-        load_frames(tmp_path)
+    channels.to_csv(data_dir / "справочник_каналов_датчиков.csv", index=False)
+    pd.DataFrame(events).to_csv(data_dir / "журнал_событий_пример.csv", index=False)
+    return data_dir

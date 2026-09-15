@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      MOSCOLLECTOR_DATA_DIR: /app/data/raw
+      MOSCOLLECTOR_DB_PATH: /app/state/moscollector.db
+      MOSCOLLECTOR_FORECAST_HOURS: 24
+    volumes:
+      - ./data/raw:/app/data/raw:ro
+      - app-state:/app/state
+    restart: unless-stopped
+
+volumes:
+  app-state:

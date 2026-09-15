@@ -6,6 +6,7 @@ __pycache__/
 *.egg-info/
 .coverage
 htmlcov/
+/build/
 .env
 
 # Исходные выгрузки и локальное состояние сервиса не храним в Git.

@@ -1,4 +1,4 @@
-.PHONY: install dev test lint analyze
+.PHONY: install dev test lint analyze docker
 
 install:
 	python3 -m venv .venv
@@ -16,3 +16,5 @@ lint:
 analyze:
 	.venv/bin/python -m app.cli --data-dir data/raw
 
+docker:
+	docker compose up --build
