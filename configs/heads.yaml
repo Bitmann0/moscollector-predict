@@ -26,6 +26,9 @@ A_strict:
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 20
+  # Отсечка внутри объекта, а не глобально: иначе все алерты
+  # оседают на нескольких худших объектах.
+  budget_per_object: true
 
 A_deg:
   title: Деградация датчика
@@ -35,6 +38,9 @@ A_deg:
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 30
+  # Отсечка внутри объекта, а не глобально: иначе все алерты
+  # оседают на нескольких худших объектах.
+  budget_per_object: true
 
 A_prime:
   title: Массовый отказ объекта
@@ -77,6 +83,9 @@ D:
   horizon_days: 7
   embargo_days: 37
   budget_per_day: 3
+  # Отсечка внутри объекта, а не глобально: иначе все алерты
+  # оседают на нескольких худших объектах.
+  budget_per_object: true
 
 E:
   title: Риск подтопления
