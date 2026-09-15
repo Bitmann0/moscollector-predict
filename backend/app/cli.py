@@ -13,14 +13,14 @@ def main() -> None:
     args = parser.parse_args()
     forecasts, metadata = analyze(args.data_dir)
     print(f"Событий: {metadata['event_count']}; активных каналов: {metadata['channel_count']}")
-    print("Топ каналов по риску:")
+    print(f"Исторический анализ по {metadata['data_to']}. Прогнозная модель не подключена.")
+    print("Топ каналов по индексу проверки (0–100, не вероятность):")
     for item in forecasts[: args.top]:
         print(
-            f"  {item.channel_id:<8} {item.risk_score:>6.1%} "
+            f"  {item.channel_id:<8} {item.risk_score * 100:>6.1f}/100 "
             f"{item.risk_level:<8} {item.sensor_name}"
         )
 
 
 if __name__ == "__main__":
     main()
-

@@ -11,7 +11,7 @@ test:
 	.venv/bin/pytest
 
 lint:
-	.venv/bin/ruff check backend tests
+	.venv/bin/ruff check backend tests scripts
 
 analyze:
 	.venv/bin/python -m app.cli --data-dir data/raw

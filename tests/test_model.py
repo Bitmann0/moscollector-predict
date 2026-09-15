@@ -33,8 +33,7 @@ def events() -> pd.DataFrame:
             {
                 "ид_события": index,
                 "ид_канала_данных": 10,
-                "timestamp": pd.Timestamp("2026-08-01 10:00")
-                + pd.Timedelta(index * 10, unit="s"),
+                "timestamp": pd.Timestamp("2026-08-01 10:00") + pd.Timedelta(index * 10, unit="s"),
                 "тревожное": index < 4,
                 "значение_датчика": "42",
                 "numeric_value": 42.0,
@@ -58,7 +57,9 @@ def test_noisy_alarm_channel_ranked_above_quiet_channel() -> None:
     forecasts = build_forecasts(events(), channels())
     assert forecasts[0].channel_id == 10
     assert forecasts[0].risk_score > forecasts[1].risk_score
-    assert forecasts[0].horizon_hours == 24
+    assert forecasts[0].horizon_hours is None
+    assert forecasts[0].score_kind == "heuristic_index"
+    assert forecasts[0].predicted_at is None
     assert forecasts[0].factors
 
 

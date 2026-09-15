@@ -7,6 +7,9 @@ services:
       MOSCOLLECTOR_DATA_DIR: /app/data/raw
       MOSCOLLECTOR_DB_PATH: /app/state/moscollector.db
       MOSCOLLECTOR_FORECAST_HOURS: 24
+      MOSCOLLECTOR_MODE: historical
+      MOSCOLLECTOR_TIME_ZONE: Europe/Moscow
+      MOSCOLLECTOR_MAX_DATA_AGE_HOURS: 6
     volumes:
       - ./data/raw:/app/data/raw:ro
       - app-state:/app/state

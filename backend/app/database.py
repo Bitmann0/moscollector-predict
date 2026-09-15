@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -12,10 +14,15 @@ class MaintenanceRepository:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.path)
         connection.row_factory = sqlite3.Row
-        return connection
+        try:
+            with connection:
+                yield connection
+        finally:
+            connection.close()
 
     def _initialize(self) -> None:
         with self._connect() as connection:
@@ -34,6 +41,16 @@ class MaintenanceRepository:
                 )
                 """
             )
+            columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(maintenance_requests)")
+            }
+            if "assessment_mode" not in columns:
+                connection.execute(
+                    "ALTER TABLE maintenance_requests ADD COLUMN assessment_mode TEXT "
+                    "NOT NULL DEFAULT 'legacy'"
+                )
+            if "data_as_of" not in columns:
+                connection.execute("ALTER TABLE maintenance_requests ADD COLUMN data_as_of TEXT")
 
     def list(self) -> list[dict[str, Any]]:
         with self._connect() as connection:
@@ -45,17 +62,13 @@ class MaintenanceRepository:
     def create(self, forecast: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         now = datetime.now(UTC).replace(microsecond=0).isoformat()
         with self._connect() as connection:
-            existing = connection.execute(
-                "SELECT * FROM maintenance_requests WHERE channel_id = ? AND status = 'draft'",
-                (forecast["channel_id"],),
-            ).fetchone()
-            if existing:
-                return dict(existing), False
             cursor = connection.execute(
                 """
                 INSERT INTO maintenance_requests
-                    (channel_id, sensor_name, risk_score, priority, recommendation, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (channel_id, sensor_name, risk_score, priority, recommendation, created_at,
+                     assessment_mode, data_as_of)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(channel_id, status) DO NOTHING
                 """,
                 (
                     forecast["channel_id"],
@@ -64,10 +77,15 @@ class MaintenanceRepository:
                     forecast["risk_level"],
                     forecast["recommendation"],
                     now,
+                    forecast.get("assessment_mode", "legacy"),
+                    forecast.get("data_as_of"),
                 ),
             )
+            created = cursor.rowcount == 1
             row = connection.execute(
-                "SELECT * FROM maintenance_requests WHERE id = ?", (cursor.lastrowid,)
+                "SELECT * FROM maintenance_requests WHERE channel_id = ? AND status = 'draft'",
+                (forecast["channel_id"],),
             ).fetchone()
-        return dict(row), True
-
+            if row["assessment_mode"] != forecast.get("assessment_mode", "legacy"):
+                raise ValueError("Для канала есть черновик другого режима; проверьте журнал")
+        return dict(row), created
