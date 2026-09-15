@@ -51,3 +51,17 @@ def test_feedback_snapshot_survives_restart(tmp_path: Path, sample_data_dir: Pat
         history = client.get("/api/v1/forecasts/10/feedback").json()
         assert history["total"] == 1
         assert history["items"][0]["forecast_snapshot"] == snapshot
+
+
+def test_request_transitions(tmp_path: Path, sample_data_dir: Path) -> None:
+    main.settings = main.Settings(sample_data_dir, tmp_path / "requests.db")
+    with TestClient(main.app) as client:
+        item = client.post("/api/v1/maintenance-requests", json={"channel_id": 10}).json()["item"]
+        url = f"/api/v1/maintenance-requests/{item['id']}"
+        payload = {"expected_status": "draft", "status": "in_progress",
+                   "author": "Диспетчер", "reason": "Начата проверка"}
+        assert client.patch(url, json=payload).status_code == 200
+        assert client.patch(url, json=payload).status_code == 409
+        assert len(client.get(url).json()["history"]) == 1
+        assert client.patch(url, json={**payload, "reason": " "}).status_code == 422
+        assert client.patch("/api/v1/maintenance-requests/999", json=payload).status_code == 404

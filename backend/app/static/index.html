@@ -48,8 +48,8 @@
         <div class="table-wrap"><table><thead><tr><th>Канал / датчик</th><th>Участок</th><th>Фактор риска</th><th>Риск</th><th></th></tr></thead><tbody id="forecast-table"></tbody></table></div>
       </section>
       <section class="panel" id="requests-panel">
-        <div class="panel-head"><h2>Черновики заявок на ТО</h2></div>
-        <div class="table-wrap"><table><thead><tr><th>№</th><th>Датчик</th><th>Рекомендация</th><th>Создана</th></tr></thead><tbody id="requests-table"></tbody></table></div>
+        <div class="panel-head"><h2>Заявки на ТО</h2></div>
+        <div class="table-wrap"><table><thead><tr><th>№</th><th>Датчик</th><th>Рекомендация</th><th>Статус</th><th>Создана</th><th></th></tr></thead><tbody id="requests-table"></tbody></table></div>
       </section>
     </main>
     <dialog id="detail-dialog">
@@ -65,6 +65,17 @@
       <h3>История решений</h3><div id="feedback-history"></div>
     </dialog>
     <div id="toast" class="toast"></div>
+    <dialog id="request-dialog">
+      <button id="close-request" class="action">Закрыть</button>
+      <h2 id="request-title"></h2>
+      <form id="request-form">
+        <label>Новый статус<select name="status" id="request-status"></select></label>
+        <label>Диспетчер (указывается вручную)<input name="author" required maxlength="120" /></label>
+        <label>Причина / результат работ<textarea name="reason" required minlength="3" maxlength="2000"></textarea></label>
+        <button class="primary" type="submit">Сохранить статус</button>
+      </form>
+      <h3>История изменений</h3><div id="request-history"></div>
+    </dialog>
     <script src="/static/app.js"></script>
   </body>
 </html>

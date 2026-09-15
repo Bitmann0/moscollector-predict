@@ -4,6 +4,8 @@ const fmt = new Intl.NumberFormat("ru-RU");
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[char]));
 const decisionLabels = {inspection_required: "Нужна проверка", monitor: "Наблюдение", dismissed: "Оценка отклонена", fault_confirmed: "Неисправность подтверждена"};
 let selectedChannel = null;
+let selectedRequest = null;
+const requestLabels = {draft: "Черновик", in_progress: "В работе", completed: "Завершена", cancelled: "Отменена"};
 
 async function api(path, options) {
   const response = await fetch(path, options);
@@ -20,7 +22,7 @@ function renderMetrics(summary) {
     metric("Активные каналы", fmt.format(summary.channel_count || 0), `${fmt.format(summary.event_count || 0)} событий обработано`),
     metric("Высокий риск", fmt.format(summary.risk_counts.high + summary.risk_counts.critical), "нужна проверка в смену"),
     metric("Максимальный приоритет", `${Math.round(summary.max_risk_score * 100)} / 100`, `исторический анализ · ${summary.forecast_horizon_hours} ч`),
-    metric("Заявки на ТО", fmt.format(summary.maintenance_requests), "черновики диспетчера"),
+    metric("Заявки на ТО", fmt.format(summary.maintenance_requests), "все статусы"),
   ].join("");
 }
 
@@ -84,7 +86,22 @@ async function loadFeedback(id) {
 
 async function loadRequests() {
   const result = await api("/api/v1/maintenance-requests");
-  document.querySelector("#requests-table").innerHTML = result.items.map(item => `<tr><td>${item.id}</td><td>${escapeHtml(item.sensor_name)}</td><td>${escapeHtml(item.recommendation)}</td><td>${new Date(item.created_at).toLocaleString("ru-RU")}</td></tr>`).join("") || '<tr><td colspan="4">Черновиков пока нет</td></tr>';
+  document.querySelector("#requests-table").innerHTML = result.items.map(item => `<tr><td>${item.id}</td><td>${escapeHtml(item.sensor_name)}</td><td>${escapeHtml(item.recommendation)}</td><td>${requestLabels[item.status]}</td><td>${new Date(item.created_at).toLocaleString("ru-RU")}</td><td><button class="action" onclick="openRequest(${item.id})">Открыть</button></td></tr>`).join("") || '<tr><td colspan="6">Заявок пока нет</td></tr>';
+}
+
+async function openRequest(id) {
+  try {
+    const item = await api(`/api/v1/maintenance-requests/${id}`);
+    selectedRequest = item;
+    document.querySelector("#request-title").textContent = `Заявка №${id} · ${requestLabels[item.status]}`;
+    const choices = {draft: ["in_progress", "cancelled"], in_progress: ["completed", "cancelled"]}[item.status] || [];
+    const form = document.querySelector("#request-form");
+    form.reset(); form.hidden = choices.length === 0;
+    document.querySelector("#request-status").innerHTML = choices.map(status => `<option value="${status}">${requestLabels[status]}</option>`).join("");
+    document.querySelector("#request-history").innerHTML = item.history.map(entry => `<p><b>${requestLabels[entry.previous_status]} → ${requestLabels[entry.status]}</b><br>${escapeHtml(entry.author)} · ${new Date(entry.created_at).toLocaleString("ru-RU")}<br>${escapeHtml(entry.reason)}</p>`).join("") || "Статус ещё не менялся";
+    const dialog = document.querySelector("#request-dialog");
+    if (!dialog.open) dialog.showModal();
+  } catch (error) { toast(error.message); }
 }
 
 function toast(message) {
@@ -95,7 +112,7 @@ function toast(message) {
 async function createRequest(channelId) {
   try {
   const result = await api("/api/v1/maintenance-requests", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({channel_id: channelId})});
-  toast(result.created ? "Черновик заявки сформирован" : "Черновик уже существует");
+  toast(result.created ? "Черновик заявки сформирован" : "Активная заявка уже существует");
   await refreshSummary(); await loadRequests();
   } catch (error) { toast(error.message); }
 }
@@ -138,4 +155,19 @@ document.querySelectorAll(".nav-item").forEach((button, index) => {
     document.querySelector(["header", ".map-panel", ".journal-panel", "#requests-panel"][index]).scrollIntoView({behavior:"smooth"});
   };
 });
+document.querySelector("#close-request").onclick = () => document.querySelector("#request-dialog").close();
+document.querySelector("#request-form").onsubmit = async event => {
+  event.preventDefault();
+  const button = event.target.querySelector("button");
+  const item = selectedRequest;
+  button.disabled = true;
+  try {
+    await api(`/api/v1/maintenance-requests/${item.id}`, {method: "PATCH", headers: {"Content-Type":"application/json"}, body: JSON.stringify({...Object.fromEntries(new FormData(event.target)), expected_status: item.status})});
+    await openRequest(item.id); await loadRequests(); toast("Статус сохранён");
+  } catch (error) {
+    toast(error.message);
+    await openRequest(item.id);
+  } finally { button.disabled = false; }
+};
+window.openRequest = openRequest;
 window.focusRow = focusRow; window.createRequest = createRequest; init();
