@@ -1,0 +1,8 @@
+.venv/
+data/raw/
+data/tmp/
+data/interim/
+data/features/
+__pycache__/
+*.pyc
+mlruns/
