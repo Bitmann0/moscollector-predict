@@ -1,5 +1,6 @@
-"""Головы A′ (массовый отказ объекта), B (пожарный риск участка),
-C (несанкционированный доступ) и D (износ агрегатов).
+"""Головы, кроме основной A: аномалия и деградация датчика, массовый отказ
+объекта, пожарный риск участка, несанкционированный доступ, износ агрегатов
+и риск подтопления.
 """
 import datetime as dt
 import sys
@@ -34,6 +35,7 @@ BUILDERS = {
     "B": labels.build_fire,
     "C": labels.build_intrusion,
     "D": labels.build_wear,
+    "E": labels.build_flood,
 }
 
 
@@ -114,7 +116,7 @@ def run_head(head: str, cfg: dict) -> None:
 
 def main() -> None:
     heads = serve.load_heads()
-    for head in ("A_strict", "A_deg", "A_prime", "B", "C", "D"):
+    for head in ("A_strict", "A_deg", "A_prime", "B", "C", "D", "E"):
         print(flush=True)
         run_head(head, heads[head])
 

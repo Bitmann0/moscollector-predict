@@ -176,3 +176,27 @@ def test_wear_label_only_covers_equipment_channels(con):
     labels.build_wear(con, horizon_days=7)
     assert con.execute("SELECT count(*) FROM label_wear").fetchone()[0] == 0, \
         "канал не помечен как оборудование в daily_channel — строк быть не должно"
+
+
+def test_flood_label_covers_only_objects_with_pumps(con):
+    """Там, где насосов нет, подтопление ничем не измеряется."""
+    con.execute("DELETE FROM daily_channel")
+    con.execute("ALTER TABLE daily_channel ADD COLUMN IF NOT EXISTS n_flood BIGINT DEFAULT 0")
+    for d in range(1, 11):
+        # объект A с насосом, объект B без
+        con.execute(
+            "INSERT INTO daily_channel (ch, day, obj, stype, n_events, n_alarms,"
+            " n_bad, n_fire, n_intrusion, picket, n_flood) "
+            "VALUES (1, ?, 'A', 'Состояние насоса', 5, 0, 0, 0, 0, 10.0, ?)",
+            [f"2025-01-{d:02d}", 1 if d == 5 else 0])
+        con.execute(
+            "INSERT INTO daily_channel (ch, day, obj, stype, n_events, n_alarms,"
+            " n_bad, n_fire, n_intrusion, picket, n_flood) "
+            "VALUES (2, ?, 'B', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0, 0)",
+            [f"2025-01-{d:02d}"])
+    labels.build_flood(con, horizon_days=1)
+    objs = {r[0] for r in con.execute("SELECT DISTINCT obj FROM label_flood").fetchall()}
+    assert objs == {"A"}, "объект без насосов в популяцию попадать не должен"
+    pos = [str(r[0]) for r in
+           con.execute("SELECT day FROM label_flood WHERE y = 1").fetchall()]
+    assert pos == ["2025-01-04"]

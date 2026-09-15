@@ -28,9 +28,9 @@ def test_empty_frame_produces_no_alerts():
     assert out.height == 0 and "alert" in out.columns
 
 
-def test_heads_config_lists_all_five_heads():
+def test_heads_config_lists_every_head():
     heads = serve.load_heads()
-    assert set(heads) == {"A", "A_strict", "A_deg", "A_prime", "B", "C", "D"}
+    assert set(heads) == {"A", "A_strict", "A_deg", "A_prime", "B", "C", "D", "E"}
     for name, cfg in heads.items():
         assert {"entity", "feature_set", "label", "horizon_days",
                 "embargo_days", "budget_per_day"} <= cfg.keys()

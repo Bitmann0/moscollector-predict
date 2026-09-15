@@ -72,6 +72,7 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
     ), r AS (
       SELECT ch, day, obj, stype, sys, picket,
              n_events, n_alarms, n_bad, n_ok, n_fire, n_intrusion,
+             n_flood, n_on, n_all_pumps,
              n_chatter_1min, n_transitions,
              max_gap_s, med_gap_s, val_mean, val_std, val_min, val_max,
              prev_gap_days,

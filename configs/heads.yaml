@@ -77,3 +77,12 @@ D:
   horizon_days: 7
   embargo_days: 37
   budget_per_day: 3
+
+E:
+  title: Риск подтопления
+  entity: [obj, day]
+  feature_set: object
+  label: label_flood
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 5

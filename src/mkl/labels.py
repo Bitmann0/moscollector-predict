@@ -178,3 +178,26 @@ def build_wear(con, horizon_days: int = 7) -> None:
         "ch", horizon_days,
         base_sql=f"SELECT DISTINCT ch AS eid, day FROM daily_channel WHERE stype IN {eq}",
     )
+
+
+def build_flood(con, horizon_days: int = 1) -> None:
+    """Риск подтопления объекта.
+
+    Сценарий прямо описан в ТЗ: система сопоставляет частоту включения
+    насосных станций с метеоданными и историческими паттернами подтоплений.
+    Метка — состояние «Затоплен», которое приходит с каналов насосов.
+    Популяция ограничена объектами, где насосы вообще есть: там, где их нет,
+    подтопление ничем не измеряется и прогнозировать нечего.
+    """
+    _emit(
+        con, "label_flood",
+        "SELECT obj AS eid, day AS event_day FROM daily_channel "
+        "WHERE n_flood > 0 AND obj IS NOT NULL",
+        "obj", horizon_days,
+        base_sql=(
+            "SELECT DISTINCT obj AS eid, day FROM daily_channel "
+            "WHERE obj IS NOT NULL AND obj IN ("
+            "  SELECT DISTINCT obj FROM daily_channel "
+            "  WHERE stype = 'Состояние насоса' AND obj IS NOT NULL)"
+        ),
+    )

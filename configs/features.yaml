@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-15T21:55:56'
+  built_at: '2026-09-15T23:38:49'
   columns:
   - n_channels
   - n_events
@@ -7,6 +7,12 @@ object:
   - n_bad
   - n_fire
   - n_intrusion
+  - n_flood
+  - n_pump_on
+  - n_all_pumps
+  - n_pumps
+  - pump_switches
+  - pump_bad
   - n_chatter_1min
   - n_transitions
   - n_alarms_w7
@@ -55,6 +61,7 @@ object:
     n_alarms: HUGEINT
     n_alarms_w30: HUGEINT
     n_alarms_w7: HUGEINT
+    n_all_pumps: HUGEINT
     n_bad: HUGEINT
     n_bad_w30: HUGEINT
     n_bad_w7: HUGEINT
@@ -66,11 +73,16 @@ object:
     n_events_w30: HUGEINT
     n_events_w7: HUGEINT
     n_fire: HUGEINT
+    n_flood: HUGEINT
     n_intrusion: HUGEINT
     n_prior_failures: HUGEINT
+    n_pump_on: HUGEINT
+    n_pumps: BIGINT
     n_transitions: HUGEINT
     obj: VARCHAR
     precip_mm: DOUBLE
+    pump_bad: HUGEINT
+    pump_switches: HUGEINT
     silence_ratio_max: DOUBLE
     silence_ratio_mean: DOUBLE
     silence_z_max: DOUBLE
@@ -86,7 +98,7 @@ object:
   n_rows: 162294
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-15T21:56:01'
+  built_at: '2026-09-15T23:38:54'
   columns:
   - n_channels
   - n_events
@@ -155,7 +167,7 @@ segment:
   n_rows: 1091219
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-15T21:55:51'
+  built_at: '2026-09-15T23:38:44'
   columns:
   - stype
   - sys
@@ -166,6 +178,9 @@ sensor:
   - n_ok
   - n_fire
   - n_intrusion
+  - n_flood
+  - n_on
+  - n_all_pumps
   - n_chatter_1min
   - n_transitions
   - max_gap_s
@@ -310,6 +325,7 @@ sensor:
     n_alarms: BIGINT
     n_alarms_w30: HUGEINT
     n_alarms_w7: HUGEINT
+    n_all_pumps: BIGINT
     n_bad: BIGINT
     n_bad_w30: HUGEINT
     n_bad_w7: HUGEINT
@@ -325,8 +341,10 @@ sensor:
     n_events_w30: HUGEINT
     n_events_w7: HUGEINT
     n_fire: BIGINT
+    n_flood: BIGINT
     n_intrusion: BIGINT
     n_ok: BIGINT
+    n_on: BIGINT
     n_prior_episodes: HUGEINT
     n_prior_failures: HUGEINT
     n_transitions: BIGINT

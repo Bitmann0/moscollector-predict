@@ -35,6 +35,7 @@ BUILDERS = {
     "B": labels.build_fire,
     "C": labels.build_intrusion,
     "D": labels.build_wear,
+    "E": labels.build_flood,
 }
 
 
