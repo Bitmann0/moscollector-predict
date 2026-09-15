@@ -7,7 +7,7 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
 
 from .config import Settings
 from .database import MaintenanceRepository
@@ -18,6 +18,12 @@ settings = Settings.from_env()
 
 class MaintenanceCreate(BaseModel):
     channel_id: int = Field(gt=0)
+
+
+class FeedbackCreate(BaseModel):
+    decision: Literal["inspection_required", "monitor", "dismissed", "fault_confirmed"]
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=2000)]
+    author: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
 
 
 @asynccontextmanager
@@ -109,6 +115,21 @@ def list_maintenance_requests() -> dict:
     return {"total": len(items), "items": items}
 
 
+@app.get("/api/v1/forecasts/{channel_id}/feedback")
+def list_feedback(channel_id: int) -> dict:
+    items = app.state.repository.feedback(channel_id)
+    return {"total": len(items), "items": items}
+
+
+@app.post("/api/v1/forecasts/{channel_id}/feedback", status_code=201)
+def add_feedback(channel_id: int, payload: FeedbackCreate) -> dict:
+    forecast = get_forecast(channel_id)
+    snapshot = {**forecast, "data_from": app.state.metadata.get("data_from"),
+                "data_to": app.state.metadata.get("data_to"),
+                "model_version": app.state.metadata.get("model_version")}
+    return app.state.repository.add_feedback(snapshot, **payload.model_dump())
+
+
 @app.post("/api/v1/maintenance-requests", status_code=201)
 def create_maintenance_request(payload: MaintenanceCreate) -> dict:
     forecast = next(
@@ -139,4 +160,3 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
-

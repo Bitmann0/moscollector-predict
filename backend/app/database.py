@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
@@ -19,6 +20,17 @@ class MaintenanceRepository:
 
     def _initialize(self) -> None:
         with self._connect() as connection:
+            connection.execute("""
+                CREATE TABLE IF NOT EXISTS forecast_feedback (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    channel_id INTEGER NOT NULL,
+                    decision TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    author TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    forecast_snapshot TEXT NOT NULL
+                )
+            """)
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS maintenance_requests (
@@ -45,6 +57,7 @@ class MaintenanceRepository:
     def create(self, forecast: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         now = datetime.now(UTC).replace(microsecond=0).isoformat()
         with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
             existing = connection.execute(
                 "SELECT * FROM maintenance_requests WHERE channel_id = ? AND status = 'draft'",
                 (forecast["channel_id"],),
@@ -71,3 +84,25 @@ class MaintenanceRepository:
             ).fetchone()
         return dict(row), True
 
+    def feedback(self, channel_id: int) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM forecast_feedback WHERE channel_id = ? ORDER BY id DESC",
+                (channel_id,),
+            ).fetchall()
+        return [{**dict(row), "forecast_snapshot": json.loads(row["forecast_snapshot"])}
+                for row in rows]
+
+    def add_feedback(self, forecast: dict[str, Any], decision: str,
+                     reason: str, author: str) -> dict[str, Any]:
+        with self._connect() as connection:
+            cursor = connection.execute(
+                """INSERT INTO forecast_feedback
+                (channel_id, decision, reason, author, created_at, forecast_snapshot)
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (forecast["channel_id"], decision, reason, author,
+                 datetime.now(UTC).isoformat(), json.dumps(forecast, ensure_ascii=False)),
+            )
+            feedback_id = cursor.lastrowid
+        return next(item for item in self.feedback(forecast["channel_id"])
+                    if item["id"] == feedback_id)

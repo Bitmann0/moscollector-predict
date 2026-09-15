@@ -11,8 +11,8 @@ COPY backend ./backend
 RUN pip install .
 
 RUN addgroup --system app && adduser --system --ingroup app app \
-    && mkdir -p /app/data/raw \
-    && chown -R app:app /app/data
+    && mkdir -p /app/data/raw /app/state \
+    && chown -R app:app /app/data /app/state
 
 USER app
 EXPOSE 8000
