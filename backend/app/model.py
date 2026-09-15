@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
@@ -76,7 +76,14 @@ def load_frames(data_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     )
     if events["timestamp"].isna().any():
         raise DataValidationError(f"{EVENTS_FILE}: обнаружены некорректные дата или время")
-    events["тревожное"] = events["тревожное"].astype(bool)
+    if events.empty:
+        raise DataValidationError(f"{EVENTS_FILE}: журнал пуст")
+    alarm = events["тревожное"].astype(str).str.strip().str.lower().map(
+        {"true": True, "false": False, "t": True, "f": False, "1": True, "0": False}
+    )
+    if alarm.isna().any():
+        raise DataValidationError(f"{EVENTS_FILE}: некорректный флаг тревоги")
+    events["тревожное"] = alarm.astype(bool)
     events["numeric_value"] = pd.to_numeric(
         events["значение_датчика"].astype(str).str.replace(",", ".", regex=False),
         errors="coerce",
@@ -156,7 +163,9 @@ def build_forecasts(
     )
     features["risk_score"] = 1.0 / (1.0 + np.exp(-raw_score))
 
-    predicted_at = datetime.now(UTC).replace(microsecond=0)
+    # Исторический replay отсчитывает горизонт от конца доступных наблюдений.
+    # Часовой пояс выгрузки предполагается Europe/Moscow до подтверждения заказчиком.
+    predicted_at = events["timestamp"].max().tz_localize("Europe/Moscow").to_pydatetime()
     valid_until = predicted_at + timedelta(hours=horizon_hours)
     forecasts: list[Forecast] = []
     for row in features.itertuples(index=False):
@@ -217,4 +226,3 @@ def analyze(data_dir: Path, horizon_hours: int = 24) -> tuple[list[Forecast], di
         "model_status": "baseline_unvalidated",
     }
     return forecasts, metadata
-
