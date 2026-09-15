@@ -104,6 +104,34 @@ def test_L4_silence_produces_positives(con):
     assert "2025-01-15" in pos
 
 
+def test_L7_ignores_channel_that_reports_rarely(con):
+    """Канал, штатно отчитывающийся раз в трое суток, пропуском не отказывает."""
+    con.execute("DELETE FROM daily_channel")
+    for d in range(1, 31, 3):
+        con.execute(
+            "INSERT INTO daily_channel VALUES (1, ?, 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)",
+            [f"2025-01-{d:02d}"],
+        )
+    labels.build_sensor_failure(con, variant="L7", horizon_days=1)
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 0
+    labels.build_sensor_failure(con, variant="L4", horizon_days=1)
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] > 0
+
+
+def test_L7_catches_gap_in_regular_channel(con):
+    """Канал отчитывался ежедневно месяц и пропал — это аномалия."""
+    con.execute("DELETE FROM daily_channel")
+    for d in list(range(1, 29)) + [31]:
+        con.execute(
+            "INSERT INTO daily_channel VALUES (1, ?, 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)",
+            [f"2025-01-{d:02d}"],
+        )
+    labels.build_sensor_failure(con, variant="L7", horizon_days=1)
+    pos = [str(r[0]) for r in con.execute(
+        "SELECT day FROM label_failure WHERE y=1").fetchall()]
+    assert pos == ["2025-01-28"]
+
+
 def test_horizon_widens_positive_window(con):
     _episode(con, "2025-01-08 03:00:00", "2025-01-08 09:00:00", 21600)
     labels.build_sensor_failure(con, variant="L2", horizon_days=7)

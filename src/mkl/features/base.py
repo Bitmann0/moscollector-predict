@@ -54,15 +54,35 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
                 THEN (n_bad_w7 / 7.0) / (n_bad_w30 / 30.0) END AS bad_accel,
            CASE WHEN n_active_days_w30 > 0
                 THEN CAST(n_active_days_w7 AS DOUBLE) / n_active_days_w30
-                END AS activity_days_ratio"""
+                END AS activity_days_ratio,
+           CASE WHEN prev_gap_days_mean_w30 > 0
+                THEN prev_gap_days / prev_gap_days_mean_w30
+                END AS gap_vs_own_rhythm"""
 
     con.execute(f"""
     CREATE OR REPLACE TABLE feat_base AS
-    WITH r AS (
+    WITH g AS (
+      -- Ритм отчётности канала в сутках. Строго прошлое: это разрыв, который
+      -- уже закончился сегодня, тогда как метка молчания спрашивает про
+      -- разрыв, начинающийся завтра. Вынесено в отдельный шаг: DuckDB
+      -- не допускает вложенных оконных функций.
+      SELECT *, date_diff('day', lag(day) OVER (PARTITION BY ch ORDER BY day), day)
+               AS prev_gap_days
+      FROM {source}
+    ), r AS (
       SELECT ch, day, obj, stype, sys, picket,
              n_events, n_alarms, n_bad, n_ok, n_fire, n_intrusion,
              n_chatter_1min, n_transitions,
              max_gap_s, med_gap_s, val_mean, val_std, val_min, val_max,
+             prev_gap_days,
+             avg(CAST(prev_gap_days AS DOUBLE))
+               OVER (PARTITION BY ch ORDER BY day
+                     RANGE BETWEEN INTERVAL 29 DAY PRECEDING AND CURRENT ROW)
+               AS prev_gap_days_mean_w30,
+             max(prev_gap_days)
+               OVER (PARTITION BY ch ORDER BY day
+                     RANGE BETWEEN INTERVAL 29 DAY PRECEDING AND CURRENT ROW)
+               AS prev_gap_days_max_w30,
              {rolling},
              max(CASE WHEN n_alarms > 0 THEN day END) OVER (
                PARTITION BY ch ORDER BY day ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
@@ -82,7 +102,7 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
                PARTITION BY ch ORDER BY day
                RANGE BETWEEN INTERVAL 89 DAY PRECEDING AND CURRENT ROW
              ) AS std_gap_q_s
-      FROM {source}
+      FROM g
     )
     SELECT *,
            date_diff('day', last_alarm_day, day) AS days_since_last_alarm,

@@ -107,7 +107,7 @@ def main() -> None:
     print("базовой ставкой, хотя именно они дают нужную абсолютную точность.", flush=True)
     e1 = {}
     feats_s = load_features(window_start)
-    for variant in ("L1", "L2", "L3", "L4", "L5", "L6"):
+    for variant in ("L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"):
         lab = load_labels(window_start, variant)
         if lab["y"].sum() == 0:
             print(f"  {variant}: позитивов нет, пропуск", flush=True)
@@ -120,7 +120,7 @@ def main() -> None:
     # в отдельную голову деградации и здесь остаётся референсом.
     # L4 — чистое молчание; L5 включает его и добавляет устойчивый отказ,
     # поэтому среди кандидатов оставлен именно L5.
-    SUSTAINED = ("L2", "L3", "L5", "L6")
+    SUSTAINED = ("L2", "L3", "L5", "L6", "L8")
     pool = {k: v for k, v in e1.items() if k in SUSTAINED}
     variant = max(pool, key=lambda k: pool[k])
     print(f"  -> выбрана метка: {variant} (референс-метки L1/L4 в журнале)\n", flush=True)

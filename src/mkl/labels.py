@@ -21,7 +21,12 @@ _VARIANT_FILTER = {
 # Событием считается ПЕРВЫЕ пропущенные сутки, а не день возобновления работы:
 # иначе при горизонте 24 ч метка не может сработать в принципе, ведь разрыв по
 # определению длится не меньше двух суток.
-_SILENCE_SQL = """
+#
+# min_active — сколько из предыдущих 30 суток канал обязан быть активен, чтобы
+# пропуск считался аномалией. При пороге 7 метка ловит штатный редкий опрос:
+# канал, отчитывающийся раз в три дня, не отказывает, когда пропускает сутки.
+def _silence_sql(min_active: int = 7) -> str:
+    return f"""
   SELECT ch AS eid, prev_day + INTERVAL 1 DAY AS event_day FROM (
     SELECT ch, day,
            lag(day) OVER (PARTITION BY ch ORDER BY day) AS prev_day,
@@ -29,8 +34,12 @@ _SILENCE_SQL = """
            count(*) OVER (PARTITION BY ch ORDER BY day
                           RANGE BETWEEN INTERVAL 30 DAY PRECEDING AND CURRENT ROW) AS recent_days
     FROM daily_channel
-  ) WHERE gap_days >= 2 AND recent_days >= 7
+  ) WHERE gap_days >= 2 AND recent_days >= {min_active}
 """
+
+
+_SILENCE_SQL = _silence_sql(7)
+_SILENCE_STRICT_SQL = _silence_sql(25)
 
 
 def _in(states: frozenset[str]) -> str:
@@ -65,16 +74,21 @@ def _emit(con: duckdb.DuckDBPyConnection, table: str, events_sql: str,
 def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1,
                          table: str = "label_failure") -> None:
     """L1 любой Неисправен; L2 эпизод >= 1 ч; L3 = L2 без групповых;
-    L4 молчание суток при живом канале; L5 = L6 объединить L4;
-    L6 = L3 с требованием, что канал был жив и эпизод не превратился в списание."""
+    L4 молчание при активности >= 7 из 30 суток; L5 = L6 объединить L4;
+    L6 = L3 с требованием, что канал был жив и эпизод не превратился в списание;
+    L7 строгое молчание — пропуск у канала, активного >= 25 из 30 суток;
+    L8 = L6 объединить L7, то есть отказ или аномальный уход в молчание."""
     if variant == "L4":
         events = _SILENCE_SQL
-    elif variant == "L5":
+    elif variant == "L7":
+        events = _SILENCE_STRICT_SQL
+    elif variant in ("L5", "L8"):
+        silence = _SILENCE_SQL if variant == "L5" else _SILENCE_STRICT_SQL
         events = f"""
           SELECT ch AS eid, CAST(t_start AS DATE) AS event_day FROM episodes
           WHERE {_VARIANT_FILTER['L6']}
           UNION ALL
-          {_SILENCE_SQL}
+          {silence}
         """
     else:
         events = f"""
