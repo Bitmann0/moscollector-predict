@@ -24,7 +24,7 @@ DEFAULT_PARAMS = {
 KEYS = ("ch", "obj", "seg", "day")
 METRIC_KEYS = ("pr_auc", "precision_at_k", "recall_at_k", "lift_at_k",
                "precision", "recall", "brier", "base_rate",
-               "op_precision", "op_recall", "op_k")
+               "op_precision", "op_recall", "op_k", "p_at_r50")
 
 
 def feature_columns(df: pl.DataFrame) -> list[str]:

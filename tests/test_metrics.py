@@ -44,6 +44,33 @@ def test_lift_is_one_for_random_ranking():
     assert metrics.lift(y, p, k=1000) == pytest.approx(1.0, abs=0.25)
 
 
+def test_precision_at_recall_is_one_for_perfect_ranking():
+    y = np.array([1, 1, 1, 0, 0, 0, 0, 0])
+    p = np.array([0.9, 0.8, 0.7, 0.1, 0.1, 0.1, 0.1, 0.1])
+    out = metrics.precision_at_recall(y, p, target_recall=0.5)
+    assert out["precision"] == pytest.approx(1.0)
+    assert out["recall"] >= 0.5
+
+
+def test_precision_at_recall_matches_base_rate_for_random_ranking():
+    rng = np.random.default_rng(11)
+    y = (rng.random(20000) < 0.1).astype(int)
+    p = rng.random(20000)
+    out = metrics.precision_at_recall(y, p, target_recall=0.5)
+    assert out["precision"] == pytest.approx(0.1, abs=0.02)
+
+
+def test_precision_at_recall_exposes_tiny_recall_behind_high_precision():
+    """Высокая точность может достигаться на единичном верхнем алерте.
+    Точность при Recall 0.5 показывает настоящую цену половины событий."""
+    y = np.concatenate([[1], np.zeros(999, dtype=int), np.ones(99, dtype=int)])
+    p = np.concatenate([[1.0], np.linspace(0.9, 0.5, 999), np.full(99, 0.4)])
+    op = metrics.target_operating_point(y, p)
+    assert op["feasible"] and op["precision"] >= 0.7
+    assert op["recall"] < 0.05, "точность 0.7 держится лишь на одном алерте"
+    assert metrics.precision_at_recall(y, p, 0.5)["precision"] < 0.2
+
+
 def test_target_operating_point_found_for_perfect_ranking():
     y = np.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
     p = np.array([0.9, 0.8, 0.7, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])

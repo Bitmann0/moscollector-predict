@@ -43,6 +43,34 @@ def threshold_for_budget(p: np.ndarray, budget: int) -> float:
     return float(np.sort(p)[::-1][budget - 1])
 
 
+def precision_at_recall(y: np.ndarray, p: np.ndarray,
+                        target_recall: float = 0.5) -> dict:
+    """Точность в точке, где Recall впервые достигает заданного уровня.
+
+    Прямой ответ на вопрос ТЗ «Recall > 0.5»: если ловить половину событий,
+    какой ценой по ложным срабатываниям. В отличие от максимума точности по
+    всем порогам, эта величина не вырождается в 1.0 на одном верхнем алерте.
+    """
+    y = np.asarray(y)
+    p = np.asarray(p, dtype=float)
+    n_pos = int(y.sum())
+    if n_pos == 0:
+        return {"precision": float("nan"), "k": 0, "alerts_per_positive": float("nan")}
+    order = np.argsort(-p, kind="stable")
+    tp = np.cumsum(y[order])
+    k = np.arange(1, len(y) + 1)
+    rec = tp / n_pos
+    idx = np.searchsorted(rec, target_recall, side="left")
+    if idx >= len(rec):
+        idx = len(rec) - 1
+    return {
+        "precision": float(tp[idx] / k[idx]),
+        "k": int(k[idx]),
+        "recall": float(rec[idx]),
+        "alerts_per_positive": float(k[idx] / max(tp[idx], 1)),
+    }
+
+
 def target_operating_point(y: np.ndarray, p: np.ndarray,
                            min_precision: float = 0.7) -> dict:
     """Точка с максимальным Recall среди тех, где Precision >= min_precision.
@@ -111,11 +139,14 @@ def summary(y: np.ndarray, p: np.ndarray, budget: int) -> dict:
     pred = p >= thr
     tp = int((pred & (y == 1)).sum())
     op = target_operating_point(y, p, min_precision=0.7)
+    par = precision_at_recall(y, p, target_recall=0.5)
     return {
         "op_feasible": bool(op.get("feasible", False)),
         "op_precision": float(op.get("precision", op.get("max_precision", float("nan")))),
         "op_recall": float(op.get("recall", op.get("recall_at_max_precision", float("nan")))),
         "op_k": int(op.get("k", op.get("k_at_max_precision", 0))),
+        "p_at_r50": par["precision"],
+        "k_at_r50": par["k"],
         "n": int(len(y)),
         "n_pos": int(y.sum()),
         "base_rate": base_rate(y),
