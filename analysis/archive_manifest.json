@@ -1,0 +1,74 @@
+[
+  {
+    "archive": "ext-journal-2019.7z",
+    "files": [
+      {
+        "name": "ext-journal-2019.csv",
+        "size": 1185619451
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2020.7z",
+    "files": [
+      {
+        "name": "ext-journal-2020.csv",
+        "size": 1576579151
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2021.7z",
+    "files": [
+      {
+        "name": "ext-journal-2021.csv",
+        "size": 2735726977
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2022.7z",
+    "files": [
+      {
+        "name": "ext-journal-2022.csv",
+        "size": 2161818822
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2023.7z",
+    "files": [
+      {
+        "name": "ext-journal-2023.csv",
+        "size": 1630553963
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2024.7z",
+    "files": [
+      {
+        "name": "ext-journal-2024.csv",
+        "size": 2419404373
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2025.7z",
+    "files": [
+      {
+        "name": "ext-journal-2025.csv",
+        "size": 2710263516
+      }
+    ]
+  },
+  {
+    "archive": "ext-journal-2026.7z",
+    "files": [
+      {
+        "name": "ext-journal-2026.csv",
+        "size": 1497523553
+      }
+    ]
+  }
+]
