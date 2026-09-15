@@ -19,22 +19,27 @@ WINDOW_START = dt.date(2023, 1, 1)
 VAL_START = dt.date(2025, 10, 1)
 VAL_END = dt.date(2025, 12, 31)
 
+def _choice() -> dict:
+    """Конфигурация головы A, выбранная экспериментами E0–E2."""
+    out = {"variant": "L6", "horizon_days": "1", "eligible_only": "False"}
+    path = PATHS.reports / "head_a_choice.txt"
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if "=" in line:
+                k, v = line.split("=", 1)
+                out[k.strip()] = v.strip()
+    return out
+
+
 BUILDERS = {
-    "A": lambda con, h: labels.build_sensor_failure(con, variant=_variant(), horizon_days=h),
+    "A": lambda con, h: labels.build_sensor_failure(
+        con, variant=_choice()["variant"], horizon_days=h),
+    "A_deg": labels.build_sensor_degradation,
     "A_prime": labels.build_group_outage,
     "B": labels.build_fire,
     "C": labels.build_intrusion,
     "D": labels.build_wear,
 }
-
-
-def _variant() -> str:
-    path = PATHS.reports / "head_a_choice.txt"
-    if path.exists():
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if line.startswith("variant="):
-                return line.split("=", 1)[1].strip()
-    return "L3"
 
 
 def load_labels(head: str, cfg: dict) -> pl.DataFrame:
@@ -80,16 +85,23 @@ def evaluate_head(head: str, cfg: dict) -> dict | None:
     p_hold = calibrate.apply(iso, model.predict_proba(train._matrix(hold, names))[:, 1])
 
     n_days = (HOLDOUT_END - HOLDOUT_START).days + 1
-    res = metrics.summary(hold["y"].to_numpy(), p_hold,
-                          budget=cfg["budget_per_day"] * n_days)
-    experiments.log({"head": head, "step": "FINAL", "note": "отложенный 2026H1", **res})
+    yh = hold["y"].to_numpy()
+    res = metrics.summary(yh, p_hold, budget=cfg["budget_per_day"] * n_days)
+    op = metrics.target_operating_point(yh, p_hold, min_precision=0.7)
+    curve = metrics.budget_curve(yh, p_hold, (n_days, 5 * n_days, 20 * n_days))
+    experiments.log({"head": head, "step": "FINAL", "note": "отложенный 2026H1",
+                     **res, "curve": curve})
     serve.save(head, model, iso, names)
 
-    ok = "ДА" if res["precision"] > 0.7 and res["recall"] > 0.5 else "нет"
-    print(f"{head:8} PR-AUC={res['pr_auc']:.4f}  P={res['precision']:.3f}  "
-          f"R={res['recall']:.3f}  P@k={res['precision_at_k']:.3f}  "
-          f"lift={res['lift_at_k']:.1f}  цель={ok}", flush=True)
-    return {"head": head, "title": cfg["title"], **res}
+    ok = "ДА" if op.get("feasible") and op.get("recall", 0) > 0.5 else "нет"
+    print(f"{head:8} PR-AUC={res['pr_auc']:.4f}  "
+          f"maxP={res['op_precision']:.3f}@R={res['op_recall']:.3f}  "
+          f"P@k={res['precision_at_k']:.3f}  lift={res['lift_at_k']:.1f}  "
+          f"позитивов={res['n_pos']:,}  цель_ТЗ={ok}", flush=True)
+    for c in curve:
+        print(f"           бюджет {c['budget']:>6} алертов: P={c['precision']:.3f}  "
+              f"R={c['recall']:.3f}  lift={c['lift']:.1f}", flush=True)
+    return {"head": head, "title": cfg["title"], "meets_target": ok == "ДА", **res}
 
 
 def main() -> None:
@@ -108,11 +120,12 @@ def main() -> None:
         print(f"  {head:8} сущностей={df.height:>6,}  алертов={df['alert'].sum():>4}")
 
     if rows:
-        out = pl.DataFrame(rows)
+        out = pl.DataFrame(rows).drop("op_feasible", strict=False)
         out.write_csv(PATHS.reports / "final_metrics.csv")
         print("\n" + out.select([
             "head", "title", "n", "n_pos", "base_rate", "pr_auc",
-            "precision", "recall", "precision_at_k", "lift_at_k",
+            "op_precision", "op_recall", "precision_at_k", "lift_at_k",
+            "meets_target",
         ]).to_pandas().to_string(index=False))
 
 

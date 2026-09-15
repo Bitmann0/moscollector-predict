@@ -44,11 +44,25 @@ def load_registry() -> dict:
 
 
 def read_slice(name: str, start: dt.date, end: dt.date,
-               columns: list[str] | None = None) -> pl.DataFrame:
+               columns: list[str] | None = None,
+               f32: bool = True) -> pl.DataFrame:
+    """Срез фичестора за период.
+
+    f32 приводит числовые признаки к float32: на 4,3 млн строк и сотне
+    признаков это 1,7 ГБ вместо 3,4 и заметно меньше давление на память при
+    обучении, а точность градиентного бустинга от этого не страдает.
+    """
     lf = pl.scan_parquet(FEATURE_DIR / f"{name}.parquet")
     lf = lf.filter((pl.col("day") >= start) & (pl.col("day") <= end))
     if columns:
         lf = lf.select(columns)
+    if f32:
+        keys = list(KEY_COLUMNS)
+        lf = lf.with_columns(
+            pl.col(pl.Float64).exclude(keys).cast(pl.Float32),
+            pl.col(pl.Int64).exclude(keys).cast(pl.Float32),
+            pl.col(pl.Int32).exclude(keys).cast(pl.Float32),
+        )
     return lf.collect()
 
 

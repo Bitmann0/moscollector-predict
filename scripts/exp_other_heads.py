@@ -8,12 +8,24 @@ import numpy as np
 import polars as pl
 
 from mkl import cv, db, experiments, labels, metrics, serve, store, train
-from mkl.config import HOLDOUT_START
+from mkl.config import HOLDOUT_START, PATHS
 
 sys.stdout.reconfigure(encoding="utf-8")
 
 TRAIN_END = HOLDOUT_START - dt.timedelta(days=1)
-WINDOW_START = dt.date(2023, 1, 1)
+
+
+def _window_start() -> dt.date:
+    """Окно обучения берётся из выбора эксперимента E0, а не задаётся заново."""
+    path = PATHS.reports / "head_a_choice.txt"
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.startswith("window_start="):
+                return dt.date.fromisoformat(line.split("=", 1)[1].strip())
+    return dt.date(2023, 1, 1)
+
+
+WINDOW_START = _window_start()
 
 BUILDERS = {
     "A_deg": labels.build_sensor_degradation,

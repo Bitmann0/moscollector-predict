@@ -68,6 +68,19 @@ def evaluate(step: str, feats, lab, splits, params=None, cols=None,
 TEST_DAYS = 90
 
 
+def _score(mean: dict) -> tuple[float, float]:
+    """Приоритет — достижимая Precision, затем Recall при ней.
+
+    Это прямая формулировка цели ТЗ. PR-AUC и lift для выбора между метками
+    непригодны: PR-AUC несравним при разных базовых ставках, а lift штрафует
+    как раз те постановки, которые дают нужную абсолютную точность.
+    """
+    def f(key: str) -> float:
+        v = mean.get(key, 0.0)
+        return v if v == v else 0.0
+    return f("op_precision"), f("op_recall")
+
+
 def make_splits(lab: pl.DataFrame, n_splits: int = 3) -> list:
     days = sorted(lab["day"].unique().to_list())
     return cv.walk_forward(days, n_splits=n_splits, test_days=TEST_DAYS,
@@ -88,8 +101,10 @@ def main() -> None:
     print(f"  -> выбрано окно: {window_start}\n", flush=True)
 
     print("=== E1: вариант метки ===", flush=True)
-    print("Сравнение по lift, а не по PR-AUC: у меток разная базовая ставка,", flush=True)
-    print("и PR-AUC между ними несравним напрямую.", flush=True)
+    print("Критерий — цель ТЗ: достижимая Precision и Recall при ней.", flush=True)
+    print("Ни PR-AUC, ни lift для этого не годятся: первый несравним между", flush=True)
+    print("метками с разной базовой ставкой, второй штрафует метки с высокой", flush=True)
+    print("базовой ставкой, хотя именно они дают нужную абсолютную точность.", flush=True)
     e1 = {}
     feats_s = load_features(window_start)
     for variant in ("L1", "L2", "L3", "L4", "L5", "L6"):
@@ -99,14 +114,15 @@ def main() -> None:
             continue
         out = evaluate("E1", feats_s, lab, make_splits(lab, 3), note=f"метка {variant}",
                        params={"n_estimators": 200}, extra={"variant": variant})
-        e1[variant] = out["mean"].get("lift_at_k", float("nan"))
+        e1[variant] = _score(out["mean"])
 
-    # L1 — это дребезг, а не отказ: p90 длительности 1,8 минуты. Держим его как
-    # референс «деградации», но голова A целится в устойчивый отказ, ради
-    # которого выезжает бригада. L4 — чистое молчание, тоже референс.
+    # L1 — дребезг, а не отказ: p90 длительности 1,8 минуты. Он вынесен
+    # в отдельную голову деградации и здесь остаётся референсом.
+    # L4 — чистое молчание; L5 включает его и добавляет устойчивый отказ,
+    # поэтому среди кандидатов оставлен именно L5.
     SUSTAINED = ("L2", "L3", "L5", "L6")
     pool = {k: v for k, v in e1.items() if k in SUSTAINED}
-    variant = max(pool, key=lambda k: (pool[k] if pool[k] == pool[k] else -1))
+    variant = max(pool, key=lambda k: pool[k])
     print(f"  -> выбрана метка: {variant} (референс-метки L1/L4 в журнале)\n", flush=True)
 
     print("=== E2: горизонт и состав популяции ===", flush=True)
@@ -124,12 +140,7 @@ def main() -> None:
             out = evaluate("E2", feats_s, lab_h, make_splits(lab_h, 3), note=tag,
                            params={"n_estimators": 200},
                            extra={"horizon_days": horizon, "eligible_only": eligible})
-            m = out["mean"]
-            # Приоритет — достижимая точность; PR-AUC как тайбрейк.
-            e2[(horizon, eligible)] = (
-                m.get("op_precision", 0.0) if m.get("op_precision") == m.get("op_precision") else 0.0,
-                m.get("pr_auc", 0.0) if m.get("pr_auc") == m.get("pr_auc") else 0.0,
-            )
+            e2[(horizon, eligible)] = _score(out["mean"])
     horizon, eligible = max(e2, key=lambda k: e2[k])
     print(f"  -> выбран горизонт {horizon} сут, "
           f"популяция: {'только отказывавшие' if eligible else 'все каналы'}\n", flush=True)
@@ -141,17 +152,28 @@ def main() -> None:
     print(f"строк фич: {feats.height:,}  меток: {lab.height:,}  "
           f"позитивов: {lab['y'].sum():,} ({lab['y'].mean():.4%})\n", flush=True)
 
+    # Бейзлайны считаются на тех же тестовых фолдах, что и модели: иначе
+    # сравнение идёт на разных выборках с разной базовой ставкой и ничего
+    # не значит.
     joined = feats.join(lab, on=["ch", "day"], how="inner")
+    days_col = joined["day"].to_numpy()
+    test_mask = np.zeros(len(days_col), dtype=bool)
+    for s in splits:
+        test_mask |= ((days_col >= np.datetime64(s.test_start))
+                      & (days_col <= np.datetime64(s.test_end)))
+    joined = joined.filter(pl.Series(test_mask))
     y = joined["y"].to_numpy()
     n_days = sum((s.test_end - s.test_start).days + 1 for s in splits) // len(splits)
     budget = BUDGET_PER_DAY * n_days
 
-    print("=== лестница бейзлайнов ===", flush=True)
+    print(f"=== лестница бейзлайнов (тестовые фолды: {len(y):,} строк, "
+          f"{y.sum():,} позитивов, база {y.mean():.4%}) ===", flush=True)
     rng = np.random.default_rng(42)
     b0 = metrics.summary(y, rng.random(len(y)), budget=budget)
     experiments.log({"head": "A", "step": "B0", "note": "случайный", **b0})
     print(f"  B0   {'случайный':32} PR-AUC={b0['pr_auc']:.4f}  "
-          f"P@k={b0['precision_at_k']:.3f}  R@k={b0['recall_at_k']:.3f}", flush=True)
+          f"P@k={b0['precision_at_k']:.3f}  R@k={b0['recall_at_k']:.3f}  "
+          f"lift={b0['lift_at_k']:.1f}  maxP={b0['op_precision']:.3f}", flush=True)
 
     b1_score = joined["n_alarms_w7"].fill_null(0).cast(pl.Float64).to_numpy()
     b1 = metrics.summary(y, b1_score, budget=budget)
@@ -159,7 +181,7 @@ def main() -> None:
                      "note": "правило ОДС: тревоги за 7 сут", **b1})
     print(f"  B1   {'правило ОДС (тревоги за 7 сут)':32} PR-AUC={b1['pr_auc']:.4f}  "
           f"P@k={b1['precision_at_k']:.3f}  R@k={b1['recall_at_k']:.3f}  "
-          f"lift={b1['lift_at_k']:.1f}", flush=True)
+          f"lift={b1['lift_at_k']:.1f}  maxP={b1['op_precision']:.3f}", flush=True)
     del joined
 
     keys = ["ch", "day"]

@@ -1,0 +1,4 @@
+window_start=2019-01-01
+variant=L2
+horizon_days=7
+eligible_only=True

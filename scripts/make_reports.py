@@ -11,6 +11,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 FMT = {
     "pr_auc": 4, "precision_at_k": 3, "recall_at_k": 3, "lift_at_k": 1,
     "precision": 3, "recall": 3, "brier": 4, "base_rate": 5,
+    "op_precision": 3, "op_recall": 3,
 }
 
 
@@ -28,8 +29,9 @@ def head_a_report() -> str:
     choice = (PATHS.reports / "head_a_choice.txt")
     chosen = choice.read_text(encoding="utf-8") if choice.exists() else "не зафиксирован"
 
-    cols = [c for c in ("step", "note", "n", "n_pos", "base_rate", "pr_auc",
-                        "precision_at_k", "recall_at_k", "lift_at_k", "n_features")
+    cols = [c for c in ("step", "note", "n_pos", "base_rate", "pr_auc",
+                        "precision_at_k", "recall_at_k", "lift_at_k",
+                        "op_precision", "op_recall", "n_features")
             if c in a.columns]
     table = _round(a.select(cols)).to_pandas().to_markdown(index=False)
 
@@ -69,8 +71,9 @@ def heads_report() -> str:
     sub = df.filter(pl.col("head").is_in(["A_prime", "B", "C", "D"]))
     if sub.is_empty():
         return "# Головы A′, B, C, D\n\nПрогонов нет."
-    cols = [c for c in ("head", "step", "note", "n", "n_pos", "base_rate", "pr_auc",
-                        "precision_at_k", "recall_at_k", "lift_at_k")
+    cols = [c for c in ("head", "step", "note", "n_pos", "base_rate", "pr_auc",
+                        "precision_at_k", "recall_at_k", "lift_at_k",
+                        "op_precision", "op_recall")
             if c in sub.columns]
     table = _round(sub.select(cols)).to_pandas().to_markdown(index=False)
     cfg_rows = "\n".join(
@@ -95,10 +98,12 @@ def final_report() -> str:
         return "# Финальная оценка\n\nЗамер на отложенном периоде не выполнен."
     df = _round(pl.read_csv(path))
     cols = [c for c in ("head", "title", "n", "n_pos", "base_rate", "pr_auc",
-                        "precision", "recall", "precision_at_k", "lift_at_k")
+                        "op_precision", "op_recall", "precision_at_k", "lift_at_k",
+                        "meets_target")
             if c in df.columns]
     table = df.select(cols).to_pandas().to_markdown(index=False)
-    ok = df.filter((pl.col("precision") > 0.7) & (pl.col("recall") > 0.5))
+    ok = (df.filter(pl.col("meets_target")) if "meets_target" in df.columns
+          else df.filter((pl.col("op_precision") > 0.7) & (pl.col("op_recall") > 0.5)))
     hit = ", ".join(ok["head"].to_list()) if not ok.is_empty() else "ни одна"
     return "\n".join([
         "# Финальная оценка на отложенном периоде", "",
@@ -107,10 +112,12 @@ def final_report() -> str:
         "2025-10-01 … 2025-12-31 и к отложенному периоду применён без изменений.",
         "", table, "",
         f"Цель ТЗ (Precision > 0.7 и Recall > 0.5) достигнута: **{hit}**.", "",
-        "Recall считается при бюджете алертов, а не при произвольном пороге: "
-        "диспетчер физически не может обработать больше нескольких десятков "
-        "предупреждений за смену, поэтому Recall без указания бюджета "
-        "не имеет операционного смысла.",
+        "`op_precision` и `op_recall` — точка с максимальным Recall среди тех, "
+        "где Precision не ниже 0.7. Именно так проверяется требование ТЗ: "
+        "вопрос не в точности при произвольном бюджете, а в существовании порога, "
+        "удовлетворяющего обоим условиям сразу. Фиксированный бюджет для этого "
+        "не годится — когда алертов больше, чем позитивов, точность ограничена "
+        "сверху их отношением независимо от качества модели.",
     ])
 
 

@@ -15,8 +15,7 @@ DEFAULT_PARAMS = {
     "subsample_freq": 1,
     "colsample_bytree": 0.8,
     "reg_lambda": 1.0,
-    "max_bin": 63,          # 255 бинов на 4 млн строк не окупаются точностью
-    "force_col_wise": True,  # снимает переоценку гистограмм на каждом фолде
+    "max_bin": 63,  # 255 бинов на 4 млн строк не окупаются точностью
     "verbose": -1,
     "n_jobs": 8,
     "random_state": 42,
