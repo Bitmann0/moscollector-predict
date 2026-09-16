@@ -1,6 +1,7 @@
 """Exercise first-start volume permissions and historical readiness with synthetic data."""
 
 import csv
+import http.client
 import json
 import pathlib
 import subprocess
@@ -80,7 +81,7 @@ def main() -> None:
                         state = json.load(r)
                     assert state["ready"] and state["mode"] == "historical"
                     break
-                except (urllib.error.URLError, TimeoutError):
+                except (OSError, urllib.error.URLError, http.client.HTTPException):
                     if attempt == 44:
                         raise
                     time.sleep(1)
