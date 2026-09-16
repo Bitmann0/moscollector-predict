@@ -12,10 +12,11 @@
     <aside class="sidebar">
       <div class="brand"><span class="brand-mark">МК</span><div>МосКоллектор<small>Predict</small></div></div>
       <nav>
-        <button class="nav-item active" data-target="#metrics">◫ <span>Обзор каналов</span></button>
-        <button class="nav-item" data-target="#risk-map">⌁ <span>Схема каналов</span></button>
-        <button class="nav-item" data-target="#assessments">≡ <span>Оценки каналов</span></button>
-        <button class="nav-item" data-target="#requests">⌕ <span>Черновики</span></button>
+        <button class="nav-item active" aria-label="Обзор каналов" title="Обзор каналов" data-target="#metrics">◫ <span>Обзор каналов</span></button>
+        <button class="nav-item" aria-label="Схема каналов" title="Схема каналов" data-target="#risk-map">⌁ <span>Схема каналов</span></button>
+        <button class="nav-item" aria-label="Оценки каналов" title="Оценки каналов" data-target="#assessments">≡ <span>Оценки каналов</span></button>
+        <button class="nav-item" aria-label="Черновики" title="Черновики" data-target="#requests">⌕ <span>Черновики</span></button>
+        <button class="nav-item" aria-label="Годовая история" title="Годовая история" data-target="#annual-history">◷ <span>Годовая история</span></button>
       </nav>
       <div class="model-card"><div><b>Индекс проверки</b><small>Прогноз не подключён · v0.2</small></div></div>
     </aside>
@@ -51,7 +52,26 @@
         <div class="panel-head"><div><p class="eyebrow">Решение о работах принимает специалист</p><h2>Черновики проверок</h2></div></div>
         <div class="table-wrap"><table><thead><tr><th>№</th><th>Канал</th><th>Режим</th><th>Данные по</th><th>Основание проверки</th><th>Статус</th></tr></thead><tbody id="request-table"></tbody></table></div>
       </section>
+      <section class="panel journal-panel" id="annual-history" style="margin-top:14px">
+        <div class="panel-head"><div><p class="eyebrow">Архив наблюдений</p><h2>Годовая история</h2></div>
+          <form id="history-filter" class="filters">
+            <label>Дата <input id="history-date" type="date" required /></label>
+            <label>Канал <input id="history-channel" type="number" min="1" placeholder="Все каналы" /></label>
+            <button class="action" id="history-load">Показать</button>
+          </form>
+        </div>
+        <p id="history-summary" class="history-note"></p>
+        <p id="history-status" class="notice">Проверяем доступность истории…</p>
+        <p class="history-note">Сравнение с медианой прошлых 30 дней своего канала. Коэффициент активности не является вероятностью отказа. Дни без наблюдений не считаются исправными.</p>
+        <div class="table-wrap"><table><thead><tr><th>Канал / тип</th><th>События</th><th>Тревоги</th><th>Медиана за 30 дней</th><th>Активность / медиана</th><th>Дней истории</th></tr></thead><tbody id="history-table"></tbody></table></div>
+        <div class="panel-head"><button class="action" id="history-prev" disabled>Назад</button><span id="history-page"></span><button class="action" id="history-next" disabled>Далее</button></div>
+      </section>
     </main>
+    <dialog id="history-dialog">
+      <button class="action" id="history-close">Закрыть</button>
+      <h2 id="history-title"></h2><p id="history-coverage" class="history-note"></p>
+      <div class="table-wrap"><table><thead><tr><th>Дата</th><th>События</th><th>Тревоги</th><th>Разрыв до наблюдения, дни</th></tr></thead><tbody id="history-series"></tbody></table></div>
+    </dialog>
     <dialog id="detail-dialog">
       <button id="close-detail" class="action">Закрыть</button>
       <h2 id="detail-title"></h2>
@@ -66,6 +86,7 @@
     </dialog>
     <div id="toast" class="toast"></div>
     <script src="/static/app.js"></script>
+    <script src="/static/history.js"></script>
   </body>
 </html>
 
