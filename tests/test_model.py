@@ -66,3 +66,17 @@ def test_noisy_alarm_channel_ranked_above_quiet_channel() -> None:
 def test_missing_files_have_actionable_error(tmp_path: Path) -> None:
     with pytest.raises(DataValidationError, match="Не найдены входные файлы"):
         load_frames(tmp_path)
+
+
+def test_archive_boolean_flags(sample_data_dir: Path) -> None:
+    path = sample_data_dir / "журнал_событий_пример.csv"
+    frame = pd.read_csv(path)
+    frame["тревожное"] = frame["тревожное"].map({True: "t", False: "f"})
+    frame.to_csv(path, index=False)
+    loaded, _ = load_frames(sample_data_dir)
+    assert loaded["тревожное"].sum() == 4
+    frame.loc[0, "тревожное"] = "unknown"
+    frame.to_csv(path, index=False)
+    with pytest.raises(DataValidationError, match="тревожное"):
+        load_frames(sample_data_dir)
+

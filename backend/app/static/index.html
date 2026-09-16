@@ -4,8 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#081525" />
-    <title>МосКоллектор · Предиктивный мониторинг</title>
+    <title>МосКоллектор · Анализ каналов</title>
     <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/detail.css" />
   </head>
   <body>
     <aside class="sidebar">
@@ -51,6 +52,18 @@
         <div class="table-wrap"><table><thead><tr><th>№</th><th>Канал</th><th>Режим</th><th>Данные по</th><th>Основание проверки</th><th>Статус</th></tr></thead><tbody id="request-table"></tbody></table></div>
       </section>
     </main>
+    <dialog id="detail-dialog">
+      <button id="close-detail" class="action">Закрыть</button>
+      <h2 id="detail-title"></h2>
+      <p id="detail-factors"></p>
+      <form id="feedback-form">
+        <label>Решение<select name="decision"><option value="inspection_required">Нужна проверка</option><option value="monitor">Продолжить наблюдение</option><option value="dismissed">Отклонить оценку</option><option value="fault_confirmed">Неисправность подтверждена осмотром</option></select></label>
+        <label>Диспетчер (указывается вручную)<input name="author" required maxlength="120" /></label>
+        <label>Причина / результат проверки<textarea name="reason" required minlength="3" maxlength="2000"></textarea></label>
+        <button class="primary" type="submit">Сохранить решение</button>
+      </form>
+      <h3>История решений</h3><div id="feedback-history"></div>
+    </dialog>
     <div id="toast" class="toast"></div>
     <script src="/static/app.js"></script>
   </body>
