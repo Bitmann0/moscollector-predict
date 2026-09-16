@@ -15,6 +15,7 @@ htmlcov/
 data/raw/
 data/*.db
 data/models/
+data/warehouse/
 docs/source/
 
 # При этом сохраняем структуру каталогов.
