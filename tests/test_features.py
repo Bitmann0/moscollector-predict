@@ -38,6 +38,13 @@ def test_export_rejects_overlap_then_preserves_missing_days(tmp_path):
         con.execute("INSERT INTO daily_channels VALUES (10,'2020-01-01',2,0),(10,'2020-01-03',4,1)")
     report = build_features(database, tmp_path / "features.parquet")
     assert report["rows"] == 2 and not report["target_available"]
+    catalog = tmp_path / "catalog.csv"
+    catalog.write_text("ид_канала_данных,тип_датчика\n10,Состояние насоса\n", encoding="utf-8")
+    report = build_features(database, tmp_path / "features.parquet", catalog)
+    assert report["catalog_sha256"] and report["unknown_type_rows"] == 0
+    catalog.write_text("ид_канала_данных,тип_датчика\n10,A\n10,B\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="Conflicting"):
+        build_features(database, tmp_path / "features.parquet", catalog)
     with duckdb.connect() as con:
         result = con.execute(
             "SELECT local_date, feature_available_at AT TIME ZONE 'UTC' FROM read_parquet(?) ORDER BY local_date",

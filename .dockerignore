@@ -9,5 +9,8 @@ __pycache__
 *.7z
 data/raw
 data/*.db
+data/warehouse
+data/models
+analysis
 docs/source
 tests
