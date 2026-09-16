@@ -45,6 +45,9 @@ def test_export_rejects_overlap_then_preserves_missing_days(tmp_path):
     catalog.write_text("ид_канала_данных,тип_датчика\n10,A\n10,B\n", encoding="utf-8")
     with pytest.raises(ValueError, match="Conflicting"):
         build_features(database, tmp_path / "features.parquet", catalog)
+    catalog.write_text("ид_канала_данных,тип_датчика\n10.1,A\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="Invalid"):
+        build_features(database, tmp_path / "features.parquet", catalog)
     with duckdb.connect() as con:
         result = con.execute(
             "SELECT local_date, feature_available_at AT TIME ZONE 'UTC' FROM read_parquet(?) ORDER BY local_date",

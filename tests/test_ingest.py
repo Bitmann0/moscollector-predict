@@ -25,6 +25,9 @@ def test_ingest_preserves_conflicts_quarantines_errors_and_resumes(tmp_path: Pat
     assert report["rejected_source_rows"] == 1
     assert report["ambiguous_event_ids"] == 1
     assert ingest(source, database)["skipped"]
+    renamed = tmp_path / "same_bytes_different_name.csv"
+    renamed.write_bytes(source.read_bytes())
+    assert ingest(renamed, database)["skipped"]
     with pytest.raises(ValueError, match="timezone"):
         ingest(source, database, "UTC")
     with duckdb.connect(str(database)) as con:
