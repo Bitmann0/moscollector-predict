@@ -10,9 +10,11 @@ services:
       MOSCOLLECTOR_MODE: historical
       MOSCOLLECTOR_TIME_ZONE: Europe/Moscow
       MOSCOLLECTOR_MAX_DATA_AGE_HOURS: 6
+      MOSCOLLECTOR_HISTORY_FEATURES: /app/history/daily_features.parquet
     volumes:
       - ./data/raw:/app/data/raw:ro
       - app-state:/app/state
+      - ./data/warehouse:/app/history:ro
     restart: unless-stopped
 
 volumes:

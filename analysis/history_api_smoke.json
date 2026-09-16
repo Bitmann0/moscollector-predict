@@ -1,0 +1,27 @@
+{
+  "single_local_requests_not_sla_benchmark": true,
+  "parquet_bytes": 87733067,
+  "requests": [
+    {
+      "endpoint": "/summary",
+      "seconds": 0.1142,
+      "returned_items": 0,
+      "total": null,
+      "observed_days": null
+    },
+    {
+      "endpoint": "/days?day=2026-06-30&limit=100",
+      "seconds": 0.1102,
+      "returned_items": 100,
+      "total": 2716,
+      "observed_days": null
+    },
+    {
+      "endpoint": "/channels/104049?end=2026-06-30&days=30",
+      "seconds": 0.0275,
+      "returned_items": 17,
+      "total": null,
+      "observed_days": 17
+    }
+  ]
+}

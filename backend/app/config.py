@@ -15,6 +15,7 @@ class Settings:
     max_data_age_hours: float = 6
     time_zone: str = "Europe/Moscow"
     analysis_window_hours: int = 24
+    history_features_path: Path | None = None
 
     def __post_init__(self) -> None:
         if self.mode not in {"historical", "live"}:
@@ -35,4 +36,9 @@ class Settings:
             max_data_age_hours=float(os.getenv("MOSCOLLECTOR_MAX_DATA_AGE_HOURS", "6")),
             time_zone=os.getenv("MOSCOLLECTOR_TIME_ZONE", "Europe/Moscow"),
             analysis_window_hours=int(os.getenv("MOSCOLLECTOR_ANALYSIS_WINDOW_HOURS", "24")),
+            history_features_path=(
+                Path(os.environ["MOSCOLLECTOR_HISTORY_FEATURES"])
+                if os.getenv("MOSCOLLECTOR_HISTORY_FEATURES")
+                else None
+            ),
         )

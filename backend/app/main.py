@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Annotated, Literal
 
+import duckdb
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +13,7 @@ from pydantic import BaseModel, Field, StringConstraints
 
 from .config import Settings
 from .database import MaintenanceRepository
+from .history import history_channel, history_day, history_summary
 from .model import DataValidationError, analyze
 
 settings = Settings.from_env()
@@ -209,6 +211,41 @@ def auto_create_maintenance_requests() -> dict:
 
 
 STATIC_DIR = Path(__file__).parent / "static"
+
+
+def read_history(function, *args):
+    try:
+        return function(settings.history_features_path, *args)
+    except (ValueError, OSError, duckdb.Error) as error:
+        raise HTTPException(
+            status_code=503, detail="Годовая история не подключена или недоступна"
+        ) from error
+
+
+@app.get("/api/v1/history/summary")
+def get_history_summary() -> dict:
+    return read_history(history_summary)
+
+
+@app.get("/api/v1/history/days")
+def get_history_day(
+    day: date,
+    channel: Annotated[int | None, Query(gt=0)] = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> dict:
+    return read_history(history_day, day, channel, limit, offset)
+
+
+@app.get("/api/v1/history/channels/{channel_id}")
+def get_history_channel(
+    channel_id: int,
+    end: date,
+    days: Annotated[int, Query(ge=1, le=366)] = 30,
+) -> dict:
+    return read_history(history_channel, channel_id, end, days)
+
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
