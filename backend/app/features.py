@@ -47,7 +47,8 @@ def build_features(database: Path, output: Path, catalog: Path | None = None) ->
         if catalog:
             con.execute(
                 "INSERT INTO catalog SELECT DISTINCT "
-                'try_cast("ид_канала_данных" AS BIGINT), "тип_датчика" '
+                "CASE WHEN regexp_full_match(\"ид_канала_данных\", '[0-9]+') "
+                'THEN try_cast("ид_канала_данных" AS BIGINT) END, "тип_датчика" '
                 "FROM read_csv(?,all_varchar=true)",
                 [str(catalog)],
             )
