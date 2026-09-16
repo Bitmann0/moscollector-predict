@@ -1,3 +1,6 @@
+const decisionLabels = {inspection_required: "Нужна проверка", monitor: "Наблюдение", dismissed: "Оценка отклонена", fault_confirmed: "Неисправность подтверждена"};
+let selectedChannel = null;
+
 const state = { forecasts: [], ready: false, mode: "historical" };
 const labels = { critical: "Критический", high: "Высокий", medium: "Средний", low: "Низкий" };
 const fmt = new Intl.NumberFormat("ru-RU");
@@ -54,7 +57,7 @@ function renderTable(items) {
       <td><b>${escapeHtml(item.sensor_name)}</b><small>Канал ${item.channel_id} · ${escapeHtml(item.sensor_type)}</small></td>
       <td>${escapeHtml(item.location)}</td><td>${escapeHtml(item.factors[0])}</td>
       <td><span class="pill ${item.risk_level}">${labels[item.risk_level]} · ${indexLabel(item.risk_score)}</span></td>
-      <td><button class="action" ${state.ready ? "" : "disabled"} onclick="createRequest(${item.channel_id})">${state.mode === "historical" ? "Учебный черновик" : "В черновик"}</button></td>
+      <td><button class="action" onclick="focusRow(${item.channel_id})">Решение</button> <button class="action" ${state.ready ? "" : "disabled"} onclick="createRequest(${item.channel_id})">${state.mode === "historical" ? "Учебный черновик" : "В черновик"}</button></td>
     </tr>`).join("");
 }
 
@@ -67,12 +70,23 @@ function applyFilters() {
 }
 
 function focusRow(id) {
-  document.querySelector("#search").value = String(id);
-  document.querySelector("#level").value = "";
-  applyFilters();
-  const row = document.querySelector(`#channel-${id}`);
-  if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+  selectedChannel = id;
+  const item = state.forecasts.find(x => x.channel_id === id);
+  document.querySelector("#detail-title").textContent = `${item.sensor_name} · канал ${id}`;
+  document.querySelector("#detail-factors").textContent = [...item.factors, item.recommendation].join(". ");
+  document.querySelector("#feedback-form").reset();
+  document.querySelector("#detail-dialog").showModal();
+  loadFeedback(id).catch(error => toast(error.message));
 }
+
+async function loadFeedback(id) {
+  document.querySelector("#feedback-history").textContent = "Загрузка…";
+  const result = await api(`/api/v1/forecasts/${id}/feedback`);
+  if (selectedChannel !== id) return;
+  document.querySelector("#feedback-history").innerHTML = result.items.map(item => `<p><b>${escapeHtml(decisionLabels[item.decision])}</b> · ${escapeHtml(item.author)} · ${new Date(item.created_at).toLocaleString("ru-RU")}<br>${escapeHtml(item.reason)}</p>`).join("") || "Решений пока нет";
+}
+
+
 
 function toast(message) {
   const el = document.querySelector("#toast"); el.textContent = message; el.classList.add("show");
@@ -133,5 +147,17 @@ document.querySelectorAll(".nav-item").forEach(button => button.addEventListener
   button.classList.add("active");
   document.querySelector(button.dataset.target).scrollIntoView({behavior: "smooth"});
 }));
+document.querySelector("#close-detail").onclick = () => document.querySelector("#detail-dialog").close();
+document.querySelector("#feedback-form").onsubmit = async event => {
+  event.preventDefault();
+  const button = event.target.querySelector("button");
+  button.disabled = true;
+  try {
+    await api(`/api/v1/forecasts/${selectedChannel}/feedback`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(Object.fromEntries(new FormData(event.target)))});
+    await loadFeedback(selectedChannel); toast("Решение сохранено");
+  } catch (error) { toast(error.message); }
+  finally { button.disabled = false; }
+};
+
 window.focusRow = focusRow; window.createRequest = createRequest; init();
 
