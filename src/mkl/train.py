@@ -3,6 +3,7 @@ import numpy as np
 import polars as pl
 
 from . import metrics
+from .config import EXCLUDED_PERIODS
 from .cv import Split
 
 DEFAULT_PARAMS = {
@@ -96,6 +97,10 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
     """
     join_keys = [k for k in KEYS if k in features.columns and k in labels.columns]
     data = features.join(labels, on=join_keys, how="inner")
+    # Периоды, исключённые заказчиком, выбрасываются здесь — в единственной
+    # точке, через которую проходит и обучение, и оценка.
+    for a, b in EXCLUDED_PERIODS:
+        data = data.filter((pl.col("day") < a) | (pl.col("day") > b))
     cols = feature_columns(data)
 
     X = _matrix(data, cols)
