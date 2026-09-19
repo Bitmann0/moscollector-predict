@@ -1,0 +1,20 @@
+{
+  "valid_out_of_range_records": 27747,
+  "channels_with_out_of_range_records": 398,
+  "alarm_true_records": 0,
+  "bad_seconds": 27546,
+  "mixed_bad_and_in_range_seconds": 1621,
+  "raw_onsets_separated_by_72h": 3594,
+  "onsets_exact_0_1_2_only": 3415,
+  "onsets_exact_0_1_2_share": 0.9501947690595437,
+  "other_low_onsets": 55,
+  "high_onsets": 124,
+  "eligible_72h_positive_channel_days": 1338,
+  "eligible_72h_positive_channels": 292,
+  "eligible_72h_top_10_channel_share": 0.14798206278026907,
+  "notes": [
+    "Counts exclude the organizer-confirmed April-June 2021 migration period.",
+    "Raw onset counts are event-time diagnostics and do not apply the future-cadence eligibility filter.",
+    "Channel identifiers are intentionally omitted from the committed aggregate report."
+  ]
+}
