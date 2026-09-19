@@ -8,18 +8,14 @@
 import duckdb
 import pytest
 
+from conftest import EV_SCHEMA, insert_event
 from mkl import panel
 
 
 @pytest.fixture
 def con():
     c = duckdb.connect(":memory:")
-    c.execute("""
-        CREATE TABLE ev (event_id BIGINT, ch BIGINT, ts TIMESTAMP, day DATE,
-                         alarm BOOLEAN, val_raw VARCHAR, val_num DOUBLE,
-                         sys VARCHAR, stype VARCHAR, tag VARCHAR, sname VARCHAR,
-                         obj VARCHAR, picket DOUBLE)
-    """)
+    c.execute(EV_SCHEMA)
     yield c
     c.close()
 
@@ -31,8 +27,7 @@ def _ins(c, rows, stype="Газовый датчик"):
             num = float(val)
         except ValueError:
             pass
-        c.execute("INSERT INTO ev VALUES (?,1,?,?,false,?,?,'s',?,'t','n','A',1.0)",
-                  [i, ts, ts[:10], val, num, stype])
+        insert_event(c, i, 1, ts, val, val_num=num, stype=stype)
 
 
 def test_flatline_run_detects_stuck_sensor(con):

@@ -1,28 +1,21 @@
 import duckdb
 import pytest
 
+from conftest import EV_SCHEMA, insert_event
 from mkl import states
 
 
 @pytest.fixture
 def con():
     c = duckdb.connect(":memory:")
-    c.execute("""
-        CREATE TABLE ev (event_id BIGINT, ch BIGINT, ts TIMESTAMP, day DATE,
-                         alarm BOOLEAN, val_raw VARCHAR, val_num DOUBLE,
-                         sys VARCHAR, stype VARCHAR, tag VARCHAR, sname VARCHAR,
-                         obj VARCHAR, picket DOUBLE)
-    """)
+    c.execute(EV_SCHEMA)
     yield c
     c.close()
 
 
 def _ins(c, rows):
     for i, (ch, ts, val, obj) in enumerate(rows):
-        c.execute(
-            "INSERT INTO ev VALUES (?,?,?,?,false,?,NULL,'s','Датчик дыма','t','n',?,1.0)",
-            [i, ch, ts, ts[:10], val, obj],
-        )
+        insert_event(c, i, ch, ts, val, obj=obj)
 
 
 def test_consecutive_bad_states_merge_into_one_episode(con):
@@ -77,9 +70,7 @@ def test_gap_before_measures_dormancy(con):
 
 
 def test_numeric_channels_do_not_produce_episodes(con):
-    con.execute(
-        "INSERT INTO ev VALUES (1,1,'2025-01-01 10:00:00','2025-01-01',false,"
-        "'0.02',0.02,'s','Газовый датчик','t','n','A',1.0)"
-    )
+    insert_event(con, 1, 1, "2025-01-01 10:00:00", "0.02", val_num=0.02,
+                 stype="Газовый датчик")
     states.build_episodes(con)
     assert con.execute("SELECT count(*) FROM episodes").fetchone()[0] == 0

@@ -17,7 +17,8 @@ def build_daily_channel(con: duckdb.DuckDBPyConnection, source: str = "ev") -> N
     con.execute(f"""
     CREATE OR REPLACE TABLE daily_channel AS
     WITH e AS (
-      SELECT ch, day, ts, alarm, val_raw, val_num, obj, stype, sys, picket,
+      SELECT ch, day, ts, alarm, val_raw, val_num, obj, obj_parent, obj_kind,
+             stype, sys, picket,
              epoch(ts) - lag(epoch(ts))    OVER (PARTITION BY ch, day ORDER BY ts) AS gap_s,
              epoch(ts) - lag(epoch(ts), 2) OVER (PARTITION BY ch, day ORDER BY ts) AS gap3_s,
              CASE WHEN val_raw IS DISTINCT FROM
@@ -74,7 +75,8 @@ def build_daily_channel(con: duckdb.DuckDBPyConnection, source: str = "ev") -> N
       ) GROUP BY ch, day
     )
     SELECT ch, day,
-           any_value(obj) AS obj, any_value(stype) AS stype,
+           any_value(obj) AS obj, any_value(obj_parent) AS obj_parent,
+           any_value(obj_kind) AS obj_kind, any_value(stype) AS stype,
            any_value(sys) AS sys, any_value(picket) AS picket,
            count(*)                                                    AS n_events,
            count(*) FILTER (WHERE alarm)                               AS n_alarms,

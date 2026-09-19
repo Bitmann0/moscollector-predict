@@ -24,20 +24,45 @@ def parse_object(tag: str | None) -> str | None:
 
 
 def build_channels() -> int:
+    """Справочник каналов с официальной привязкой к объектам.
+
+    До обновления датасета 16.09 поля `ид_объект` не было, и объект выводился
+    из префикса тега. Это оказалось неверно: соответствие многие-ко-многим —
+    префикс 418-1 покрывает 7 разных объектов, а объект 5122 разбросан по 8
+    префиксам. Официальная привязка даёт 78 объектов вместо 83 псевдообъектов
+    и открывает иерархию: лист (охранная зона или диспетчерская) -> комплекс
+    -> район.
+    """
     con = connect()
     src = PATHS.materials / "справочник_каналов_датчиков.csv"
+    obj_src = PATHS.materials / "справочник_объектов_диспетчер.csv"
     dst = PATHS.interim / "channels.parquet"
     con.execute(f"""
+        CREATE OR REPLACE TABLE _obj AS
+        SELECT TRY_CAST(ид_объект AS BIGINT) AS obj_id,
+               TRY_CAST(иерархия_уровень AS INTEGER) AS obj_level,
+               TRY_CAST(родитель AS BIGINT) AS obj_parent_id,
+               вид_объекта AS obj_kind,
+               диспетчерское_название_объекта AS obj_name
+        FROM read_csv('{obj_src}', header=true)
+    """)
+    con.execute(f"""
         COPY (
-          SELECT TRY_CAST(ид_канала_данных AS BIGINT) AS ch,
-                 тип_инж_системы AS sys,
-                 тип_датчика     AS stype,
-                 тег_инженерной_системы AS tag,
-                 название_датчика AS sname,
-                 split_part(тег_инженерной_системы,'.',1) AS obj,
-                 TRY_CAST(replace(regexp_extract(название_датчика,
+          SELECT TRY_CAST(c.ид_канала_данных AS BIGINT) AS ch,
+                 c.тип_инж_системы AS sys,
+                 c.тип_датчика     AS stype,
+                 c.тег_инженерной_системы AS tag,
+                 c.название_датчика AS sname,
+                 CAST(TRY_CAST(c.ид_объект AS BIGINT) AS VARCHAR) AS obj,
+                 CAST(coalesce(o.obj_parent_id,
+                               TRY_CAST(c.ид_объект AS BIGINT)) AS VARCHAR)
+                   AS obj_parent,
+                 o.obj_kind, o.obj_level,
+                 split_part(c.тег_инженерной_системы,'.',1) AS tag_prefix,
+                 TRY_CAST(replace(regexp_extract(c.название_датчика,
                    'ПК\\s*(\\d+(?:[.,]\\d+)?)', 1), ',', '.') AS DOUBLE) AS picket
-          FROM read_csv('{src}', header=true)
+          FROM read_csv('{src}', header=true) c
+          LEFT JOIN _obj o ON o.obj_id = TRY_CAST(c.ид_объект AS BIGINT)
         ) TO '{dst}' (FORMAT PARQUET)
     """)
     n = con.execute(f"SELECT count(*) FROM read_parquet('{dst}')").fetchone()[0]
@@ -59,7 +84,8 @@ def build_events(years: list[int]) -> dict[int, int]:
           SELECT DISTINCT ON (e.event_id)
                  e.event_id, e.ch, (e.d + e.t) AS ts, e.d AS day, e.alarm,
                  e.val AS val_raw, TRY_CAST(e.val AS DOUBLE) AS val_num,
-                 r.sys, r.stype, r.tag, r.sname, r.obj, r.picket
+                 r.sys, r.stype, r.tag, r.sname, r.obj, r.obj_parent,
+                 r.obj_kind, r.picket
           FROM (
             SELECT TRY_CAST(ид_события AS BIGINT) AS event_id,
                    TRY_CAST(ид_канала_данных AS BIGINT) AS ch,

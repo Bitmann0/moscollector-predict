@@ -63,6 +63,21 @@ def add_object_context(con: duckdb.DuckDBPyConnection,
     FROM {source} WHERE obj IS NOT NULL
     GROUP BY obj, day
     """)
+    # Уровень комплекса: официальная иерархия связывает 78 объектов в 16
+    # комплексов, и авария питания или обрыв магистрали проявляются именно
+    # на этом уровне, а не на отдельной охранной зоне.
+    con.execute(f"""
+    CREATE OR REPLACE TABLE par_daily AS
+    SELECT obj_parent, day,
+           count(*)                       AS par_n_channels,
+           sum(n_bad)                     AS par_n_bad,
+           sum(n_alarms)                  AS par_n_alarms,
+           sum(n_bad_w7)                  AS par_n_bad_w7,
+           count(*) FILTER (WHERE n_bad > 0) AS par_channels_bad,
+           avg(CAST(n_bad > 0 AS DOUBLE)) AS par_frac_bad
+    FROM {source} WHERE obj_parent IS NOT NULL
+    GROUP BY obj_parent, day
+    """)
     con.execute(f"""
     CREATE OR REPLACE TABLE feat_objctx AS
     SELECT s.*,
@@ -76,6 +91,14 @@ def add_object_context(con: duckdb.DuckDBPyConnection,
                 THEN CAST(s.n_bad AS DOUBLE) / o.obj_n_bad END AS share_obj_bad
     FROM {source} s
     LEFT JOIN obj_daily o ON o.obj = s.obj AND o.day = s.day
+    """)
+    con.execute("""
+    CREATE OR REPLACE TABLE feat_objctx AS
+    SELECT s.*, p.par_n_channels, p.par_n_bad, p.par_n_alarms, p.par_n_bad_w7,
+           p.par_channels_bad, p.par_frac_bad,
+           CASE WHEN p.par_n_bad > 0 THEN s.n_bad / p.par_n_bad END AS share_par_bad
+    FROM feat_objctx s
+    LEFT JOIN par_daily p ON p.obj_parent = s.obj_parent AND p.day = s.day
     """)
 
 

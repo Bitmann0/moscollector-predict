@@ -11,7 +11,8 @@ from mkl.features import relative
 def con():
     c = duckdb.connect(":memory:")
     c.execute("""CREATE TABLE feat_spatial (
-        ch BIGINT, day DATE, obj VARCHAR, stype VARCHAR, picket DOUBLE,
+        ch BIGINT, day DATE, obj VARCHAR, obj_parent VARCHAR,
+        stype VARCHAR, picket DOUBLE,
         n_events BIGINT, n_alarms BIGINT, n_bad BIGINT,
         n_bad_w7 BIGINT, n_bad_w30 BIGINT, n_alarms_w7 BIGINT,
         silence_z DOUBLE, days_since_last_bad BIGINT)""")
@@ -20,8 +21,9 @@ def con():
 
 
 def _row(c, ch, day, obj, n_bad=0, n_alarms=0, n_events=1):
-    c.execute("INSERT INTO feat_spatial VALUES (?,?,?,'Датчик дыма',1.0,?,?,?,?,0,?,0.0,1)",
-              [ch, day, obj, n_events, n_alarms, n_bad, n_bad, n_alarms])
+    c.execute("INSERT INTO feat_spatial VALUES "
+              "(?,?,?,?,'Датчик дыма',1.0,?,?,?,?,0,?,0.0,1)",
+              [ch, day, obj, obj, n_events, n_alarms, n_bad, n_bad, n_alarms])
 
 
 def test_object_context_counts_sibling_channels(con):

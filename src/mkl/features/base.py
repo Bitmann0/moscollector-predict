@@ -78,7 +78,7 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
                AS prev_gap_days
       FROM {source}
     ), r AS (
-      SELECT ch, day, obj, stype, sys, picket,
+      SELECT ch, day, obj, obj_parent, obj_kind, stype, sys, picket,
              n_events, n_alarms, n_bad, n_ok, n_fire, n_intrusion,
              n_flood, n_on, n_all_pumps,
              val_ok_min, val_ok_max, val_ok_mean, val_ok_med, n_val_ok, n_val_bad,

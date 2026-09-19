@@ -1,28 +1,21 @@
 import duckdb
 import pytest
 
+from conftest import EV_SCHEMA, insert_event
 from mkl import panel
 
 
 @pytest.fixture
 def con():
     c = duckdb.connect(":memory:")
-    c.execute("""
-        CREATE TABLE ev (event_id BIGINT, ch BIGINT, ts TIMESTAMP, day DATE,
-                         alarm BOOLEAN, val_raw VARCHAR, val_num DOUBLE,
-                         sys VARCHAR, stype VARCHAR, tag VARCHAR, sname VARCHAR,
-                         obj VARCHAR, picket DOUBLE)
-    """)
+    c.execute(EV_SCHEMA)
     yield c
     c.close()
 
 
 def _ins(c, rows):
     for i, (ch, ts, val, alarm, num) in enumerate(rows):
-        c.execute(
-            "INSERT INTO ev VALUES (?,?,?,?,?,?,?,'s','Датчик дыма','t','n','A',1.0)",
-            [i, ch, ts, ts[:10], alarm, val, num],
-        )
+        insert_event(c, i, ch, ts, val, alarm=alarm, val_num=num)
 
 
 def test_counts_events_and_alarms_per_day(con):
