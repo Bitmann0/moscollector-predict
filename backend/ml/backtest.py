@@ -159,7 +159,12 @@ def select_threshold(target, scores, minimum_precision=0.7) -> tuple[float, str]
 
 
 def run(
-    data_dir: Path, output: Path, lead_days: int = 0, observation_features: bool = False
+    data_dir: Path,
+    output: Path,
+    lead_days: int = 0,
+    observation_features: bool = False,
+    target_description: str | None = None,
+    experiment_name: str | None = None,
 ) -> dict:
     started = time.perf_counter()
     daily_path, coverage_path = data_dir / "pump_daily.csv", data_dir / "coverage.csv"
@@ -199,8 +204,10 @@ def run(
     baseline_rate = float(train.target.mean())
     recent_rule = test.faults_7d.gt(0).astype(float)
     report = {
-        "experiment": f"pump-signal-lead-{lead_days}d-observation-{observation_features}",
-        "target": (
+        "experiment": experiment_name
+        or f"pump-signal-lead-{lead_days}d-observation-{observation_features}",
+        "target": target_description
+        or (
             "At least one Неисправен record in next calendar day after a day without it"
             if lead_days == 0
             else "No recorded fault in [t,t+24h), at least one in [t+24h,t+48h), after a clean observed day"
@@ -299,8 +306,17 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=Path("data/models/pump-signal-v1"))
     parser.add_argument("--lead-days", type=int, choices=[0, 1], default=0)
     parser.add_argument("--observation-features", action="store_true")
+    parser.add_argument("--target-description")
+    parser.add_argument("--experiment-name")
     args = parser.parse_args()
-    run(args.data_dir, args.output, args.lead_days, args.observation_features)
+    run(
+        args.data_dir,
+        args.output,
+        args.lead_days,
+        args.observation_features,
+        args.target_description,
+        args.experiment_name,
+    )
 
 
 if __name__ == "__main__":

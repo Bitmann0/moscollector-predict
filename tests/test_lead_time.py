@@ -29,8 +29,8 @@ def test_24h_minimum_lead_does_not_count_near_term_signals_as_success():
     late = samples.loc[samples.as_of.eq("2024-01-11")].iloc[0]
     assert early.target == 1 and late.target == 0
     assert late.near_term_signal
-    assert (samples.label_start - samples.as_of).eq(pd.Timedelta(days=1)).all()
-    assert (samples.label_end - samples.as_of).eq(pd.Timedelta(days=2)).all()
+    assert (samples.label_start - samples.as_of).eq(pd.Timedelta(1, unit="D")).all()
+    assert (samples.label_end - samples.as_of).eq(pd.Timedelta(2, unit="D")).all()
 
 
 def test_two_day_labels_require_observation_of_both_future_days():
