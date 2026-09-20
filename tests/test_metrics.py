@@ -151,3 +151,44 @@ def test_summary_reports_required_keys():
             "precision", "recall", "threshold", "n_pos", "base_rate"} <= out.keys()
     assert out["precision"] == pytest.approx(1.0)
     assert out["recall"] == pytest.approx(1.0)
+
+
+# --- честная рабочая точка ---------------------------------------------------
+
+def test_at_threshold_uses_the_given_cut_not_the_best_one():
+    """Порог приходит снаружи. Подбор его по тем же ответам, где потом
+    рапортуется точность, давал op_precision = 0.7000245 — прижатый к
+    ограничению до четвёртого знака."""
+    y = np.array([1, 1, 0, 1, 0, 0, 0, 0])
+    p = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2])
+    got = metrics.at_threshold(y, p, 0.6)
+    assert got["k"] == 4 and got["tp"] == 3
+    assert got["precision"] == pytest.approx(0.75)
+    assert got["recall"] == pytest.approx(1.0)
+
+
+def test_at_threshold_is_worse_than_the_oracle_on_the_same_data():
+    """Смысл правки: оракульная точка всегда не хуже, и разница — величина
+    завышения отчёта."""
+    rng = np.random.default_rng(0)
+    y = (rng.random(2000) < 0.1).astype(int)
+    p = np.clip(y * 0.3 + rng.normal(0.3, 0.2, 2000), 0, 1)
+    oracle = metrics.target_operating_point(y, p, min_precision=0.7)
+    honest = metrics.at_threshold(y, p, 0.55)
+    assert oracle["recall"] >= honest["recall"] or oracle["precision"] >= honest["precision"]
+
+
+def test_target_is_not_met_outside_the_alert_budget():
+    """Цель, взятая при 427 алертах в сутки против 20 по конфигурации, —
+    это другой режим работы, а не достигнутая цель."""
+    op = {"precision": 0.72, "recall": 0.60, "k": 77373}
+    got = metrics.meets_target(op, n_days=181, budget_per_day=20)
+    assert not got["meets_target"] and not got["within_budget"]
+    assert got["alerts_per_day"] == pytest.approx(427.5, abs=0.5)
+    assert got["budget_overrun"] == pytest.approx(21.4, abs=0.1)
+
+
+def test_target_is_met_when_precision_recall_and_budget_all_hold():
+    op = {"precision": 0.72, "recall": 0.60, "k": 3000}
+    got = metrics.meets_target(op, n_days=181, budget_per_day=20)
+    assert got["meets_target"] and got["within_budget"]

@@ -1,6 +1,10 @@
 import duckdb
 
-ROLLING_COLS = ("n_events", "n_alarms", "n_bad", "n_chatter_1min", "n_transitions")
+# Время в тревоге и в плохом состоянии катится окнами наравне со счётчиками:
+# деградация видна не в числе срабатываний, а в том, что канал всё дольше
+# остаётся в ненормальном состоянии.
+ROLLING_COLS = ("n_events", "n_alarms", "n_bad", "n_chatter_1min", "n_transitions",
+                "time_in_alarm_s", "time_in_bad_s", "n_standing_4h")
 
 
 def add_rolling_windows(con: duckdb.DuckDBPyConnection,
@@ -87,6 +91,10 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
              n_flood_bins, chatter_psi, chatter_runs, last_alarm_hour,
              night_frac, workhours_frac, night_alarm_frac, n_active_hours,
              n_chatter_1min, n_transitions,
+             chatter_psi_alarm, time_in_alarm_s, time_in_bad_s,
+             max_hold_alarm_s, med_hold_alarm_s, n_standing_4h, n_stale_24h,
+             n_many_bad, n_devices_ok, n_battery_power, n_talk, n_call,
+             n_arm, n_disarm, armed_eod, last_arm_ts,
              max_gap_s, med_gap_s, val_mean, val_std, val_min, val_max,
              prev_gap_days,
              avg(CAST(prev_gap_days AS DOUBLE))

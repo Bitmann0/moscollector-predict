@@ -181,7 +181,8 @@ def summary(y: np.ndarray, p: np.ndarray, budget: int) -> dict:
 
 
 def episode_summary(entity: np.ndarray, day: np.ndarray, y: np.ndarray,
-                    p: np.ndarray, horizon_days: int = 1) -> dict:
+                    p: np.ndarray, horizon_days: int = 1,
+                    budget: int | None = None) -> dict:
     """Метрика на уровне эпизодов, а не канало-суток.
 
     Подряд идущие положительные сутки одной сущности — один эпизод: канал,
@@ -236,7 +237,12 @@ def episode_summary(entity: np.ndarray, day: np.ndarray, y: np.ndarray,
             caught += ok
         return caught / n_ep
 
-    thr = threshold_for_budget(p, int(np.ceil(0.7 * n_ep)))
+    # Бюджет задаётся снаружи — столько алертов сервис реально выдаст.
+    # Прежде он брался как 0.7 от числа эпизодов В ТЕСТЕ, то есть из меток:
+    # метрика зависела от того, сколько отказов случилось, и между фолдами
+    # разного размера была несопоставима.
+    k = int(budget) if budget else int(np.ceil(0.7 * n_ep))
+    thr = threshold_for_budget(p, k)
     pred = p >= thr
     tp_days = int((pred & (y == 1)).sum())
     return {
@@ -244,5 +250,57 @@ def episode_summary(entity: np.ndarray, day: np.ndarray, y: np.ndarray,
         "episode_recall": recall_at(thr),
         "episode_precision": float(tp_days / pred.sum()) if pred.sum() else float("nan"),
         "episode_threshold": float(thr),
+        "episode_budget": int(k),
         "days_per_episode": float(y.sum() / n_ep),
+    }
+
+
+def at_threshold(y: np.ndarray, p: np.ndarray, thr: float) -> dict:
+    """Точность и полнота в ЗАРАНЕЕ заданной точке.
+
+    Отличается от target_operating_point тем, что порог сюда приходит снаружи,
+    а не подбирается по этим же ответам. Подбор порога на том же множестве, где
+    потом рапортуется точность, — это оракул: в отчёте по отложенному периоду
+    op_precision выходил равным 0.7000245 и 0.7003284, то есть прижатым к
+    ограничению до четвёртого знака, чего при заранее выбранном пороге не бывает.
+
+    Здесь же считается, сколько алертов эта точка требует в сутки: заявлять
+    взятую цель в режиме, которого сервис не выдаст, нельзя.
+    """
+    y = np.asarray(y)
+    p = np.asarray(p, dtype=float)
+    sel = p >= thr
+    k = int(sel.sum())
+    n_pos = int(y.sum())
+    tp = int(y[sel].sum()) if k else 0
+    return {
+        "threshold": float(thr),
+        "k": k,
+        "precision": float(tp / k) if k else float("nan"),
+        "recall": float(tp / n_pos) if n_pos else float("nan"),
+        "tp": tp,
+    }
+
+
+def meets_target(op: dict, n_days: int, budget_per_day: int,
+                 min_precision: float = 0.7, min_recall: float = 0.5) -> dict:
+    """Взята ли цель ТЗ — с проверкой, что точка достижима на бюджете.
+
+    Цель, достигнутая при 427 алертах в сутки, когда в конфигурации головы
+    стоит 20, — это не взятая цель, а другой режим работы. Прежде вердикт
+    выносился без этой проверки, и голова A отчитывалась о полноте 0.633 в
+    точке, которую serve.py никогда не выдаст: на своём бюджете та же модель
+    давала полноту 0.038.
+    """
+    budget = budget_per_day * n_days
+    k = op.get("k", 0) or 0
+    within = k <= budget
+    ok = (op.get("precision", 0) >= min_precision
+          and op.get("recall", 0) >= min_recall and within)
+    return {
+        "meets_target": bool(ok),
+        "within_budget": bool(within),
+        "alerts_per_day": float(k / n_days) if n_days else float("nan"),
+        "budget_per_day": budget_per_day,
+        "budget_overrun": float(k / budget) if budget else float("nan"),
     }

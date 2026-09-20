@@ -71,3 +71,35 @@ def test_no_positives_returns_nan():
     rows = [("a", "2025-01-01", 0, 0.5)]
     out = metrics.episode_summary(*_mk(rows))
     assert out["episodes"] == 0
+
+
+def test_episode_budget_comes_from_outside_not_from_the_labels():
+    """Бюджет внутри метрики брался как 0.7 от числа эпизодов В ТЕСТЕ, то есть
+    из меток: метрика зависела от того, сколько отказов случилось, и между
+    фолдами разного размера была несопоставима."""
+    ent = np.array(["a"] * 10)
+    day = np.array([f"2025-01-{d:02d}" for d in range(1, 11)], dtype="datetime64[D]")
+    y = np.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    p = np.linspace(1.0, 0.1, 10)
+    assert metrics.episode_summary(ent, day, y, p, budget=3)["episode_budget"] == 3
+    assert metrics.episode_summary(ent, day, y, p, budget=7)["episode_budget"] == 7
+
+
+def test_random_score_does_not_score_like_a_model():
+    """Проверка на фальсифицируемость. Эпизодные метрики с зачётом «попал хотя
+    бы раз» известны тем, что случайный скор на них выглядит прилично: на SWaT
+    такая логика даёт F1 0.969. Если наша метрика не отличает случайный скор от
+    информативного, отбирать по ней рычаги нельзя.
+    """
+    rng = np.random.default_rng(0)
+    n_ch, n_d = 60, 60
+    ent = np.repeat([f"c{i}" for i in range(n_ch)], n_d)
+    day = np.tile(np.arange("2025-01-01", "2025-03-02", dtype="datetime64[D]")[:n_d], n_ch)
+    y = (rng.random(n_ch * n_d) < 0.05).astype(int)
+    budget = 60
+    rnd = metrics.episode_summary(ent, day, y, rng.random(n_ch * n_d), budget=budget)
+    good = metrics.episode_summary(ent, day, y, y * 0.9 + rng.random(n_ch * n_d) * 0.1,
+                                   budget=budget)
+    assert good["episode_recall"] > 3 * rnd["episode_recall"], (
+        f"информативный скор {good['episode_recall']:.3f} против случайного "
+        f"{rnd['episode_recall']:.3f} — метрика не различает модели")

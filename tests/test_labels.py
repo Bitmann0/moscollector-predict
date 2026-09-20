@@ -235,3 +235,43 @@ def test_flood_label_covers_only_objects_with_pumps(con):
     pos = [str(r[0]) for r in
            con.execute("SELECT day FROM label_flood WHERE y = 1").fetchall()]
     assert pos == ["2025-01-04"]
+
+
+def test_long_outage_is_caught_not_filtered_out(con):
+    """Канал отчитывался 40 суток подряд, пропал на 60 и вернулся.
+
+    Это самый крупный отказ, какой вообще бывает в данных, и прежде метка его
+    не видела: окно активности считалось в день ВОЗВРАЩЕНИЯ и целиком
+    накрывалось самим простоем. На реальных данных фильтр пропускал 0 из
+    172 995 разрывов длиннее 30 суток.
+    """
+    import datetime as dt
+    con.execute("DELETE FROM daily_channel")
+    d0 = dt.date(2025, 1, 1)
+    days = [d0 + dt.timedelta(days=i) for i in range(40)]
+    days.append(d0 + dt.timedelta(days=99))
+    for d in days:
+        con.execute(
+            "INSERT INTO daily_channel VALUES (1, ?, 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)",
+            [d.isoformat()])
+    labels.build_sensor_failure(con, variant="L4", horizon_days=1)
+    pos = [str(r[0]) for r in
+           con.execute("SELECT day FROM label_failure WHERE y=1").fetchall()]
+    assert pos == ["2025-02-09"], "последние активные сутки: 1 янв + 39 суток"
+
+
+def test_activity_is_measured_before_the_gap_not_after(con):
+    """Прямая проверка отбора: два канала с одинаковым разрывом, но разной
+    предысторией. Живший до пропажи — событие, впервые появившийся — нет."""
+    import datetime as dt
+    con.execute("DELETE FROM daily_channel")
+    d0 = dt.date(2025, 1, 1)
+    for i in range(30):                      # канал 1 активен весь месяц
+        con.execute("INSERT INTO daily_channel VALUES (1, ?, 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)",
+                    [(d0 + dt.timedelta(days=i)).isoformat()])
+    for d in ("2025-01-29", "2025-02-20"):   # канал 2 отчитался дважды за всё время
+        con.execute("INSERT INTO daily_channel VALUES (2, ?, 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)", [d])
+    con.execute("INSERT INTO daily_channel VALUES (1, '2025-02-20', 'A', 'Датчик дыма', 5, 0, 0, 0, 0, 10.0)")
+    labels.build_sensor_failure(con, variant="L4", horizon_days=1)
+    chs = sorted({r[0] for r in con.execute("SELECT ch FROM label_failure WHERE y=1").fetchall()})
+    assert chs == [1]

@@ -27,14 +27,29 @@ _VARIANT_FILTER = {
 # пропуск считался аномалией. При пороге 7 метка ловит штатный редкий опрос:
 # канал, отчитывающийся раз в три дня, не отказывает, когда пропускает сутки.
 def _silence_sql(min_active: int = 7) -> str:
+    """Активность считается на сутках ДО пропажи, а не в день возвращения.
+
+    Прежде окно [день_возврата - 30, день_возврата] целиком накрывалось самим
+    простоем, и отбор получался обратным замыслу: чем дольше канал лежал, тем
+    меньше был его шанс пройти фильтр. Долю прошедших это давало 0.802 при
+    разрыве в сутки, 0.156 при разрыве 7-30 суток и ровно 0.000 при разрыве
+    длиннее 30 суток — ноль из 172 995. То есть метка по построению не могла
+    содержать ни одного длительного выхода канала из строя, ради которого
+    прогноз и заказывался.
+    """
     return f"""
   SELECT ch AS eid, prev_day + INTERVAL 1 DAY AS event_day FROM (
     SELECT ch, day,
-           lag(day) OVER (PARTITION BY ch ORDER BY day) AS prev_day,
-           date_diff('day', lag(day) OVER (PARTITION BY ch ORDER BY day), day) AS gap_days,
-           count(*) OVER (PARTITION BY ch ORDER BY day
-                          RANGE BETWEEN INTERVAL 30 DAY PRECEDING AND CURRENT ROW) AS recent_days
-    FROM daily_channel
+           lag(day) OVER w AS prev_day,
+           date_diff('day', lag(day) OVER w, day) AS gap_days,
+           lag(active_30) OVER w AS recent_days
+    FROM (
+      SELECT ch, day,
+             count(*) OVER (PARTITION BY ch ORDER BY day
+                            RANGE BETWEEN INTERVAL 30 DAY PRECEDING AND CURRENT ROW) AS active_30
+      FROM daily_channel
+    )
+    WINDOW w AS (PARTITION BY ch ORDER BY day)
   ) WHERE gap_days >= 2 AND recent_days >= {min_active}
 """
 

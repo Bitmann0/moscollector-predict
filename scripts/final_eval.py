@@ -17,6 +17,11 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 VAL_START = dt.date(2025, 10, 1)
 VAL_END = dt.date(2025, 12, 31)
+# Валидация делится надвое: на первой половине учится изотоника, на второй
+# выбирается рабочая точка. Делать и то и другое на одном куске нельзя —
+# калиброванные скоры на нём внутривыборочные, и порог сядет на них.
+CAL_END = dt.date(2025, 11, 30)
+THR_START = dt.date(2025, 12, 1)
 
 def _choice() -> dict:
     return config.head_a_choice()
@@ -87,23 +92,45 @@ def evaluate_head(head: str, cfg: dict) -> dict | None:
         print(f"{head:8} на отложенном периоде нет позитивов — пропуск", flush=True)
         return None
 
-    p_val = model.predict_proba(train._matrix(val, names))[:, 1]
-    iso = calibrate.fit_isotonic(p_val, val["y"].to_numpy())
-    p_hold = calibrate.apply(iso, model.predict_proba(train._matrix(hold, names))[:, 1])
+    cal = val.filter(pl.col("day") <= CAL_END)
+    thr_set = val.filter(pl.col("day") >= THR_START)
+    iso = calibrate.fit_isotonic(
+        model.predict_proba(train._matrix(cal, names))[:, 1], cal["y"].to_numpy())
 
+    # Рабочая точка выбирается ЗДЕСЬ, на декабре, и на отложенный период
+    # приходит готовым числом.
+    p_thr = calibrate.apply(iso, model.predict_proba(train._matrix(thr_set, names))[:, 1])
+    pick = metrics.target_operating_point(p=p_thr, y=thr_set["y"].to_numpy(),
+                                          min_precision=0.7)
+    thr = pick.get("threshold") if pick.get("feasible") else 1.0
+
+    p_hold = calibrate.apply(iso, model.predict_proba(train._matrix(hold, names))[:, 1])
     n_days = (HOLDOUT_END - HOLDOUT_START).days + 1
     yh = hold["y"].to_numpy()
     res = metrics.summary(yh, p_hold, budget=cfg["budget_per_day"] * n_days)
-    op = metrics.target_operating_point(yh, p_hold, min_precision=0.7)
+    honest = metrics.at_threshold(yh, p_hold, thr)
+    verdict = metrics.meets_target(honest, n_days, cfg["budget_per_day"])
+    # Оракульная точка остаётся, но как верхняя граница, а не как результат:
+    # разница между ней и честной — величина, на которую отчёт завышался.
+    oracle = metrics.target_operating_point(yh, p_hold, min_precision=0.7)
     curve = metrics.budget_curve(yh, p_hold, (n_days, 5 * n_days, 20 * n_days))
+    res = {**res,
+           "thr_precision": honest["precision"], "thr_recall": honest["recall"],
+           "thr_k": honest["k"], "threshold_from_val": thr,
+           "oracle_precision": oracle.get("precision"),
+           "oracle_recall": oracle.get("recall"), "oracle_k": oracle.get("k"),
+           **verdict}
     experiments.log({"head": head, "step": "FINAL", "note": "отложенный 2026H1",
                      **res, "curve": curve})
-    serve.save(head, model, iso, names)
+    serve.save(head, model, iso, names, threshold=thr)
 
-    ok = "ДА" if op.get("feasible") and op.get("recall", 0) > 0.5 else "нет"
+    ok = "ДА" if verdict["meets_target"] else "нет"
     print(f"{head:8} PR-AUC={res['pr_auc']:.4f}  "
-          f"maxP={res['op_precision']:.3f}@R={res['op_recall']:.3f}  "
-          f"P@k={res['precision_at_k']:.3f}  lift={res['lift_at_k']:.1f}  "
+          f"честно P={honest['precision']:.3f}@R={honest['recall']:.3f} "
+          f"({verdict['alerts_per_day']:.0f} алертов/сут при "
+          f"{cfg['budget_per_day']})  "
+          f"оракул P={oracle.get('precision', float('nan')):.3f}"
+          f"@R={oracle.get('recall', float('nan')):.3f}  "
           f"позитивов={res['n_pos']:,}  цель_ТЗ={ok}", flush=True)
     for c in curve:
         print(f"           бюджет {c['budget']:>6} алертов: P={c['precision']:.3f}  "

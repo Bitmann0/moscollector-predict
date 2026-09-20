@@ -87,6 +87,23 @@ def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext")
            any_value(precip_72h) AS precip_72h, any_value(snowmelt) AS snowmelt,
            any_value(snow_delta) AS snow_delta,
            sum(n_flood_bins) AS n_flood_bins,
+           sum(time_in_alarm_s) AS time_in_alarm_s,
+           sum(time_in_bad_s)   AS time_in_bad_s,
+           max(max_hold_alarm_s) AS max_hold_alarm_s,
+           sum(n_standing_4h)   AS n_standing_4h,
+           sum(n_stale_24h)     AS n_stale_24h,
+           sum(n_many_bad)      AS n_many_bad,
+           sum(n_battery_power) AS n_battery_power,
+           sum(n_talk)          AS n_talk,
+           sum(n_call)          AS n_call,
+           sum(n_arm)           AS n_arm,
+           sum(n_disarm)        AS n_disarm,
+           max(chatter_psi_alarm) AS chatter_psi_alarm_max,
+           avg(chatter_psi_alarm) AS chatter_psi_alarm_mean,
+           -- Состояние охраны объекта на конец суток: берётся последнее по
+           -- времени событие среди всех каналов объекта.
+           arg_max(armed_eod, last_arm_ts) FILTER (WHERE armed_eod IS NOT NULL)
+             AS armed_eod,
            max(max_alarm_10min) AS max_alarm_10min,
            avg(chatter_psi) AS chatter_psi_mean,
            max(chatter_psi) AS chatter_psi_max,
@@ -97,8 +114,34 @@ def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext")
     FROM {source} WHERE obj IS NOT NULL
     GROUP BY obj, day
     """)
+    add_arming_context(con)
     add_complex_context(con)
 
+
+
+def add_arming_context(con: duckdb.DuckDBPyConnection) -> None:
+    """Состояние охраны переносится на сутки, когда событий охраны не было.
+
+    Объект стоит на охране неделями, а событие постановки одно. Без переноса
+    признак был бы известен в единичные сутки и бесполезен. Перенос строго
+    назад — берётся последнее известное состояние на конец текущих суток.
+
+    Охрана есть только на 47 объектах из 78, поэтому NULL здесь означает
+    «неизвестно», а не «снято с охраны», и заполнять его нулём нельзя.
+    """
+    con.execute("""
+    CREATE OR REPLACE TABLE feat_object AS
+    SELECT * EXCLUDE (armed_eod),
+           last_value(armed_eod IGNORE NULLS) OVER (
+             PARTITION BY obj ORDER BY day
+             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS obj_armed,
+           date_diff('day', last_value(CASE WHEN armed_eod IS NOT NULL THEN day END
+                                       IGNORE NULLS) OVER (
+             PARTITION BY obj ORDER BY day
+             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), day)
+             AS days_since_arm_event
+    FROM feat_object
+    """)
 
 
 def add_complex_context(con: duckdb.DuckDBPyConnection) -> None:

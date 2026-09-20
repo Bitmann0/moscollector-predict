@@ -1,5 +1,6 @@
 import numpy as np
 import polars as pl
+import pytest
 
 from mkl import serve
 
@@ -58,7 +59,32 @@ def test_per_object_budget_spreads_alerts():
     assert by_obj["len"].to_list() == [2, 2]
 
 
-def test_per_object_budget_falls_back_without_obj_column():
+def test_per_object_budget_without_obj_is_an_error_not_a_silent_fallback():
+    """Молчаливый откат к глобальной отсечке держал три головы из восьми в
+    режиме, который они сами в конфигурации называют неприемлемым: score()
+    проецировал таблицу на entity = [ch, day], колонка obj терялась, и ветка
+    per_object никогда не выполнялась.
+    """
     df = pl.DataFrame({"ch": [1, 2, 3], "risk": [0.9, 0.5, 0.1]})
-    out = serve._apply_budget(df, budget=1, per_object=True)
-    assert out["alert"].sum() == 1
+    with pytest.raises(ValueError, match="obj"):
+        serve._apply_budget(df, budget=1, per_object=True)
+
+
+def test_budget_is_never_exceeded_on_ties():
+    """На ступенчатом выходе изотоники пороговое значение делят десятки строк.
+    Отсечка через `risk >= thr` выдавала до 1.92 бюджета — обещание «не больше
+    20 выездов в сутки» не выполнялось.
+    """
+    df = pl.DataFrame({"ch": range(50), "risk": [0.5] * 50})
+    out = serve._apply_budget(df, budget=10)
+    assert out["alert"].sum() == 10
+
+
+def test_tied_rows_are_broken_deterministically():
+    df = pl.DataFrame({"obj": ["B"] * 5 + ["A"] * 5, "ch": list(range(10)),
+                       "risk": [0.5] * 10})
+    first = serve._apply_budget(df, budget=3).filter(pl.col("alert"))["ch"].to_list()
+    shuffled = serve._apply_budget(
+        df.sample(fraction=1.0, shuffle=True, seed=3), budget=3
+    ).filter(pl.col("alert"))["ch"].to_list()
+    assert sorted(first) == sorted(shuffled)

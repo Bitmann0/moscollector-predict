@@ -1,4 +1,5 @@
 import datetime as dt
+import hashlib
 import pickle
 from pathlib import Path
 
@@ -19,15 +20,36 @@ def model_path(head: str) -> Path:
     return PATHS.models / f"{head}.pkl"
 
 
-def save(head: str, model, iso, feature_names: list[str]) -> Path:
+def feature_signature(name: str) -> str:
+    """Отпечаток набора признаков: имена и типы, отсортированные.
+
+    Связывает модель с тем фичестором, на котором она обучена. Дата сборки для
+    этого не годится: пересборка того же кода меняет дату и не меняет смысла,
+    а переименование колонки меняет смысл и может не поменять дату.
+    """
+    reg = store.load_registry().get(name, {})
+    dtypes = reg.get("dtypes") or {}
+    payload = ";".join(f"{k}:{dtypes[k]}" for k in sorted(dtypes))
+    return hashlib.sha256(payload.encode()).hexdigest()[:16]
+
+
+def save(head: str, model, iso, feature_names: list[str],
+         threshold: float | None = None) -> Path:
     PATHS.models.mkdir(parents=True, exist_ok=True)
     registry = store.load_registry()
+    cfg = load_heads()[head]
     dst = model_path(head)
     with dst.open("wb") as f:
         pickle.dump({
             "model": model,
             "iso": iso,
             "features": feature_names,
+            # Порог рабочей точки — часть модели, а не отчёта. Пока он не
+            # сохранялся, заявленная в отчёте точка в проде была недостижима:
+            # serve резал по бюджету и выдавал другой список.
+            "threshold": threshold,
+            "feature_set": cfg["feature_set"],
+            "feature_signature": feature_signature(cfg["feature_set"]),
             "feature_set_built_at": {k: v.get("built_at") for k, v in registry.items()},
             "saved_at": dt.datetime.now().isoformat(timespec="seconds"),
         }, f)
@@ -42,17 +64,30 @@ def _apply_budget(df: pl.DataFrame, budget: int,
     отсечке все алерты оседают на нескольких худших объектах, и остальные
     диспетчеры сервисом просто не пользуются.
     """
+    if per_object and "obj" not in df.columns:
+        # Прежде здесь был молчаливый откат к глобальной отсечке, и три головы
+        # из восьми работали в режиме, который сами в конфигурации называют
+        # неприемлемым. Отсутствие obj — это ошибка сборки, а не повод
+        # незаметно поменять политику.
+        raise ValueError("побъектный бюджет запрошен, а колонки obj нет")
     if df.is_empty():
         return df.with_columns(pl.lit(False).alias("alert"))
-    if per_object and "obj" in df.columns:
+    if per_object:
         n_obj = df["obj"].n_unique()
         per = max(1, int(budget) // max(n_obj, 1))
         return df.with_columns(
             (pl.col("risk").rank("ordinal", descending=True).over("obj") <= per)
             .alias("alert"))
+    # Ровно k алертов, а не «все, кто не ниже k-го». На ступенчатом выходе
+    # изотоники пороговое значение делят десятки строк, и обещание «не больше
+    # 20 выездов в сутки» нарушалось до 1.92 раза. Ничьи разрываются ключами
+    # сущности, иначе состав списка зависит от порядка строк.
+    tie = [c for c in ("obj", "ch", "seg", "day") if c in df.columns]
     k = min(int(budget), df.height)
-    thr = df["risk"].sort(descending=True)[k - 1]
-    return df.with_columns((pl.col("risk") >= thr).alias("alert"))
+    return (df.sort(["risk"] + tie, descending=[True] + [False] * len(tie))
+              .with_row_index("_rank")
+              .with_columns((pl.col("_rank") < k).alias("alert"))
+              .drop("_rank"))
 
 
 def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
@@ -72,15 +107,37 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
             f"фичестор не содержит признаков модели {head}: {missing[:5]}"
         )
 
+    sig = art.get("feature_signature")
+    if sig and sig != feature_signature(cfg["feature_set"]):
+        raise ValueError(
+            f"модель {head} обучена на другом наборе признаков "
+            f"({cfg['feature_set']}): отпечаток {sig} против "
+            f"{feature_signature(cfg['feature_set'])}. Переобучите голову или "
+            f"верните прежний фичестор — молча подставлять другие числа в те "
+            f"же слоты нельзя."
+        )
+
+    per_object = bool(cfg.get("budget_per_object"))
+    if per_object and "obj" not in feats.columns:
+        raise ValueError(
+            f"голова {head} требует побъектного бюджета, но в наборе "
+            f"{cfg['feature_set']} нет колонки obj"
+        )
+    # Объект и пикет остаются в выдаче даже там, где сущность — канал:
+    # алерт без адреса диспетчеру бесполезен, а побъектный бюджет без obj
+    # молча вырождался в глобальный.
     keys = [k for k in cfg["entity"] if k in feats.columns]
+    keys += [c for c in ("obj", "obj_parent", "picket", "stype")
+             if c in feats.columns and c not in keys]
     risk = art["model"].predict_proba(feats.select(art["features"]).to_numpy())[:, 1]
     if art["iso"] is not None:
         from .calibrate import apply as cal_apply
         risk = cal_apply(art["iso"], risk)
 
     out = feats.select(keys).with_columns(pl.Series("risk", risk))
-    return _apply_budget(out, cfg["budget_per_day"],
-                         per_object=bool(cfg.get("budget_per_object"))
+    if art.get("threshold") is not None:
+        out = out.with_columns((pl.col("risk") >= art["threshold"]).alias("above_thr"))
+    return _apply_budget(out, cfg["budget_per_day"], per_object=per_object
                          ).sort("risk", descending=True)
 
 

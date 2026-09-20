@@ -36,7 +36,16 @@ def build_daily_channel(con: duckdb.DuckDBPyConnection, source: str = "ev") -> N
              -- подряд, и суточные min/max/mean/std этого не выражают.
              row_number() OVER (PARTITION BY ch, day ORDER BY ts)
            - row_number() OVER (PARTITION BY ch, day, val_raw ORDER BY ts)
-             AS flat_grp
+             AS flat_grp,
+             -- Сколько канал провисел в этом состоянии: до следующего события
+             -- либо до конца суток. Обрезка концом суток обязательна — иначе
+             -- признак пришлось бы ждать до закрытия тревоги, то есть смотреть
+             -- в будущее. Деградация и износ по определению есть удлинение
+             -- времени в ненормальном состоянии, а в панели не было ни одного
+             -- признака длительности.
+             coalesce(lead(epoch(ts)) OVER (PARTITION BY ch, day ORDER BY ts),
+                      epoch(CAST(day AS TIMESTAMP) + INTERVAL 1 DAY))
+             - epoch(ts) AS hold_s
       FROM {source}
     ), bins AS (
       -- Максимум событий в 10-минутном окне суток: флуд по EEMUA-191
@@ -62,6 +71,19 @@ def build_daily_channel(con: duckdb.DuckDBPyConnection, source: str = "ev") -> N
         FROM (
           SELECT ch, day, CAST(gap_s AS BIGINT) AS r, count(*) AS n_r
           FROM e WHERE gap_s IS NOT NULL AND gap_s >= 1
+          GROUP BY ch, day, CAST(gap_s AS BIGINT)
+        )
+      ) GROUP BY ch, day
+    ), chatter_alarm AS (
+      -- Тот же индекс, но только по тревожным событиям. Общий psi на числовых
+      -- каналах (газ и температура дают 168 млн событий на ~500 каналов) меряет
+      -- период опроса, а не дребезг, и через объектные агрегаты утекает в A' и C.
+      SELECT ch, day, sum(p_r / r) AS psi_alarm
+      FROM (
+        SELECT ch, day, r, CAST(n_r AS DOUBLE) / sum(n_r) OVER (PARTITION BY ch, day) AS p_r
+        FROM (
+          SELECT ch, day, CAST(gap_s AS BIGINT) AS r, count(*) AS n_r
+          FROM e WHERE alarm AND gap_s IS NOT NULL AND gap_s >= 1
           GROUP BY ch, day, CAST(gap_s AS BIGINT)
         )
       ) GROUP BY ch, day
@@ -120,9 +142,34 @@ def build_daily_channel(con: duckdb.DuckDBPyConnection, source: str = "ev") -> N
              / count(*) AS workhours_frac,
            CAST(count(*) FILTER (WHERE alarm AND hour(ts) < 6) AS DOUBLE)
              / greatest(count(*) FILTER (WHERE alarm), 1) AS night_alarm_frac,
-           count(DISTINCT hour(ts)) AS n_active_hours
+           count(DISTINCT hour(ts)) AS n_active_hours,
+           any_value(ca.psi_alarm) AS chatter_psi_alarm,
+           -- Время в состоянии, накопленное к концу суток.
+           CAST(coalesce(sum(hold_s) FILTER (WHERE alarm), 0) AS BIGINT) AS time_in_alarm_s,
+           CAST(coalesce(sum(hold_s) FILTER (WHERE val_raw IN {_in(BAD_STATES)}), 0) AS BIGINT)
+             AS time_in_bad_s,
+           CAST(coalesce(max(hold_s) FILTER (WHERE alarm), 0) AS BIGINT) AS max_hold_alarm_s,
+           median(hold_s) FILTER (WHERE alarm) AS med_hold_alarm_s,
+           count(*) FILTER (WHERE alarm AND hold_s >= 4 * 3600)  AS n_standing_4h,
+           count(*) FILTER (WHERE alarm AND hold_s >= 24 * 3600) AS n_stale_24h,
+           -- Состояния, лежавшие в данных без употребления. «Много неисправных
+           -- устройств» — диагноз, который система ставит себе сама.
+           count(*) FILTER (WHERE val_raw = 'Много неисправных устройств') AS n_many_bad,
+           count(*) FILTER (WHERE val_raw = 'Устройства на объекте исправны') AS n_devices_ok,
+           count(*) FILTER (WHERE val_raw = 'Питание от батарей')           AS n_battery_power,
+           count(*) FILTER (WHERE val_raw = 'Разговор')                     AS n_talk,
+           count(*) FILTER (WHERE val_raw = 'Вызов')                        AS n_call,
+           -- Охрана. Тревога проникновения при снятой охране — это проход
+           -- персонала, а не нарушитель: по всей истории состояние известно
+           -- у 86.7% тревог и делит их почти пополам (52.2% при охране).
+           count(*) FILTER (WHERE val_raw = 'На охране')      AS n_arm,
+           count(*) FILTER (WHERE val_raw = 'Снято с охраны') AS n_disarm,
+           max(ts) FILTER (WHERE val_raw IN ('На охране', 'Снято с охраны')) AS last_arm_ts,
+           arg_max(CAST(val_raw = 'На охране' AS INTEGER), ts)
+             FILTER (WHERE val_raw IN ('На охране', 'Снято с охраны')) AS armed_eod
     FROM e JOIN runs r USING (ch, day)
            JOIN bins b USING (ch, day)
            LEFT JOIN chatter c USING (ch, day)
+           LEFT JOIN chatter_alarm ca USING (ch, day)
     GROUP BY ch, day
     """)

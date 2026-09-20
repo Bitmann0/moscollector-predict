@@ -148,8 +148,16 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
             te = data.filter(pl.Series(te_m))
             res.update(metrics.episode_summary(
                 te[ent_col].to_numpy(), te["day"].to_numpy(), yte, proba,
-                horizon_days=horizon_days))
+                horizon_days=horizon_days, budget=budget_per_day * n_days))
         res["test_start"], res["test_end"] = str(s.test_start), str(s.test_end)
+        # Состав обучающих суток отдаётся наружу, чтобы исключение периодов
+        # можно было проверить по существу, а не по размеру выборки: прежний
+        # тест сравнивал сумму тестовых фолдов с числом всех строк и потому
+        # проходил даже при полностью удалённом фильтре.
+        tr_days = np.unique(days[tr_m])
+        res["train_days"] = [str(np.datetime_as_string(d, unit="D")) for d in tr_days]
+        res["n_train_days"] = int(len(tr_days))
+        res["n_train"] = int(tr_m.sum())
         folds.append(res)
 
     mean = ({k: float(np.nanmean([f[k] for f in folds])) for k in METRIC_KEYS}

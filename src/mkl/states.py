@@ -1,6 +1,7 @@
 import duckdb
 
-from .config import BAD_STATES, GROUP_OUTAGE_MIN_CHANNELS, GROUP_OUTAGE_WINDOW_MIN
+from .config import (BAD_STATES, GROUP_OUTAGE_MIN_CHANNELS, GROUP_OUTAGE_WINDOW_MIN,
+                     MIN_FAILURE_DURATION_S)
 
 
 def _bad_sql() -> str:
@@ -41,14 +42,25 @@ def build_episodes(con: duckdb.DuckDBPyConnection, source: str = "ev") -> None:
 
 
 def build_group_outages(con: duckdb.DuckDBPyConnection) -> None:
-    """Окно, в котором одновременно легло >= GROUP_OUTAGE_MIN_CHANNELS каналов объекта."""
+    """Окно, в котором одновременно легло >= GROUP_OUTAGE_MIN_CHANNELS каналов объекта.
+
+    Считаются только устойчивые эпизоды (>= MIN_FAILURE_DURATION_S). Без этого
+    условия 93.5% строк episodes — мгновенные пометки нулевой длительности, и
+    групповой отказ вырождался в кластер дребезга: из 201 036 окон, признанных
+    групповыми, лишь 7.31% содержали хотя бы один эпизод длиннее часа.
+
+    Цена ошибки была двойной, потому что is_group входит в фильтр L3/L6: метка
+    «одиночный отказ» теряла 78% настоящих отказов (15 747 из 71 725), и именно
+    это загнало базу головы A в 0.002 и заставило подмешивать к ней молчание.
+    """
     con.execute(f"""
     CREATE OR REPLACE TABLE group_outages AS
     WITH bucketed AS (
       SELECT obj,
              CAST(epoch(t_start) AS BIGINT) // ({GROUP_OUTAGE_WINDOW_MIN} * 60) AS bucket,
              ch, t_start
-      FROM episodes WHERE obj IS NOT NULL
+      FROM episodes
+      WHERE obj IS NOT NULL AND dur_s >= {MIN_FAILURE_DURATION_S}
     )
     SELECT obj, bucket,
            min(t_start) AS t_start, max(t_start) AS t_end,
