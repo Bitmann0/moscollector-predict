@@ -145,3 +145,70 @@ def test_accepted_families_are_kept_where_they_won():
     assert "hhi_" not in drop, "концентрация принята для A' тремя фолдами из трёх"
     assert not (heads["C"].get("drop_feature_prefixes") or []), \
         "для C принято сочетание концентрации и увлажнения"
+
+
+class _ConstantModel:
+    """Заглушка модели: пиклится, потому что объявлена на уровне модуля."""
+
+    def predict_proba(self, X):
+        import numpy as np
+        return np.column_stack([np.zeros(len(X)), np.full(len(X), 0.5)])
+
+
+class _FakeArtifactPath:
+    def __init__(self, art):
+        self._art = art
+
+    def exists(self):
+        return True
+
+    def open(self, mode="rb"):
+        import io as _io
+        import pickle as _p
+        return _io.BytesIO(_p.dumps(self._art))
+
+
+def test_armed_only_head_does_not_score_objects_without_arming_data(monkeypatch):
+    """Метка несанкционированного доступа определена только там, где известно
+    состояние охраны. На остальных объектах модель выдавала бы риск, обученный
+    на другом определении события, — это хуже молчания.
+    """
+    import datetime as dt
+
+    import polars as pl
+
+    feats = pl.DataFrame({
+        "obj": ["1", "2", "3"], "day": [dt.date(2026, 1, 1)] * 3,
+        "obj_armed": [1, None, 0], "x": [0.1, 0.2, 0.3],
+    })
+    art = {"model": _ConstantModel(), "iso": None, "features": ["x"],
+           "threshold": None, "feature_signature": None}
+    monkeypatch.setattr(serve, "load_heads", lambda: {
+        "C": {"entity": ["obj", "day"], "feature_set": "object",
+              "label": "label_intrusion", "horizon_days": 1, "embargo_days": 31,
+              "budget_per_day": 4, "armed_only": True, "direction": "x",
+              "title": "t"}})
+    monkeypatch.setattr(serve.store, "latest_snapshot", lambda name: feats)
+    monkeypatch.setattr(serve, "model_path", lambda h: _FakeArtifactPath(art))
+
+    got = serve.score("C")
+    assert sorted(got["obj"].to_list()) == ["1", "3"], "объект без охраны пропущен"
+
+
+def test_armed_only_head_fails_loudly_without_the_column(monkeypatch):
+    import datetime as dt
+
+    import polars as pl
+
+    feats = pl.DataFrame({"obj": ["1"], "day": [dt.date(2026, 1, 1)], "x": [0.1]})
+    art = {"model": _ConstantModel(), "iso": None, "features": ["x"],
+           "threshold": None, "feature_signature": None}
+    monkeypatch.setattr(serve, "load_heads", lambda: {
+        "C": {"entity": ["obj", "day"], "feature_set": "object",
+              "label": "label_intrusion", "horizon_days": 1, "embargo_days": 31,
+              "budget_per_day": 4, "armed_only": True, "direction": "x",
+              "title": "t"}})
+    monkeypatch.setattr(serve.store, "latest_snapshot", lambda name: feats)
+    monkeypatch.setattr(serve, "model_path", lambda h: _FakeArtifactPath(art))
+    with pytest.raises(ValueError, match="obj_armed"):
+        serve.score("C")

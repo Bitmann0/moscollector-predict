@@ -120,6 +120,17 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
             f"же слоты нельзя."
         )
 
+    # Голова не должна высказываться о сущностях, которых не видела при
+    # обучении. Метка несанкционированного доступа определена только там, где
+    # известно состояние охраны; на остальных объектах модель выдавала бы риск,
+    # обученный на другом определении события. Это хуже молчания.
+    if cfg.get("armed_only"):
+        if "obj_armed" not in feats.columns:
+            raise ValueError(
+                f"голова {head} требует состояния охраны, но в наборе "
+                f"{cfg['feature_set']} нет колонки obj_armed")
+        feats = feats.filter(pl.col("obj_armed").is_not_null())
+
     per_object = bool(cfg.get("budget_per_object"))
     if per_object and "obj" not in feats.columns:
         raise ValueError(

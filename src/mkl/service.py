@@ -130,6 +130,18 @@ def daily_alerts(asof: dt.date | None = None, heads: list[str] | None = None,
     return out
 
 
+def _reference_counts() -> dict[str, int]:
+    """Сколько всего каналов и объектов в справочнике.
+
+    Справочник — единственный источник правды о парке: журнал событий содержит
+    и каналы вне его, а срез фичестора — только те сущности, что отчитывались
+    в этот период.
+    """
+    from .config import PATHS
+    ch = pl.read_parquet(PATHS.interim / "channels.parquet")
+    return {"ch": int(ch["ch"].n_unique()), "obj": int(ch["obj"].n_unique())}
+
+
 def coverage(asof: dt.date | None = None) -> list[Coverage]:
     """По скольким сущностям голова может отвечать.
 
@@ -137,23 +149,28 @@ def coverage(asof: dt.date | None = None) -> list[Coverage]:
     постановки на охрану: 47 объектов из 78. Пустое место в интерфейсе по
     остальным читалось бы как «всё спокойно», что неправда.
     """
+    # Знаменатель — весь парк по справочнику, а не то, что оказалось в срезе
+    # фичестора. Иначе объекты, по которым голова не считается, просто не
+    # попадают в счёт, и доля покрытия выходит единицей ровно там, где разрыв
+    # и надо показать.
+    ref = _reference_counts()
     out: list[Coverage] = []
     for head, cfg in serve.load_heads().items():
         if not serve.model_path(head).exists():
             continue
-        feats = (store.latest_snapshot(cfg["feature_set"]) if asof is None
-                 else store.read_slice(cfg["feature_set"], asof, asof))
-        ent = next((k for k in ("ch", "obj", "seg") if k in feats.columns), None)
-        total = feats[ent].n_unique() if ent else feats.height
+        ent = "obj" if cfg["entity"][0] in ("obj", "seg") else "ch"
+        total = ref[ent]
         try:
-            scored = len({a.address.obj or a.address.channel
+            scored = len({a.address.obj if ent == "obj" else a.address.channel
                           for a in alerts_for_head(head, asof, with_factors=False)})
         except (ValueError, FileNotFoundError):
             scored = 0
         reason = None
         if cfg.get("armed_only"):
-            reason = ("считается только по объектам с данными о постановке на "
-                      "охрану: 47 из 78")
+            reason = ("считается только там, где известно состояние охраны — "
+                      "события постановки и снятия есть на 47 объектах из 78; "
+                      "из них в выдачу попадают те, что отчитывались в эти "
+                      "сутки")
         out.append(Coverage(head=head, direction=cfg["direction"],
                             entities_total=int(total), entities_scored=int(scored),
                             reason=reason))
