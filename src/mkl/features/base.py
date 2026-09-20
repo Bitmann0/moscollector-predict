@@ -7,6 +7,37 @@ ROLLING_COLS = ("n_events", "n_alarms", "n_bad", "n_chatter_1min", "n_transition
                 "time_in_alarm_s", "time_in_bad_s", "n_standing_4h")
 
 
+CUSUM_COLS = ("n_events", "n_alarms", "n_bad", "time_in_alarm_s")
+
+
+def dev90_parts(cols=CUSUM_COLS) -> list[str]:
+    """Отклонение от собственного 90-суточного уровня. Первый шаг CUSUM."""
+    return [
+        f"CAST({c} AS DOUBLE) - avg(CAST({c} AS DOUBLE)) OVER "
+        f"(PARTITION BY ch ORDER BY day "
+        f"RANGE BETWEEN INTERVAL 89 DAY PRECEDING AND CURRENT ROW) AS dev90_{c}"
+        for c in cols
+    ]
+
+
+def cusum_parts(cols=CUSUM_COLS) -> list[str]:
+    """CUSUM без рекурсии: накопленное отклонение от собственного уровня.
+
+    Ловит малый, но устойчивый сдвиг среднего — тот, которого z-оценка в
+    скользящем окне не видит, потому что окно уезжает вместе со сдвигом.
+    Вычитание 90-суточного уровня обязательно: без него сумма растёт у любого
+    активного канала и меряет возраст, а не дрейф.
+
+    Окна строго по прошлому, включая текущие сутки: признак готов к концу суток
+    t, метка живёт в t+1.
+    """
+    return [
+        f"sum(dev90_{c}) OVER (PARTITION BY ch ORDER BY day "
+        f"ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cusum_{c}"
+        for c in cols
+    ]
+
+
 def add_rolling_windows(con: duckdb.DuckDBPyConnection,
                         windows: tuple[int, ...] = (7, 30),
                         source: str = "daily_channel") -> None:
@@ -44,6 +75,8 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
                 f"RANGE BETWEEN INTERVAL {w - 1} DAY PRECEDING AND CURRENT ROW) "
                 f"AS {c}_{agg}_w{w}"
             )
+    parts += cusum_parts()
+    dev90 = ",\n             ".join(dev90_parts())
     rolling = ",\n           ".join(parts)
 
     # Признаки ускорения осмысленны только при наличии обоих окон.
@@ -79,7 +112,8 @@ def add_rolling_windows(con: duckdb.DuckDBPyConnection,
       -- разрыв, начинающийся завтра. Вынесено в отдельный шаг: DuckDB
       -- не допускает вложенных оконных функций.
       SELECT *, date_diff('day', lag(day) OVER (PARTITION BY ch ORDER BY day), day)
-               AS prev_gap_days
+               AS prev_gap_days,
+             {dev90}
       FROM {source}
     ), r AS (
       SELECT ch, day, obj, obj_parent, obj_kind, stype, sys, picket,

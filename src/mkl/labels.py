@@ -236,14 +236,53 @@ def build_fire(con, horizon_days: int = 1, seg_size: float = 10.0) -> None:
     """)
 
 
-def build_intrusion(con, horizon_days: int = 1) -> None:
-    _emit(
-        con, "label_intrusion",
-        "SELECT obj AS eid, day AS event_day FROM daily_channel "
-        "WHERE n_intrusion > 0 AND n_alarms > 0 AND obj IS NOT NULL",
-        "obj", horizon_days,
-        base_sql="SELECT DISTINCT obj AS eid, day FROM daily_channel WHERE obj IS NOT NULL",
-    )
+# Состояние охраны объекта с переносом на сутки без событий постановки: объект
+# стоит на охране неделями, а событие одно. Перенос строго назад.
+_ARMED_SQL = """
+  SELECT obj, day,
+         last_value(armed IGNORE NULLS) OVER (
+           PARTITION BY obj ORDER BY day
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS armed
+  FROM (
+    SELECT obj, day, arg_max(armed_eod, last_arm_ts)
+             FILTER (WHERE armed_eod IS NOT NULL) AS armed
+    FROM daily_channel WHERE obj IS NOT NULL GROUP BY obj, day
+  )
+"""
+
+
+def build_intrusion(con, horizon_days: int = 1, armed_only: bool = False) -> None:
+    """Тревога проникновения на объекте.
+
+    armed_only переопределяет событие: позитивом считается тревога при объекте
+    НА ОХРАНЕ. Тревога при снятой охране — это проход персонала, то есть ровно
+    санкционированный доступ, и голова, названная «несанкционированный доступ»,
+    считала его позитивом наравне с нарушителем. По всей истории состояние
+    известно у 86.7% тревог и делит их почти пополам: 52.2% приходится на
+    объект под охраной.
+
+    Цена: охрана есть только на 47 объектах из 78, и при armed_only голова
+    работает лишь по ним. NULL здесь означает «неизвестно», а не «снято», и
+    подставлять ноль нельзя — это превратило бы 31 объект в вечно снятые.
+    """
+    if not armed_only:
+        events = ("SELECT obj AS eid, day AS event_day FROM daily_channel "
+                  "WHERE n_intrusion > 0 AND n_alarms > 0 AND obj IS NOT NULL")
+        base = ("SELECT DISTINCT obj AS eid, day FROM daily_channel "
+                "WHERE obj IS NOT NULL")
+    else:
+        events = f"""
+          SELECT d.obj AS eid, d.day AS event_day
+          FROM daily_channel d JOIN ({_ARMED_SQL}) a
+            ON a.obj = d.obj AND a.day = d.day
+          WHERE d.n_intrusion > 0 AND d.n_alarms > 0 AND d.obj IS NOT NULL
+            AND a.armed = 1
+        """
+        base = f"""
+          SELECT DISTINCT obj AS eid, day FROM ({_ARMED_SQL})
+          WHERE armed IS NOT NULL
+        """
+    _emit(con, "label_intrusion", events, "obj", horizon_days, base_sql=base)
 
 
 def build_wear(con, horizon_days: int = 7) -> None:
@@ -301,7 +340,8 @@ _BUILDERS = {
         con, horizon_days=h),
     "label_group_outage": lambda con, cfg, h, t: build_group_outage(con, horizon_days=h),
     "label_fire": lambda con, cfg, h, t: build_fire(con, horizon_days=h),
-    "label_intrusion": lambda con, cfg, h, t: build_intrusion(con, horizon_days=h),
+    "label_intrusion": lambda con, cfg, h, t: build_intrusion(
+        con, horizon_days=h, armed_only=bool(cfg.get("armed_only"))),
     "label_wear": lambda con, cfg, h, t: build_wear(con, horizon_days=h),
     "label_flood": lambda con, cfg, h, t: build_flood(con, horizon_days=h),
 }

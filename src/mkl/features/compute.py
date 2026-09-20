@@ -1,6 +1,6 @@
 import duckdb
 
-from . import base, external, lifecycle, relative, telemetry
+from . import base, decay, external, lifecycle, relative, telemetry
 
 
 def build_all(con: duckdb.DuckDBPyConnection,
@@ -15,6 +15,7 @@ def build_all(con: duckdb.DuckDBPyConnection,
     обучение и скоринг обязаны вызывать именно эту функцию.
     """
     base.add_rolling_windows(con, windows=windows, source=source)
+    decay.add_decayed_intensity(con, source=source)
     telemetry.add_value_features(con, source="feat_base")
     telemetry.add_value_drift(con, source="feat_value")
     con.execute("CREATE OR REPLACE TABLE feat_base AS SELECT * FROM feat_value")
@@ -38,6 +39,14 @@ def build_all(con: duckdb.DuckDBPyConnection,
             f"CAST(NULL AS DOUBLE) AS {c}" for c in external.WEATHER_COLUMNS
         )
         con.execute(f"CREATE OR REPLACE TABLE feat_ext AS SELECT *, {nulls} FROM feat_ext")
+
+    # Затухающая интенсивность приклеивается последней: она посчитана отдельным
+    # проходом по исходной панели и от остальных шагов не зависит.
+    con.execute("""
+    CREATE OR REPLACE TABLE feat_ext AS
+    SELECT e.*, d.* EXCLUDE (ch, day)
+    FROM feat_ext e LEFT JOIN feat_decay d ON d.ch = e.ch AND d.day = e.day
+    """)
 
 
 def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext") -> None:
@@ -114,9 +123,56 @@ def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext")
     FROM {source} WHERE obj IS NOT NULL
     GROUP BY obj, day
     """)
+    add_load_concentration(con)
     add_arming_context(con)
     add_complex_context(con)
 
+
+
+def add_load_concentration(con: duckdb.DuckDBPyConnection,
+                           source: str = "feat_ext") -> None:
+    """Концентрация нагрузки по каналам объекта — KPI EEMUA наоборот.
+
+    То, что у оператора служит оценкой качества системы тревог, у нас
+    становится признаком состояния объекта. frac_channels_bad отвечает лишь на
+    вопрос «сколько каналов болеет», но не отличает «болеет один и сильно» от
+    «болеет объект целиком»: при десяти каналах и десяти тревогах доля одна и
+    та же, лежат ли все десять на одном канале или по одной на каждом.
+
+    top1_share — доля тревог худшего канала, hhi — индекс Херфиндаля, то есть
+    сумма квадратов долей: единица при полной концентрации, 1/n при равномерном
+    распределении. n_channels_80pct — сколько каналов дают четыре пятых нагрузки.
+    """
+    con.execute(f"""
+    CREATE OR REPLACE TEMP TABLE _conc AS
+    WITH sh AS (
+      SELECT obj, day, ch,
+             CAST(n_alarms AS DOUBLE) / nullif(sum(n_alarms) OVER (PARTITION BY obj, day), 0)
+               AS p_alarm,
+             CAST(n_bad AS DOUBLE) / nullif(sum(n_bad) OVER (PARTITION BY obj, day), 0)
+               AS p_bad
+      FROM {source} WHERE obj IS NOT NULL
+    ), ranked AS (
+      SELECT obj, day, p_alarm, p_bad,
+             sum(p_alarm) OVER (PARTITION BY obj, day ORDER BY p_alarm DESC
+                                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cum_alarm,
+             row_number() OVER (PARTITION BY obj, day ORDER BY p_alarm DESC) AS rk
+      FROM sh
+    )
+    SELECT obj, day,
+           max(p_alarm)            AS top1_share_alarm,
+           max(p_bad)              AS top1_share_bad,
+           sum(p_alarm * p_alarm)  AS hhi_alarm,
+           sum(p_bad * p_bad)      AS hhi_bad,
+           count(*) FILTER (WHERE cum_alarm <= 0.8) + 1 AS n_channels_80pct,
+           sum(p_alarm) FILTER (WHERE rk <= 10)         AS top10_share_alarm
+    FROM ranked GROUP BY obj, day
+    """)
+    con.execute("""
+    CREATE OR REPLACE TABLE feat_object AS
+    SELECT o.*, c.* EXCLUDE (obj, day)
+    FROM feat_object o LEFT JOIN _conc c ON c.obj = o.obj AND c.day = o.day
+    """)
 
 
 def add_arming_context(con: duckdb.DuckDBPyConnection) -> None:

@@ -94,12 +94,26 @@ def add_lifecycle_features(con: duckdb.DuckDBPyConnection,
            sum(s.n_transitions) OVER lifetime AS cum_duty_cycles,
            date_diff('day',
              max(CASE WHEN s.n_bad > 0 THEN s.day END) OVER lifetime,
-             s.day) AS days_since_prior_failure
+             s.day) AS days_since_prior_failure,
+           -- Режим опроса по Синтетосу-Бойлану: ADI — средний интервал между
+           -- отчётными сутками, CV2 — квадрат коэффициента вариации объёма.
+           -- Пороги 1.32 и 0.49 делят ряды на гладкие, перемежающиеся,
+           -- неустойчивые и рваные. Смысл здесь тот же, что в прогнозировании
+           -- спроса: сказать модели, к какому классу поведения относится ряд,
+           -- потому что «пропустил сутки» значит разное для ежесуточного
+           -- канала и для отчитывающегося раз в неделю.
+           90.0 / nullif(count(*) OVER w90, 0) AS adi_w90,
+           CASE WHEN avg(CAST(s.n_events AS DOUBLE)) OVER w90 > 0
+                THEN pow(stddev_pop(CAST(s.n_events AS DOUBLE)) OVER w90
+                         / avg(CAST(s.n_events AS DOUBLE)) OVER w90, 2)
+                END AS cv2_w90
     FROM {source} s
     JOIN first_seen f ON f.ch = s.ch
     WINDOW
       lifetime AS (PARTITION BY s.ch ORDER BY s.day
                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),
       w30 AS (PARTITION BY s.ch ORDER BY s.day
-              RANGE BETWEEN INTERVAL 29 DAY PRECEDING AND CURRENT ROW)
+              RANGE BETWEEN INTERVAL 29 DAY PRECEDING AND CURRENT ROW),
+      w90 AS (PARTITION BY s.ch ORDER BY s.day
+              RANGE BETWEEN INTERVAL 89 DAY PRECEDING AND CURRENT ROW)
     """)

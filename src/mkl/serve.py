@@ -143,3 +143,47 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
 
 def score_all(asof: dt.date | None = None) -> dict[str, pl.DataFrame]:
     return {h: score(h, asof) for h in load_heads() if model_path(h).exists()}
+
+
+def alerts_over_time(df: pl.DataFrame, budget_per_day: int, entity: str,
+                     cooldown_days: int = 0, confirm_of_3: bool = False,
+                     per_object: bool = False) -> pl.DataFrame:
+    """Суточная выдача с памятью о предыдущих сутках.
+
+    Отсечка по бюджету сама по себе состояния не имеет, и канал, лежащий месяц,
+    занимает место в бюджете каждые сутки. По нашей же эпизодной постановке это
+    одно событие, которое надо предсказать один раз: тридцать выездов к одному и
+    тому же отказу — не тридцать пойманных отказов, а один пойманный и двадцать
+    девять потраченных впустую.
+
+    cooldown_days — сколько суток сущность не может попасть в выдачу повторно.
+    confirm_of_3 — требовать, чтобы сущность была в верхушке хотя бы дважды за
+    последние трое суток: одиночный всплеск риска чаще шум, чем начало отказа.
+
+    Обе настройки тратят полноту ради того, чтобы выданные алерты указывали на
+    РАЗНЫЕ события. Цена и выигрыш меряются episodes_per_100_alerts.
+    """
+    if df.is_empty():
+        return df.with_columns(pl.lit(False).alias("alert"))
+    days = sorted(df["day"].unique().to_list())
+    last_alert: dict = {}
+    recent_top: dict = {}
+    out = []
+    for i, d in enumerate(days):
+        cur = df.filter(pl.col("day") == d)
+        ranked = _apply_budget(cur, budget_per_day, per_object=per_object)
+        top = ranked.filter(pl.col("alert"))[entity].to_list()
+        for e in top:
+            recent_top.setdefault(e, []).append(i)
+        fresh = []
+        for e in top:
+            if cooldown_days and e in last_alert and i - last_alert[e] <= cooldown_days:
+                continue
+            if confirm_of_3 and sum(1 for j in recent_top.get(e, [])
+                                    if i - j <= 2) < 2:
+                continue
+            fresh.append(e)
+            last_alert[e] = i
+        out.append(ranked.with_columns(
+            pl.col(entity).is_in(fresh).alias("alert")))
+    return pl.concat(out)

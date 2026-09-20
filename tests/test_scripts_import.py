@@ -16,7 +16,9 @@ from pathlib import Path
 
 import pytest
 
-SCRIPTS = sorted((Path(__file__).resolve().parents[1] / "scripts").glob("*.py"))
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = sorted((ROOT / "scripts").glob("*.py"))
+MODULES = sorted((ROOT / "src" / "mkl").rglob("*.py"))
 
 
 def _has_main_guard(path: Path) -> bool:
@@ -49,3 +51,25 @@ def test_list_of_scripts_running_on_import_does_not_grow():
     как модуль. Пять существующих терпимы, новые заводить не стоит."""
     got = {p.stem for p in SCRIPTS if not _has_main_guard(p)}
     assert got == RUNS_ON_IMPORT, f"изменился состав: {got ^ RUNS_ON_IMPORT}"
+
+
+@pytest.mark.parametrize("path", MODULES, ids=lambda p: p.stem)
+def test_package_module_parses(path):
+    """Модули пакета тоже ломаются текстовой правкой вслепую.
+
+    Дважды за одну сессию правка `src/` через замену подстроки давала
+    синтаксически неверный файл, и узнавалось об этом только на следующем
+    запуске сборки — то есть через десяток минут. Разбор стоит миллисекунды.
+    """
+    ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+
+
+def test_package_imports_cleanly():
+    """Импорт пакета исполняет модульный уровень всех его частей."""
+    for name in ("mkl.config", "mkl.db", "mkl.ingest", "mkl.states", "mkl.panel",
+                 "mkl.labels", "mkl.metrics", "mkl.cv", "mkl.train", "mkl.serve",
+                 "mkl.store", "mkl.stacking", "mkl.calibrate", "mkl.experiments",
+                 "mkl.features.compute", "mkl.features.base", "mkl.features.decay",
+                 "mkl.features.relative", "mkl.features.telemetry",
+                 "mkl.features.lifecycle", "mkl.features.external"):
+        importlib.import_module(name)

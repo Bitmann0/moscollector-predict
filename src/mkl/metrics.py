@@ -330,3 +330,43 @@ def meets_target(op: dict, n_days: int, budget_per_day: int,
         "budget_per_day": budget_per_day,
         "budget_overrun": float(k / budget) if budget else float("nan"),
     }
+
+
+def episodes_per_100_alerts(entity: np.ndarray, day: np.ndarray, y: np.ndarray,
+                            alert: np.ndarray, horizon_days: int = 1) -> dict:
+    """Сколько РАЗНЫХ событий поймано на сотню выданных алертов.
+
+    Величина, которой не выражает ни одна посуточная метрика, а диспетчер
+    чувствует именно её: тридцать выездов к одному и тому же лежащему каналу —
+    это один пойманный отказ, а не тридцать. Точность на бюджете считает их
+    тридцатью попаданиями и выглядит отлично при бесполезной выдаче.
+    """
+    entity = np.asarray(entity)
+    day = np.asarray(day, dtype="datetime64[D]")
+    y = np.asarray(y).astype(int)
+    alert = np.asarray(alert).astype(bool)
+
+    order = np.lexsort((day, entity))
+    e, d, yy, aa = entity[order], day[order], y[order], alert[order]
+    prev_same = np.zeros(len(e), dtype=bool)
+    if len(e) > 1:
+        prev_same[1:] = (e[1:] == e[:-1]) & ((d[1:] - d[:-1]) == np.timedelta64(1, "D"))
+    starts = np.flatnonzero((yy == 1) & ~(prev_same & (np.roll(yy, 1) == 1)))
+
+    caught = 0
+    for i in starts:
+        lo = d[i] - np.timedelta64(horizon_days, "D")
+        j = i
+        while j >= 0 and e[j] == e[i] and d[j] >= lo:
+            if aa[j]:
+                caught += 1
+                break
+            j -= 1
+    n_alerts = int(aa.sum())
+    return {
+        "alerts": n_alerts,
+        "episodes": int(len(starts)),
+        "episodes_caught": caught,
+        "episode_recall": float(caught / len(starts)) if len(starts) else float("nan"),
+        "episodes_per_100_alerts": float(100.0 * caught / n_alerts) if n_alerts else float("nan"),
+    }

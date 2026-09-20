@@ -4,6 +4,7 @@ import urllib.error
 import urllib.request
 
 import duckdb
+import numpy as np
 import polars as pl
 
 from ..config import PATHS
@@ -68,6 +69,26 @@ def fetch_moscow_weather(start: dt.date, end: dt.date) -> pl.DataFrame | None:
           .then(pl.col("t_max") * pl.col("snow_depth_cm"))
           .otherwise(0.0).alias("snowmelt")
     )
+    # Индекс предшествующего увлажнения: API_t = k * API_{t-1} + P_t.
+    # Стандартный прокси насыщения грунта. Трёхсуточной суммы для подтопления
+    # мало — грунт помнит осадки неделями, и именно память, а не суточный
+    # максимум, определяет, куда денется следующий дождь. Три коэффициента
+    # затухания: k=0.85 держит память около недели, k=0.95 — около месяца.
+    p_arr = df["precip_mm"].fill_null(0.0).to_numpy()
+    for k in (0.85, 0.90, 0.95):
+        api = np.empty(len(p_arr))
+        acc = 0.0
+        for i, v in enumerate(p_arr):
+            acc = k * acc + v
+            api[i] = acc
+        df = df.with_columns(pl.Series(f"api_{int(k * 100)}", api))
+    df = df.with_columns([
+        pl.col("precip_mm").rolling_sum(7, min_samples=1).alias("precip_7d"),
+        pl.col("precip_mm").rolling_sum(14, min_samples=1).alias("precip_14d"),
+        pl.col("precip_mm").rolling_sum(30, min_samples=1).alias("precip_30d"),
+        pl.col("snowmelt").rolling_sum(7, min_samples=1).alias("snowmelt_7d"),
+        pl.col("snowmelt").rolling_sum(30, min_samples=1).alias("snowmelt_30d"),
+    ])
     WEATHER_CACHE.parent.mkdir(parents=True, exist_ok=True)
     df.write_parquet(WEATHER_CACHE)
     return df
@@ -91,7 +112,10 @@ def add_calendar(con: duckdb.DuckDBPyConnection, source: str = "feat_full") -> N
 WEATHER_COLUMNS = ("t_mean", "t_min", "t_max", "precip_mm",
                    "snow_depth_cm", "t_range", "frost_intensity",
                    "precip_24h", "precip_48h", "precip_72h",
-                   "snowmelt", "snow_delta")
+                   "snowmelt", "snow_delta",
+                   "api_85", "api_90", "api_95",
+                   "precip_7d", "precip_14d", "precip_30d",
+                   "snowmelt_7d", "snowmelt_30d")
 
 
 def add_weather(con: duckdb.DuckDBPyConnection) -> bool:
@@ -105,11 +129,10 @@ def add_weather(con: duckdb.DuckDBPyConnection) -> bool:
         nulls = ", ".join(f"CAST(NULL AS DOUBLE) AS {c}" for c in WEATHER_COLUMNS)
         con.execute(f"CREATE OR REPLACE TABLE feat_ext AS SELECT *, {nulls} FROM feat_ext")
         return False
+    cols = ", ".join(f"w.{c}" for c in WEATHER_COLUMNS)
     con.execute(f"""
     CREATE OR REPLACE TABLE feat_ext AS
-    SELECT e.*, w.t_mean, w.t_min, w.t_max, w.precip_mm, w.snow_depth_cm,
-           w.t_range, w.frost_intensity, w.precip_24h, w.precip_48h,
-           w.precip_72h, w.snowmelt, w.snow_delta
+    SELECT e.*, {cols}
     FROM feat_ext e
     LEFT JOIN read_parquet('{WEATHER_CACHE}') w ON w.day = e.day
     """)
