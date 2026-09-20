@@ -2,6 +2,9 @@
 
 Продолжение с реализацией часовых температурных признаков и измеренным walk-forward
 описано в [`../temperature-episode-hourly/README.md`](../temperature-episode-hourly/README.md).
+Исправленная проверка сильного сигнала потери телеметрии находится в
+[`../availability-risk/README.md`](../availability-risk/README.md), а итоговая схема разделённых
+ML-голов — в [`../../MULTI_HEAD_ML_STRATEGY.md`](../../MULTI_HEAD_ML_STRATEGY.md).
 
 ## Вывод
 
