@@ -192,3 +192,34 @@ def test_target_is_met_when_precision_recall_and_budget_all_hold():
     op = {"precision": 0.72, "recall": 0.60, "k": 3000}
     got = metrics.meets_target(op, n_days=181, budget_per_day=20)
     assert got["meets_target"] and got["within_budget"]
+
+
+def test_normalised_pr_auc_is_not_comparable_across_base_rates():
+    """Замер, из-за которого критерий отбора пришлось менять.
+
+    Нормировка убирает нижнюю границу, но не убирает зависимость от редкости
+    события. При ОДИНАКОВОЙ разделяющей способности голова с частым событием
+    выглядит в разы лучше головы с редким — и на реальных числах проекта это
+    переставляло головы местами.
+    """
+    rng = np.random.default_rng(0)
+    n, d = 200_000, 1.4657          # d' даёт ROC-AUC около 0.85
+    vals = []
+    for br in (0.0095, 0.43):
+        y = (rng.random(n) < br).astype(int)
+        p = rng.normal(0, 1, n) + y * d
+        assert metrics.roc_auc(y, p) == pytest.approx(0.85, abs=0.01)
+        vals.append(metrics.pr_auc_norm(y, p))
+    assert vals[1] / vals[0] > 5, (
+        f"при равной ROC-AUC норм. PR-AUC даёт {vals[0]:.3f} и {vals[1]:.3f}")
+
+
+def test_roc_auc_is_stable_across_base_rates():
+    """То, чем нормированную PR-AUC заменяют при сравнении голов."""
+    rng = np.random.default_rng(1)
+    n, d = 200_000, 1.4657
+    got = []
+    for br in (0.0095, 0.43):
+        y = (rng.random(n) < br).astype(int)
+        got.append(metrics.roc_auc(y, rng.normal(0, 1, n) + y * d))
+    assert abs(got[0] - got[1]) < 0.02

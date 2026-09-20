@@ -30,27 +30,12 @@ def _choice() -> dict:
 # Окно обучения берётся из выбора эксперимента E0, а не задаётся заново.
 WINDOW_START = dt.date.fromisoformat(_choice().get("window_start", "2023-01-01"))
 
-BUILDERS = {
-    "A": lambda con, h: labels.build_sensor_failure(
-        con, variant=_choice()["variant"], horizon_days=h),
-    "A_strict": labels.build_sensor_failure_strict,
-    "A_deg": labels.build_sensor_degradation,
-    "A_prime": labels.build_group_outage,
-    "B": labels.build_fire,
-    "C": labels.build_intrusion,
-    "D": labels.build_wear,
-    "E": labels.build_flood,
-}
 
 
 def load_labels(head: str, cfg: dict) -> pl.DataFrame:
     con = db.connect()
     db.attach_parquet(con, "daily_channel", "episodes", "group_outages")
-    builder = BUILDERS[head]
-    if head == "A":
-        builder(con, cfg["horizon_days"])
-    else:
-        builder(con, horizon_days=cfg["horizon_days"])
+    labels.build_for_head(con, cfg)
     df = con.execute(
         f"SELECT * FROM {cfg['label']} WHERE day >= ?", [WINDOW_START]
     ).pl()

@@ -73,7 +73,7 @@ def _build_model(backend: str, params: dict | None, spw: float):
     raise ValueError(f"неизвестный бэкенд: {backend}")
 
 KEYS = ("ch", "obj", "seg", "day")
-METRIC_KEYS = ("pr_auc", "pr_auc_norm", "precision_at_k", "recall_at_k",
+METRIC_KEYS = ("pr_auc", "pr_auc_norm", "roc_auc", "precision_at_k", "recall_at_k",
                "lift_at_k", "precision", "recall", "brier", "base_rate",
                "op_precision", "op_recall", "op_k", "p_at_r50",
                "episode_recall", "episode_precision", "days_per_episode")

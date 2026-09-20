@@ -17,17 +17,6 @@ sys.stdout.reconfigure(encoding="utf-8")
 TRAIN_END = HOLDOUT_START - dt.timedelta(days=1)
 TEST_DAYS = 90
 
-BUILDERS = {
-    "A": lambda con, h: labels.build_sensor_failure(
-        con, variant=_choice()["variant"], horizon_days=h),
-    "A_strict": labels.build_sensor_failure_strict,
-    "A_deg": labels.build_sensor_degradation,
-    "A_prime": labels.build_group_outage,
-    "B": labels.build_fire,
-    "C": labels.build_intrusion,
-    "D": labels.build_wear,
-    "E": labels.build_flood,
-}
 
 
 def _choice() -> dict:
@@ -37,8 +26,7 @@ def _choice() -> dict:
 def load(head, cfg, window_start):
     con = db.connect()
     db.attach_parquet(con, "daily_channel", "episodes", "group_outages")
-    b = BUILDERS[head]
-    b(con, cfg["horizon_days"]) if head == "A" else b(con, horizon_days=cfg["horizon_days"])
+    labels.build_for_head(con, cfg)
     lab = con.execute(
         f"SELECT * FROM {cfg['label']} WHERE day >= ? AND day <= ?",
         [window_start, TRAIN_END]).pl()

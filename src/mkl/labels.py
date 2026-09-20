@@ -54,8 +54,48 @@ def _silence_sql(min_active: int = 7) -> str:
 """
 
 
+def _silence_rhythm_sql(factor: float = 1.5, min_active: int = 7) -> str:
+    """Молчание относительно СОБСТВЕННОГО ритма канала.
+
+    Фиксированный порог «пропуск от двух суток» ловит штатный редкий опрос:
+    канал, отчитывающийся раз в три дня, не отказывает, когда пропускает сутки,
+    а в метке это позитив. Из 982 438 событий молчания 303 617 — разрывы ровно
+    в одни сутки.
+
+    Здесь порог свой у каждого канала: разрыв должен превышать его обычный в
+    factor раз. Для ежесуточного канала это по-прежнему двое суток, для
+    трёхсуточного — пять. Медиана берётся по предыдущим 30 суткам и снимается
+    в строке prev_day, то есть до пропажи.
+    """
+    return f"""
+  SELECT ch AS eid, prev_day + INTERVAL 1 DAY AS event_day FROM (
+    SELECT ch, day,
+           lag(day) OVER w AS prev_day,
+           date_diff('day', lag(day) OVER w, day) AS gap_days,
+           lag(active_30) OVER w AS recent_days,
+           lag(med_gap_30) OVER w AS med_gap
+    FROM (
+      SELECT ch, day,
+             count(*) OVER r AS active_30,
+             median(prev_gap) OVER r AS med_gap_30
+      FROM (
+        SELECT ch, day,
+               date_diff('day', lag(day) OVER (PARTITION BY ch ORDER BY day), day)
+                 AS prev_gap
+        FROM daily_channel
+      )
+      WINDOW r AS (PARTITION BY ch ORDER BY day
+                   RANGE BETWEEN INTERVAL 30 DAY PRECEDING AND CURRENT ROW)
+    )
+    WINDOW w AS (PARTITION BY ch ORDER BY day)
+  ) WHERE gap_days >= 2 AND recent_days >= {min_active}
+      AND gap_days > {factor} * coalesce(med_gap, 1)
+"""
+
+
 _SILENCE_SQL = _silence_sql(7)
 _SILENCE_STRICT_SQL = _silence_sql(25)
+_SILENCE_RHYTHM_SQL = _silence_rhythm_sql(1.5)
 
 
 def _in(states: frozenset[str]) -> str:
@@ -121,6 +161,8 @@ def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1,
     L8 = L6 объединить L7, то есть отказ или аномальный уход в молчание."""
     if variant == "L4":
         events = _SILENCE_SQL
+    elif variant == "L9":
+        events = _SILENCE_RHYTHM_SQL
     elif variant == "L7":
         events = _SILENCE_STRICT_SQL
     elif variant in ("L5", "L8"):
@@ -242,3 +284,31 @@ def build_flood(con, horizon_days: int = 1) -> None:
             "  WHERE stype = 'Состояние насоса' AND obj IS NOT NULL)"
         ),
     )
+
+
+# Диспетчер по конфигурации головы. Прежде список построителей дублировался в
+# verify_head.py и final_eval.py, а вариант метки головы A брался из файла с
+# результатом эксперимента, а не из heads.yaml — два источника правды на одно
+# решение.
+_BUILDERS = {
+    "label_link": lambda con, cfg, h, t: build_sensor_failure(
+        con, variant=cfg.get("variant", "L9"), horizon_days=h, table=t),
+    "label_failure": lambda con, cfg, h, t: build_sensor_failure(
+        con, variant=cfg.get("variant", "L6"), horizon_days=h, table=t),
+    "label_failure_strict": lambda con, cfg, h, t: build_sensor_failure_strict(
+        con, horizon_days=h),
+    "label_degradation": lambda con, cfg, h, t: build_sensor_degradation(
+        con, horizon_days=h),
+    "label_group_outage": lambda con, cfg, h, t: build_group_outage(con, horizon_days=h),
+    "label_fire": lambda con, cfg, h, t: build_fire(con, horizon_days=h),
+    "label_intrusion": lambda con, cfg, h, t: build_intrusion(con, horizon_days=h),
+    "label_wear": lambda con, cfg, h, t: build_wear(con, horizon_days=h),
+    "label_flood": lambda con, cfg, h, t: build_flood(con, horizon_days=h),
+}
+
+
+def build_for_head(con: duckdb.DuckDBPyConnection, cfg: dict) -> str:
+    """Построить метку головы по её конфигурации. Возвращает имя таблицы."""
+    table = cfg["label"]
+    _BUILDERS[table](con, cfg, cfg["horizon_days"], table)
+    return table

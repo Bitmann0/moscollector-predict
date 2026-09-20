@@ -31,7 +31,17 @@ def test_empty_frame_produces_no_alerts():
 
 def test_heads_config_lists_every_head():
     heads = serve.load_heads()
-    assert set(heads) == {"A", "A_strict", "A_deg", "A_prime", "B", "C", "D", "E"}
+    assert set(heads) == {"A_link", "A", "A_strict", "A_deg", "A_prime",
+                          "B", "C", "D", "E"}
+
+
+def test_link_and_failure_are_separate_heads():
+    """Прежняя метка объединяла отказ и молчание, и 98.89% её позитивов давала
+    ветка молчания. Это разные события с разной ценой выезда."""
+    heads = serve.load_heads()
+    assert heads["A_link"]["label"] != heads["A"]["label"]
+    assert heads["A_link"]["variant"] == "L9"
+    assert heads["A"]["variant"] == "L6"
     for name, cfg in heads.items():
         assert {"entity", "feature_set", "label", "horizon_days",
                 "embargo_days", "budget_per_day"} <= cfg.keys()

@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-20T01:00:57'
+  built_at: '2026-09-20T06:40:36'
   columns:
   - n_channels
   - n_events
@@ -51,6 +51,19 @@ object:
   - snowmelt
   - snow_delta
   - n_flood_bins
+  - time_in_alarm_s
+  - time_in_bad_s
+  - max_hold_alarm_s
+  - n_standing_4h
+  - n_stale_24h
+  - n_many_bad
+  - n_battery_power
+  - n_talk
+  - n_call
+  - n_arm
+  - n_disarm
+  - chatter_psi_alarm_max
+  - chatter_psi_alarm_mean
   - max_alarm_10min
   - chatter_psi_mean
   - chatter_psi_max
@@ -58,6 +71,8 @@ object:
   - workhours_frac_mean
   - obj_parent
   - is_guard_object
+  - obj_armed
+  - days_since_arm_event
   - par_n_siblings
   - par_n_channels
   - par_n_events
@@ -75,9 +90,12 @@ object:
   dtypes:
     age_days_mean: DOUBLE
     age_days_min: BIGINT
+    chatter_psi_alarm_max: DOUBLE
+    chatter_psi_alarm_mean: DOUBLE
     chatter_psi_max: DOUBLE
     chatter_psi_mean: DOUBLE
     day: DATE
+    days_since_arm_event: BIGINT
     days_since_last_bad_mean: DOUBLE
     days_since_last_bad_min: BIGINT
     dow: BIGINT
@@ -88,18 +106,23 @@ object:
     is_holiday: INTEGER
     is_weekend: INTEGER
     max_alarm_10min: BIGINT
+    max_hold_alarm_s: BIGINT
     month: BIGINT
     n_alarms: HUGEINT
     n_alarms_w30: HUGEINT
     n_alarms_w7: HUGEINT
     n_all_pumps: HUGEINT
+    n_arm: HUGEINT
     n_bad: HUGEINT
     n_bad_w30: HUGEINT
     n_bad_w7: HUGEINT
+    n_battery_power: HUGEINT
+    n_call: HUGEINT
     n_channels: BIGINT
     n_channels_bad: BIGINT
     n_chatter_1min: HUGEINT
     n_chatter_1min_w7: HUGEINT
+    n_disarm: HUGEINT
     n_events: HUGEINT
     n_events_w30: HUGEINT
     n_events_w7: HUGEINT
@@ -107,12 +130,17 @@ object:
     n_flood: HUGEINT
     n_flood_bins: HUGEINT
     n_intrusion: HUGEINT
+    n_many_bad: HUGEINT
     n_prior_failures: HUGEINT
     n_pump_on: HUGEINT
     n_pumps: BIGINT
+    n_stale_24h: HUGEINT
+    n_standing_4h: HUGEINT
+    n_talk: HUGEINT
     n_transitions: HUGEINT
     night_frac_mean: DOUBLE
     obj: VARCHAR
+    obj_armed: INTEGER
     obj_parent: VARCHAR
     par_bad_per_channel: DOUBLE
     par_frac_objects_bad: DOUBLE
@@ -145,14 +173,16 @@ object:
     t_mean: DOUBLE
     t_min: DOUBLE
     t_range: DOUBLE
+    time_in_alarm_s: HUGEINT
+    time_in_bad_s: HUGEINT
     workhours_frac_mean: DOUBLE
   keys:
   - day
   - obj
-  n_rows: 124475
+  n_rows: 124487
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-20T01:01:05'
+  built_at: '2026-09-20T06:40:42'
   columns:
   - n_channels
   - n_events
@@ -218,10 +248,10 @@ segment:
   - day
   - obj
   - seg
-  n_rows: 1074435
+  n_rows: 1074674
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-20T01:00:45'
+  built_at: '2026-09-20T06:40:23'
   columns:
   - obj_parent
   - obj_kind
@@ -261,6 +291,22 @@ sensor:
   - n_active_hours
   - n_chatter_1min
   - n_transitions
+  - chatter_psi_alarm
+  - time_in_alarm_s
+  - time_in_bad_s
+  - max_hold_alarm_s
+  - med_hold_alarm_s
+  - n_standing_4h
+  - n_stale_24h
+  - n_many_bad
+  - n_devices_ok
+  - n_battery_power
+  - n_talk
+  - n_call
+  - n_arm
+  - n_disarm
+  - armed_eod
+  - last_arm_ts
   - max_gap_s
   - med_gap_s
   - val_mean
@@ -275,6 +321,9 @@ sensor:
   - n_bad_w7
   - n_chatter_1min_w7
   - n_transitions_w7
+  - time_in_alarm_s_w7
+  - time_in_bad_s_w7
+  - n_standing_4h_w7
   - n_events_mean_w7
   - n_events_std_w7
   - n_active_days_w7
@@ -288,6 +337,9 @@ sensor:
   - n_bad_w30
   - n_chatter_1min_w30
   - n_transitions_w30
+  - time_in_alarm_s_w30
+  - time_in_bad_s_w30
+  - n_standing_4h_w30
   - n_events_mean_w30
   - n_events_std_w30
   - n_active_days_w30
@@ -398,11 +450,13 @@ sensor:
     age_days: BIGINT
     alarm_rate: DOUBLE
     alarms_accel: DOUBLE
+    armed_eod: INTEGER
     bad_accel: DOUBLE
     bad_days_per_year: DOUBLE
     bad_value_frac: DOUBLE
     ch: BIGINT
     chatter_psi: DOUBLE
+    chatter_psi_alarm: DOUBLE
     chatter_psi_avg_w30: DOUBLE
     chatter_psi_avg_w7: DOUBLE
     chatter_psi_max_w30: DOUBLE
@@ -435,6 +489,7 @@ sensor:
     is_weekend: INTEGER
     last_alarm_day: DATE
     last_alarm_hour: BIGINT
+    last_arm_ts: TIMESTAMP
     last_bad_day: DATE
     max_10min: BIGINT
     max_10min_max_w30: DOUBLE
@@ -443,8 +498,10 @@ sensor:
     max_flat_run: BIGINT
     max_gap_q_s: BIGINT
     max_gap_s: BIGINT
+    max_hold_alarm_s: BIGINT
     mean_gap_q_s: DOUBLE
     med_gap_s: DOUBLE
+    med_hold_alarm_s: DOUBLE
     month: BIGINT
     n_active_days_w30: BIGINT
     n_active_days_w7: BIGINT
@@ -453,12 +510,17 @@ sensor:
     n_alarms_w30: HUGEINT
     n_alarms_w7: HUGEINT
     n_all_pumps: BIGINT
+    n_arm: BIGINT
     n_bad: BIGINT
     n_bad_w30: HUGEINT
     n_bad_w7: HUGEINT
+    n_battery_power: BIGINT
+    n_call: BIGINT
     n_chatter_1min: BIGINT
     n_chatter_1min_w30: HUGEINT
     n_chatter_1min_w7: HUGEINT
+    n_devices_ok: BIGINT
+    n_disarm: BIGINT
     n_distinct_vals: BIGINT
     n_duty_cycles_w30: HUGEINT
     n_events: BIGINT
@@ -474,11 +536,17 @@ sensor:
     n_flood_bins_sum_w30: DOUBLE
     n_flood_bins_sum_w7: DOUBLE
     n_intrusion: BIGINT
+    n_many_bad: BIGINT
     n_ok: BIGINT
     n_on: BIGINT
     n_prior_episodes: HUGEINT
     n_prior_failures: HUGEINT
     n_saturated: BIGINT
+    n_stale_24h: BIGINT
+    n_standing_4h: BIGINT
+    n_standing_4h_w30: HUGEINT
+    n_standing_4h_w7: HUGEINT
+    n_talk: BIGINT
     n_transitions: BIGINT
     n_transitions_w30: HUGEINT
     n_transitions_w7: HUGEINT
@@ -553,6 +621,12 @@ sensor:
     t_mean: DOUBLE
     t_min: DOUBLE
     t_range: DOUBLE
+    time_in_alarm_s: BIGINT
+    time_in_alarm_s_w30: HUGEINT
+    time_in_alarm_s_w7: HUGEINT
+    time_in_bad_s: BIGINT
+    time_in_bad_s_w30: HUGEINT
+    time_in_bad_s_w7: HUGEINT
     val_mad: DOUBLE
     val_max: DOUBLE
     val_mean: DOUBLE
@@ -573,5 +647,5 @@ sensor:
   - day
   - obj
   - seg
-  n_rows: 4271091
+  n_rows: 4273083
   path: U:\hackathon\data\features\sensor.parquet

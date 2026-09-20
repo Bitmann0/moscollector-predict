@@ -61,33 +61,39 @@ def run_head(head: str, cfg: dict) -> None:
     days = sorted(lab["day"].unique().to_list())
     splits = cv.walk_forward(days, n_splits=3, test_days=30,
                              embargo_days=cfg["embargo_days"])
-    n_days = sum((s.test_end - s.test_start).days + 1 for s in splits) // len(splits)
-    budget = cfg["budget_per_day"] * n_days
 
     join_keys = [k for k in ("ch", "obj", "seg", "day")
                  if k in feats.columns and k in lab.columns]
     joined = feats.join(lab, on=join_keys, how="inner")
-    # Бейзлайн считается на тех же тестовых фолдах, что и модель: иначе
-    # сравнение идёт на разных выборках с разной базовой ставкой.
-    days_col = joined["day"].to_numpy()
-    test_mask = np.zeros(len(days_col), dtype=bool)
-    for s in splits:
-        test_mask |= ((days_col >= np.datetime64(s.test_start))
-                      & (days_col <= np.datetime64(s.test_end)))
-    joined = joined.filter(pl.Series(test_mask))
-    y = joined["y"].to_numpy()
 
-    # B1: текущая практика — скор по активности за прошлую неделю
+    # Бейзлайн меряется ПОФОЛДОВО, ровно как модель в train.run, и результаты
+    # усредняются по фолдам. Прежде он считался на объединении трёх тестовых
+    # окон (90 суток), а бюджет получал как на одно (30) — то есть втрое
+    # меньше алертов, чем у модели на тех же строках. Весь наблюдавшийся отрыв
+    # модели по полноте объяснялся этим, а по точности бейзлайн уже обходил её.
     rule_col = next((c for c in ("n_alarms_w7", "n_alarms") if c in joined.columns), None)
     if rule_col:
-        b1 = metrics.summary(
-            y, joined[rule_col].fill_null(0).cast(pl.Float64).to_numpy(), budget=budget
-        )
-        experiments.log({"head": head, "step": "B1",
-                         "note": f"правило ОДС: {rule_col}", **b1})
-        print(f"{head:8} B1 {'правило ОДС':26} база={b1['base_rate']:.4f}  "
-              f"PR-AUC={b1['pr_auc']:.4f}  норм={b1['pr_auc_norm']:.4f}  "
-              f"lift={b1['lift_at_k']:.1f}  P@R50={b1['p_at_r50']:.3f}", flush=True)
+        days_col = joined["day"].to_numpy()
+        score = joined[rule_col].fill_null(0).cast(pl.Float64).to_numpy()
+        yy = joined["y"].to_numpy()
+        per_fold = []
+        for s in splits:
+            m = ((days_col >= np.datetime64(s.test_start))
+                 & (days_col <= np.datetime64(s.test_end)))
+            if not m.any() or yy[m].sum() == 0:
+                continue
+            nd = (s.test_end - s.test_start).days + 1
+            per_fold.append(metrics.summary(
+                yy[m], score[m], budget=cfg["budget_per_day"] * nd))
+        if per_fold:
+            b1 = {k: float(np.nanmean([f[k] for f in per_fold]))
+                  for k in per_fold[0] if isinstance(per_fold[0][k], (int, float))}
+            b1["n_pos"] = int(sum(f["n_pos"] for f in per_fold))
+            experiments.log({"head": head, "step": "B1",
+                             "note": f"правило ОДС: {rule_col}, пофолдово", **b1})
+            print(f"{head:8} B1 {'правило ОДС':26} база={b1['base_rate']:.4f}  "
+                  f"PR-AUC={b1['pr_auc']:.4f}  норм={b1['pr_auc_norm']:.4f}  "
+                  f"lift={b1['lift_at_k']:.1f}  P@R50={b1['p_at_r50']:.3f}", flush=True)
     del joined
 
     out = train.run(head, feats, lab, splits, budget_per_day=cfg["budget_per_day"])
