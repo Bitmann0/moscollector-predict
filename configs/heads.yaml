@@ -5,6 +5,7 @@
 # большинстве случаев приедет к работающему датчику, который пропустил сутки.
 
 A_link:
+  direction: sensor_failure  # Отказ датчика
   title: Потеря связи с каналом
   entity: [ch, day]
   feature_set: sensor
@@ -35,6 +36,7 @@ A_link:
     learning_rate: 0.03
     depth: 10
 A:
+  direction: sensor_failure  # Отказ датчика
   title: Отказ датчика
   entity: [ch, day]
   feature_set: sensor
@@ -71,6 +73,7 @@ A:
     learning_rate: 0.03
     depth: 10
 A_strict:
+  direction: sensor_failure  # Отказ датчика
   title: Аномалия датчика
   entity: [ch, day]
   feature_set: sensor
@@ -85,6 +88,7 @@ A_strict:
   drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 A_deg:
+  direction: sensor_failure  # Отказ датчика
   title: Деградация датчика
   entity: [ch, day]
   feature_set: sensor
@@ -99,6 +103,7 @@ A_deg:
   drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 A_prime:
+  direction: beyond_scope  # Вне четырёх направлений ТЗ
   title: Массовый отказ объекта
   entity: [obj, day]
   feature_set: object
@@ -110,6 +115,7 @@ A_prime:
   drop_feature_prefixes: [api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d]
 
 B:
+  direction: fire_risk  # Пожарный риск
   title: Пожарный риск участка
   entity: [obj, seg, day]
   feature_set: segment
@@ -119,6 +125,7 @@ B:
   budget_per_day: 10
 
 C:
+  direction: unauthorised_access  # Несанкционированный доступ
   title: Несанкционированный доступ
   # Позитив — тревога проникновения при объекте НА ОХРАНЕ. Тревога при
   # снятой охране это проход персонала, то есть ровно санкционированный
@@ -161,6 +168,7 @@ C:
     learning_rate: 0.02
     depth: 7
 D:
+  direction: infrastructure_wear  # Износ инфраструктуры
   title: Износ агрегатов
   entity: [ch, day]
   feature_set: sensor
@@ -175,6 +183,7 @@ D:
   drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 E:
+  direction: beyond_scope  # Вне четырёх направлений ТЗ
   title: Риск подтопления
   entity: [obj, day]
   feature_set: object

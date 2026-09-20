@@ -56,6 +56,9 @@ def save(head: str, model, iso, feature_names: list[str],
     return dst
 
 
+_with_internals = False
+
+
 def _apply_budget(df: pl.DataFrame, budget: int,
                   per_object: bool = False) -> pl.DataFrame:
     """Отсечка по бюджету алертов.
@@ -137,8 +140,23 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
     out = feats.select(keys).with_columns(pl.Series("risk", risk))
     if art.get("threshold") is not None:
         out = out.with_columns((pl.col("risk") >= art["threshold"]).alias("above_thr"))
-    return _apply_budget(out, cfg["budget_per_day"], per_object=per_object
-                         ).sort("risk", descending=True)
+    out = _apply_budget(out, cfg["budget_per_day"], per_object=per_object
+                        ).sort("risk", descending=True)
+    return (out, art, feats) if _with_internals else out
+
+
+def score_with_internals(head: str, asof: dt.date | None = None):
+    """То же, что score, но отдаёт ещё артефакт и исходные признаки.
+
+    Нужно сервисному слою: вклады признаков в конкретный алерт считаются по той
+    же матрице, на которой получен риск, и загружать её второй раз незачем.
+    """
+    global _with_internals
+    _with_internals = True
+    try:
+        return score(head, asof)
+    finally:
+        _with_internals = False
 
 
 def score_all(asof: dt.date | None = None) -> dict[str, pl.DataFrame]:
