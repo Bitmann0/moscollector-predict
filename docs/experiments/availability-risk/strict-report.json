@@ -1,0 +1,588 @@
+{
+  "experiment": "telemetry-availability-active-25-of-30-recovery-7d",
+  "target": "No telemetry on the next globally covered calendar day after at least 25 observed days in the previous 30, with telemetry recovery within 7 days",
+  "positive_semantics": "availability incident, not a confirmed physical sensor failure",
+  "target_manifest": {
+    "target": "No telemetry on the next globally covered calendar day after at least 25 observed days in the previous 30, with telemetry recovery within 7 days",
+    "target_name": "temporary_telemetry_outage_onset",
+    "positive_semantics": "availability incident, not a confirmed physical sensor failure",
+    "recovery_days": 7,
+    "min_active_days_previous_30d": 25,
+    "rows": 821158,
+    "positives": 35043,
+    "positive_rate": 0.04267510028520699,
+    "channels": 3195,
+    "positive_channels": 2992,
+    "date_min": "2019-01-27",
+    "date_max": "2026-06-29",
+    "calendar_days": 2738,
+    "usable_global_days": 2280,
+    "calendar_min": "2019-01-01 00:00:00",
+    "calendar_max": "2026-06-30 00:00:00",
+    "global_coverage_rule": "observed channels >= 50% of trailing 30-day median",
+    "excluded_feature_dates": [
+      "2021-04-01",
+      "2021-08-01"
+    ],
+    "input_sha256": "d5978b0c858b5adf779214c6a11248d480875e23cf22e4fc1b5dc45a1e8cc336",
+    "limitations": [
+      "Recovery confirms a temporary telemetry outage, not its physical cause.",
+      "Daily features use the current channel catalog on historical records.",
+      "Outages longer than the recovery window are censored as unknown."
+    ]
+  },
+  "physical_failure_metrics_available": false,
+  "evaluation_status": "retrospective walk-forward; no claim of untouched holdout",
+  "features": [
+    "event_count",
+    "alarm_count",
+    "alarm_fraction",
+    "days_since_previous",
+    "observed_days_previous_30d",
+    "events_previous_30d",
+    "median_events_previous_30d",
+    "alarms_previous_30d",
+    "observed_days_previous_7d",
+    "events_previous_7d",
+    "activity_ratio_to_past",
+    "events_vs_median_30d",
+    "events_accel_7d_30d",
+    "weekday_sin",
+    "weekday_cos",
+    "year_sin",
+    "year_cos",
+    "sensor_type_unknown",
+    "sensor_type_Газовый датчик",
+    "sensor_type_Датчик движения",
+    "sensor_type_Датчик дыма",
+    "sensor_type_Датчик температуры",
+    "sensor_type_ИБП",
+    "sensor_type_КД АВ",
+    "sensor_type_КД Дверь",
+    "sensor_type_Переключатель",
+    "sensor_type_Состояние УИР-Р",
+    "sensor_type_Состояние вентилятора",
+    "sensor_type_Состояние насоса",
+    "sensor_type_Состояние охраны",
+    "sensor_type_Состояние фазы",
+    "sensor_type_Стекло",
+    "sensor_type_Тепловой датчик"
+  ],
+  "protocols": {
+    "temporal_all_channels": {
+      "folds": [
+        {
+          "fold": "test-2024h1",
+          "status": "ok",
+          "unseen_channels": false,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.13680774008449104,
+            "hist_gradient_boosting": 0.18220554508733483,
+            "current_cadence_rule": 0.07921728848689867
+          },
+          "threshold": 0.16354597162517315,
+          "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+          "splits": {
+            "train": {
+              "samples": 477887,
+              "positives": 20737
+            },
+            "validation": {
+              "samples": 40971,
+              "positives": 1947
+            },
+            "threshold": {
+              "samples": 61373,
+              "positives": 2663
+            },
+            "test": {
+              "samples": 39501,
+              "positives": 1504
+            }
+          },
+          "threshold_holdout": {
+            "samples": 61373,
+            "positives": 2663,
+            "alerts": 2461,
+            "precision": 0.25639983746444533,
+            "recall": 0.23695080736012017,
+            "average_precision": 0.1667096926926897,
+            "brier_score": 0.03869987282810335,
+            "false_alerts_per_100_observed_channel_days": 2.9817672266306032,
+            "confusion_matrix": {
+              "tn": 56880,
+              "fp": 1830,
+              "fn": 2032,
+              "tp": 631
+            }
+          },
+          "test": {
+            "samples": 39501,
+            "positives": 1504,
+            "alerts": 1736,
+            "precision": 0.2269585253456221,
+            "recall": 0.261968085106383,
+            "average_precision": 0.16874719518478634,
+            "brier_score": 0.033936249305803225,
+            "false_alerts_per_100_observed_channel_days": 3.3973823447507656,
+            "confusion_matrix": {
+              "tn": 36655,
+              "fp": 1342,
+              "fn": 1110,
+              "tp": 394
+            },
+            "average_precision_lift": 4.431970051192982
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.13938832252085265,
+            "alerts_at_50pct_recall": 5395,
+            "daily_budget_1": {
+              "alerts": 144,
+              "precision": 0.3263888888888889,
+              "recall": 0.03125,
+              "calendar_days": 144
+            },
+            "daily_budget_3": {
+              "alerts": 432,
+              "precision": 0.2638888888888889,
+              "recall": 0.07579787234042554,
+              "calendar_days": 144
+            }
+          }
+        },
+        {
+          "fold": "test-2025h1",
+          "status": "ok",
+          "unseen_channels": false,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.11261303364777427,
+            "hist_gradient_boosting": 0.16988416892226374,
+            "current_cadence_rule": 0.07255501330832313
+          },
+          "threshold": 0.21091181984654095,
+          "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+          "splits": {
+            "train": {
+              "samples": 580231,
+              "positives": 25347
+            },
+            "validation": {
+              "samples": 39501,
+              "positives": 1504
+            },
+            "threshold": {
+              "samples": 53913,
+              "positives": 2159
+            },
+            "test": {
+              "samples": 48937,
+              "positives": 2089
+            }
+          },
+          "threshold_holdout": {
+            "samples": 53913,
+            "positives": 2159,
+            "alerts": 1079,
+            "precision": 0.30583873957367935,
+            "recall": 0.15284854099119963,
+            "average_precision": 0.1781167481678946,
+            "brier_score": 0.03556981524062262,
+            "false_alerts_per_100_observed_channel_days": 1.389275313931705,
+            "confusion_matrix": {
+              "tn": 51005,
+              "fp": 749,
+              "fn": 1829,
+              "tp": 330
+            }
+          },
+          "test": {
+            "samples": 48937,
+            "positives": 2089,
+            "alerts": 1426,
+            "precision": 0.3330995792426367,
+            "recall": 0.2273815222594543,
+            "average_precision": 0.23875881126788892,
+            "brier_score": 0.03615627700428917,
+            "false_alerts_per_100_observed_channel_days": 1.9433148742260458,
+            "confusion_matrix": {
+              "tn": 45897,
+              "fp": 951,
+              "fn": 1614,
+              "tp": 475
+            },
+            "average_precision_lift": 5.593173741989794
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.2159090909090909,
+            "alerts_at_50pct_recall": 4840,
+            "daily_budget_1": {
+              "alerts": 157,
+              "precision": 0.2611464968152866,
+              "recall": 0.019626615605552896,
+              "calendar_days": 157
+            },
+            "daily_budget_3": {
+              "alerts": 471,
+              "precision": 0.27388535031847133,
+              "recall": 0.0617520344662518,
+              "calendar_days": 157
+            }
+          }
+        },
+        {
+          "fold": "test-2026h1",
+          "status": "ok",
+          "unseen_channels": false,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.1522590758672668,
+            "hist_gradient_boosting": 0.24443090156920955,
+            "current_cadence_rule": 0.07044236502537685
+          },
+          "threshold": 0.23253616795294493,
+          "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+          "splits": {
+            "train": {
+              "samples": 673645,
+              "positives": 29010
+            },
+            "validation": {
+              "samples": 48937,
+              "positives": 2089
+            },
+            "threshold": {
+              "samples": 54550,
+              "positives": 2621
+            },
+            "test": {
+              "samples": 43685,
+              "positives": 1316
+            }
+          },
+          "threshold_holdout": {
+            "samples": 54550,
+            "positives": 2621,
+            "alerts": 1364,
+            "precision": 0.3885630498533724,
+            "recall": 0.20221289584128196,
+            "average_precision": 0.24227148166068302,
+            "brier_score": 0.04072525048621382,
+            "false_alerts_per_100_observed_channel_days": 1.5288725939505041,
+            "confusion_matrix": {
+              "tn": 51095,
+              "fp": 834,
+              "fn": 2091,
+              "tp": 530
+            }
+          },
+          "test": {
+            "samples": 43685,
+            "positives": 1316,
+            "alerts": 837,
+            "precision": 0.2843488649940263,
+            "recall": 0.18085106382978725,
+            "average_precision": 0.17773299630946263,
+            "brier_score": 0.026771711633529132,
+            "false_alerts_per_100_observed_channel_days": 1.3711800389149593,
+            "confusion_matrix": {
+              "tn": 41770,
+              "fp": 599,
+              "fn": 1078,
+              "tp": 238
+            },
+            "average_precision_lift": 5.899898133570574
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.16005837995621502,
+            "alerts_at_50pct_recall": 4111,
+            "daily_budget_1": {
+              "alerts": 139,
+              "precision": 0.33093525179856115,
+              "recall": 0.034954407294832825,
+              "calendar_days": 139
+            },
+            "daily_budget_3": {
+              "alerts": 417,
+              "precision": 0.290167865707434,
+              "recall": 0.0919452887537994,
+              "calendar_days": 139
+            }
+          }
+        }
+      ],
+      "mean_test": {
+        "precision": 0.2814689898607617,
+        "recall": 0.22340022373187485,
+        "average_precision": 0.1950796675873793,
+        "average_precision_lift": 5.308347308917783,
+        "false_alerts_per_100_observed_channel_days": 2.237292419297257
+      }
+    },
+    "unseen_channel_20pct": {
+      "folds": [
+        {
+          "fold": "test-2024h1",
+          "status": "ok",
+          "unseen_channels": true,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.14058993240680348,
+            "hist_gradient_boosting": 0.18020208870444862,
+            "current_cadence_rule": 0.08804017472159881
+          },
+          "threshold": 0.15928382316191353,
+          "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+          "splits": {
+            "train": {
+              "samples": 389417,
+              "positives": 16922
+            },
+            "validation": {
+              "samples": 8161,
+              "positives": 395
+            },
+            "threshold": {
+              "samples": 11584,
+              "positives": 525
+            },
+            "test": {
+              "samples": 7084,
+              "positives": 308
+            }
+          },
+          "threshold_holdout": {
+            "samples": 11584,
+            "positives": 525,
+            "alerts": 522,
+            "precision": 0.25287356321839083,
+            "recall": 0.25142857142857145,
+            "average_precision": 0.1659121979414376,
+            "brier_score": 0.04053588104850541,
+            "false_alerts_per_100_observed_channel_days": 3.3667127071823204,
+            "confusion_matrix": {
+              "tn": 10669,
+              "fp": 390,
+              "fn": 393,
+              "tp": 132
+            }
+          },
+          "test": {
+            "samples": 7084,
+            "positives": 308,
+            "alerts": 352,
+            "precision": 0.24431818181818182,
+            "recall": 0.2792207792207792,
+            "average_precision": 0.1917923649590366,
+            "brier_score": 0.038256984740715316,
+            "false_alerts_per_100_observed_channel_days": 3.7549407114624507,
+            "confusion_matrix": {
+              "tn": 6510,
+              "fp": 266,
+              "fn": 222,
+              "tp": 86
+            },
+            "average_precision_lift": 4.411224394057842
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.15247524752475247,
+            "alerts_at_50pct_recall": 1010,
+            "daily_budget_1": {
+              "alerts": 144,
+              "precision": 0.20833333333333334,
+              "recall": 0.09740259740259741,
+              "calendar_days": 144
+            },
+            "daily_budget_3": {
+              "alerts": 432,
+              "precision": 0.18055555555555555,
+              "recall": 0.2532467532467532,
+              "calendar_days": 144
+            }
+          }
+        },
+        {
+          "fold": "test-2025h1",
+          "status": "ok",
+          "unseen_channels": true,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.11771447110445966,
+            "hist_gradient_boosting": 0.20633891961090642,
+            "current_cadence_rule": 0.0913405299496929
+          },
+          "threshold": 0.19716951248067638,
+          "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+          "splits": {
+            "train": {
+              "samples": 472016,
+              "positives": 20612
+            },
+            "validation": {
+              "samples": 7084,
+              "positives": 308
+            },
+            "threshold": {
+              "samples": 9900,
+              "positives": 417
+            },
+            "test": {
+              "samples": 8888,
+              "positives": 426
+            }
+          },
+          "threshold_holdout": {
+            "samples": 9900,
+            "positives": 417,
+            "alerts": 248,
+            "precision": 0.2661290322580645,
+            "recall": 0.15827338129496402,
+            "average_precision": 0.15192302207119926,
+            "brier_score": 0.0380318262709564,
+            "false_alerts_per_100_observed_channel_days": 1.8383838383838385,
+            "confusion_matrix": {
+              "tn": 9301,
+              "fp": 182,
+              "fn": 351,
+              "tp": 66
+            }
+          },
+          "test": {
+            "samples": 8888,
+            "positives": 426,
+            "alerts": 352,
+            "precision": 0.3494318181818182,
+            "recall": 0.2887323943661972,
+            "average_precision": 0.2684535570415669,
+            "brier_score": 0.039785311235259024,
+            "false_alerts_per_100_observed_channel_days": 2.5765076507650764,
+            "confusion_matrix": {
+              "tn": 8233,
+              "fp": 229,
+              "fn": 303,
+              "tp": 123
+            },
+            "average_precision_lift": 5.600974683064429
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.25387365911799764,
+            "alerts_at_50pct_recall": 839,
+            "daily_budget_1": {
+              "alerts": 157,
+              "precision": 0.2611464968152866,
+              "recall": 0.09624413145539906,
+              "calendar_days": 157
+            },
+            "daily_budget_3": {
+              "alerts": 471,
+              "precision": 0.20169851380042464,
+              "recall": 0.22300469483568075,
+              "calendar_days": 157
+            }
+          }
+        },
+        {
+          "fold": "test-2026h1",
+          "status": "ok",
+          "unseen_channels": true,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.1851500751280311,
+            "hist_gradient_boosting": 0.27753584880777354,
+            "current_cadence_rule": 0.07462919711354327
+          },
+          "threshold": 0.15368031216401742,
+          "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+          "splits": {
+            "train": {
+              "samples": 548446,
+              "positives": 23550
+            },
+            "validation": {
+              "samples": 8888,
+              "positives": 426
+            },
+            "threshold": {
+              "samples": 9903,
+              "positives": 508
+            },
+            "test": {
+              "samples": 7883,
+              "positives": 278
+            }
+          },
+          "threshold_holdout": {
+            "samples": 9903,
+            "positives": 508,
+            "alerts": 545,
+            "precision": 0.3211009174311927,
+            "recall": 0.34448818897637795,
+            "average_precision": 0.24919915232502673,
+            "brier_score": 0.04341087903769321,
+            "false_alerts_per_100_observed_channel_days": 3.736241542966778,
+            "confusion_matrix": {
+              "tn": 9025,
+              "fp": 370,
+              "fn": 333,
+              "tp": 175
+            }
+          },
+          "test": {
+            "samples": 7883,
+            "positives": 278,
+            "alerts": 392,
+            "precision": 0.22959183673469388,
+            "recall": 0.3237410071942446,
+            "average_precision": 0.1837196663655399,
+            "brier_score": 0.03108347928641168,
+            "false_alerts_per_100_observed_channel_days": 3.8310287961436003,
+            "confusion_matrix": {
+              "tn": 7303,
+              "fp": 302,
+              "fn": 188,
+              "tp": 90
+            },
+            "average_precision_lift": 5.209576007048745
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.16951219512195123,
+            "alerts_at_50pct_recall": 820,
+            "daily_budget_1": {
+              "alerts": 139,
+              "precision": 0.2517985611510791,
+              "recall": 0.12589928057553956,
+              "calendar_days": 139
+            },
+            "daily_budget_3": {
+              "alerts": 417,
+              "precision": 0.19664268585131894,
+              "recall": 0.2949640287769784,
+              "calendar_days": 139
+            }
+          }
+        }
+      ],
+      "mean_test": {
+        "precision": 0.2744472789115646,
+        "recall": 0.29723139359374035,
+        "average_precision": 0.21465519612204784,
+        "average_precision_lift": 5.073925028057006,
+        "false_alerts_per_100_observed_channel_days": 3.387492386123709
+      }
+    }
+  },
+  "input_sha256": "7d57c003791fb91c81ea1014ec79db4ac91819cb7cefea69b347c54abcaf518c",
+  "versions": {
+    "python": "3.12.14",
+    "pandas": "2.3.3",
+    "numpy": "2.5.3",
+    "sklearn": "1.9.1",
+    "duckdb": "1.5.5"
+  },
+  "limitations": [
+    "The label measures telemetry availability, not physical failure or repair demand.",
+    "Recovery within seven days censors long outages and decommissioned channels.",
+    "The 2026 period has already been inspected and is retrospective evidence only."
+  ]
+}
