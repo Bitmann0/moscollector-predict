@@ -133,11 +133,46 @@ def test_L7_catches_gap_in_regular_channel(con):
 
 
 def test_horizon_widens_positive_window(con):
+    """Данные в фикстуре кончаются 01-10, поэтому при горизонте 7 суток метку
+    можно ставить только до 01-03: у 01-04 и дальше окно уже выходит за край."""
     _episode(con, "2025-01-08 03:00:00", "2025-01-08 09:00:00", 21600)
     labels.build_sensor_failure(con, variant="L2", horizon_days=7)
     pos = sorted(str(r[0]) for r in
                  con.execute("SELECT day FROM label_failure WHERE y=1").fetchall())
-    assert pos == [f"2025-01-{d:02d}" for d in range(1, 8)]
+    assert pos == [f"2025-01-{d:02d}" for d in range(1, 4)]
+
+
+def test_censored_tail_is_dropped_not_marked_negative(con):
+    """Для последних суток окно (day, day+H] выходит за конец данных, и событие
+    там невидимо. Если оставить такие сутки в выборке, они станут отрицательными
+    без всякого основания: на реальных данных 2026-06-30 давала 2 716 строк и
+    ровно ноль положительных при базовой ставке 0.26."""
+    labels.build_sensor_failure(con, variant="L2", horizon_days=1)
+    days = [str(r[0]) for r in
+            con.execute("SELECT day FROM label_failure ORDER BY day").fetchall()]
+    assert "2025-01-10" not in days, "последние сутки цензурированы"
+    assert days[-1] == "2025-01-09"
+
+
+def test_censored_tail_grows_with_horizon(con):
+    labels.build_sensor_failure(con, variant="L2", horizon_days=3)
+    last = con.execute("SELECT max(day) FROM label_failure").fetchone()[0]
+    assert str(last) == "2025-01-07"
+
+
+def test_horizon_window_does_not_reach_into_excluded_period(con, monkeypatch):
+    """Сутки миграции СМВУ отбрасываются при обучении, но их тень через горизонт
+    дотягивалась до соседних: на 2021-03-31 метка давала 346 положительных,
+    указывающих на артефакты внутри исключённого периода."""
+    import datetime as dt
+    monkeypatch.setattr(labels, "EXCLUDED_PERIODS",
+                        [(dt.date(2025, 1, 6), dt.date(2025, 1, 8))])
+    _episode(con, "2025-01-07 03:00:00", "2025-01-07 09:00:00", 21600)
+    labels.build_sensor_failure(con, variant="L2", horizon_days=1)
+    days = [str(r[0]) for r in
+            con.execute("SELECT day FROM label_failure ORDER BY day").fetchall()]
+    assert "2025-01-05" not in days, "окно этих суток смотрит внутрь исключённого периода"
+    assert con.execute("SELECT sum(y) FROM label_failure").fetchone()[0] == 0
 
 
 def test_group_outage_label_uses_object_entity(con):

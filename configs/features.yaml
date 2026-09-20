@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-16T01:16:51'
+  built_at: '2026-09-20T01:00:57'
   columns:
   - n_channels
   - n_events
@@ -56,6 +56,22 @@ object:
   - chatter_psi_max
   - night_frac_mean
   - workhours_frac_mean
+  - obj_parent
+  - is_guard_object
+  - par_n_siblings
+  - par_n_channels
+  - par_n_events
+  - par_n_alarms
+  - par_n_bad
+  - par_n_bad_w7
+  - par_n_intrusion
+  - par_n_flood
+  - par_n_fire
+  - par_n_objects_bad
+  - par_frac_objects_bad
+  - par_share_bad
+  - par_share_alarms
+  - par_bad_per_channel
   dtypes:
     age_days_mean: DOUBLE
     age_days_min: BIGINT
@@ -68,6 +84,7 @@ object:
     doy_cos: DOUBLE
     doy_sin: DOUBLE
     frac_channels_bad: DOUBLE
+    is_guard_object: INTEGER
     is_holiday: INTEGER
     is_weekend: INTEGER
     max_alarm_10min: BIGINT
@@ -96,6 +113,21 @@ object:
     n_transitions: HUGEINT
     night_frac_mean: DOUBLE
     obj: VARCHAR
+    obj_parent: VARCHAR
+    par_bad_per_channel: DOUBLE
+    par_frac_objects_bad: DOUBLE
+    par_n_alarms: HUGEINT
+    par_n_bad: HUGEINT
+    par_n_bad_w7: HUGEINT
+    par_n_channels: HUGEINT
+    par_n_events: HUGEINT
+    par_n_fire: HUGEINT
+    par_n_flood: HUGEINT
+    par_n_intrusion: HUGEINT
+    par_n_objects_bad: BIGINT
+    par_n_siblings: BIGINT
+    par_share_alarms: DOUBLE
+    par_share_bad: DOUBLE
     precip_24h: DOUBLE
     precip_48h: DOUBLE
     precip_72h: DOUBLE
@@ -117,10 +149,10 @@ object:
   keys:
   - day
   - obj
-  n_rows: 162294
+  n_rows: 124475
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-16T01:16:56'
+  built_at: '2026-09-20T01:01:05'
   columns:
   - n_channels
   - n_events
@@ -186,11 +218,13 @@ segment:
   - day
   - obj
   - seg
-  n_rows: 1091219
+  n_rows: 1074435
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-16T01:16:45'
+  built_at: '2026-09-20T01:00:45'
   columns:
+  - obj_parent
+  - obj_kind
   - stype
   - sys
   - picket
@@ -320,6 +354,13 @@ sensor:
   - obj_days_since_bad_mean
   - share_obj_alarms
   - share_obj_bad
+  - par_n_channels
+  - par_n_bad
+  - par_n_alarms
+  - par_n_bad_w7
+  - par_channels_bad
+  - par_frac_bad
+  - par_share_bad
   - age_days
   - cum_events
   - cum_alarms
@@ -461,6 +502,7 @@ sensor:
     obj_channels_bad: BIGINT
     obj_days_since_bad_mean: DOUBLE
     obj_frac_bad: DOUBLE
+    obj_kind: VARCHAR
     obj_n_alarms: HUGEINT
     obj_n_alarms_w7: HUGEINT
     obj_n_bad: HUGEINT
@@ -468,8 +510,16 @@ sensor:
     obj_n_bad_w7: HUGEINT
     obj_n_channels: BIGINT
     obj_n_events: HUGEINT
+    obj_parent: VARCHAR
     obj_silence_z_max: DOUBLE
     obj_silence_z_mean: DOUBLE
+    par_channels_bad: BIGINT
+    par_frac_bad: DOUBLE
+    par_n_alarms: HUGEINT
+    par_n_bad: HUGEINT
+    par_n_bad_w7: HUGEINT
+    par_n_channels: BIGINT
+    par_share_bad: DOUBLE
     pareto_rank_obj: BIGINT
     peer_count: BIGINT
     peer_mean_bad: DOUBLE
@@ -523,5 +573,5 @@ sensor:
   - day
   - obj
   - seg
-  n_rows: 4271177
+  n_rows: 4271091
   path: U:\hackathon\data\features\sensor.parquet

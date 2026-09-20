@@ -91,9 +91,65 @@ def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext")
            avg(chatter_psi) AS chatter_psi_mean,
            max(chatter_psi) AS chatter_psi_max,
            avg(night_frac) AS night_frac_mean,
-           avg(workhours_frac) AS workhours_frac_mean
+           avg(workhours_frac) AS workhours_frac_mean,
+           any_value(obj_parent) AS obj_parent,
+           CAST(any_value(obj_kind) = 'guardObject' AS INTEGER) AS is_guard_object
     FROM {source} WHERE obj IS NOT NULL
     GROUP BY obj, day
+    """)
+    add_complex_context(con)
+
+
+
+def add_complex_context(con: duckdb.DuckDBPyConnection) -> None:
+    """Контекст комплекса для объектных голов.
+
+    78 объектов входят в 16 комплексов. Авария питания или обрыв магистрали
+    проявляются на комплексе целиком, поэтому состояние соседних объектов —
+    внешний предиктор, которого в объектном наборе не было: привязка по
+    префиксу тега ключа к иерархии не давала.
+
+    Суммы берутся с исключением самого объекта: иначе признак наполовину
+    повторяет собственные колонки строки и сообщает не «что вокруг», а «что
+    у меня».
+    """
+    con.execute("""
+    CREATE OR REPLACE TEMP TABLE _par AS
+    SELECT obj_parent, day,
+           count(*)             AS n_objects,
+           sum(n_channels)      AS n_channels,
+           sum(n_events)        AS n_events,
+           sum(n_alarms)        AS n_alarms,
+           sum(n_bad)           AS n_bad,
+           sum(n_bad_w7)        AS n_bad_w7,
+           sum(n_intrusion)     AS n_intrusion,
+           sum(n_flood)         AS n_flood,
+           sum(n_fire)          AS n_fire,
+           count(*) FILTER (WHERE n_bad > 0) AS n_objects_bad
+    FROM feat_object WHERE obj_parent IS NOT NULL
+    GROUP BY obj_parent, day
+    """)
+    con.execute("""
+    CREATE OR REPLACE TABLE feat_object AS
+    SELECT o.*,
+           p.n_objects - 1                      AS par_n_siblings,
+           p.n_channels - o.n_channels          AS par_n_channels,
+           p.n_events   - o.n_events            AS par_n_events,
+           p.n_alarms   - o.n_alarms            AS par_n_alarms,
+           p.n_bad      - o.n_bad               AS par_n_bad,
+           p.n_bad_w7   - o.n_bad_w7            AS par_n_bad_w7,
+           p.n_intrusion - o.n_intrusion        AS par_n_intrusion,
+           p.n_flood    - o.n_flood             AS par_n_flood,
+           p.n_fire     - o.n_fire              AS par_n_fire,
+           p.n_objects_bad - CAST(o.n_bad > 0 AS INTEGER) AS par_n_objects_bad,
+           CAST(p.n_objects_bad - CAST(o.n_bad > 0 AS INTEGER) AS DOUBLE)
+             / nullif(p.n_objects - 1, 0)       AS par_frac_objects_bad,
+           CAST(o.n_bad AS DOUBLE) / nullif(p.n_bad, 0)       AS par_share_bad,
+           CAST(o.n_alarms AS DOUBLE) / nullif(p.n_alarms, 0) AS par_share_alarms,
+           CAST(p.n_bad - o.n_bad AS DOUBLE)
+             / nullif(p.n_channels - o.n_channels, 0)         AS par_bad_per_channel
+    FROM feat_object o
+    LEFT JOIN _par p ON p.obj_parent = o.obj_parent AND p.day = o.day
     """)
 
 

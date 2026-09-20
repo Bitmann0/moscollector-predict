@@ -96,7 +96,7 @@ def add_object_context(con: duckdb.DuckDBPyConnection,
     CREATE OR REPLACE TABLE feat_objctx AS
     SELECT s.*, p.par_n_channels, p.par_n_bad, p.par_n_alarms, p.par_n_bad_w7,
            p.par_channels_bad, p.par_frac_bad,
-           CASE WHEN p.par_n_bad > 0 THEN s.n_bad / p.par_n_bad END AS share_par_bad
+           CASE WHEN p.par_n_bad > 0 THEN s.n_bad / p.par_n_bad END AS par_share_bad
     FROM feat_objctx s
     LEFT JOIN par_daily p ON p.obj_parent = s.obj_parent AND p.day = s.day
     """)

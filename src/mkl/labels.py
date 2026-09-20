@@ -2,6 +2,7 @@ import duckdb
 
 from .config import (
     EQUIPMENT_STYPES,
+    EXCLUDED_PERIODS,
     MAX_FAILURE_DURATION_S,
     MAX_GAP_BEFORE_FAILURE_S,
     MIN_FAILURE_DURATION_S,
@@ -46,6 +47,30 @@ def _in(states: frozenset[str]) -> str:
     return "(" + ",".join(f"'{s}'" for s in sorted(states)) + ")"
 
 
+def _observable(horizon_days: int) -> str:
+    """Условие на сутки, для которых метку вообще можно поставить.
+
+    Отбрасываются двое суток.
+
+    Правый край выборки: для последних horizon_days суток окно (day, day+H]
+    выходит за конец данных, и настоящее событие там невидимо — метка молча
+    становится отрицательной. На 2026-06-30 это давало 2 716 строк и ровно ноль
+    положительных при базовой ставке 0.26. Такие сутки цензурированы, и место им
+    не в отрицательном классе, а за пределами выборки.
+
+    Исключённый период: окно суток перед миграцией СМВУ заходит внутрь неё, и
+    метка указывает на артефакт. На 2021-03-31 таких положительных было 346.
+    Сами сутки миграции отбрасываются при обучении, но их тень через горизонт
+    дотягивалась до соседних.
+    """
+    parts = [f"day + INTERVAL {horizon_days} DAY <= (SELECT max(day) FROM daily_channel)"]
+    for a, b in EXCLUDED_PERIODS:
+        parts.append(
+            f"NOT (day + INTERVAL 1 DAY <= DATE '{b}'"
+            f" AND day + INTERVAL {horizon_days} DAY >= DATE '{a}')")
+    return " AND ".join(parts)
+
+
 def _emit(con: duckdb.DuckDBPyConnection, table: str, events_sql: str,
           entity: str, horizon_days: int, base_sql: str | None = None) -> None:
     """Метка = было ли целевое событие в окне (day, day + horizon] для сущности.
@@ -54,6 +79,7 @@ def _emit(con: duckdb.DuckDBPyConnection, table: str, events_sql: str,
     иначе фичи, посчитанные на конец day, увидели бы собственную метку.
     """
     base = base_sql or f"SELECT DISTINCT {entity} AS eid, day FROM daily_channel"
+    base = f"SELECT * FROM ({base}) WHERE {_observable(horizon_days)}"
     # Целевые события материализуются отдельной таблицей: коррелированный EXISTS
     # над CTE с оконными функциями DuckDB считает неверно и молча отдаёт ноль.
     con.execute(f"CREATE OR REPLACE TEMP TABLE _tgt AS SELECT DISTINCT eid, event_day FROM ({events_sql})")

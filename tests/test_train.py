@@ -67,3 +67,22 @@ def test_importance_ranks_the_informative_feature_first():
                     params={"n_estimators": 60}, budget_per_day=5)
     top = train.importance(out["model"], out["feature_names"], top=1)
     assert top["feature"][0] == "x"
+
+
+def test_result_does_not_depend_on_input_row_order():
+    """Метки приходят из DuckDB, который при параллельном сканировании порядок
+    строк не обещает, и polars-join его не сохраняет. Пока матрица собиралась
+    в произвольном порядке, один и тот же вход в двух процессах давал разные
+    числа — на голове B нормированная PR-AUC гуляла между 0.0316 и 0.0362.
+    Это шире шума, который я готов был считать несущественным, и часть решений
+    о признаках принималась на таких замерах.
+    """
+    days, feats, labels = _dataset()
+    splits = cv.walk_forward(days, n_splits=2, test_days=30, embargo_days=31)
+    kw = {"params": {"n_estimators": 60}, "budget_per_day": 5}
+    straight = train.run("test", feats, labels, splits, **kw)
+    shuffled = train.run("test", feats.sample(fraction=1.0, shuffle=True, seed=7),
+                         labels.sample(fraction=1.0, shuffle=True, seed=13), splits, **kw)
+    for k in ("pr_auc", "pr_auc_norm", "precision_at_k", "op_precision"):
+        assert straight["mean"][k] == shuffled["mean"][k], (
+            f"{k} зависит от порядка строк на входе")
