@@ -1,3 +1,5 @@
+import os
+
 import lightgbm as lgb
 import numpy as np
 import polars as pl
@@ -57,6 +59,46 @@ CAT_PARAMS = {
 }
 
 
+# Бэкенд по умолчанию задаётся переменной окружения MKL_BACKEND: так его можно
+# сменить для всего пайплайна одним местом, не трогая каждый вызов. Причина
+# существования этой ручки — LightGBM из pip-колеса собран без поддержки GPU
+# ("GPU Tree Learner was not enabled in this build"), поэтому перевод расчёта
+# на CUDA означает смену семейства модели, а не флага, и такое решение должно
+# приниматься замером и фиксироваться явно.
+def default_backend() -> str:
+    """По умолчанию XGBoost на CUDA.
+
+    Замер при РАВНОЙ ёмкости: на объектных головах (около 115 тыс. строк) CUDA
+    вдвое быстрее при том же качестве — 17 с против 32 с, ROC 0.9001 против
+    0.8986. На канальных (3.95 млн строк) выигрыша нет вовсе: 479 с против 485,
+    и это тоже результат, потому что ожидание было обратным. Качество всех трёх
+    семейств совпадает в пределах пункта, так что переход ничего не стоит и
+    кое-где экономит вдвое.
+
+    LightGBM остаётся доступен: pip-колесо собрано без поддержки GPU
+    ("GPU Tree Learner was not enabled in this build"), и на больших головах
+    он не медленнее. MKL_BACKEND=lgbm возвращает его.
+    """
+    return os.environ.get("MKL_BACKEND", "xgb")
+
+
+def params_for(cfg: dict, backend: str) -> dict | None:
+    """Параметры головы под конкретный бэкенд.
+
+    В heads.yaml `params` записаны в терминах LightGBM (num_leaves,
+    min_child_samples), и XGBoost с CatBoost их не примут. Пер-бэкендные ключи
+    `params_xgb` и `params_cat` задают эквивалент по ёмкости; если их нет,
+    берутся умолчания семейства.
+
+    Смешивать нельзя: сравнение «lgbm с 800 деревьями против xgb с 400»
+    показывало разрыв в 4.4 пункта точности, который целиком объяснялся
+    разной ёмкостью, а не бэкендом.
+    """
+    if backend == "lgbm":
+        return cfg.get("params")
+    return cfg.get(f"params_{backend}")
+
+
 def _build_model(backend: str, params: dict | None, spw: float):
     """Модель нужного семейства. XGBoost и CatBoost считаются на GPU."""
     if backend == "lgbm":
@@ -91,7 +133,7 @@ def _matrix(df: pl.DataFrame, cols: list[str]) -> np.ndarray:
 
 def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         splits: list[Split], params: dict | None = None,
-        budget_per_day: int = 20, backend: str = "lgbm",
+        budget_per_day: int = 20, backend: str | None = None,
         horizon_days: int = 1, half_life_days: float | None = None) -> dict:
     """Обучение головы по walk-forward схеме.
 
@@ -102,6 +144,7 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
     булевыми масками: пересборка на каждом фолде через polars-фильтр съедала
     больше времени, чем само обучение.
     """
+    backend = backend or default_backend()
     join_keys = [k for k in KEYS if k in features.columns and k in labels.columns]
     data = features.join(labels, on=join_keys, how="inner").sort(join_keys)
     # Сортировка здесь не косметика. Метки приходят из DuckDB, который при

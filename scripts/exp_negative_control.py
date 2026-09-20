@@ -56,7 +56,7 @@ def run(head: str, cfg: dict, window_start: dt.date) -> None:
     print(f"\n{head}  {cfg['title']}", flush=True)
     base = None
     for name, l in arms.items():
-        out = train.run(head, feats, l, splits, params=cfg.get("params"),
+        out = train.run(head, feats, l, splits, params=train.params_for(cfg, train.default_backend()),
                         budget_per_day=cfg["budget_per_day"])
         m = out["mean"]
         if base is None:

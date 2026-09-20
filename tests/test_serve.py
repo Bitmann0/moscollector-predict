@@ -106,3 +106,18 @@ def test_tied_rows_are_broken_deterministically():
         df.sample(fraction=1.0, shuffle=True, seed=3), budget=3
     ).filter(pl.col("alert"))["ch"].to_list()
     assert sorted(first) == sorted(shuffled)
+
+
+def test_every_tuned_head_has_a_gpu_equivalent():
+    """Голова с подобранными параметрами LightGBM обязана иметь эквивалент по
+    ёмкости для GPU-бэкендов. Иначе при переключении бэкенда она молча получит
+    умолчания вдвое меньшей модели, и замер будет мерить ёмкость, а не бэкенд:
+    ровно так возник мнимый разрыв в 4.4 пункта точности на голове A_link.
+    """
+    from mkl import train
+    for name, cfg in serve.load_heads().items():
+        if not cfg.get("params"):
+            continue
+        for backend in ("xgb", "cat"):
+            assert train.params_for(cfg, backend), (
+                f"{name}: нет params_{backend} при заданных params")

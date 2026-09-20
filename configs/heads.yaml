@@ -23,6 +23,15 @@ A_link:
     num_leaves: 255
     min_child_samples: 200
 
+  params_xgb:
+    n_estimators: 800
+    learning_rate: 0.03
+    max_depth: 10
+    min_child_weight: 50
+  params_cat:
+    iterations: 800
+    learning_rate: 0.03
+    depth: 10
 A:
   title: Отказ датчика
   entity: [ch, day]
@@ -46,6 +55,18 @@ A:
     num_leaves: 255
     min_child_samples: 200
 
+  # Эквивалент по ёмкости для GPU-бэкендов: num_leaves 255 это примерно
+  # глубина 8, а не дефолтная 6. Без этого XGBoost получил бы вдвое
+  # меньшую модель, и сравнение мерило бы ёмкость, а не бэкенд.
+  params_xgb:
+    n_estimators: 800
+    learning_rate: 0.03
+    max_depth: 10
+    min_child_weight: 50
+  params_cat:
+    iterations: 800
+    learning_rate: 0.03
+    depth: 10
 A_strict:
   title: Аномалия датчика
   entity: [ch, day]
@@ -110,6 +131,15 @@ C:
     learning_rate: 0.02
     num_leaves: 127
 
+  params_xgb:
+    n_estimators: 1200
+    learning_rate: 0.02
+    max_depth: 7
+    min_child_weight: 20
+  params_cat:
+    iterations: 1200
+    learning_rate: 0.02
+    depth: 7
 D:
   title: Износ агрегатов
   entity: [ch, day]
@@ -156,3 +186,12 @@ C_armed:
     n_estimators: 1200
     learning_rate: 0.02
     num_leaves: 127
+  params_xgb:
+    n_estimators: 1200
+    learning_rate: 0.02
+    max_depth: 7
+    min_child_weight: 20
+  params_cat:
+    iterations: 1200
+    learning_rate: 0.02
+    depth: 7

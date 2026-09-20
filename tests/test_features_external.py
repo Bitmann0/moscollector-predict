@@ -59,3 +59,43 @@ def test_network_failure_degrades_gracefully(tmp_path, monkeypatch):
     monkeypatch.setattr(external, "_download_weather", boom)
     monkeypatch.setattr(external, "WEATHER_CACHE", tmp_path / "missing.parquet")
     assert external.fetch_moscow_weather(dt.date(2025, 1, 1), dt.date(2025, 1, 2)) is None
+
+
+def test_stale_weather_cache_is_recomputed_not_returned(tmp_path, monkeypatch):
+    """Кэш годится, только если в нём есть всё, что обещает WEATHER_COLUMNS.
+
+    Без этой проверки добавление производного признака молча не доезжало до
+    фичестора: функция возвращала старый файл, а сборка падала на отсутствующей
+    колонке через десять минут работы.
+    """
+    import datetime as dt
+    import polars as pl
+    from mkl.features import external
+
+    stale = tmp_path / "weather.parquet"
+    pl.DataFrame({"day": [dt.date(2025, 1, 1)], "t_mean": [0.0]}).write_parquet(stale)
+    monkeypatch.setattr(external, "WEATHER_CACHE", stale)
+    called = {"n": 0}
+
+    def _fail(*a, **k):
+        called["n"] += 1
+        raise OSError("сеть недоступна")
+
+    monkeypatch.setattr(external, "_download_weather", _fail)
+    got = external.fetch_moscow_weather(dt.date(2025, 1, 1), dt.date(2025, 1, 2))
+    assert called["n"] == 1, "устаревший кэш обязан вызвать пересчёт"
+    assert got is None, "сеть недоступна — честно возвращаем None"
+
+
+def test_complete_cache_is_reused_without_network(tmp_path, monkeypatch):
+    import datetime as dt
+    import polars as pl
+    from mkl.features import external
+
+    full = tmp_path / "weather.parquet"
+    pl.DataFrame({"day": [dt.date(2025, 1, 1)],
+                  **{c: [0.0] for c in external.WEATHER_COLUMNS}}).write_parquet(full)
+    monkeypatch.setattr(external, "WEATHER_CACHE", full)
+    monkeypatch.setattr(external, "_download_weather",
+                        lambda *a, **k: pytest.fail("сеть трогать не должны"))
+    assert external.fetch_moscow_weather(dt.date(2025, 1, 1), dt.date(2025, 1, 2)) is not None

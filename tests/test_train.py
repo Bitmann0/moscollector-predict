@@ -86,3 +86,23 @@ def test_result_does_not_depend_on_input_row_order():
     for k in ("pr_auc", "pr_auc_norm", "precision_at_k", "op_precision"):
         assert straight["mean"][k] == shuffled["mean"][k], (
             f"{k} зависит от порядка строк на входе")
+
+
+def test_backend_comes_from_environment_when_not_given(monkeypatch):
+    """Ручка нужна, потому что перевод расчёта на CUDA — это смена семейства
+    модели, а не флаг: LightGBM из pip-колеса собран без поддержки GPU.
+    Такое решение должно задаваться одним местом и фиксироваться явно.
+    """
+    monkeypatch.delenv("MKL_BACKEND", raising=False)
+    assert train.default_backend() == "xgb", "по умолчанию CUDA"
+    monkeypatch.setenv("MKL_BACKEND", "lgbm")
+    assert train.default_backend() == "lgbm"
+
+
+def test_explicit_backend_wins_over_environment(monkeypatch):
+    monkeypatch.setenv("MKL_BACKEND", "cat")
+    days, feats, labels = _dataset()
+    splits = cv.walk_forward(days, n_splits=1, test_days=30, embargo_days=31)
+    out = train.run("t", feats, labels, splits, backend="lgbm",
+                    params={"n_estimators": 20}, budget_per_day=5)
+    assert out["backend"] == "lgbm"

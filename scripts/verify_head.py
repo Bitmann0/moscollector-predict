@@ -51,7 +51,7 @@ def main():
         days = sorted(lab["day"].unique().to_list())
         splits = cv.walk_forward(days, n_splits=3, test_days=TEST_DAYS,
                                  embargo_days=cfg["embargo_days"])
-        out = train.run(head, feats, lab, splits, params=cfg.get("params"),
+        out = train.run(head, feats, lab, splits, params=train.params_for(cfg, train.default_backend()),
                         budget_per_day=cfg["budget_per_day"])
         m = out["mean"]
         experiments.log({"head": head, "step": "B9",

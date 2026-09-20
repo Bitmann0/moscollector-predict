@@ -68,7 +68,7 @@ def evaluate_head(head: str, cfg: dict) -> dict | None:
 
     fit = train.run(head, feats, lab,
                     [Split(WINDOW_START, train_end, VAL_START, VAL_END)],
-                    params=cfg.get("params"),
+                    params=train.params_for(cfg, train.default_backend()),
                     budget_per_day=cfg["budget_per_day"])
     if fit["model"] is None:
         print(f"{head:8} обучить не удалось — пропуск", flush=True)

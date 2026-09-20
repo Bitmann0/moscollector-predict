@@ -44,7 +44,16 @@ def fetch_moscow_weather(start: dt.date, end: dt.date) -> pl.DataFrame | None:
     """Погода Москвы из Open-Meteo. При недоступности сети возвращает None,
     и пайплайн продолжает работу на календарных фичах."""
     if WEATHER_CACHE.exists():
-        return pl.read_parquet(WEATHER_CACHE)
+        cached = pl.read_parquet(WEATHER_CACHE)
+        # Кэш годится, только если в нём есть всё, что обещает WEATHER_COLUMNS.
+        # Без этой проверки добавление производного признака молча не доезжало
+        # до фичестора: функция возвращала старый файл, а сборка падала на
+        # отсутствующей колонке через десять минут работы.
+        missing = [c for c in WEATHER_COLUMNS if c not in cached.columns]
+        if not missing:
+            return cached
+        print(f"кэш погоды устарел (нет {', '.join(missing[:4])}) — пересчитываю",
+              flush=True)
     try:
         df = _download_weather(start, end)
     except (urllib.error.URLError, TimeoutError, OSError, KeyError) as exc:

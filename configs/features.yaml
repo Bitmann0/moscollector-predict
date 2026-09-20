@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-20T06:40:36'
+  built_at: '2026-09-20T15:12:17'
   columns:
   - n_channels
   - n_events
@@ -71,6 +71,12 @@ object:
   - workhours_frac_mean
   - obj_parent
   - is_guard_object
+  - top1_share_alarm
+  - top1_share_bad
+  - hhi_alarm
+  - hhi_bad
+  - n_channels_80pct
+  - top10_share_alarm
   - obj_armed
   - days_since_arm_event
   - par_n_siblings
@@ -102,6 +108,8 @@ object:
     doy_cos: DOUBLE
     doy_sin: DOUBLE
     frac_channels_bad: DOUBLE
+    hhi_alarm: DOUBLE
+    hhi_bad: DOUBLE
     is_guard_object: INTEGER
     is_holiday: INTEGER
     is_weekend: INTEGER
@@ -119,6 +127,7 @@ object:
     n_battery_power: HUGEINT
     n_call: HUGEINT
     n_channels: BIGINT
+    n_channels_80pct: BIGINT
     n_channels_bad: BIGINT
     n_chatter_1min: HUGEINT
     n_chatter_1min_w7: HUGEINT
@@ -175,6 +184,9 @@ object:
     t_range: DOUBLE
     time_in_alarm_s: HUGEINT
     time_in_bad_s: HUGEINT
+    top10_share_alarm: DOUBLE
+    top1_share_alarm: DOUBLE
+    top1_share_bad: DOUBLE
     workhours_frac_mean: DOUBLE
   keys:
   - day
@@ -182,7 +194,7 @@ object:
   n_rows: 124487
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-20T06:40:42'
+  built_at: '2026-09-20T15:12:24'
   columns:
   - n_channels
   - n_events
@@ -251,7 +263,7 @@ segment:
   n_rows: 1074674
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-20T06:40:23'
+  built_at: '2026-09-20T15:11:56'
   columns:
   - obj_parent
   - obj_kind
@@ -348,6 +360,10 @@ sensor:
   - night_frac_avg_w30
   - max_10min_max_w30
   - n_flood_bins_sum_w30
+  - cusum_n_events
+  - cusum_n_alarms
+  - cusum_n_bad
+  - cusum_time_in_alarm_s
   - last_alarm_day
   - last_bad_day
   - max_gap_q_s
@@ -420,6 +436,8 @@ sensor:
   - n_duty_cycles_w30
   - cum_duty_cycles
   - days_since_prior_failure
+  - adi_w90
+  - cv2_w90
   - n_prior_episodes
   - days_since_prior_episode
   - episodes_per_year
@@ -445,11 +463,38 @@ sensor:
   - precip_72h
   - snowmelt
   - snow_delta
+  - api_85
+  - api_90
+  - api_95
+  - precip_7d
+  - precip_14d
+  - precip_30d
+  - snowmelt_7d
+  - snowmelt_30d
+  - ewma_n_events_hl1
+  - ewma_n_events_hl7
+  - ewma_n_events_hl30
+  - ewma_n_alarms_hl1
+  - ewma_n_alarms_hl7
+  - ewma_n_alarms_hl30
+  - ewma_n_bad_hl1
+  - ewma_n_bad_hl7
+  - ewma_n_bad_hl30
+  - ewma_n_events_r1_7
+  - ewma_n_events_r7_30
+  - ewma_n_alarms_r1_7
+  - ewma_n_alarms_r7_30
+  - ewma_n_bad_r1_7
+  - ewma_n_bad_r7_30
   dtypes:
     activity_days_ratio: DOUBLE
+    adi_w90: DOUBLE
     age_days: BIGINT
     alarm_rate: DOUBLE
     alarms_accel: DOUBLE
+    api_85: DOUBLE
+    api_90: DOUBLE
+    api_95: DOUBLE
     armed_eod: INTEGER
     bad_accel: DOUBLE
     bad_days_per_year: DOUBLE
@@ -466,6 +511,11 @@ sensor:
     cum_alarms: HUGEINT
     cum_duty_cycles: HUGEINT
     cum_events: HUGEINT
+    cusum_n_alarms: DOUBLE
+    cusum_n_bad: DOUBLE
+    cusum_n_events: DOUBLE
+    cusum_time_in_alarm_s: DOUBLE
+    cv2_w90: DOUBLE
     day: DATE
     days_since_last_alarm: BIGINT
     days_since_last_bad: BIGINT
@@ -482,6 +532,21 @@ sensor:
     events_accel: DOUBLE
     events_vs_own_w30: DOUBLE
     events_z_own_w30: DOUBLE
+    ewma_n_alarms_hl1: DOUBLE
+    ewma_n_alarms_hl30: DOUBLE
+    ewma_n_alarms_hl7: DOUBLE
+    ewma_n_alarms_r1_7: DOUBLE
+    ewma_n_alarms_r7_30: DOUBLE
+    ewma_n_bad_hl1: DOUBLE
+    ewma_n_bad_hl30: DOUBLE
+    ewma_n_bad_hl7: DOUBLE
+    ewma_n_bad_r1_7: DOUBLE
+    ewma_n_bad_r7_30: DOUBLE
+    ewma_n_events_hl1: DOUBLE
+    ewma_n_events_hl30: DOUBLE
+    ewma_n_events_hl7: DOUBLE
+    ewma_n_events_r1_7: DOUBLE
+    ewma_n_events_r7_30: DOUBLE
     flat_run_ratio: DOUBLE
     frost_intensity: DOUBLE
     gap_vs_own_rhythm: DOUBLE
@@ -598,9 +663,12 @@ sensor:
     peer_std_events: DOUBLE
     peer_z_events: DOUBLE
     picket: DOUBLE
+    precip_14d: DOUBLE
     precip_24h: DOUBLE
+    precip_30d: DOUBLE
     precip_48h: DOUBLE
     precip_72h: DOUBLE
+    precip_7d: DOUBLE
     precip_mm: DOUBLE
     prev_gap_days: BIGINT
     prev_gap_days_max_w30: BIGINT
@@ -614,6 +682,8 @@ sensor:
     snow_delta: DOUBLE
     snow_depth_cm: DOUBLE
     snowmelt: DOUBLE
+    snowmelt_30d: DOUBLE
+    snowmelt_7d: DOUBLE
     std_gap_q_s: DOUBLE
     stype: VARCHAR
     sys: VARCHAR

@@ -35,7 +35,7 @@ def main():
         for arm, drop in ARMS.items():
             f = feats.select([c for c in feats.columns
                               if not any(c.startswith(p) for p in drop)])
-            out = train.run(head, f, lab, splits, params=cfg.get("params"),
+            out = train.run(head, f, lab, splits, params=train.params_for(cfg, train.default_backend()),
                             budget_per_day=cfg["budget_per_day"])
             m = out["mean"]
             experiments.log({"head": head, "step": "C1", "note": f"иерархия: {arm}",

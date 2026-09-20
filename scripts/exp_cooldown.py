@@ -28,7 +28,7 @@ def score_holdout(head: str, cfg: dict):
         store.read_slice(cfg["feature_set"], WINDOW_START, HOLDOUT_END), cfg)
     tr_end = VAL_START - dt.timedelta(days=cfg["embargo_days"] + 1)
     fit = train.run(head, feats, lab, [Split(WINDOW_START, tr_end, VAL_START, VAL_END)],
-                    params=cfg.get("params"), budget_per_day=cfg["budget_per_day"])
+                    params=train.params_for(cfg, train.default_backend()), budget_per_day=cfg["budget_per_day"])
     model, names = fit["model"], fit["feature_names"]
     jk = [k for k in ("ch", "obj", "seg", "day")
           if k in feats.columns and k in lab.columns]
