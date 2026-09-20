@@ -58,6 +58,13 @@ def build_channels() -> int:
                                TRY_CAST(c.ид_объект AS BIGINT)) AS VARCHAR)
                    AS obj_parent,
                  o.obj_kind, o.obj_level,
+                 -- Диспетчерское название объекта и название комплекса.
+                 -- Читались во временную таблицу и до диска не доходили, из-за
+                 -- чего алерт адресовался числом: «объект 3215». Диспетчеру
+                 -- нужно название, которым он пользуется сам.
+                 o.obj_name,
+                 (SELECT p.obj_name FROM _obj p
+                  WHERE p.obj_id = o.obj_parent_id) AS obj_parent_name,
                  split_part(c.тег_инженерной_системы,'.',1) AS tag_prefix,
                  TRY_CAST(replace(regexp_extract(c.название_датчика,
                    'ПК\\s*(\\d+(?:[.,]\\d+)?)', 1), ',', '.') AS DOUBLE) AS picket

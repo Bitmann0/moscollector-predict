@@ -12,7 +12,7 @@ import datetime as dt
 
 import polars as pl
 
-from . import contract, explain, serve, store, train
+from . import address, contract, explain, serve, store, train
 from .contract import Address, Alert, Coverage
 
 # Сколько факторов показывать в карточке алерта.
@@ -20,15 +20,31 @@ TOP_FACTORS = 5
 
 
 def _address(row: dict) -> Address:
+    """Адрес собирается из справочника, а не из признаков.
+
+    Названия в фичесторе не нужны: строки высокой кардинальности на 4,27 млн
+    строк стоят места и меняют отпечаток набора, а идентификатор объекта как
+    признак — прямая утечка. Адрес это оформление выдачи.
+    """
+    ch, obj, seg = _i(row.get("ch")), _s(row.get("obj")), _i(row.get("seg"))
+    a = address.describe(obj=obj, ch=ch, seg=seg)
     return Address(
-        obj=_s(row.get("obj")),
-        obj_parent=_s(row.get("obj_parent")),
-        obj_kind=_s(row.get("obj_kind")),
-        picket=_f(row.get("picket")),
-        channel=_i(row.get("ch")),
-        sensor_type=_s(row.get("stype")),
-        sensor_name=_s(row.get("sname")),
-        segment=_i(row.get("seg")),
+        obj=_s(a.get("obj")) or obj,
+        obj_parent=_s(a.get("obj_parent")) or _s(row.get("obj_parent")),
+        obj_kind=_s(a.get("obj_kind")) or _s(row.get("obj_kind")),
+        channel=ch,
+        segment=seg,
+        picket=_f(a.get("picket")) if a.get("picket") is not None
+               else _f(row.get("picket")),
+        obj_name=_s(a.get("obj_name")),
+        obj_parent_name=_s(a.get("obj_parent_name")),
+        obj_kind_ru=_s(a.get("obj_kind_ru")),
+        sensor_name=_s(a.get("sensor_name")) or _s(row.get("sname")),
+        sensor_type=_s(a.get("sensor_type")) or _s(row.get("stype")),
+        tag=_s(a.get("tag")),
+        picket_label=_s(a.get("picket_label")),
+        segment_label=_s(a.get("segment_label")),
+        address_known=bool(a.get("address_known", True)),
     )
 
 

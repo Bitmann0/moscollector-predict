@@ -1,8 +1,12 @@
+import os
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-ROOT = Path(r"U:\hackathon")
+# Корень проекта: переменная окружения, иначе каталог репозитория, вычисленный
+# от расположения этого файла. Абсолютный путь в коде означал, что решение
+# запускается ровно на одной машине — для сдачи чужой команде это негодно.
+ROOT = Path(os.environ.get("MKL_ROOT", Path(__file__).resolve().parents[2]))
 
 
 @dataclass(frozen=True)

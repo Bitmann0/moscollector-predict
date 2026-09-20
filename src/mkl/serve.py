@@ -76,11 +76,25 @@ def _apply_budget(df: pl.DataFrame, budget: int,
     if df.is_empty():
         return df.with_columns(pl.lit(False).alias("alert"))
     if per_object:
-        n_obj = df["obj"].n_unique()
-        per = max(1, int(budget) // max(n_obj, 1))
-        return df.with_columns(
-            (pl.col("risk").rank("ordinal", descending=True).over("obj") <= per)
-            .alias("alert"))
+        # Раздача по кругу: сперва по одному лучшему с каждого объекта, затем по
+        # второму и так далее, пока не кончится бюджет. Порядок внутри круга —
+        # по риску.
+        #
+        # Прежняя формула max(1, бюджет // объектов) при бюджете меньше числа
+        # объектов давала по одному каждому и выдавала БОЛЬШЕ бюджета: десять
+        # объектов при бюджете пять давали десять алертов. Это тот же дефект,
+        # что был у глобальной отсечки, только незамеченный: обещание «не больше
+        # N выездов в сутки» нарушалось вдвое.
+        tie = [c for c in ("obj", "ch", "seg", "day") if c in df.columns]
+        k = min(int(budget), df.height)
+        return (df.with_columns(
+                    pl.col("risk").rank("ordinal", descending=True)
+                      .over("obj").alias("_in_obj"))
+                  .sort(["_in_obj", "risk"] + tie,
+                        descending=[False, True] + [False] * len(tie))
+                  .with_row_index("_rank")
+                  .with_columns((pl.col("_rank") < k).alias("alert"))
+                  .drop("_rank", "_in_obj"))
     # Ровно k алертов, а не «все, кто не ниже k-го». На ступенчатом выходе
     # изотоники пороговое значение делят десятки строк, и обещание «не больше
     # 20 выездов в сутки» нарушалось до 1.92 раза. Ничьи разрываются ключами

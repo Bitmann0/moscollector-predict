@@ -59,18 +59,35 @@ def make_case_key(head: str, entity: dict) -> str:
 class Address:
     """Куда ехать. Без этого алерт диспетчеру бесполезен.
 
+    Диспетчер работает названиями, а не идентификаторами: «объект Фита, ПК 28,
+    КД АВ», а не «объект 3215». Поэтому рядом с каждым идентификатором лежит
+    название из справочника.
+
     Географических координат в данных нет и не будет — заказчик подтвердил.
     Адресация идёт по объекту, комплексу и пикету: пикет это километровая
     отметка вдоль коллектора, и линейная схема по нему заменяет карту.
+
+    `address_known` отличает «адрес не нашёлся» от «адрес пустой»: 1 142 канала
+    из 12 627 есть в журналах, но отсутствуют в справочнике. Пустая строка в
+    интерфейсе выглядела бы как отсутствие проблемы.
     """
+    # идентификаторы
     obj: str | None = None
     obj_parent: str | None = None
     obj_kind: str | None = None
-    picket: float | None = None
     channel: int | None = None
-    sensor_type: str | None = None
-    sensor_name: str | None = None
     segment: int | None = None
+    picket: float | None = None
+    # то, что показывают человеку
+    obj_name: str | None = None
+    obj_parent_name: str | None = None
+    obj_kind_ru: str | None = None
+    sensor_name: str | None = None
+    sensor_type: str | None = None
+    tag: str | None = None
+    picket_label: str | None = None
+    segment_label: str | None = None
+    address_known: bool = True
 
 
 @dataclass(frozen=True)

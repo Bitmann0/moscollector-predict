@@ -212,3 +212,29 @@ def test_armed_only_head_fails_loudly_without_the_column(monkeypatch):
     monkeypatch.setattr(serve, "model_path", lambda h: _FakeArtifactPath(art))
     with pytest.raises(ValueError, match="obj_armed"):
         serve.score("C")
+
+
+def test_per_object_budget_never_exceeds_the_declared_budget():
+    """Прежняя формула max(1, бюджет // объектов) при бюджете меньше числа
+    объектов давала по одному каждому и выдавала БОЛЬШЕ бюджета: десять
+    объектов при бюджете пять давали десять алертов. Обещание «не больше N
+    выездов в сутки» нарушалось вдвое.
+    """
+    df = pl.DataFrame({"obj": [str(i // 3) for i in range(30)],
+                       "ch": list(range(30)),
+                       "risk": [0.9 - i * 0.01 for i in range(30)]})
+    for budget in (1, 5, 7, 12, 29):
+        out = serve._apply_budget(df, budget=budget, per_object=True)
+        assert out["alert"].sum() == budget, f"бюджет {budget}"
+
+
+def test_per_object_budget_still_spreads_across_objects():
+    """Смысл побъектной отсечки — не дать всем алертам осесть на худших
+    объектах. Точное соблюдение бюджета не должно это ломать."""
+    df = pl.DataFrame({
+        "obj": ["A"] * 5 + ["B"] * 5 + ["C"] * 5,
+        "ch": list(range(15)),
+        "risk": [0.99, 0.98, 0.97, 0.96, 0.95] + [0.5] * 5 + [0.1] * 5,
+    })
+    out = serve._apply_budget(df, budget=3, per_object=True)
+    assert out.filter(pl.col("alert"))["obj"].n_unique() == 3
