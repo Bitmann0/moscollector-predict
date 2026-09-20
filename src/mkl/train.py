@@ -115,7 +115,7 @@ def _build_model(backend: str, params: dict | None, spw: float):
     raise ValueError(f"неизвестный бэкенд: {backend}")
 
 KEYS = ("ch", "obj", "seg", "day")
-METRIC_KEYS = ("pr_auc", "pr_auc_norm", "roc_auc", "precision_at_k", "recall_at_k",
+METRIC_KEYS = ("pr_auc", "pr_auc_norm", "roc_auc", "roc_auc_within_day", "precision_at_k", "recall_at_k",
                "lift_at_k", "precision", "recall", "brier", "base_rate",
                "op_precision", "op_recall", "op_k", "p_at_r50",
                "episode_recall", "episode_precision", "days_per_episode")
@@ -192,6 +192,8 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
             res.update(metrics.episode_summary(
                 te[ent_col].to_numpy(), te["day"].to_numpy(), yte, proba,
                 horizon_days=horizon_days, budget=budget_per_day * n_days))
+        res["roc_auc_within_day"] = metrics.roc_auc_within_day(
+            data.filter(pl.Series(te_m))["day"].to_numpy(), yte, proba)
         res["test_start"], res["test_end"] = str(s.test_start), str(s.test_end)
         # Состав обучающих суток отдаётся наружу, чтобы исключение периодов
         # можно было проверить по существу, а не по размеру выборки: прежний

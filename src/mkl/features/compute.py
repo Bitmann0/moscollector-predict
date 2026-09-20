@@ -95,6 +95,16 @@ def build_object_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext")
            any_value(precip_24h) AS precip_24h, any_value(precip_48h) AS precip_48h,
            any_value(precip_72h) AS precip_72h, any_value(snowmelt) AS snowmelt,
            any_value(snow_delta) AS snow_delta,
+           -- Погодные колонки перечислены поимённо, и новые сюда не попадали
+           -- сами: индекс увлажнения, сделанный ради головы подтопления, до
+           -- неё не доезжал, потому что она живёт на объектном уровне.
+           any_value(api_85) AS api_85, any_value(api_90) AS api_90,
+           any_value(api_95) AS api_95,
+           any_value(precip_7d) AS precip_7d, any_value(precip_14d) AS precip_14d,
+           any_value(precip_30d) AS precip_30d,
+           any_value(snowmelt_7d) AS snowmelt_7d,
+           any_value(snowmelt_30d) AS snowmelt_30d,
+           any_value(frost_intensity) AS frost_intensity,
            sum(n_flood_bins) AS n_flood_bins,
            sum(time_in_alarm_s) AS time_in_alarm_s,
            sum(time_in_bad_s)   AS time_in_bad_s,

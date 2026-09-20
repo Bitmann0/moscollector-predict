@@ -332,6 +332,33 @@ def meets_target(op: dict, n_days: int, budget_per_day: int,
     }
 
 
+def roc_auc_within_day(day: np.ndarray, y: np.ndarray, p: np.ndarray) -> float:
+    """ROC-AUC, усреднённый по суткам, а не по всем строкам разом.
+
+    Нужен там, где суточный уровень сам по себе предсказуем. Общий ROC тогда
+    оказывается выше 0.5 даже при полностью случайном ранжировании внутри
+    суток: модель отыгрывает «в такие сутки падает больше каналов», и по
+    объединённой выборке это выглядит как различение сущностей.
+
+    Именно эта величина отвечает на вопрос негативного контроля: умеет ли
+    модель отличить один канал от другого В ОДНИ И ТЕ ЖЕ сутки.
+    """
+    day = np.asarray(day)
+    y = np.asarray(y).astype(int)
+    p = np.asarray(p, dtype=float)
+    vals, weights = [], []
+    for d in np.unique(day):
+        m = day == d
+        yd = y[m]
+        if yd.sum() == 0 or yd.sum() == len(yd):
+            continue
+        vals.append(roc_auc(yd, p[m]))
+        weights.append(len(yd))
+    if not vals:
+        return float("nan")
+    return float(np.average(vals, weights=weights))
+
+
 def episodes_per_100_alerts(entity: np.ndarray, day: np.ndarray, y: np.ndarray,
                             alert: np.ndarray, horizon_days: int = 1) -> dict:
     """Сколько РАЗНЫХ событий поймано на сотню выданных алертов.

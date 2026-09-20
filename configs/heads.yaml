@@ -16,7 +16,9 @@ A_link:
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 20
-  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean]
+  # Политика по новым семействам: все пять семейств отклонены: CUSUM 0 фолдов из 3 по точности,
+  # остальные не лучше
+  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean, cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
   params:
     n_estimators: 800
     learning_rate: 0.03
@@ -46,7 +48,8 @@ A:
   # Ступени B4 и B5 показали, что peer-relative и пространственные признаки
   # ухудшают эту голову: сравнение с соседями шумит там, где вопрос в том,
   # пропадёт ли канал.
-  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean]
+  # Политика по новым семействам: канальные головы отвергли все пять
+  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean, cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
   # Подобрано тюнингом на победившем наборе: Recall 0.584 при Precision 0.700
   # против 0.556 на дефолтных параметрах.
   params:
@@ -78,6 +81,8 @@ A_strict:
   # Отсечка внутри объекта, а не глобально: иначе все алерты
   # оседают на нескольких худших объектах.
   budget_per_object: true
+  # Политика по новым семействам: все пять отклонены, лучший результат 2 фолда из 3
+  drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 A_deg:
   title: Деградация датчика
@@ -90,6 +95,8 @@ A_deg:
   # Отсечка внутри объекта, а не глобально: иначе все алерты
   # оседают на нескольких худших объектах.
   budget_per_object: true
+  # Политика по новым семействам: канальные головы отвергли все пять
+  drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 A_prime:
   title: Массовый отказ объекта
@@ -99,6 +106,8 @@ A_prime:
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 5
+  # Политика по новым семействам: принята только концентрация нагрузки (3 из 3)
+  drop_feature_prefixes: [api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d]
 
 B:
   title: Пожарный риск участка
@@ -151,6 +160,8 @@ D:
   # Отсечка внутри объекта, а не глобально: иначе все алерты
   # оседают на нескольких худших объектах.
   budget_per_object: true
+  # Политика по новым семействам: канальные головы отвергли все пять
+  drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 E:
   title: Риск подтопления
@@ -163,7 +174,9 @@ E:
   # контекст комплекса выиграл 1 фолд из 5 — для подтопления это шум:
   # насосные объекты все одного вида, а соседи по комплексу заливаются
   # не вместе, а по своему рельефу
-  drop_feature_prefixes: [par_, is_guard_object]
+  # Политика по новым семействам: индекс увлажнения не подтвердился даже после того, как доехал
+  # до объектного уровня: 2 фолда из 3
+  drop_feature_prefixes: [par_, is_guard_object, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d]
 
 C_armed:
   title: Доступ при включённой охране

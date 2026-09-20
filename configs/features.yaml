@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-20T15:12:17'
+  built_at: '2026-09-20T18:09:32'
   columns:
   - n_channels
   - n_events
@@ -50,6 +50,15 @@ object:
   - precip_72h
   - snowmelt
   - snow_delta
+  - api_85
+  - api_90
+  - api_95
+  - precip_7d
+  - precip_14d
+  - precip_30d
+  - snowmelt_7d
+  - snowmelt_30d
+  - frost_intensity
   - n_flood_bins
   - time_in_alarm_s
   - time_in_bad_s
@@ -96,6 +105,9 @@ object:
   dtypes:
     age_days_mean: DOUBLE
     age_days_min: BIGINT
+    api_85: DOUBLE
+    api_90: DOUBLE
+    api_95: DOUBLE
     chatter_psi_alarm_max: DOUBLE
     chatter_psi_alarm_mean: DOUBLE
     chatter_psi_max: DOUBLE
@@ -108,6 +120,7 @@ object:
     doy_cos: DOUBLE
     doy_sin: DOUBLE
     frac_channels_bad: DOUBLE
+    frost_intensity: DOUBLE
     hhi_alarm: DOUBLE
     hhi_bad: DOUBLE
     is_guard_object: INTEGER
@@ -117,30 +130,30 @@ object:
     max_hold_alarm_s: BIGINT
     month: BIGINT
     n_alarms: HUGEINT
-    n_alarms_w30: HUGEINT
-    n_alarms_w7: HUGEINT
+    n_alarms_w30: DOUBLE
+    n_alarms_w7: DOUBLE
     n_all_pumps: HUGEINT
     n_arm: HUGEINT
     n_bad: HUGEINT
-    n_bad_w30: HUGEINT
-    n_bad_w7: HUGEINT
+    n_bad_w30: DOUBLE
+    n_bad_w7: DOUBLE
     n_battery_power: HUGEINT
     n_call: HUGEINT
     n_channels: BIGINT
     n_channels_80pct: BIGINT
     n_channels_bad: BIGINT
     n_chatter_1min: HUGEINT
-    n_chatter_1min_w7: HUGEINT
+    n_chatter_1min_w7: DOUBLE
     n_disarm: HUGEINT
     n_events: HUGEINT
-    n_events_w30: HUGEINT
-    n_events_w7: HUGEINT
+    n_events_w30: DOUBLE
+    n_events_w7: DOUBLE
     n_fire: HUGEINT
     n_flood: HUGEINT
     n_flood_bins: HUGEINT
     n_intrusion: HUGEINT
     n_many_bad: HUGEINT
-    n_prior_failures: HUGEINT
+    n_prior_failures: DOUBLE
     n_pump_on: HUGEINT
     n_pumps: BIGINT
     n_stale_24h: HUGEINT
@@ -155,7 +168,7 @@ object:
     par_frac_objects_bad: DOUBLE
     par_n_alarms: HUGEINT
     par_n_bad: HUGEINT
-    par_n_bad_w7: HUGEINT
+    par_n_bad_w7: DOUBLE
     par_n_channels: HUGEINT
     par_n_events: HUGEINT
     par_n_fire: HUGEINT
@@ -165,9 +178,12 @@ object:
     par_n_siblings: BIGINT
     par_share_alarms: DOUBLE
     par_share_bad: DOUBLE
+    precip_14d: DOUBLE
     precip_24h: DOUBLE
+    precip_30d: DOUBLE
     precip_48h: DOUBLE
     precip_72h: DOUBLE
+    precip_7d: DOUBLE
     precip_mm: DOUBLE
     pump_bad: HUGEINT
     pump_switches: HUGEINT
@@ -178,6 +194,8 @@ object:
     snow_delta: DOUBLE
     snow_depth_cm: DOUBLE
     snowmelt: DOUBLE
+    snowmelt_30d: DOUBLE
+    snowmelt_7d: DOUBLE
     t_max: DOUBLE
     t_mean: DOUBLE
     t_min: DOUBLE

@@ -121,3 +121,26 @@ def test_every_tuned_head_has_a_gpu_equivalent():
         for backend in ("xgb", "cat"):
             assert train.params_for(cfg, backend), (
                 f"{name}: нет params_{backend} при заданных params")
+
+
+def test_rejected_feature_families_do_not_reach_the_heads_that_rejected_them():
+    """Замер отверг пять новых семейств на канальных головах — значит они не
+    должны туда попадать. Отдельная проверка нужна потому, что имя вне общего
+    префикса тихо просачивается: так `share_par_bad` попал в голову подтопления
+    уже после того, как контекст комплекса для неё был отклонён.
+    """
+    heads = serve.load_heads()
+    families = ("cusum_", "dev90_", "ewma_", "adi_w90", "cv2_w90")
+    for name in ("A_link", "A", "A_strict", "A_deg", "D"):
+        drop = set(heads[name].get("drop_feature_prefixes") or [])
+        missing = [f for f in families if f not in drop]
+        assert not missing, f"{name}: отклонённые семейства не отброшены: {missing}"
+
+
+def test_accepted_families_are_kept_where_they_won():
+    """Обратная сторона: принятое замером нельзя отбрасывать заодно."""
+    heads = serve.load_heads()
+    drop = set(heads["A_prime"].get("drop_feature_prefixes") or [])
+    assert "hhi_" not in drop, "концентрация принята для A' тремя фолдами из трёх"
+    assert not (heads["C"].get("drop_feature_prefixes") or []), \
+        "для C принято сочетание концентрации и увлажнения"

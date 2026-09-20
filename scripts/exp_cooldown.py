@@ -39,7 +39,11 @@ def score_holdout(head: str, cfg: dict):
     hold = data.filter((pl.col("day") >= HOLDOUT_START) & (pl.col("day") <= HOLDOUT_END))
     risk = calibrate.apply(iso, model.predict_proba(train._matrix(hold, names))[:, 1])
     ent = next(k for k in ("ch", "obj", "seg") if k in hold.columns)
-    return hold.select([ent, "day", "y"]).with_columns(pl.Series("risk", risk)), ent
+    # obj нужен головам с побъектным бюджетом. Раньше его потеря означала
+    # молчаливый откат к глобальной отсечке; теперь это явная ошибка, и она
+    # поймала этот самый скрипт.
+    keys = [ent, "day", "y"] + (["obj"] if "obj" in hold.columns and ent != "obj" else [])
+    return hold.select(keys).with_columns(pl.Series("risk", risk)), ent
 
 
 ARMS = (

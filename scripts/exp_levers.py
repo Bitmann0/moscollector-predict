@@ -56,10 +56,13 @@ def run(head: str, cfg: dict, window_start: dt.date) -> None:
         return out
 
     ref = measure(base_feats, "база")
-    key = "roc_auc"
+    # Критерий — точность на бюджете, а не ROC. ROC считается по всей выборке,
+    # а решение принимается по верхушке суточного списка: CUSUM выигрывал ROC
+    # во всех трёх фолдах и при этом ронял точность с 0.866 до 0.851.
+    key = "precision_at_k"
     ref_folds = [f[key] for f in ref["folds"]]
-    print(f"  {'база':<16} {ref['mean'][key]:.4f}  "
-          f"P@k={ref['mean']['precision_at_k']:.3f}", flush=True)
+    print(f"  {'база':<16} P@k={ref['mean'][key]:.4f}  "
+          f"ROC={ref['mean']['roc_auc']:.4f}", flush=True)
 
     for name, ps in present.items():
         arm = _drop(feats, tuple(p for n, q in FAMILIES.items() if n != name for p in q))
@@ -67,16 +70,16 @@ def run(head: str, cfg: dict, window_start: dt.date) -> None:
         d = [b - a for a, b in zip(ref_folds, [f[key] for f in out["folds"]])]
         won = sum(v > 0 for v in d)
         verdict = "принят" if won == len(d) else "отклонён"
-        print(f"  {'+' + name:<16} {out['mean'][key]:.4f}  "
-              f"P@k={out['mean']['precision_at_k']:.3f}  "
+        print(f"  {'+' + name:<16} P@k={out['mean'][key]:.4f}  "
+              f"ROC={out['mean']['roc_auc']:.4f}  "
               f"дельта " + " ".join(f"{v:+.4f}" for v in d)
               + f"   {won}/{len(d)}  {verdict}", flush=True)
 
     out = measure(feats, "всё")
     d = [b - a for a, b in zip(ref_folds, [f[key] for f in out["folds"]])]
     won = sum(v > 0 for v in d)
-    print(f"  {'всё вместе':<16} {out['mean'][key]:.4f}  "
-          f"P@k={out['mean']['precision_at_k']:.3f}  "
+    print(f"  {'всё вместе':<16} P@k={out['mean'][key]:.4f}  "
+          f"ROC={out['mean']['roc_auc']:.4f}  "
           f"дельта " + " ".join(f"{v:+.4f}" for v in d) + f"   {won}/{len(d)}",
           flush=True)
 

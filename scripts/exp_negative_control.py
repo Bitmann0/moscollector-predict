@@ -50,23 +50,34 @@ def run(head: str, cfg: dict, window_start: dt.date) -> None:
         "перемешано в сутках": _shuffle_within(lab, ["day"], SEED),
     }
     if ent:
-        arms["перемешано в сутках и по сущности"] = _shuffle_within(
-            lab, ["day", ent], SEED + 1)
+        # Перестановка ВНУТРИ СУЩНОСТИ по времени: сохраняет, сколько раз
+        # конкретный канал падал, и рвёт только связь с моментом.
+        #
+        # Группировать по паре (сутки, сущность) бессмысленно: в панели одна
+        # строка на сущность в сутки, группа состоит из одной строки, и
+        # перестановка внутри неё — пустая операция. Первая версия этого
+        # эксперимента делала именно так и возвращала исходные метки.
+        arms["перемешано по времени внутри канала"] = _shuffle_within(
+            lab, [ent], SEED + 1)
 
     print(f"\n{head}  {cfg['title']}", flush=True)
-    base = None
     for name, l in arms.items():
         out = train.run(head, feats, l, splits, params=train.params_for(cfg, train.default_backend()),
                         budget_per_day=cfg["budget_per_day"])
         m = out["mean"]
-        if base is None:
-            base = m
-        print(f"  {name:<34} ROC={m.get('roc_auc', float('nan')):.4f}  "
+        wd = [f.get("roc_auc_within_day") for f in out["folds"]]
+        wd = np.nanmean([v for v in wd if v is not None]) if wd else float("nan")
+        print(f"  {name:<36} ROC={m.get('roc_auc', float('nan')):.4f}  "
+              f"ROC в сутках={wd:.4f}  "
               f"PR-AUC={m.get('pr_auc', float('nan')):.4f}  "
-              f"база={m.get('base_rate', float('nan')):.4f}  "
               f"lift={m.get('lift_at_k', float('nan')):.2f}", flush=True)
-    print("  ожидание для перемешанных: ROC около 0.5, PR-AUC около базовой "
-          "ставки, lift около 1", flush=True)
+    for note in (
+        "  ROC по всем строкам у перемешанных может быть выше 0.5 и без утечки:",
+        "  перестановка сохраняет суточную долю позитивов, и модель отыгрывает",
+        "  «в такие сутки падает больше каналов». Утечку на уровне сущности",
+        "  показывает ROC ВНУТРИ суток — он обязан быть около 0.5.",
+    ):
+        print(note, flush=True)
 
 
 def main() -> None:
