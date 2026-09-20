@@ -32,7 +32,10 @@ def test_empty_frame_produces_no_alerts():
 def test_heads_config_lists_every_head():
     heads = serve.load_heads()
     assert set(heads) == {"A_link", "A", "A_strict", "A_deg", "A_prime",
-                          "B", "C", "C_armed", "D", "E"}
+                          "B", "C", "D", "E"}
+    for name, cfg in heads.items():
+        assert {"entity", "feature_set", "label", "horizon_days",
+                "embargo_days", "budget_per_day"} <= cfg.keys(), name
 
 
 def test_link_and_failure_are_separate_heads():
@@ -44,15 +47,13 @@ def test_link_and_failure_are_separate_heads():
     assert heads["A"]["variant"] == "L6"
 
 
-def test_armed_variant_of_intrusion_is_a_separate_head():
-    """Тревога при снятой охране — проход персонала. Голова, названная
-    «несанкционированный доступ», считала его позитивом наравне с нарушителем."""
-    heads = serve.load_heads()
-    assert heads["C_armed"]["armed_only"] is True
-    assert not heads["C"].get("armed_only")
-    for name, cfg in heads.items():
-        assert {"entity", "feature_set", "label", "horizon_days",
-                "embargo_days", "budget_per_day"} <= cfg.keys()
+def test_intrusion_head_counts_only_armed_objects():
+    """Тревога при снятой охране — проход персонала, то есть ровно
+    санкционированный доступ. Голова, названная «несанкционированный доступ»,
+    считала его позитивом наравне с нарушителем: по всей истории состояние
+    известно у 86.7% тревог и делит их почти пополам.
+    """
+    assert serve.load_heads()["C"]["armed_only"] is True
 
 
 def test_wear_head_has_wider_embargo_than_horizon():
