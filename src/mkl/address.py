@@ -22,7 +22,7 @@ import functools
 
 import polars as pl
 
-from .config import PATHS
+from .config import PATHS, SEG_SIZE, SEG_UNKNOWN
 
 # Вид объекта в справочнике — английский перечислитель.
 OBJ_KIND_RU = {
@@ -30,10 +30,11 @@ OBJ_KIND_RU = {
     "guardObject": "охранная зона",
 }
 
-SEG_SIZE = 10.0
 UNKNOWN = "адрес неизвестен"
 UNKNOWN_PICKET = "пикет неизвестен"
 AMBIGUOUS_SEGMENT = "участок неизвестен"
+NO_PICKET_SEGMENT = "каналы без пикета"
+MIXED_SEGMENT = "ПК 0–10 либо канал без пикета"
 
 
 @functools.lru_cache(maxsize=1)
@@ -77,19 +78,46 @@ def _segment_has_picket() -> set:
     return {(r["obj"], r["seg"]) for r in known.select(["obj", "seg"]).to_dicts()}
 
 
+@functools.lru_cache(maxsize=1)
+def _objects_without_picket() -> set:
+    """Объекты, где есть хоть один канал без пикета."""
+    df = channels()
+    if "picket" not in df.columns:
+        return set()
+    return set(df.filter(pl.col("picket").is_null())["obj"].to_list())
+
+
 def reset_cache() -> None:
-    for f in (channels, _by_channel, _by_object, _segment_has_picket):
+    for f in (channels, _by_channel, _by_object, _segment_has_picket,
+              _objects_without_picket):
         f.cache_clear()
 
 
 def segment_label(obj: str | None, seg: int | None) -> str:
-    """Подпись участка для линейной схемы."""
+    """Подпись участка для линейной схемы.
+
+    Исходов три, а не два. Собственная корзина беспикетных каналов
+    подписывается как она есть. Нулевой участок из старого набора признаков
+    разбирается по справочнику: настоящее начало коллектора, чистая подстановка
+    нуля или их смесь. Смесь встречается на 28 объектах из 78, и прежде она
+    печаталась уверенным «ПК 0-10» — контракт утверждал начало коллектора там,
+    где в одной сущности лежали и беспикетные каналы.
+    """
     if seg is None:
         return AMBIGUOUS_SEGMENT
-    if seg == 0 and (obj, 0) not in _segment_has_picket():
-        # Участок посчитался нулём из-за отсутствия пикета, а не потому, что
-        # объект начинается в нуле.
-        return AMBIGUOUS_SEGMENT
+    if seg == SEG_UNKNOWN:
+        return NO_PICKET_SEGMENT
+    if seg == 0:
+        real = (obj, 0) in _segment_has_picket()
+        blank = obj in _objects_without_picket()
+        if not real:
+            # Нуль получился подстановкой целиком: пикета в этой корзине нет.
+            return NO_PICKET_SEGMENT if blank else AMBIGUOUS_SEGMENT
+        if blank:
+            # Старый набор признаков: в нулевой корзине объекта лежат и
+            # настоящий ПК 0-10, и каналы без пикета. По одному номеру участка
+            # их не различить, и делать вид, что различаешь, — вранье.
+            return MIXED_SEGMENT
     lo = int(seg * SEG_SIZE)
     return f"ПК {lo}\u2013{lo + int(SEG_SIZE)}"
 

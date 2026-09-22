@@ -2,10 +2,12 @@ import duckdb
 
 from .config import (
     EQUIPMENT_STYPES,
+    SEG_SIZE,
     EXCLUDED_PERIODS,
     MAX_FAILURE_DURATION_S,
     MAX_GAP_BEFORE_FAILURE_S,
     MIN_FAILURE_DURATION_S,
+    seg_sql,
 )
 
 # Канал был жив непосредственно перед отказом и отказ не превратился в списание.
@@ -214,15 +216,23 @@ def build_group_outage(con, horizon_days: int = 1) -> None:
     )
 
 
-def build_fire(con, horizon_days: int = 1, seg_size: float = 10.0) -> None:
-    """Пожарный риск участка: объект x корзина пикетов."""
+def build_fire(con, horizon_days: int = 1, seg_size: float = SEG_SIZE) -> None:
+    """Пожарный риск участка: объект x корзина пикетов.
+
+    Участок считается общей формулой из config, и каналы без пикета уходят в
+    собственную корзину, а не в нулевую. Прежде подстановка нуля склеивала
+    настоящее начало коллектора с беспикетными каналами объекта: 26 007
+    участок-суток из 1 074 674 и 228 позитивов из 18 631 относились к слитой
+    сущности, а признаки соседей по участку усреднялись по ней же.
+    """
+    seg = seg_sql("picket", seg_size)
     con.execute(f"""
     CREATE OR REPLACE TABLE label_fire AS
     WITH base AS (
-      SELECT DISTINCT obj, CAST(floor(coalesce(picket,0)/{seg_size}) AS INTEGER) AS seg, day
+      SELECT DISTINCT obj, {seg} AS seg, day
       FROM daily_channel WHERE obj IS NOT NULL
     ), tgt AS (
-      SELECT obj, CAST(floor(coalesce(picket,0)/{seg_size}) AS INTEGER) AS seg,
+      SELECT obj, {seg} AS seg,
              day AS event_day
       FROM daily_channel WHERE n_fire > 0
     )

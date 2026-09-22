@@ -1,6 +1,6 @@
 import duckdb
 
-SEG_SIZE = 10.0  # пикет = 100 м, значит сегмент = 1 км
+from ..config import SEG_SIZE, SEG_UNKNOWN, seg_sql  # noqa: F401  (SEG_SIZE — обратная совместимость)
 
 
 def add_peer_features(con: duckdb.DuckDBPyConnection, source: str = "feat_base") -> None:
@@ -12,7 +12,7 @@ def add_peer_features(con: duckdb.DuckDBPyConnection, source: str = "feat_base")
     con.execute(f"""
     CREATE OR REPLACE TABLE feat_peer AS
     SELECT *,
-           CAST(floor(coalesce(picket, 0) / {SEG_SIZE}) AS INTEGER) AS seg,
+           {seg_sql()} AS seg,
            median(CAST(n_alarms AS DOUBLE))     OVER w AS peer_median_alarms,
            avg(CAST(n_events AS DOUBLE))        OVER w AS peer_mean_events,
            stddev_pop(CAST(n_events AS DOUBLE)) OVER w AS peer_std_events,
