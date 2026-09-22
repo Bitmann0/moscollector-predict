@@ -141,12 +141,18 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
     он портит калибровку и не двигает PR-AUC.
 
     Матрица признаков строится один раз на весь датасет, а фолды режутся
-    булевыми масками: пересборка на каждом фолде через polars-фильтр съедала
+    непрерывными срезами: пересборка на каждом фолде через polars-фильтр съедала
     больше времени, чем само обучение.
     """
     backend = backend or default_backend()
     join_keys = [k for k in KEYS if k in features.columns and k in labels.columns]
-    data = features.join(labels, on=join_keys, how="inner").sort(join_keys)
+    # Сортировка начинается с суток намеренно. Фолды walk-forward разрезают
+    # время, и при таком порядке обучающая и тестовая части становятся
+    # НЕПРЕРЫВНЫМИ: срез X[a:b] — представление, а не копия. Булева маска на
+    # большой голове копировала 2.09 ГБ поверх матрицы в 2.9 ГБ и валила
+    # обучение нехваткой памяти, когда машина занята чем-то ещё.
+    sort_keys = (["day"] + [k for k in join_keys if k != "day"]) if "day" in join_keys         else join_keys
+    data = features.join(labels, on=join_keys, how="inner").sort(sort_keys)
     # Сортировка здесь не косметика. Метки приходят из DuckDB, который при
     # параллельном сканировании порядок строк не обещает, и polars-join его
     # тоже не сохраняет — матрица собиралась каждый раз по-своему. От порядка
@@ -165,9 +171,19 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
 
     folds: list[dict] = []
     model = None
+
+    def _span(lo, hi):
+        """Границы непрерывного диапазона суток. Данные отсортированы по дате,
+        поэтому фолд — это срез, и копии не возникает."""
+        a = int(np.searchsorted(days, np.datetime64(lo), side="left"))
+        b = int(np.searchsorted(days, np.datetime64(hi), side="right"))
+        return a, b
+
     for s in splits:
-        tr_m = (days >= np.datetime64(s.train_start)) & (days <= np.datetime64(s.train_end))
-        te_m = (days >= np.datetime64(s.test_start)) & (days <= np.datetime64(s.test_end))
+        tr_a, tr_b = _span(s.train_start, s.train_end)
+        te_a, te_b = _span(s.test_start, s.test_end)
+        tr_m = slice(tr_a, tr_b)
+        te_m = slice(te_a, te_b)
         ytr, yte = y_all[tr_m], y_all[te_m]
         if len(ytr) == 0 or len(yte) == 0 or ytr.sum() == 0 or yte.sum() == 0:
             continue
@@ -188,12 +204,12 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         # одним событием, а не серией независимых попаданий.
         ent_col = next((k for k in KEYS if k != "day" and k in data.columns), None)
         if ent_col is not None:
-            te = data.filter(pl.Series(te_m))
+            te = data.slice(te_a, te_b - te_a)
             res.update(metrics.episode_summary(
                 te[ent_col].to_numpy(), te["day"].to_numpy(), yte, proba,
                 horizon_days=horizon_days, budget=budget_per_day * n_days))
         res["roc_auc_within_day"] = metrics.roc_auc_within_day(
-            data.filter(pl.Series(te_m))["day"].to_numpy(), yte, proba)
+            days[te_m], yte, proba)
         res["test_start"], res["test_end"] = str(s.test_start), str(s.test_end)
         # Состав обучающих суток отдаётся наружу, чтобы исключение периодов
         # можно было проверить по существу, а не по размеру выборки: прежний
@@ -202,7 +218,7 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         tr_days = np.unique(days[tr_m])
         res["train_days"] = [str(np.datetime_as_string(d, unit="D")) for d in tr_days]
         res["n_train_days"] = int(len(tr_days))
-        res["n_train"] = int(tr_m.sum())
+        res["n_train"] = int(tr_b - tr_a)
         folds.append(res)
 
     mean = ({k: float(np.nanmean([f[k] for f in folds])) for k in METRIC_KEYS}

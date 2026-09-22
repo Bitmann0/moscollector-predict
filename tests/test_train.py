@@ -106,3 +106,37 @@ def test_explicit_backend_wins_over_environment(monkeypatch):
     out = train.run("t", feats, labels, splits, backend="lgbm",
                     params={"n_estimators": 20}, budget_per_day=5)
     assert out["backend"] == "lgbm"
+
+
+def test_fold_slices_select_exactly_the_days_of_the_split():
+    """Фолды режутся непрерывным срезом, а не булевой маской: при сортировке по
+    суткам это представление, а не копия, и на большой голове экономит 2 ГБ.
+    Замена молчаливо сменила бы состав фолдов, если бы границы считались неверно.
+    """
+    days, feats, labels = _dataset()
+    splits = cv.walk_forward(days, n_splits=2, test_days=30, embargo_days=31)
+    out = train.run("t", feats, labels, splits, params={"n_estimators": 20},
+                    budget_per_day=5)
+    for fold, s in zip(out["folds"], splits):
+        got = {dt.date.fromisoformat(d) for d in fold["train_days"]}
+        assert min(got) >= s.train_start and max(got) <= s.train_end
+        assert fold["test_start"] == str(s.test_start)
+        expected = sum(1 for d in days if s.train_start <= d <= s.train_end)
+        assert fold["n_train_days"] == expected
+
+
+def test_excluded_period_inside_the_training_span_does_not_break_slicing():
+    """Исключённые сутки просто отсутствуют в отсортированном массиве, и
+    границы среза обязаны это учитывать."""
+    import polars as pl
+
+    rng = np.random.default_rng(1)
+    days = [dt.date(2021, 1, 1) + dt.timedelta(days=i) for i in range(400)]
+    rows = [{"ch": ch, "day": d, "x": rng.normal(), "y": int(rng.random() < 0.2)}
+            for d in days for ch in range(5)]
+    df = pl.DataFrame(rows)
+    splits = cv.walk_forward(days, n_splits=1, test_days=30, embargo_days=31)
+    out = train.run("t", df.select(["ch", "day", "x"]), df.select(["ch", "day", "y"]),
+                    splits, params={"n_estimators": 20}, budget_per_day=5)
+    got = {dt.date.fromisoformat(d) for d in out["folds"][0]["train_days"]}
+    assert not any(dt.date(2021, 4, 1) <= d <= dt.date(2021, 6, 30) for d in got)
