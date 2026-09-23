@@ -1,5 +1,5 @@
 object:
-  built_at: '2026-09-20T18:09:32'
+  built_at: '2026-09-23T03:54:36'
   columns:
   - n_channels
   - n_events
@@ -130,30 +130,30 @@ object:
     max_hold_alarm_s: BIGINT
     month: BIGINT
     n_alarms: HUGEINT
-    n_alarms_w30: DOUBLE
-    n_alarms_w7: DOUBLE
+    n_alarms_w30: HUGEINT
+    n_alarms_w7: HUGEINT
     n_all_pumps: HUGEINT
     n_arm: HUGEINT
     n_bad: HUGEINT
-    n_bad_w30: DOUBLE
-    n_bad_w7: DOUBLE
+    n_bad_w30: HUGEINT
+    n_bad_w7: HUGEINT
     n_battery_power: HUGEINT
     n_call: HUGEINT
     n_channels: BIGINT
     n_channels_80pct: BIGINT
     n_channels_bad: BIGINT
     n_chatter_1min: HUGEINT
-    n_chatter_1min_w7: DOUBLE
+    n_chatter_1min_w7: HUGEINT
     n_disarm: HUGEINT
     n_events: HUGEINT
-    n_events_w30: DOUBLE
-    n_events_w7: DOUBLE
+    n_events_w30: HUGEINT
+    n_events_w7: HUGEINT
     n_fire: HUGEINT
     n_flood: HUGEINT
     n_flood_bins: HUGEINT
     n_intrusion: HUGEINT
     n_many_bad: HUGEINT
-    n_prior_failures: DOUBLE
+    n_prior_failures: HUGEINT
     n_pump_on: HUGEINT
     n_pumps: BIGINT
     n_stale_24h: HUGEINT
@@ -168,7 +168,7 @@ object:
     par_frac_objects_bad: DOUBLE
     par_n_alarms: HUGEINT
     par_n_bad: HUGEINT
-    par_n_bad_w7: DOUBLE
+    par_n_bad_w7: HUGEINT
     par_n_channels: HUGEINT
     par_n_events: HUGEINT
     par_n_fire: HUGEINT
@@ -212,7 +212,7 @@ object:
   n_rows: 124487
   path: U:\hackathon\data\features\object.parquet
 segment:
-  built_at: '2026-09-20T15:12:24'
+  built_at: '2026-09-23T03:54:42'
   columns:
   - n_channels
   - n_events
@@ -278,10 +278,10 @@ segment:
   - day
   - obj
   - seg
-  n_rows: 1074674
+  n_rows: 1100681
   path: U:\hackathon\data\features\segment.parquet
 sensor:
-  built_at: '2026-09-20T15:11:56'
+  built_at: '2026-09-23T03:54:15'
   columns:
   - obj_parent
   - obj_kind

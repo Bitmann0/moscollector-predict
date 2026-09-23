@@ -64,16 +64,27 @@ def test_missing_picket_is_stated_not_guessed(ref):
     assert got["picket_label"] == address.UNKNOWN_PICKET
 
 
-def test_segment_zero_without_pickets_is_not_drawn_at_the_start(ref):
-    """Участок считается как floor(пикет/10) с подстановкой нуля вместо
-    пропуска, отчего «ПК 0-10» и «пикет неизвестен» сливаются: на реальных
-    данных из 994 936 строк с участком 0 у 809 934 пикета нет вовсе.
-    Рисовать такую отметку в начале коллектора значит врать.
+def test_segment_zero_is_resolved_into_four_distinct_cases(ref):
+    """Участок считался как floor(пикет/10) с подстановкой нуля вместо
+    пропуска, отчего «ПК 0-10» и «пикет неизвестен» сливались: на реальных
+    данных из 994 936 строк с нулевым участком у 809 934 пикета нет вовсе.
+
+    Первая версия правки решала по объекту и потому была честна ровно там, где
+    слияния и не было: если у объекта есть хоть один канал с настоящим пикетом
+    в нулевой корзине, печаталось уверенное «ПК 0-10». Таких смешанных объектов
+    28 из 78, и на них подпись утверждала начало коллектора для каналов, у
+    которых пикета нет вовсе.
     """
-    # у объекта 10 пикет 28 — нулевого участка с известным пикетом нет
-    assert address.segment_label("10", 0) == address.AMBIGUOUS_SEGMENT
-    # у объекта 20 пикет 5 — нулевой участок настоящий
-    assert address.segment_label("20", 0) == "ПК 0\u201310"
+    from mkl.config import SEG_UNKNOWN
+
+    # объект 10: пикет 28 уходит во второй участок, в нулевом только беспикетный
+    assert address.segment_label("10", 0) == address.NO_PICKET_SEGMENT
+    # объект 20: в нулевой корзине и настоящий ПК 5, и беспикетный канал
+    assert address.segment_label("20", 0) == address.MIXED_SEGMENT
+    # отдельная корзина беспикетных из нового набора признаков
+    assert address.segment_label("20", SEG_UNKNOWN) == address.NO_PICKET_SEGMENT
+    # обычный участок подписывается как есть
+    assert address.segment_label("10", 2) == "ПК 20–30"
 
 
 def test_known_segment_is_labelled_by_kilometre_marks(ref):
