@@ -14,7 +14,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 
-from . import contract, guard_queue, service, workorders
+from . import contract, guard_queue, guard_weekly, service, workorders
 from .serve import load_heads
 
 API_PREFIX = "/api/v1"
@@ -128,6 +128,17 @@ def guard_signal_priorities(
     """
     try:
         return guard_queue.daily_priorities(asof, budget)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@app.get(f"{API_PREFIX}/guard-weekly-inspections")
+def guard_weekly_inspections(
+    asof: dt.date | None = Query(None, description="понедельник расчёта; по умолчанию последний доступный"),
+) -> dict:
+    """Small weekly watchlist for recurring guarded alarm loops, no auto-ticket."""
+    try:
+        return guard_weekly.weekly_inspections(asof)
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
