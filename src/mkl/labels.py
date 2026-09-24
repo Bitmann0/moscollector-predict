@@ -231,6 +231,7 @@ def build_fire(con, horizon_days: int = 1, seg_size: float = SEG_SIZE) -> None:
     WITH base AS (
       SELECT DISTINCT obj, {seg} AS seg, day
       FROM daily_channel WHERE obj IS NOT NULL
+        AND {_observable(horizon_days)}
     ), tgt AS (
       SELECT obj, {seg} AS seg,
              day AS event_day

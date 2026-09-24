@@ -210,6 +210,15 @@ def test_fire_label_is_per_segment(con):
     assert str(pos_day) == "2025-01-04"
 
 
+def test_fire_label_excludes_unobservable_tail(con):
+    """Последний день не имеет полного будущего окна и не является негативом."""
+    labels.build_fire(con, horizon_days=1)
+    days = {str(row[0]) for row in con.execute(
+        "SELECT DISTINCT day FROM label_fire").fetchall()}
+    assert "2025-01-09" in days
+    assert "2025-01-10" not in days
+
+
 def test_wear_label_only_covers_equipment_channels(con):
     _episode(con, "2025-01-05 03:00:00", "2025-01-05 09:00:00", 21600,
              stype="Состояние насоса")

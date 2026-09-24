@@ -195,6 +195,23 @@ def test_armed_only_head_does_not_score_objects_without_arming_data(monkeypatch)
     assert sorted(got["obj"].to_list()) == ["1", "3"], "объект без охраны пропущен"
 
 
+def test_saved_validation_threshold_gates_alerts(monkeypatch):
+    import datetime as dt
+
+    feats = pl.DataFrame({"obj": ["1", "2"], "day": [dt.date(2026, 1, 1)] * 2,
+                          "x": [0.1, 0.2]})
+    art = {"model": _ConstantModel(), "iso": None, "features": ["x"],
+           "threshold": 0.7, "feature_signature": None}
+    monkeypatch.setattr(serve, "load_heads", lambda: {
+        "B": {"entity": ["obj", "day"], "feature_set": "object",
+              "budget_per_day": 2, "direction": "x", "title": "t"}})
+    monkeypatch.setattr(serve.store, "latest_snapshot", lambda name: feats)
+    monkeypatch.setattr(serve, "model_path", lambda h: _FakeArtifactPath(art))
+    got = serve.score("B")
+    assert got["above_thr"].sum() == 0
+    assert got["alert"].sum() == 0
+
+
 def test_armed_only_head_fails_loudly_without_the_column(monkeypatch):
     import datetime as dt
 

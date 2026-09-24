@@ -104,3 +104,20 @@ def test_segment_aggregation_splits_by_kilometre():
     got = dict(con.execute("SELECT seg, n_events FROM feat_segment").fetchall())
     assert got == {0: 10, 9: 20}
     con.close()
+
+
+def test_segment_numeric_features_keep_sensor_units_separate():
+    con = duckdb.connect(":memory:")
+    _daily_table(con)
+    insert_day(con, ch=1, stype="Датчик температуры", val_min=24.0,
+               val_max=30.0, val_mean=27.0)
+    insert_day(con, ch=2, stype="Газовый датчик", val_min=0.2,
+               val_max=1.5, val_mean=0.8)
+    compute.build_all(con, with_weather=False, with_episode_history=False)
+    compute.build_segment_level(con)
+    row = con.execute("""SELECT sensor_temp_max, sensor_temp_mean,
+                              sensor_temp_range, sensor_gas_max,
+                              sensor_gas_mean, sensor_gas_ge_1_channels
+                       FROM feat_segment""").fetchone()
+    assert row == (30.0, 27.0, 6.0, 1.5, 0.8, 1)
+    con.close()

@@ -45,13 +45,24 @@ def test_feature_columns_excludes_keys_and_target():
     assert set(cols) == {"x", "noise"}
 
 
+def test_segment_episode_metric_uses_object_and_segment():
+    """Соседние участки одного объекта — независимые пожарные эпизоды."""
+    frame = pl.DataFrame({"obj": ["A", "A", "B"],
+                          "seg": [0, 1, 0],
+                          "day": [dt.date(2025, 1, 1)] * 3})
+    entities = train._episode_entities(frame)
+    assert len(set(entities)) == 3
+    assert entities[0] != entities[1]
+
+
 def test_all_backends_learn_the_same_signal():
     """Смена семейства бустинга не должна ломать интерфейс обучения."""
     days, feats, labels = _dataset()
     splits = cv.walk_forward(days, n_splits=1, test_days=30, embargo_days=31)
+    # Проверка API модели не должна зависеть от версии CUDA-драйвера машины.
     for backend, params in [("lgbm", {"n_estimators": 40}),
-                            ("xgb", {"n_estimators": 40}),
-                            ("cat", {"iterations": 40})]:
+                            ("xgb", {"n_estimators": 40, "device": "cpu"}),
+                            ("cat", {"iterations": 40, "task_type": "CPU"})]:
         out = train.run("test", feats, labels, splits, params=params,
                         budget_per_day=5, backend=backend)
         assert out["mean"]["pr_auc"] > 0.5, backend

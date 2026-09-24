@@ -128,7 +128,7 @@ def build_events(years: list[int]) -> dict[int, int]:
 def quality_report() -> str:
     con = connect()
     attach_events(con)
-    df = con.execute("""
+    result = con.execute("""
         SELECT year(day) AS год,
                count(*) AS события,
                count(DISTINCT ch) AS каналы,
@@ -136,7 +136,9 @@ def quality_report() -> str:
                count(*) FILTER (WHERE alarm) AS тревоги,
                count(*) FILTER (WHERE val_num IS NOT NULL) AS числовые
         FROM ev GROUP BY 1 ORDER BY 1
-    """).df()
+    """)
+    headers = [col[0] for col in result.description]
+    rows = result.fetchall()
     total = con.execute(
         "SELECT count(*), count(DISTINCT ch), min(day), max(day) FROM ev"
     ).fetchone()
@@ -147,7 +149,10 @@ def quality_report() -> str:
         f"Событий после дедупликации: **{total[0]:,}**. Каналов: **{total[1]:,}**. "
         f"Период: {total[2]} … {total[3]}.",
         "",
-        df.to_markdown(index=False),
+        "| " + " | ".join(headers) + " |\n"
+        + "| " + " | ".join("---" for _ in headers) + " |\n"
+        + "\n".join("| " + " | ".join(str(value) for value in row) + " |"
+                    for row in rows),
         "",
         "Обработанные дефекты: полные дубли строк снимаются `SELECT DISTINCT` "
         "по кортежу (ид_события, канал, дата, время, тревожное, значение) — "

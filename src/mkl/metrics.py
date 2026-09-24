@@ -77,6 +77,43 @@ def recall_at_k(y: np.ndarray, p: np.ndarray, k: int) -> float:
     return float(y[m].sum() / y.sum()) if y.sum() else float("nan")
 
 
+def daily_budget_summary(y: np.ndarray, p: np.ndarray, days: np.ndarray,
+                         budget_per_day: int) -> dict:
+    """Top-k within each day, matching the dispatcher's actual daily capacity.
+
+    A global k=days*capacity can spend the entire budget on a few days and
+    therefore does not measure whether the model works under a daily limit.
+    """
+    y = np.asarray(y)
+    p = np.asarray(p, dtype=float)
+    days = np.asarray(days)
+    if len(y) != len(p) or len(y) != len(days):
+        raise ValueError("y, p, days must have equal length")
+    if budget_per_day < 0:
+        raise ValueError("budget_per_day must be non-negative")
+    if not len(y):
+        return {"daily_precision_at_k": float("nan"),
+                "daily_recall_at_k": float("nan"), "daily_alerts": 0,
+                "global_days_over_budget": 0}
+    order = np.lexsort((np.arange(len(p)), -p, days))
+    sorted_days = days[order]
+    starts = np.r_[True, sorted_days[1:] != sorted_days[:-1]]
+    rank = np.arange(len(p)) - np.maximum.accumulate(
+        np.where(starts, np.arange(len(p)), 0))
+    picked = order[rank < budget_per_day]
+    global_mask = _top_k_mask(p, budget_per_day * len(np.unique(days)))
+    _, day_codes = np.unique(days, return_inverse=True)
+    global_counts = np.bincount(day_codes[global_mask], minlength=day_codes.max() + 1)
+    return {
+        "daily_precision_at_k": float(y[picked].sum() / len(picked))
+        if len(picked) else float("nan"),
+        "daily_recall_at_k": float(y[picked].sum() / y.sum())
+        if y.sum() else float("nan"),
+        "daily_alerts": int(len(picked)),
+        "global_days_over_budget": int((global_counts > budget_per_day).sum()),
+    }
+
+
 def threshold_for_budget(p: np.ndarray, budget: int) -> float:
     budget = min(int(budget), len(p))
     if budget <= 0:

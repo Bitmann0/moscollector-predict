@@ -278,6 +278,25 @@ def build_segment_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext"
            max(val_max)  AS temp_max,
            avg(val_mean) AS temp_mean,
            max(val_max) - min(val_min) AS temp_range,
+           -- Старые temp_* оставлены для совместимости, хотя смешивают разные
+           -- единицы измерения. Новые признаки разделяют типы каналов.
+           max(val_max) FILTER (WHERE stype IN ('Датчик температуры',
+                                                'Тепловой датчик')) AS sensor_temp_max,
+           avg(val_mean) FILTER (WHERE stype IN ('Датчик температуры',
+                                                 'Тепловой датчик')) AS sensor_temp_mean,
+           max(val_max) FILTER (WHERE stype IN ('Датчик температуры',
+                                                'Тепловой датчик'))
+             - min(val_min) FILTER (WHERE stype IN ('Датчик температуры',
+                                                    'Тепловой датчик')) AS sensor_temp_range,
+           max(val_max) FILTER (WHERE stype = 'Газовый датчик') AS sensor_gas_max,
+           avg(val_mean) FILTER (WHERE stype = 'Газовый датчик') AS sensor_gas_mean,
+           count(*) FILTER (WHERE stype IN ('Датчик температуры',
+                                            'Тепловой датчик') AND val_max IS NOT NULL)
+             AS sensor_temp_numeric_channels,
+           count(*) FILTER (WHERE stype = 'Газовый датчик' AND val_max IS NOT NULL)
+             AS sensor_gas_numeric_channels,
+           count(*) FILTER (WHERE stype = 'Газовый датчик' AND val_max >= 1)
+             AS sensor_gas_ge_1_channels,
            max(nbr_val_max) AS nbr_temp_max,
            avg(val_minus_seg_mean) AS temp_dev_mean,
            max(abs(val_minus_seg_mean)) AS temp_dev_max,

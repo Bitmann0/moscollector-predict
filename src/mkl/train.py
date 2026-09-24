@@ -118,7 +118,9 @@ KEYS = ("ch", "obj", "seg", "day")
 METRIC_KEYS = ("pr_auc", "pr_auc_norm", "roc_auc", "roc_auc_within_day", "precision_at_k", "recall_at_k",
                "lift_at_k", "precision", "recall", "brier", "base_rate",
                "op_precision", "op_recall", "op_k", "p_at_r50",
-               "episode_recall", "episode_precision", "days_per_episode")
+               "episode_recall", "episode_precision", "days_per_episode",
+               "daily_precision_at_k", "daily_recall_at_k", "daily_alerts",
+               "global_days_over_budget")
 
 
 def feature_columns(df: pl.DataFrame) -> list[str]:
@@ -129,6 +131,17 @@ def feature_columns(df: pl.DataFrame) -> list[str]:
 def _matrix(df: pl.DataFrame, cols: list[str]) -> np.ndarray:
     """float32 вместо float64: на 15 млн строк и 60 признаках это 3,6 ГБ вместо 7,2."""
     return df.select([pl.col(c).cast(pl.Float32) for c in cols]).to_numpy()
+
+
+def _episode_entities(df: pl.DataFrame) -> np.ndarray | None:
+    """Key used for episode metrics must match the model's prediction entity."""
+    if "ch" in df.columns:
+        return df["ch"].to_numpy()
+    if "obj" in df.columns and "seg" in df.columns:
+        return df.select(pl.struct(["obj", "seg"]).hash()).to_series().to_numpy()
+    if "obj" in df.columns:
+        return df["obj"].to_numpy()
+    return None
 
 
 def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
@@ -200,13 +213,15 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         proba = model.predict_proba(X[te_m])[:, 1]
         n_days = (s.test_end - s.test_start).days + 1
         res = metrics.summary(yte, proba, budget=budget_per_day * n_days)
+        res.update(metrics.daily_budget_summary(yte, proba, days[te_m],
+                                                budget_per_day))
         # Эпизодный замер рядом с посуточным: длинный отказ должен считаться
         # одним событием, а не серией независимых попаданий.
-        ent_col = next((k for k in KEYS if k != "day" and k in data.columns), None)
-        if ent_col is not None:
-            te = data.slice(te_a, te_b - te_a)
+        te = data.slice(te_a, te_b - te_a)
+        entities = _episode_entities(te)
+        if entities is not None:
             res.update(metrics.episode_summary(
-                te[ent_col].to_numpy(), te["day"].to_numpy(), yte, proba,
+                entities, te["day"].to_numpy(), yte, proba,
                 horizon_days=horizon_days, budget=budget_per_day * n_days))
         res["roc_auc_within_day"] = metrics.roc_auc_within_day(
             days[te_m], yte, proba)

@@ -167,6 +167,10 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
         out = out.with_columns((pl.col("risk") >= art["threshold"]).alias("above_thr"))
     out = _apply_budget(out, cfg["budget_per_day"], per_object=per_object
                         ).sort("risk", descending=True)
+    if "above_thr" in out.columns:
+        # Порог выбран на валидации. Иначе сохранённый порог лишь отображается
+        # в ответе, а диспетчеру всё равно отправляются k алертов каждый день.
+        out = out.with_columns((pl.col("alert") & pl.col("above_thr")).alias("alert"))
     return (out, art, feats) if _with_internals else out
 
 

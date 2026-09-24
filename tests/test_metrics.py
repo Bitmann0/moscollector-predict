@@ -16,6 +16,18 @@ def test_recall_at_k():
     assert metrics.recall_at_k(y, p, k=2) == pytest.approx(2 / 3)
 
 
+def test_daily_budget_does_not_borrow_capacity_from_another_day():
+    y = np.array([1, 0, 0, 1])
+    p = np.array([0.9, 0.8, 0.7, 0.6])
+    days = np.array(["2025-01-01"] * 3 + ["2025-01-02"], dtype="datetime64[D]")
+    result = metrics.daily_budget_summary(y, p, days, budget_per_day=1)
+    assert result["daily_precision_at_k"] == 1.0
+    assert result["daily_recall_at_k"] == 1.0
+    assert result["daily_alerts"] == 2
+    assert result["global_days_over_budget"] == 1
+    assert metrics.precision_at_k(y, p, k=2) == 0.5
+
+
 def test_pr_auc_is_one_for_perfect_ranking():
     y = np.array([0, 0, 1, 1])
     p = np.array([0.1, 0.2, 0.8, 0.9])
