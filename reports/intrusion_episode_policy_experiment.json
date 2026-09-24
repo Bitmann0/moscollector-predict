@@ -1,0 +1,204 @@
+{
+  "note": "2025 exploratory folds; C proxy, not confirmed intrusion",
+  "budget_per_day": 4,
+  "folds": [
+    {
+      "start": "2025-04-06",
+      "end": "2025-07-04",
+      "baseline": {
+        "n_candidates": 3065,
+        "n_proxy_positive": 872,
+        "n_quiet_candidates": 908,
+        "n_new_episodes": 54,
+        "all": {
+          "alerts": 360,
+          "proxy_positive_hits": 216,
+          "repeat_hits": 215,
+          "new_episode_hits": 1,
+          "proxy_precision": 0.6,
+          "new_episode_precision": 0.002777777777777778,
+          "new_episode_recall": 0.018518518518518517
+        },
+        "quiet_only": {
+          "alerts": 360,
+          "proxy_positive_hits": 38,
+          "repeat_hits": 0,
+          "new_episode_hits": 38,
+          "proxy_precision": 0.10555555555555556,
+          "new_episode_precision": 0.10555555555555556,
+          "new_episode_recall": 0.7037037037037037
+        }
+      },
+      "history": {
+        "n_candidates": 3065,
+        "n_proxy_positive": 872,
+        "n_quiet_candidates": 908,
+        "n_new_episodes": 54,
+        "all": {
+          "alerts": 360,
+          "proxy_positive_hits": 221,
+          "repeat_hits": 220,
+          "new_episode_hits": 1,
+          "proxy_precision": 0.6138888888888889,
+          "new_episode_precision": 0.002777777777777778,
+          "new_episode_recall": 0.018518518518518517
+        },
+        "quiet_only": {
+          "alerts": 360,
+          "proxy_positive_hits": 37,
+          "repeat_hits": 0,
+          "new_episode_hits": 37,
+          "proxy_precision": 0.10277777777777777,
+          "new_episode_precision": 0.10277777777777777,
+          "new_episode_recall": 0.6851851851851852
+        }
+      }
+    },
+    {
+      "start": "2025-07-05",
+      "end": "2025-10-02",
+      "baseline": {
+        "n_candidates": 3057,
+        "n_proxy_positive": 887,
+        "n_quiet_candidates": 978,
+        "n_new_episodes": 52,
+        "all": {
+          "alerts": 360,
+          "proxy_positive_hits": 229,
+          "repeat_hits": 229,
+          "new_episode_hits": 0,
+          "proxy_precision": 0.6361111111111111,
+          "new_episode_precision": 0.0,
+          "new_episode_recall": 0.0
+        },
+        "quiet_only": {
+          "alerts": 359,
+          "proxy_positive_hits": 36,
+          "repeat_hits": 0,
+          "new_episode_hits": 36,
+          "proxy_precision": 0.10027855153203342,
+          "new_episode_precision": 0.10027855153203342,
+          "new_episode_recall": 0.6923076923076923
+        }
+      },
+      "history": {
+        "n_candidates": 3057,
+        "n_proxy_positive": 887,
+        "n_quiet_candidates": 978,
+        "n_new_episodes": 52,
+        "all": {
+          "alerts": 360,
+          "proxy_positive_hits": 243,
+          "repeat_hits": 243,
+          "new_episode_hits": 0,
+          "proxy_precision": 0.675,
+          "new_episode_precision": 0.0,
+          "new_episode_recall": 0.0
+        },
+        "quiet_only": {
+          "alerts": 359,
+          "proxy_positive_hits": 37,
+          "repeat_hits": 0,
+          "new_episode_hits": 37,
+          "proxy_precision": 0.10306406685236769,
+          "new_episode_precision": 0.10306406685236769,
+          "new_episode_recall": 0.7115384615384616
+        }
+      }
+    },
+    {
+      "start": "2025-10-03",
+      "end": "2025-12-31",
+      "baseline": {
+        "n_candidates": 3011,
+        "n_proxy_positive": 880,
+        "n_quiet_candidates": 831,
+        "n_new_episodes": 53,
+        "all": {
+          "alerts": 360,
+          "proxy_positive_hits": 223,
+          "repeat_hits": 223,
+          "new_episode_hits": 0,
+          "proxy_precision": 0.6194444444444445,
+          "new_episode_precision": 0.0,
+          "new_episode_recall": 0.0
+        },
+        "quiet_only": {
+          "alerts": 357,
+          "proxy_positive_hits": 35,
+          "repeat_hits": 0,
+          "new_episode_hits": 35,
+          "proxy_precision": 0.09803921568627451,
+          "new_episode_precision": 0.09803921568627451,
+          "new_episode_recall": 0.660377358490566
+        }
+      },
+      "history": {
+        "n_candidates": 3011,
+        "n_proxy_positive": 880,
+        "n_quiet_candidates": 831,
+        "n_new_episodes": 53,
+        "all": {
+          "alerts": 360,
+          "proxy_positive_hits": 228,
+          "repeat_hits": 228,
+          "new_episode_hits": 0,
+          "proxy_precision": 0.6333333333333333,
+          "new_episode_precision": 0.0,
+          "new_episode_recall": 0.0
+        },
+        "quiet_only": {
+          "alerts": 357,
+          "proxy_positive_hits": 35,
+          "repeat_hits": 0,
+          "new_episode_hits": 35,
+          "proxy_precision": 0.09803921568627451,
+          "new_episode_precision": 0.09803921568627451,
+          "new_episode_recall": 0.660377358490566
+        }
+      }
+    }
+  ],
+  "total": {
+    "baseline": {
+      "all": {
+        "alerts": 1080,
+        "proxy_positive_hits": 668,
+        "repeat_hits": 667,
+        "new_episode_hits": 1,
+        "proxy_precision": 0.6185185185185185,
+        "new_episode_precision": 0.000925925925925926,
+        "new_episode_recall": 0.006289308176100629
+      },
+      "quiet_only": {
+        "alerts": 1076,
+        "proxy_positive_hits": 109,
+        "repeat_hits": 0,
+        "new_episode_hits": 109,
+        "proxy_precision": 0.10130111524163568,
+        "new_episode_precision": 0.10130111524163568,
+        "new_episode_recall": 0.6855345911949685
+      }
+    },
+    "history": {
+      "all": {
+        "alerts": 1080,
+        "proxy_positive_hits": 692,
+        "repeat_hits": 691,
+        "new_episode_hits": 1,
+        "proxy_precision": 0.6407407407407407,
+        "new_episode_precision": 0.000925925925925926,
+        "new_episode_recall": 0.006289308176100629
+      },
+      "quiet_only": {
+        "alerts": 1076,
+        "proxy_positive_hits": 109,
+        "repeat_hits": 0,
+        "new_episode_hits": 109,
+        "proxy_precision": 0.10130111524163568,
+        "new_episode_precision": 0.10130111524163568,
+        "new_episode_recall": 0.6855345911949685
+      }
+    }
+  }
+}

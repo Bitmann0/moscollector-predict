@@ -1,0 +1,88 @@
+{
+  "note": "small MLP, not APT; 2025 folds used before",
+  "folds": [
+    {
+      "start": "2025-04-06",
+      "end": "2025-07-04",
+      "n": 3065,
+      "positives": 872,
+      "epochs": 11,
+      "mlp": {
+        "pr_auc": 0.6400340847632945,
+        "daily_precision": 0.6388888888888888,
+        "daily_recall": 0.26376146788990823
+      },
+      "history_tree": {
+        "pr_auc": 0.646933223295868,
+        "daily_precision": 0.6138888888888889,
+        "daily_recall": 0.25344036697247707
+      },
+      "fixed_rank_blend": {
+        "pr_auc": 0.5765211644255582,
+        "daily_precision": 0.6194444444444445,
+        "daily_recall": 0.25573394495412843
+      }
+    },
+    {
+      "start": "2025-07-05",
+      "end": "2025-10-02",
+      "n": 3057,
+      "positives": 887,
+      "epochs": 16,
+      "mlp": {
+        "pr_auc": 0.6610333702692489,
+        "daily_precision": 0.6416666666666667,
+        "daily_recall": 0.26042841037204056
+      },
+      "history_tree": {
+        "pr_auc": 0.684859908002601,
+        "daily_precision": 0.675,
+        "daily_recall": 0.27395715896279593
+      },
+      "fixed_rank_blend": {
+        "pr_auc": 0.6150066290065017,
+        "daily_precision": 0.6666666666666666,
+        "daily_recall": 0.2705749718151071
+      }
+    },
+    {
+      "start": "2025-10-03",
+      "end": "2025-12-31",
+      "n": 3011,
+      "positives": 880,
+      "epochs": 16,
+      "mlp": {
+        "pr_auc": 0.6236649999436199,
+        "daily_precision": 0.6055555555555555,
+        "daily_recall": 0.24772727272727274
+      },
+      "history_tree": {
+        "pr_auc": 0.6645043603552199,
+        "daily_precision": 0.6333333333333333,
+        "daily_recall": 0.2590909090909091
+      },
+      "fixed_rank_blend": {
+        "pr_auc": 0.5846105878912705,
+        "daily_precision": 0.6472222222222223,
+        "daily_recall": 0.26477272727272727
+      }
+    }
+  ],
+  "mean": {
+    "mlp": {
+      "pr_auc": 0.6415774849920545,
+      "daily_precision": 0.6287037037037037,
+      "daily_recall": 0.2573057169964072
+    },
+    "history_tree": {
+      "pr_auc": 0.6654324972178963,
+      "daily_precision": 0.6407407407407407,
+      "daily_recall": 0.262162811675394
+    },
+    "fixed_rank_blend": {
+      "pr_auc": 0.5920461271077767,
+      "daily_precision": 0.6444444444444444,
+      "daily_recall": 0.2636938813473209
+    }
+  }
+}
