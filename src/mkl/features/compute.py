@@ -312,3 +312,16 @@ def build_segment_level(con: duckdb.DuckDBPyConnection, source: str = "feat_ext"
     FROM {source} WHERE obj IS NOT NULL
     GROUP BY obj, seg, day
     """)
+    con.execute("""
+    CREATE OR REPLACE TABLE feat_segment AS
+    SELECT s.*,
+           sum(CAST(n_fire > 0 AS INTEGER)) OVER w AS fire_days_to_date,
+           CAST(sum(CAST(n_fire > 0 AS INTEGER)) OVER w AS DOUBLE)
+             / count(*) OVER w AS fire_rate_to_date,
+           date_diff('day',
+             max(CASE WHEN n_fire > 0 THEN day END) OVER w, day)
+             AS days_since_fire
+    FROM feat_segment s
+    WINDOW w AS (PARTITION BY obj, seg ORDER BY day
+                 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+    """)

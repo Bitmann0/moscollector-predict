@@ -78,7 +78,9 @@ def recall_at_k(y: np.ndarray, p: np.ndarray, k: int) -> float:
 
 
 def daily_budget_summary(y: np.ndarray, p: np.ndarray, days: np.ndarray,
-                         budget_per_day: int) -> dict:
+                         budget_per_day: int,
+                         threshold: float | None = None,
+                         objects: np.ndarray | None = None) -> dict:
     """Top-k within each day, matching the dispatcher's actual daily capacity.
 
     A global k=days*capacity can spend the entire budget on a few days and
@@ -95,12 +97,9 @@ def daily_budget_summary(y: np.ndarray, p: np.ndarray, days: np.ndarray,
         return {"daily_precision_at_k": float("nan"),
                 "daily_recall_at_k": float("nan"), "daily_alerts": 0,
                 "global_days_over_budget": 0}
-    order = np.lexsort((np.arange(len(p)), -p, days))
-    sorted_days = days[order]
-    starts = np.r_[True, sorted_days[1:] != sorted_days[:-1]]
-    rank = np.arange(len(p)) - np.maximum.accumulate(
-        np.where(starts, np.arange(len(p)), 0))
-    picked = order[rank < budget_per_day]
+    top = _daily_top_mask(p, days, budget_per_day, objects)
+    picked = np.flatnonzero(top &
+                            ((p >= threshold) if threshold is not None else True))
     global_mask = _top_k_mask(p, budget_per_day * len(np.unique(days)))
     _, day_codes = np.unique(days, return_inverse=True)
     global_counts = np.bincount(day_codes[global_mask], minlength=day_codes.max() + 1)
@@ -112,6 +111,76 @@ def daily_budget_summary(y: np.ndarray, p: np.ndarray, days: np.ndarray,
         "daily_alerts": int(len(picked)),
         "global_days_over_budget": int((global_counts > budget_per_day).sum()),
     }
+
+
+def _daily_top_mask(p: np.ndarray, days: np.ndarray,
+                    budget_per_day: int,
+                    objects: np.ndarray | None = None) -> np.ndarray:
+    if objects is not None:
+        objects = np.asarray(objects)
+        if len(objects) != len(p):
+            raise ValueError("objects must have the same length as p")
+        # First rank candidates within each object, then distribute the daily
+        # capacity round-robin over those ranks. Input order breaks score ties.
+        within = np.lexsort((np.arange(len(p)), -p, objects, days))
+        group = np.r_[True, (days[within][1:] != days[within][:-1]) |
+                      (objects[within][1:] != objects[within][:-1])]
+        local_rank = np.arange(len(p)) - np.maximum.accumulate(
+            np.where(group, np.arange(len(p)), 0))
+        rank = np.empty(len(p), dtype=int)
+        rank[within] = local_rank
+        order = np.lexsort((np.arange(len(p)), -p, rank, days))
+    else:
+        order = np.lexsort((np.arange(len(p)), -p, days))
+    sorted_days = days[order]
+    starts = np.r_[True, sorted_days[1:] != sorted_days[:-1]]
+    rank = np.arange(len(p)) - np.maximum.accumulate(
+        np.where(starts, np.arange(len(p)), 0))
+    mask = np.zeros(len(p), dtype=bool)
+    mask[order[rank < budget_per_day]] = True
+    return mask
+
+
+def daily_target_operating_point(y: np.ndarray, p: np.ndarray,
+                                 days: np.ndarray, budget_per_day: int,
+                                 min_precision: float = 0.7,
+                                 objects: np.ndarray | None = None,
+                                 min_alerts: int = 1) -> dict:
+    """Choose threshold on the same per-day top-k list used by dispatch.
+
+    Isotonic calibration gives tied scores; each threshold includes the entire
+    tie group, so evaluate only group ends rather than an impossible prefix.
+    """
+    y, p, days = np.asarray(y), np.asarray(p, dtype=float), np.asarray(days)
+    if len(y) != len(p) or len(y) != len(days):
+        raise ValueError("y, p, days must have equal length")
+    if budget_per_day < 0:
+        raise ValueError("budget_per_day must be non-negative")
+    if min_alerts < 1:
+        raise ValueError("min_alerts must be positive")
+    if not len(y) or not y.sum() or budget_per_day == 0:
+        return {"feasible": False, "reason": "нет доступных позитивов"}
+    top = _daily_top_mask(p, days, budget_per_day, objects)
+    order = np.argsort(-p[top], kind="stable")
+    scores, outcomes = p[top][order], y[top][order]
+    if not len(scores):
+        return {"feasible": False, "reason": "пустой дневной бюджет"}
+    group_ends = np.r_[scores[1:] != scores[:-1], True]
+    positions = np.flatnonzero(group_ends)
+    tp = np.cumsum(outcomes)[positions]
+    k = positions + 1
+    precision = tp / k
+    recall = tp / y.sum()
+    feasible = (precision >= min_precision) & (k >= min_alerts)
+    if not feasible.any():
+        return {"feasible": False,
+                "reason": (f"нет порога с Precision >= {min_precision} "
+                           f"и не менее {min_alerts} алертов"),
+                "max_precision": float(precision.max())}
+    best = int(np.argmax(np.where(feasible, recall, -1.0)))
+    return {"feasible": True, "threshold": float(scores[positions[best]]),
+            "precision": float(precision[best]), "recall": float(recall[best]),
+            "k": int(k[best])}
 
 
 def threshold_for_budget(p: np.ndarray, budget: int) -> float:

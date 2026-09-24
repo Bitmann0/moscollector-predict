@@ -147,7 +147,8 @@ def _episode_entities(df: pl.DataFrame) -> np.ndarray | None:
 def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         splits: list[Split], params: dict | None = None,
         budget_per_day: int = 20, backend: str | None = None,
-        horizon_days: int = 1, half_life_days: float | None = None) -> dict:
+        horizon_days: int = 1, half_life_days: float | None = None,
+        budget_per_object: bool = False) -> dict:
     """Обучение головы по walk-forward схеме.
 
     Дисбаланс лечится только scale_pos_weight — никакого oversampling:
@@ -181,6 +182,9 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
     X = _matrix(data, cols)
     y_all = data["y"].to_numpy()
     days = data["day"].to_numpy()
+    if budget_per_object and "obj" not in data.columns:
+        raise ValueError("budget_per_object requires obj in training data")
+    objects = data["obj"].to_numpy() if budget_per_object else None
 
     folds: list[dict] = []
     model = None
@@ -214,7 +218,8 @@ def run(head: str, features: pl.DataFrame, labels: pl.DataFrame,
         n_days = (s.test_end - s.test_start).days + 1
         res = metrics.summary(yte, proba, budget=budget_per_day * n_days)
         res.update(metrics.daily_budget_summary(yte, proba, days[te_m],
-                                                budget_per_day))
+                                                budget_per_day,
+                                                objects=objects[te_m] if objects is not None else None))
         # Эпизодный замер рядом с посуточным: длинный отказ должен считаться
         # одним событием, а не серией независимых попаданий.
         te = data.slice(te_a, te_b - te_a)

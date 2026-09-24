@@ -121,3 +121,36 @@ def test_segment_numeric_features_keep_sensor_units_separate():
                        FROM feat_segment""").fetchone()
     assert row == (30.0, 27.0, 6.0, 1.5, 0.8, 1)
     con.close()
+
+
+def test_segment_fire_history_uses_only_observed_days():
+    con = duckdb.connect(":memory:")
+    _daily_table(con)
+    for day, count in (("2025-01-01", 1), ("2025-01-02", 0),
+                       ("2025-01-03", 0)):
+        insert_day(con, day=day, n_fire=count)
+    compute.build_all(con, with_weather=False, with_episode_history=False)
+    compute.build_segment_level(con)
+    rows = con.execute("""SELECT fire_days_to_date, fire_rate_to_date,
+                              days_since_fire FROM feat_segment ORDER BY day""").fetchall()
+    assert rows == [(1, 1.0, 0), (1, 0.5, 1), (1, 1 / 3, 2)]
+    con.close()
+
+
+def test_future_fire_does_not_change_past_segment_history():
+    def build(include_future):
+        con = duckdb.connect(":memory:")
+        _daily_table(con)
+        insert_day(con, day="2025-01-01", n_fire=1)
+        insert_day(con, day="2025-01-02", n_fire=0)
+        if include_future:
+            insert_day(con, day="2025-01-03", n_fire=10)
+        compute.build_all(con, with_weather=False, with_episode_history=False)
+        compute.build_segment_level(con)
+        result = con.execute("""SELECT fire_days_to_date, fire_rate_to_date,
+                                    days_since_fire FROM feat_segment
+                             WHERE day = DATE '2025-01-02'""").fetchone()
+        con.close()
+        return result
+
+    assert build(False) == build(True)

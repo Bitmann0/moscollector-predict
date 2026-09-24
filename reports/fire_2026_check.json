@@ -1,0 +1,28 @@
+{
+  "warning": "2026 period previously inspected; not a sealed holdout",
+  "train_end": "2025-11-30",
+  "test_start": "2026-01-01",
+  "test_end": "2026-06-29",
+  "results": {
+    "original": {
+      "n": 83414,
+      "n_pos": 776,
+      "base_rate": 0.009302994701129308,
+      "pr_auc": 0.04924056004670089,
+      "roc_auc": 0.7618638554116164,
+      "daily_precision_at_k": 0.0782122905027933,
+      "daily_recall_at_k": 0.18041237113402062,
+      "episode_recall": 0.21337126600284495
+    },
+    "history": {
+      "n": 83414,
+      "n_pos": 776,
+      "base_rate": 0.009302994701129308,
+      "pr_auc": 0.08392574828192663,
+      "roc_auc": 0.8767948733302845,
+      "daily_precision_at_k": 0.09497206703910614,
+      "daily_recall_at_k": 0.2190721649484536,
+      "episode_recall": 0.2887624466571835
+    }
+  }
+}

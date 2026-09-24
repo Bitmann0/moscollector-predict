@@ -96,13 +96,14 @@ def _apply_budget(df: pl.DataFrame, budget: int,
         # объектов при бюджете пять давали десять алертов. Это тот же дефект,
         # что был у глобальной отсечки, только незамеченный: обещание «не больше
         # N выездов в сутки» нарушалось вдвое.
-        tie = [c for c in ("obj", "ch", "seg", "day") if c in df.columns]
+        tie = [c for c in ("ch", "seg", "day") if c in df.columns]
         k = min(int(budget), df.height)
-        return (df.with_columns(
-                    pl.col("risk").rank("ordinal", descending=True)
-                      .over("obj").alias("_in_obj"))
-                  .sort(["_in_obj", "risk"] + tie,
+        return (df.sort(["obj", "risk"] + tie,
                         descending=[False, True] + [False] * len(tie))
+                  .with_columns(pl.col("obj").cum_count().over("obj")
+                                .alias("_in_obj"))
+                  .sort(["_in_obj", "risk", "obj"] + tie,
+                        descending=[False, True] + [False] * (len(tie) + 1))
                   .with_row_index("_rank")
                   .with_columns((pl.col("_rank") < k).alias("alert"))
                   .drop("_rank", "_in_obj"))

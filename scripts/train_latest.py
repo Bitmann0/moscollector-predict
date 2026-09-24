@@ -8,8 +8,10 @@ the configured embargo between training and calibration.
 import argparse
 import datetime as dt
 import json
+import math
 import sys
 
+import numpy as np
 import polars as pl
 
 from mkl import calibrate, config, db, labels, metrics, serve, store, train
@@ -40,7 +42,8 @@ def refresh(head: str, cfg: dict, backend: str = "lgbm") -> dict:
     fit = train.run(head, feats, lab, [split],
                     params=train.params_for(cfg, backend),
                     budget_per_day=cfg["budget_per_day"], backend=backend,
-                    horizon_days=cfg["horizon_days"])
+                    horizon_days=cfg["horizon_days"],
+                    budget_per_object=bool(cfg.get("budget_per_object")))
     model = fit["model"]
     if model is None:
         raise ValueError(f"{head}: нет позитивов в обучении или валидации")
@@ -50,6 +53,10 @@ def refresh(head: str, cfg: dict, backend: str = "lgbm") -> dict:
                        (pl.col("day") <= dates["calibration_end"]))
     threshold = valid.filter((pl.col("day") >= dates["threshold_start"]) &
                              (pl.col("day") <= dates["threshold_end"]))
+    # Stable tie order must match serve._apply_budget: isotonic calibration
+    # often assigns identical probabilities to dozens of entities.
+    tie = [key for key in ("obj", "ch", "seg") if key in threshold.columns]
+    threshold = threshold.sort(["day"] + tie)
     if cal.is_empty() or threshold.is_empty() or cal["y"].sum() == 0:
         raise ValueError(f"{head}: недостаточно данных для калибровки")
     names = fit["feature_names"]
@@ -57,15 +64,31 @@ def refresh(head: str, cfg: dict, backend: str = "lgbm") -> dict:
         model.predict_proba(train._matrix(cal, names))[:, 1], cal["y"].to_numpy())
     p = calibrate.apply(
         iso, model.predict_proba(train._matrix(threshold, names))[:, 1])
-    pick = metrics.target_operating_point(threshold["y"].to_numpy(), p,
-                                          min_precision=0.7)
-    selected_threshold = pick.get("threshold") if pick.get("feasible") else 1.0
+    objects = (threshold["obj"].to_numpy()
+               if cfg.get("budget_per_object") else None)
+    pick = metrics.daily_target_operating_point(
+        threshold["y"].to_numpy(), p, threshold["day"].to_numpy(),
+        cfg["budget_per_day"], min_precision=0.7, objects=objects,
+        min_alerts=30)
+    # Calibrated probabilities are <=1. A finite value just above one
+    # guarantees no alert when no precision-eligible threshold exists.
+    selected_threshold = (pick["threshold"] if pick.get("feasible")
+                          else float(np.nextafter(1.0, np.inf)))
+    actual = metrics.daily_budget_summary(
+        threshold["y"].to_numpy(), p, threshold["day"].to_numpy(),
+        cfg["budget_per_day"], threshold=selected_threshold,
+        objects=objects)
     artifact = serve.save(head, model, iso, names, threshold=selected_threshold)
     return {"head": head, "backend": backend, "artifact": str(artifact),
             "last_observable_day": str(dates["threshold_end"]),
             **{key: str(value) for key, value in dates.items()},
             "threshold": selected_threshold,
             "threshold_feasible": bool(pick.get("feasible")),
+            "threshold_daily_precision": (actual["daily_precision_at_k"]
+                                          if math.isfinite(actual["daily_precision_at_k"])
+                                          else None),
+            "threshold_daily_recall": actual["daily_recall_at_k"],
+            "threshold_daily_alerts": actual["daily_alerts"],
             "validation_pr_auc": fit["mean"].get("pr_auc"),
             "validation_daily_precision": fit["mean"].get("daily_precision_at_k"),
             "validation_daily_recall": fit["mean"].get("daily_recall_at_k")}
@@ -84,9 +107,10 @@ def main() -> None:
     for head in (args.heads or list(configs)):
         result = refresh(head, configs[head], backend=args.backend)
         results.append(result)
-        print(json.dumps(result, ensure_ascii=False), flush=True)
+        print(json.dumps(result, ensure_ascii=False, allow_nan=False), flush=True)
     report = PATHS.reports / "latest_model_refresh.json"
-    report.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    report.write_text(json.dumps(results, ensure_ascii=False, indent=2,
+                                 allow_nan=False), encoding="utf-8")
 
 
 if __name__ == "__main__":

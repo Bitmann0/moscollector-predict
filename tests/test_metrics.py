@@ -28,6 +28,80 @@ def test_daily_budget_does_not_borrow_capacity_from_another_day():
     assert metrics.precision_at_k(y, p, k=2) == 0.5
 
 
+def test_daily_budget_respects_validation_threshold():
+    y = np.array([1, 0, 1])
+    p = np.array([0.9, 0.8, 0.6])
+    days = np.array(["2025-01-01", "2025-01-01", "2025-01-02"],
+                    dtype="datetime64[D]")
+    out = metrics.daily_budget_summary(y, p, days, 2, threshold=0.85)
+    assert out["daily_alerts"] == 1
+    assert out["daily_precision_at_k"] == 1.0
+    assert out["daily_recall_at_k"] == 0.5
+
+
+def test_daily_operating_point_matches_budgeted_dispatch():
+    # Общий top-k ошибочно выбирал два хороших события первого дня и
+    # скрывал плохой верхний скор второго дня; сервис видит оба дня.
+    y = np.array([1, 1, 0, 0])
+    p = np.array([0.9, 0.8, 0.85, 0.1])
+    days = np.array(["2025-01-01", "2025-01-01",
+                     "2025-01-02", "2025-01-02"], dtype="datetime64[D]")
+    result = metrics.daily_target_operating_point(y, p, days, 1,
+                                                   min_precision=0.7)
+    assert result["feasible"]
+    assert result["threshold"] == 0.9
+    actual = metrics.daily_budget_summary(y, p, days, 1,
+                                          threshold=result["threshold"])
+    assert actual["daily_precision_at_k"] >= 0.7
+    assert actual["daily_alerts"] == 1
+
+
+def test_daily_operating_point_does_not_split_calibration_ties():
+    y = np.array([1, 0])
+    p = np.array([0.5, 0.5])
+    days = np.array(["2025-01-01", "2025-01-02"], dtype="datetime64[D]")
+    result = metrics.daily_target_operating_point(y, p, days, 1,
+                                                   min_precision=0.7)
+    assert not result["feasible"]
+
+
+def test_per_object_operating_point_matches_dispatch_order():
+    from mkl import serve
+    import polars as pl
+
+    days = np.array(["2025-01-01"] * 4, dtype="datetime64[D]")
+    objects = np.array(["a", "a", "b", "b"])
+    y = np.array([1, 1, 0, 1])
+    p = np.array([0.9, 0.8, 0.85, 0.7])
+    # With capacity two, the round-robin policy sends a/0.9 and b/0.85.
+    # The global top two would send a/0.9 and a/0.8 instead.
+    pick = metrics.daily_target_operating_point(
+        y, p, days, 2, min_precision=0.7, objects=objects)
+    assert pick["feasible"] and pick["threshold"] == 0.9
+    actual = metrics.daily_budget_summary(
+        y, p, days, 2, threshold=pick["threshold"], objects=objects)
+    assert actual["daily_precision_at_k"] == 1.0
+    df = pl.DataFrame({"obj": objects, "ch": [1, 2, 3, 4], "risk": p})
+    sent = serve._apply_budget(df, 2, per_object=True)
+    assert set(sent.filter(pl.col("alert"))["ch"].to_list()) == {1, 3}
+
+
+def test_per_object_metric_rejects_missing_object_ids():
+    with pytest.raises(ValueError, match="objects"):
+        metrics.daily_budget_summary(np.array([1]), np.array([0.5]),
+                                     np.array([0]), 1,
+                                     objects=np.array([]))
+
+
+def test_operating_point_rejects_one_lucky_alert():
+    y = np.array([1, 0, 0, 0])
+    p = np.array([1.0, 0.8, 0.7, 0.6])
+    days = np.array(["2025-01-01"] * 4, dtype="datetime64[D]")
+    assert metrics.daily_target_operating_point(y, p, days, 4)["feasible"]
+    assert not metrics.daily_target_operating_point(
+        y, p, days, 4, min_alerts=2)["feasible"]
+
+
 def test_pr_auc_is_one_for_perfect_ranking():
     y = np.array([0, 0, 1, 1])
     p = np.array([0.1, 0.2, 0.8, 0.9])
