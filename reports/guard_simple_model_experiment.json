@@ -1,0 +1,249 @@
+{
+  "target": "future recorded guarded alarm, not confirmed intrusion",
+  "features": [
+    "n_channels",
+    "n_events",
+    "n_alarms",
+    "n_bad",
+    "n_fire",
+    "n_intrusion",
+    "n_flood",
+    "n_pump_on",
+    "n_all_pumps",
+    "n_pumps",
+    "pump_switches",
+    "pump_bad",
+    "n_chatter_1min",
+    "n_transitions",
+    "n_alarms_w7",
+    "n_alarms_w30",
+    "n_bad_w7",
+    "n_bad_w30",
+    "n_events_w7",
+    "n_events_w30",
+    "n_chatter_1min_w7",
+    "silence_ratio_mean",
+    "silence_ratio_max",
+    "silence_z_mean",
+    "silence_z_max",
+    "age_days_mean",
+    "age_days_min",
+    "days_since_last_bad_mean",
+    "days_since_last_bad_min",
+    "n_prior_failures",
+    "n_channels_bad",
+    "frac_channels_bad",
+    "dow",
+    "month",
+    "is_weekend",
+    "is_holiday",
+    "doy_sin",
+    "doy_cos",
+    "t_mean",
+    "t_min",
+    "t_max",
+    "precip_mm",
+    "snow_depth_cm",
+    "t_range",
+    "precip_24h",
+    "precip_48h",
+    "precip_72h",
+    "snowmelt",
+    "snow_delta",
+    "api_85",
+    "api_90",
+    "api_95",
+    "precip_7d",
+    "precip_14d",
+    "precip_30d",
+    "snowmelt_7d",
+    "snowmelt_30d",
+    "frost_intensity",
+    "n_flood_bins",
+    "time_in_alarm_s",
+    "time_in_bad_s",
+    "max_hold_alarm_s",
+    "n_standing_4h",
+    "n_stale_24h",
+    "n_many_bad",
+    "n_battery_power",
+    "n_talk",
+    "n_call",
+    "n_arm",
+    "n_disarm",
+    "chatter_psi_alarm_max",
+    "chatter_psi_alarm_mean",
+    "max_alarm_10min",
+    "chatter_psi_mean",
+    "chatter_psi_max",
+    "night_frac_mean",
+    "workhours_frac_mean",
+    "is_guard_object",
+    "top1_share_alarm",
+    "top1_share_bad",
+    "hhi_alarm",
+    "hhi_bad",
+    "n_channels_80pct",
+    "top10_share_alarm",
+    "obj_armed",
+    "days_since_arm_event",
+    "par_n_siblings",
+    "par_n_channels",
+    "par_n_events",
+    "par_n_alarms",
+    "par_n_bad",
+    "par_n_bad_w7",
+    "par_n_intrusion",
+    "par_n_flood",
+    "par_n_fire",
+    "par_n_objects_bad",
+    "par_frac_objects_bad",
+    "par_share_bad",
+    "par_share_alarms",
+    "par_bad_per_channel",
+    "exact_count_1",
+    "exact_count_7",
+    "exact_count_30",
+    "exact_age"
+  ],
+  "folds": [
+    {
+      "fit_end": "2024-12-03",
+      "test_start": "2025-04-05",
+      "test_end": "2025-07-03",
+      "fit_rows": 20877,
+      "test_candidates": 2851,
+      "recorded_positives": 227,
+      "top1": {
+        "ml": {
+          "alerts": 90,
+          "recorded_hits": 26,
+          "unknown_outcome_alerts": 3,
+          "recorded_hits_per_alert": 0.28888888888888886
+        },
+        "rule": {
+          "alerts": 90,
+          "recorded_hits": 34,
+          "unknown_outcome_alerts": 2,
+          "recorded_hits_per_alert": 0.37777777777777777
+        }
+      },
+      "top4": {
+        "ml": {
+          "alerts": 360,
+          "recorded_hits": 82,
+          "unknown_outcome_alerts": 15,
+          "recorded_hits_per_alert": 0.22777777777777777
+        },
+        "rule": {
+          "alerts": 360,
+          "recorded_hits": 89,
+          "unknown_outcome_alerts": 20,
+          "recorded_hits_per_alert": 0.24722222222222223
+        }
+      }
+    },
+    {
+      "fit_end": "2025-03-03",
+      "test_start": "2025-07-04",
+      "test_end": "2025-10-01",
+      "fit_rows": 23571,
+      "test_candidates": 2837,
+      "recorded_positives": 214,
+      "top1": {
+        "ml": {
+          "alerts": 90,
+          "recorded_hits": 25,
+          "unknown_outcome_alerts": 4,
+          "recorded_hits_per_alert": 0.2777777777777778
+        },
+        "rule": {
+          "alerts": 90,
+          "recorded_hits": 35,
+          "unknown_outcome_alerts": 3,
+          "recorded_hits_per_alert": 0.3888888888888889
+        }
+      },
+      "top4": {
+        "ml": {
+          "alerts": 360,
+          "recorded_hits": 86,
+          "unknown_outcome_alerts": 15,
+          "recorded_hits_per_alert": 0.2388888888888889
+        },
+        "rule": {
+          "alerts": 360,
+          "recorded_hits": 91,
+          "unknown_outcome_alerts": 19,
+          "recorded_hits_per_alert": 0.25277777777777777
+        }
+      }
+    },
+    {
+      "fit_end": "2025-06-01",
+      "test_start": "2025-10-02",
+      "test_end": "2025-12-30",
+      "fit_rows": 26489,
+      "test_candidates": 2741,
+      "recorded_positives": 155,
+      "top1": {
+        "ml": {
+          "alerts": 90,
+          "recorded_hits": 22,
+          "unknown_outcome_alerts": 6,
+          "recorded_hits_per_alert": 0.24444444444444444
+        },
+        "rule": {
+          "alerts": 90,
+          "recorded_hits": 19,
+          "unknown_outcome_alerts": 3,
+          "recorded_hits_per_alert": 0.2111111111111111
+        }
+      },
+      "top4": {
+        "ml": {
+          "alerts": 360,
+          "recorded_hits": 59,
+          "unknown_outcome_alerts": 22,
+          "recorded_hits_per_alert": 0.1638888888888889
+        },
+        "rule": {
+          "alerts": 360,
+          "recorded_hits": 57,
+          "unknown_outcome_alerts": 27,
+          "recorded_hits_per_alert": 0.15833333333333333
+        }
+      }
+    }
+  ],
+  "pooled": {
+    "top1": {
+      "ml": {
+        "alerts": 270,
+        "recorded_hits": 73,
+        "unknown_outcome_alerts": 13,
+        "recorded_hits_per_alert": 0.27037037037037037
+      },
+      "rule": {
+        "alerts": 270,
+        "recorded_hits": 88,
+        "unknown_outcome_alerts": 8,
+        "recorded_hits_per_alert": 0.32592592592592595
+      }
+    },
+    "top4": {
+      "ml": {
+        "alerts": 1080,
+        "recorded_hits": 227,
+        "unknown_outcome_alerts": 52,
+        "recorded_hits_per_alert": 0.2101851851851852
+      },
+      "rule": {
+        "alerts": 1080,
+        "recorded_hits": 237,
+        "unknown_outcome_alerts": 66,
+        "recorded_hits_per_alert": 0.21944444444444444
+      }
+    }
+  }
+}

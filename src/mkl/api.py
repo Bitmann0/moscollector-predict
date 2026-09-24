@@ -14,7 +14,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 
-from . import contract, service, workorders
+from . import contract, guard_queue, service, workorders
 from .serve import load_heads
 
 API_PREFIX = "/api/v1"
@@ -114,6 +114,22 @@ def coverage(asof: dt.date | None = None) -> list[dict]:
     вместо пустого места, которое читается как «всё спокойно».
     """
     return [c.to_dict() for c in service.coverage(asof)]
+
+
+@app.get(f"{API_PREFIX}/guard-signal-priorities")
+def guard_signal_priorities(
+    asof: dt.date | None = Query(None, description="день признаков; по умолчанию последний доступный"),
+    budget: int = Query(4, description="проверок в сутки: 1 или 4"),
+) -> dict:
+    """Manual-review ranking for a recorded guarded SMVU alarm tomorrow.
+
+    Separate from legacy C and from the work-order endpoint. The priority
+    score is ordinal, not a calibrated intrusion or incident probability.
+    """
+    try:
+        return guard_queue.daily_priorities(asof, budget)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @app.get(f"{API_PREFIX}/work-orders")
