@@ -23,6 +23,12 @@ def test_parse_object(tag, expected):
     assert ingest.parse_object(tag) == expected
 
 
+def test_discovers_new_journal_years_without_code_change(tmp_path):
+    for name in ("ext-journal-2025.csv", "ext-journal-2027.csv", "notes.csv"):
+        (tmp_path / name).touch()
+    assert ingest.discover_journal_years(tmp_path) == [2025, 2027]
+
+
 # --- дедупликация -----------------------------------------------------------
 #
 # Корень пайплайна: всё, что здесь потеряно, не восстановит ни один признак.

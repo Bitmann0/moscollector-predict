@@ -1,6 +1,8 @@
 import datetime as dt
 import hashlib
+import os
 import pickle
+import tempfile
 from pathlib import Path
 
 import polars as pl
@@ -39,20 +41,29 @@ def save(head: str, model, iso, feature_names: list[str],
     registry = store.load_registry()
     cfg = load_heads()[head]
     dst = model_path(head)
-    with dst.open("wb") as f:
-        pickle.dump({
-            "model": model,
-            "iso": iso,
-            "features": feature_names,
-            # Порог рабочей точки — часть модели, а не отчёта. Пока он не
-            # сохранялся, заявленная в отчёте точка в проде была недостижима:
-            # serve резал по бюджету и выдавал другой список.
-            "threshold": threshold,
-            "feature_set": cfg["feature_set"],
-            "feature_signature": feature_signature(cfg["feature_set"]),
-            "feature_set_built_at": {k: v.get("built_at") for k, v in registry.items()},
-            "saved_at": dt.datetime.now().isoformat(timespec="seconds"),
-        }, f)
+    artifact = {
+        "model": model,
+        "iso": iso,
+        "features": feature_names,
+        # Порог рабочей точки — часть модели, а не отчёта. Пока он не
+        # сохранялся, заявленная в отчёте точка в проде была недостижима:
+        # serve резал по бюджету и выдавал другой список.
+        "threshold": threshold,
+        "feature_set": cfg["feature_set"],
+        "feature_signature": feature_signature(cfg["feature_set"]),
+        "feature_set_built_at": {k: v.get("built_at") for k, v in registry.items()},
+        "saved_at": dt.datetime.now().isoformat(timespec="seconds"),
+    }
+    # В живом сервисе старый артефакт должен оставаться читаемым до завершения
+    # нового обучения: прерванная запись прямо в .pkl оставляла битую модель.
+    fd, temp_name = tempfile.mkstemp(prefix=f".{head}.", suffix=".tmp",
+                                      dir=PATHS.models)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            pickle.dump(artifact, f)
+        os.replace(temp_name, dst)
+    finally:
+        Path(temp_name).unlink(missing_ok=True)
     return dst
 
 

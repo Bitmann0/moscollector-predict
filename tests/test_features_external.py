@@ -2,6 +2,7 @@ import datetime as dt
 
 import duckdb
 import polars as pl
+import pytest
 
 from mkl.features import external
 
@@ -98,4 +99,26 @@ def test_complete_cache_is_reused_without_network(tmp_path, monkeypatch):
     monkeypatch.setattr(external, "WEATHER_CACHE", full)
     monkeypatch.setattr(external, "_download_weather",
                         lambda *a, **k: pytest.fail("сеть трогать не должны"))
-    assert external.fetch_moscow_weather(dt.date(2025, 1, 1), dt.date(2025, 1, 2)) is not None
+    assert external.fetch_moscow_weather(dt.date(2025, 1, 1), dt.date(2025, 1, 1)) is not None
+
+
+def test_weather_cache_refreshes_when_new_dates_arrive(tmp_path, monkeypatch):
+    cache = tmp_path / "weather.parquet"
+    pl.DataFrame({"day": [dt.date(2025, 1, 1)],
+                  **{c: [0.0] for c in external.WEATHER_COLUMNS}}).write_parquet(cache)
+    monkeypatch.setattr(external, "WEATHER_CACHE", cache)
+    called = []
+
+    def download(start, end):
+        called.append((start, end))
+        return pl.DataFrame({
+            "day": [dt.date(2025, 1, 1), dt.date(2025, 1, 2)],
+            "t_mean": [0.0, 0.0], "t_min": [0.0, 0.0],
+            "t_max": [0.0, 0.0], "precip_mm": [0.0, 0.0],
+            "snow_depth_cm": [0.0, 0.0],
+        })
+
+    monkeypatch.setattr(external, "_download_weather", download)
+    got = external.fetch_moscow_weather(dt.date(2025, 1, 1), dt.date(2025, 1, 2))
+    assert called == [(dt.date(2025, 1, 1), dt.date(2025, 1, 2))]
+    assert got["day"].max() == dt.date(2025, 1, 2)

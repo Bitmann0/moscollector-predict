@@ -50,9 +50,13 @@ def fetch_moscow_weather(start: dt.date, end: dt.date) -> pl.DataFrame | None:
         # до фичестора: функция возвращала старый файл, а сборка падала на
         # отсутствующей колонке через десять минут работы.
         missing = [c for c in WEATHER_COLUMNS if c not in cached.columns]
-        if not missing:
+        covers_dates = (not cached.is_empty() and
+                        cached["day"].min() <= start and cached["day"].max() >= end)
+        if not missing and covers_dates:
             return cached
-        print(f"кэш погоды устарел (нет {', '.join(missing[:4])}) — пересчитываю",
+        reason = (f"нет {', '.join(missing[:4])}" if missing else
+                  f"период {cached['day'].min()}…{cached['day'].max()} не покрывает {start}…{end}")
+        print(f"кэш погоды устарел ({reason}) — пересчитываю",
               flush=True)
     try:
         df = _download_weather(start, end)

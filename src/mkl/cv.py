@@ -14,6 +14,19 @@ class Split:
         return (self.test_start - self.train_end).days
 
 
+def live_windows(last: dt.date, embargo_days: int) -> dict[str, dt.date]:
+    """Rolling calibration and threshold windows for the deployed model."""
+    threshold_start = last - dt.timedelta(days=29)
+    calibration_end = threshold_start - dt.timedelta(days=1)
+    calibration_start = calibration_end - dt.timedelta(days=29)
+    training_end = calibration_start - dt.timedelta(days=embargo_days + 1)
+    return {"training_end": training_end,
+            "calibration_start": calibration_start,
+            "calibration_end": calibration_end,
+            "threshold_start": threshold_start,
+            "threshold_end": last}
+
+
 def walk_forward(days: list[dt.date], n_splits: int, test_days: int,
                  embargo_days: int, min_train_days: int = 90) -> list[Split]:
     """Rolling origin с purge и embargo.

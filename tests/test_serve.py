@@ -168,6 +168,23 @@ class _FakeArtifactPath:
         return _io.BytesIO(_p.dumps(self._art))
 
 
+def test_model_save_replaces_artifact_without_partial_files(tmp_path, monkeypatch):
+    import pickle
+    from mkl.config import Paths
+
+    monkeypatch.setattr(serve, "PATHS", Paths(models=tmp_path))
+    monkeypatch.setattr(serve, "load_heads", lambda: {
+        "B": {"feature_set": "segment"}})
+    monkeypatch.setattr(serve.store, "load_registry", lambda: {
+        "segment": {"built_at": "now"}})
+    monkeypatch.setattr(serve, "feature_signature", lambda _: "signature")
+    path = serve.save("B", model="old", iso=None, feature_names=["x"], threshold=0.7)
+    serve.save("B", model="new", iso=None, feature_names=["x"], threshold=0.8)
+    with path.open("rb") as file:
+        assert pickle.load(file)["model"] == "new"
+    assert list(tmp_path.iterdir()) == [path]
+
+
 def test_armed_only_head_does_not_score_objects_without_arming_data(monkeypatch):
     """Метка несанкционированного доступа определена только там, где известно
     состояние охраны. На остальных объектах модель выдавала бы риск, обученный

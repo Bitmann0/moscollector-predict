@@ -59,6 +59,8 @@ def _glob(pattern: str, base: Path) -> list[Path]:
 
 
 def stages() -> list[Stage]:
+    from .serve import load_heads
+
     raw, interim, feat = PATHS.raw, PATHS.interim, PATHS.features
     py = [sys.executable]
     return [
@@ -88,8 +90,10 @@ def stages() -> list[Stage]:
         Stage(
             name="weather", title="История погоды Москвы",
             command=py + [str(ROOT / "scripts" / "fetch_weather.py")],
-            inputs=[SRC / "features" / "external.py"],
+            inputs=_glob("events_year=*.parquet", interim)
+                   + [SRC / "features" / "external.py", ROOT / "scripts" / "fetch_weather.py"],
             outputs=[interim / "weather.parquet"],
+            needs=("ingest",),
             note="внешний источник; при недоступности сети колонки остаются пустыми",
         ),
         Stage(
@@ -103,14 +107,15 @@ def stages() -> list[Stage]:
             needs=("states", "panel", "weather"),
         ),
         Stage(
-            name="train", title="Обучение голов и отложенный замер",
-            command=py + [str(ROOT / "scripts" / "final_eval.py")],
+            name="train", title="Переобучение моделей на свежей истории",
+            command=py + [str(ROOT / "scripts" / "train_latest.py")],
             inputs=[feat / "sensor.parquet", feat / "object.parquet",
                     feat / "segment.parquet", ROOT / "configs" / "heads.yaml",
-                    SRC / "train.py", SRC / "labels.py"],
-            outputs=_glob("*.pkl", PATHS.models),
+                    SRC / "train.py", SRC / "labels.py",
+                    ROOT / "scripts" / "train_latest.py"],
+            outputs=[PATHS.models / f"{head}.pkl" for head in load_heads()],
             needs=("features",),
-            note="каждый запуск — ещё один просмотр отложенного периода",
+            note="порог выбирается на последних наблюдаемых 30 сутках; 2026 benchmark отдельно",
         ),
     ]
 

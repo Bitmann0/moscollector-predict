@@ -1,10 +1,12 @@
 import re
 import sys
+from pathlib import Path
 
 from .config import PATHS
 from .db import attach_events, connect
 
 _PICKET_RE = re.compile(r"ПК\s*(\d+(?:[.,]\d+)?)")
+_JOURNAL_RE = re.compile(r"ext-journal-(\d{4})\.csv")
 
 _RAW_COLUMNS = (
     "{'ид_события':'VARCHAR','ид_канала_данных':'VARCHAR','дата':'VARCHAR',"
@@ -21,6 +23,15 @@ def parse_picket(name: str | None) -> float | None:
 
 def parse_object(tag: str | None) -> str | None:
     return tag.split(".")[0] if tag else None
+
+
+def discover_journal_years(raw: Path | None = None) -> list[int]:
+    """Find supplied years so future journal files need no code change."""
+    years = sorted(int(match.group(1)) for path in (raw or PATHS.raw).glob("*.csv")
+                   if (match := _JOURNAL_RE.fullmatch(path.name)))
+    if not years:
+        raise FileNotFoundError("в data/raw нет файлов ext-journal-YYYY.csv")
+    return years
 
 
 def build_channels() -> int:
@@ -168,7 +179,7 @@ def quality_report() -> str:
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     print(f"справочник каналов: {build_channels():,}")
-    build_events(list(range(2019, 2027)))
+    build_events(discover_journal_years())
     report = quality_report()
     (PATHS.reports / "data_quality.md").write_text(report, encoding="utf-8")
     print(report)
