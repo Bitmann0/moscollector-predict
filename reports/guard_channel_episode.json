@@ -1,0 +1,1924 @@
+{
+  "target": "new recorded guarded-alarm episode onset D+2..D+8",
+  "episode_gap_days": 7,
+  "fit_end": "2024-12-23",
+  "test_start": "2025-01-06",
+  "unknown_note": "training uses absence of a recorded onset, not proof of no physical event; evaluation counts unknown separately",
+  "channel_day_agreement": {
+    "event_positive_days": 3238,
+    "channel_positive_days": 3238,
+    "missing_channel_days": 0,
+    "extra_channel_days": 0
+  },
+  "channel_features": [
+    "channel_count_7",
+    "channel_count_30",
+    "channel_events_7",
+    "channel_events_30",
+    "channel_top_share_30",
+    "channel_new_7",
+    "channel_recent_fraction"
+  ],
+  "fit_rows": 1904,
+  "fit_onsets": 393,
+  "test_rows": 1446,
+  "test_onsets": 293,
+  "policies": {
+    "repeat_rule_k1_cd0": {
+      "selected": 76,
+      "onset_hits": 12,
+      "onset_hit_rate": 0.15789473684210525,
+      "recorded_any_hits": 50,
+      "unknown": 7,
+      "unique_objects": 19,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 11,
+          "unknown": 4,
+          "unique_objects": 16
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 1,
+          "unknown": 3,
+          "unique_objects": 11
+        }
+      },
+      "onset_recall": 0.040955631399317405
+    },
+    "repeat_rule_k1_cd28": {
+      "selected": 76,
+      "onset_hits": 11,
+      "onset_hit_rate": 0.14473684210526316,
+      "recorded_any_hits": 43,
+      "unknown": 10,
+      "unique_objects": 20,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 9,
+          "unknown": 7,
+          "unique_objects": 18
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 2,
+          "unknown": 3,
+          "unique_objects": 12
+        }
+      },
+      "onset_recall": 0.03754266211604096
+    },
+    "repeat_rule_k4_cd0": {
+      "selected": 304,
+      "onset_hits": 42,
+      "onset_hit_rate": 0.13815789473684212,
+      "recorded_any_hits": 176,
+      "unknown": 35,
+      "unique_objects": 36,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 31,
+          "unknown": 26,
+          "unique_objects": 35
+        },
+        "2026": {
+          "selected": 96,
+          "onset_hits": 11,
+          "unknown": 9,
+          "unique_objects": 19
+        }
+      },
+      "onset_recall": 0.14334470989761092
+    },
+    "repeat_rule_k4_cd28": {
+      "selected": 298,
+      "onset_hits": 51,
+      "onset_hit_rate": 0.17114093959731544,
+      "recorded_any_hits": 123,
+      "unknown": 63,
+      "unique_objects": 43,
+      "periods": {
+        "2025": {
+          "selected": 205,
+          "onset_hits": 30,
+          "unknown": 44,
+          "unique_objects": 43
+        },
+        "2026": {
+          "selected": 93,
+          "onset_hits": 21,
+          "unknown": 19,
+          "unique_objects": 31
+        }
+      },
+      "onset_recall": 0.17406143344709898
+    },
+    "onset_rule_k1_cd0": {
+      "selected": 76,
+      "onset_hits": 21,
+      "onset_hit_rate": 0.27631578947368424,
+      "recorded_any_hits": 25,
+      "unknown": 16,
+      "unique_objects": 32,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 11,
+          "unknown": 11,
+          "unique_objects": 28
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 10,
+          "unknown": 5,
+          "unique_objects": 14
+        }
+      },
+      "onset_recall": 0.07167235494880546
+    },
+    "onset_rule_k1_cd28": {
+      "selected": 76,
+      "onset_hits": 21,
+      "onset_hit_rate": 0.27631578947368424,
+      "recorded_any_hits": 25,
+      "unknown": 16,
+      "unique_objects": 32,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 11,
+          "unknown": 12,
+          "unique_objects": 29
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 10,
+          "unknown": 4,
+          "unique_objects": 16
+        }
+      },
+      "onset_recall": 0.07167235494880546
+    },
+    "onset_rule_k4_cd0": {
+      "selected": 304,
+      "onset_hits": 82,
+      "onset_hit_rate": 0.26973684210526316,
+      "recorded_any_hits": 98,
+      "unknown": 62,
+      "unique_objects": 39,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 51,
+          "unknown": 43,
+          "unique_objects": 38
+        },
+        "2026": {
+          "selected": 96,
+          "onset_hits": 31,
+          "unknown": 19,
+          "unique_objects": 29
+        }
+      },
+      "onset_recall": 0.27986348122866894
+    },
+    "onset_rule_k4_cd28": {
+      "selected": 302,
+      "onset_hits": 73,
+      "onset_hit_rate": 0.24172185430463577,
+      "recorded_any_hits": 99,
+      "unknown": 83,
+      "unique_objects": 42,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 48,
+          "unknown": 59,
+          "unique_objects": 41
+        },
+        "2026": {
+          "selected": 94,
+          "onset_hits": 25,
+          "unknown": 24,
+          "unique_objects": 31
+        }
+      },
+      "onset_recall": 0.24914675767918087
+    },
+    "object_model_k1_cd0": {
+      "selected": 76,
+      "onset_hits": 30,
+      "onset_hit_rate": 0.39473684210526316,
+      "recorded_any_hits": 39,
+      "unknown": 9,
+      "unique_objects": 15,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 17,
+          "unknown": 6,
+          "unique_objects": 12
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 13,
+          "unknown": 3,
+          "unique_objects": 8
+        }
+      },
+      "onset_recall": 0.10238907849829351
+    },
+    "object_model_k1_cd28": {
+      "selected": 76,
+      "onset_hits": 34,
+      "onset_hit_rate": 0.4473684210526316,
+      "recorded_any_hits": 44,
+      "unknown": 9,
+      "unique_objects": 18,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 22,
+          "unknown": 5,
+          "unique_objects": 17
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 12,
+          "unknown": 4,
+          "unique_objects": 12
+        }
+      },
+      "onset_recall": 0.11604095563139932
+    },
+    "object_model_k4_cd0": {
+      "selected": 304,
+      "onset_hits": 109,
+      "onset_hit_rate": 0.35855263157894735,
+      "recorded_any_hits": 140,
+      "unknown": 32,
+      "unique_objects": 21,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 68,
+          "unknown": 20,
+          "unique_objects": 19
+        },
+        "2026": {
+          "selected": 96,
+          "onset_hits": 41,
+          "unknown": 12,
+          "unique_objects": 21
+        }
+      },
+      "onset_recall": 0.3720136518771331
+    },
+    "object_model_k4_cd28": {
+      "selected": 302,
+      "onset_hits": 82,
+      "onset_hit_rate": 0.271523178807947,
+      "recorded_any_hits": 113,
+      "unknown": 66,
+      "unique_objects": 38,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 54,
+          "unknown": 44,
+          "unique_objects": 37
+        },
+        "2026": {
+          "selected": 94,
+          "onset_hits": 28,
+          "unknown": 22,
+          "unique_objects": 32
+        }
+      },
+      "onset_recall": 0.27986348122866894
+    },
+    "object_model_known_fit_k1_cd0": {
+      "selected": 76,
+      "onset_hits": 29,
+      "onset_hit_rate": 0.3815789473684211,
+      "recorded_any_hits": 35,
+      "unknown": 19,
+      "unique_objects": 17,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 19,
+          "unknown": 12,
+          "unique_objects": 15
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 10,
+          "unknown": 7,
+          "unique_objects": 13
+        }
+      },
+      "onset_recall": 0.09897610921501707
+    },
+    "object_model_known_fit_k1_cd28": {
+      "selected": 76,
+      "onset_hits": 32,
+      "onset_hit_rate": 0.42105263157894735,
+      "recorded_any_hits": 35,
+      "unknown": 16,
+      "unique_objects": 22,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 21,
+          "unknown": 11,
+          "unique_objects": 20
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 11,
+          "unknown": 5,
+          "unique_objects": 17
+        }
+      },
+      "onset_recall": 0.10921501706484642
+    },
+    "object_model_known_fit_k4_cd0": {
+      "selected": 304,
+      "onset_hits": 104,
+      "onset_hit_rate": 0.34210526315789475,
+      "recorded_any_hits": 132,
+      "unknown": 63,
+      "unique_objects": 26,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 75,
+          "unknown": 35,
+          "unique_objects": 24
+        },
+        "2026": {
+          "selected": 96,
+          "onset_hits": 29,
+          "unknown": 28,
+          "unique_objects": 25
+        }
+      },
+      "onset_recall": 0.35494880546075086
+    },
+    "object_model_known_fit_k4_cd28": {
+      "selected": 301,
+      "onset_hits": 78,
+      "onset_hit_rate": 0.2591362126245847,
+      "recorded_any_hits": 110,
+      "unknown": 71,
+      "unique_objects": 41,
+      "periods": {
+        "2025": {
+          "selected": 207,
+          "onset_hits": 48,
+          "unknown": 48,
+          "unique_objects": 41
+        },
+        "2026": {
+          "selected": 94,
+          "onset_hits": 30,
+          "unknown": 23,
+          "unique_objects": 31
+        }
+      },
+      "onset_recall": 0.26621160409556316
+    },
+    "channel_model_k1_cd0": {
+      "selected": 76,
+      "onset_hits": 32,
+      "onset_hit_rate": 0.42105263157894735,
+      "recorded_any_hits": 39,
+      "unknown": 6,
+      "unique_objects": 13,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 21,
+          "unknown": 5,
+          "unique_objects": 11
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 11,
+          "unknown": 1,
+          "unique_objects": 10
+        }
+      },
+      "onset_recall": 0.10921501706484642
+    },
+    "channel_model_k1_cd28": {
+      "selected": 76,
+      "onset_hits": 32,
+      "onset_hit_rate": 0.42105263157894735,
+      "recorded_any_hits": 39,
+      "unknown": 6,
+      "unique_objects": 15,
+      "periods": {
+        "2025": {
+          "selected": 52,
+          "onset_hits": 20,
+          "unknown": 4,
+          "unique_objects": 12
+        },
+        "2026": {
+          "selected": 24,
+          "onset_hits": 12,
+          "unknown": 2,
+          "unique_objects": 13
+        }
+      },
+      "onset_recall": 0.10921501706484642
+    },
+    "channel_model_k4_cd0": {
+      "selected": 304,
+      "onset_hits": 107,
+      "onset_hit_rate": 0.3519736842105263,
+      "recorded_any_hits": 137,
+      "unknown": 35,
+      "unique_objects": 21,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 65,
+          "unknown": 22,
+          "unique_objects": 19
+        },
+        "2026": {
+          "selected": 96,
+          "onset_hits": 42,
+          "unknown": 13,
+          "unique_objects": 20
+        }
+      },
+      "onset_recall": 0.3651877133105802
+    },
+    "channel_model_k4_cd28": {
+      "selected": 301,
+      "onset_hits": 82,
+      "onset_hit_rate": 0.2724252491694352,
+      "recorded_any_hits": 110,
+      "unknown": 64,
+      "unique_objects": 39,
+      "periods": {
+        "2025": {
+          "selected": 208,
+          "onset_hits": 51,
+          "unknown": 43,
+          "unique_objects": 39
+        },
+        "2026": {
+          "selected": 93,
+          "onset_hits": 31,
+          "unknown": 21,
+          "unique_objects": 31
+        }
+      },
+      "onset_recall": 0.27986348122866894
+    }
+  },
+  "strata_by_recent_alarm_days": {
+    "fit": [
+      {
+        "n7": 1,
+        "rows": 584,
+        "onsets": 98
+      },
+      {
+        "n7": 0,
+        "rows": 1061,
+        "onsets": 264
+      },
+      {
+        "n7": 3,
+        "rows": 85,
+        "onsets": 7
+      },
+      {
+        "n7": 2,
+        "rows": 174,
+        "onsets": 24
+      }
+    ],
+    "test": [
+      {
+        "n7": 0,
+        "rows": 780,
+        "onsets": 188
+      },
+      {
+        "n7": 1,
+        "rows": 448,
+        "onsets": 80
+      },
+      {
+        "n7": 2,
+        "rows": 153,
+        "onsets": 20
+      },
+      {
+        "n7": 3,
+        "rows": 65,
+        "onsets": 5
+      }
+    ]
+  },
+  "strata_zero_recent_by_age": {
+    "fit": [
+      {
+        "age_week": 2,
+        "rows": 310,
+        "onsets": 53
+      },
+      {
+        "age_week": 4,
+        "rows": 48,
+        "onsets": 9
+      },
+      {
+        "age_week": 1,
+        "rows": 451,
+        "onsets": 126
+      },
+      {
+        "age_week": 3,
+        "rows": 252,
+        "onsets": 76
+      }
+    ],
+    "test": [
+      {
+        "age_week": 1,
+        "rows": 335,
+        "onsets": 86
+      },
+      {
+        "age_week": 2,
+        "rows": 238,
+        "onsets": 61
+      },
+      {
+        "age_week": 3,
+        "rows": 172,
+        "onsets": 33
+      },
+      {
+        "age_week": 4,
+        "rows": 35,
+        "onsets": 8
+      }
+    ]
+  },
+  "model_fit_rows": {
+    "object_model": 1904,
+    "object_model_known_fit": 1425,
+    "channel_model": 1904
+  },
+  "top_feature_importances": {
+    "object_model": [
+      [
+        "exact_age",
+        62
+      ],
+      [
+        "precip_30d",
+        25
+      ],
+      [
+        "chatter_psi_max",
+        25
+      ],
+      [
+        "par_bad_per_channel",
+        21
+      ],
+      [
+        "doy_cos",
+        19
+      ],
+      [
+        "workhours_frac_mean",
+        19
+      ],
+      [
+        "par_n_channels",
+        17
+      ],
+      [
+        "chatter_psi_mean",
+        16
+      ],
+      [
+        "par_n_events",
+        16
+      ],
+      [
+        "n_channels",
+        14
+      ],
+      [
+        "doy_sin",
+        14
+      ],
+      [
+        "is_guard_object",
+        14
+      ],
+      [
+        "days_since_last_bad_mean",
+        12
+      ],
+      [
+        "n_prior_failures",
+        12
+      ],
+      [
+        "exact_count_30",
+        12
+      ]
+    ],
+    "object_model_known_fit": [
+      [
+        "exact_age",
+        64
+      ],
+      [
+        "chatter_psi_max",
+        24
+      ],
+      [
+        "workhours_frac_mean",
+        22
+      ],
+      [
+        "age_days_min",
+        20
+      ],
+      [
+        "par_n_bad",
+        18
+      ],
+      [
+        "par_n_events",
+        17
+      ],
+      [
+        "precip_30d",
+        16
+      ],
+      [
+        "precip_7d",
+        14
+      ],
+      [
+        "n_events_w7",
+        13
+      ],
+      [
+        "silence_z_max",
+        13
+      ],
+      [
+        "par_n_channels",
+        13
+      ],
+      [
+        "par_n_intrusion",
+        13
+      ],
+      [
+        "n_channels",
+        12
+      ],
+      [
+        "top1_share_alarm",
+        11
+      ],
+      [
+        "age_days_mean",
+        10
+      ]
+    ],
+    "channel_model": [
+      [
+        "exact_age",
+        54
+      ],
+      [
+        "chatter_psi_max",
+        24
+      ],
+      [
+        "precip_30d",
+        23
+      ],
+      [
+        "par_n_events",
+        22
+      ],
+      [
+        "workhours_frac_mean",
+        19
+      ],
+      [
+        "n_channels",
+        16
+      ],
+      [
+        "doy_sin",
+        15
+      ],
+      [
+        "is_guard_object",
+        15
+      ],
+      [
+        "par_bad_per_channel",
+        14
+      ],
+      [
+        "n_prior_failures",
+        13
+      ],
+      [
+        "exact_count_30",
+        13
+      ],
+      [
+        "n_events_w30",
+        12
+      ],
+      [
+        "silence_z_max",
+        12
+      ],
+      [
+        "days_since_last_bad_mean",
+        12
+      ],
+      [
+        "doy_cos",
+        12
+      ]
+    ]
+  },
+  "paired_comparisons": {
+    "object_model_vs_onset_rule_k1_cd28": {
+      "weeks": 76,
+      "extra_hits": 13,
+      "better_weeks": 19,
+      "worse_weeks": 6,
+      "equal_weeks": 51,
+      "bootstrap_95pct_extra_hits": [
+        4,
+        22
+      ],
+      "bootstrap_month_95pct_extra_hits": [
+        2,
+        24
+      ],
+      "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+    },
+    "channel_model_vs_object_model_k1_cd28": {
+      "weeks": 76,
+      "extra_hits": -2,
+      "better_weeks": 7,
+      "worse_weeks": 9,
+      "equal_weeks": 60,
+      "bootstrap_95pct_extra_hits": [
+        -10,
+        6
+      ],
+      "bootstrap_month_95pct_extra_hits": [
+        -10,
+        5
+      ],
+      "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+    },
+    "object_model_vs_onset_rule_k4_cd28": {
+      "weeks": 76,
+      "extra_hits": 9,
+      "better_weeks": 27,
+      "worse_weeks": 21,
+      "equal_weeks": 28,
+      "bootstrap_95pct_extra_hits": [
+        -8,
+        27
+      ],
+      "bootstrap_month_95pct_extra_hits": [
+        -5,
+        23
+      ],
+      "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+    },
+    "channel_model_vs_object_model_k4_cd28": {
+      "weeks": 76,
+      "extra_hits": 0,
+      "better_weeks": 13,
+      "worse_weeks": 14,
+      "equal_weeks": 49,
+      "bootstrap_95pct_extra_hits": [
+        -12,
+        12
+      ],
+      "bootstrap_month_95pct_extra_hits": [
+        -8,
+        8
+      ],
+      "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+    }
+  },
+  "earlier_temporal_check": {
+    "fit_end": "2023-12-18",
+    "test_start": "2024-01-01",
+    "test_end": "2024-12-23",
+    "fit_rows": 867,
+    "fit_onsets": 180,
+    "test_rows": 1020,
+    "test_onsets": 209,
+    "onset_rule_k1_cd28": {
+      "selected": 51,
+      "onset_hits": 16,
+      "onset_hit_rate": 0.3137254901960784,
+      "recorded_any_hits": 16,
+      "unknown": 13,
+      "unique_objects": 28,
+      "periods": {
+        "2024": {
+          "selected": 51,
+          "onset_hits": 16,
+          "unknown": 13,
+          "unique_objects": 28
+        }
+      },
+      "onset_recall": 0.07655502392344497
+    },
+    "object_model_k1_cd28": {
+      "selected": 51,
+      "onset_hits": 12,
+      "onset_hit_rate": 0.23529411764705882,
+      "recorded_any_hits": 15,
+      "unknown": 13,
+      "unique_objects": 16,
+      "periods": {
+        "2024": {
+          "selected": 51,
+          "onset_hits": 12,
+          "unknown": 13,
+          "unique_objects": 16
+        }
+      },
+      "onset_recall": 0.05741626794258373
+    },
+    "paired": {
+      "weeks": 51,
+      "extra_hits": -4,
+      "better_weeks": 6,
+      "worse_weeks": 10,
+      "equal_weeks": 35,
+      "bootstrap_95pct_extra_hits": [
+        -12,
+        4
+      ],
+      "bootstrap_month_95pct_extra_hits": [
+        -10,
+        2
+      ],
+      "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+    }
+  },
+  "simple_models": {
+    "alarm_history_2024": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age"
+      ],
+      "fit_rows": 867,
+      "standardized_coefficients": {
+        "exact_count_7": -0.288578063249588,
+        "exact_count_30": 0.09056241810321808,
+        "exact_age": 0.12402833253145218
+      },
+      "k1": {
+        "rule": {
+          "selected": 51,
+          "onset_hits": 16,
+          "onset_hit_rate": 0.3137254901960784,
+          "recorded_any_hits": 16,
+          "unknown": 13,
+          "unique_objects": 28,
+          "periods": {
+            "2024": {
+              "selected": 51,
+              "onset_hits": 16,
+              "unknown": 13,
+              "unique_objects": 28
+            }
+          },
+          "onset_recall": 0.07655502392344497
+        },
+        "model": {
+          "selected": 51,
+          "onset_hits": 16,
+          "onset_hit_rate": 0.3137254901960784,
+          "recorded_any_hits": 17,
+          "unknown": 20,
+          "unique_objects": 28,
+          "periods": {
+            "2024": {
+              "selected": 51,
+              "onset_hits": 16,
+              "unknown": 20,
+              "unique_objects": 28
+            }
+          },
+          "onset_recall": 0.07655502392344497
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 0,
+          "better_weeks": 9,
+          "worse_weeks": 9,
+          "equal_weeks": 33,
+          "bootstrap_95pct_extra_hits": [
+            -8,
+            8
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -7,
+            7
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 201,
+          "onset_hits": 45,
+          "onset_hit_rate": 0.22388059701492538,
+          "recorded_any_hits": 59,
+          "unknown": 63,
+          "unique_objects": 44,
+          "periods": {
+            "2024": {
+              "selected": 201,
+              "onset_hits": 45,
+              "unknown": 63,
+              "unique_objects": 44
+            }
+          },
+          "onset_recall": 0.215311004784689
+        },
+        "model": {
+          "selected": 200,
+          "onset_hits": 52,
+          "onset_hit_rate": 0.26,
+          "recorded_any_hits": 63,
+          "unknown": 56,
+          "unique_objects": 40,
+          "periods": {
+            "2024": {
+              "selected": 200,
+              "onset_hits": 52,
+              "unknown": 56,
+              "unique_objects": 40
+            }
+          },
+          "onset_recall": 0.24880382775119617
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 7,
+          "better_weeks": 17,
+          "worse_weeks": 10,
+          "equal_weeks": 24,
+          "bootstrap_95pct_extra_hits": [
+            -4,
+            18
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            1,
+            13
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_history_2025_2026": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age"
+      ],
+      "fit_rows": 1904,
+      "standardized_coefficients": {
+        "exact_count_7": -0.4029015302658081,
+        "exact_count_30": 0.3520583510398865,
+        "exact_age": 0.16077783703804016
+      },
+      "k1": {
+        "rule": {
+          "selected": 76,
+          "onset_hits": 21,
+          "onset_hit_rate": 0.27631578947368424,
+          "recorded_any_hits": 25,
+          "unknown": 16,
+          "unique_objects": 32,
+          "periods": {
+            "2025": {
+              "selected": 52,
+              "onset_hits": 11,
+              "unknown": 12,
+              "unique_objects": 29
+            },
+            "2026": {
+              "selected": 24,
+              "onset_hits": 10,
+              "unknown": 4,
+              "unique_objects": 16
+            }
+          },
+          "onset_recall": 0.07167235494880546
+        },
+        "model": {
+          "selected": 76,
+          "onset_hits": 37,
+          "onset_hit_rate": 0.4868421052631579,
+          "recorded_any_hits": 44,
+          "unknown": 12,
+          "unique_objects": 23,
+          "periods": {
+            "2025": {
+              "selected": 52,
+              "onset_hits": 25,
+              "unknown": 8,
+              "unique_objects": 22
+            },
+            "2026": {
+              "selected": 24,
+              "onset_hits": 12,
+              "unknown": 4,
+              "unique_objects": 14
+            }
+          },
+          "onset_recall": 0.12627986348122866
+        },
+        "paired": {
+          "weeks": 76,
+          "extra_hits": 16,
+          "better_weeks": 21,
+          "worse_weeks": 5,
+          "equal_weeks": 50,
+          "bootstrap_95pct_extra_hits": [
+            7,
+            25
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            8,
+            24
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 302,
+          "onset_hits": 73,
+          "onset_hit_rate": 0.24172185430463577,
+          "recorded_any_hits": 99,
+          "unknown": 83,
+          "unique_objects": 42,
+          "periods": {
+            "2025": {
+              "selected": 208,
+              "onset_hits": 48,
+              "unknown": 59,
+              "unique_objects": 41
+            },
+            "2026": {
+              "selected": 94,
+              "onset_hits": 25,
+              "unknown": 24,
+              "unique_objects": 31
+            }
+          },
+          "onset_recall": 0.24914675767918087
+        },
+        "model": {
+          "selected": 302,
+          "onset_hits": 75,
+          "onset_hit_rate": 0.24834437086092714,
+          "recorded_any_hits": 106,
+          "unknown": 68,
+          "unique_objects": 41,
+          "periods": {
+            "2025": {
+              "selected": 207,
+              "onset_hits": 50,
+              "unknown": 49,
+              "unique_objects": 40
+            },
+            "2026": {
+              "selected": 95,
+              "onset_hits": 25,
+              "unknown": 19,
+              "unique_objects": 29
+            }
+          },
+          "onset_recall": 0.25597269624573377
+        },
+        "paired": {
+          "weeks": 76,
+          "extra_hits": 2,
+          "better_weeks": 20,
+          "worse_weeks": 19,
+          "equal_weeks": 37,
+          "bootstrap_95pct_extra_hits": [
+            -11,
+            16
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -10,
+            14
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_history_2025": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age"
+      ],
+      "fit_rows": 1904,
+      "standardized_coefficients": {
+        "exact_count_7": -0.4029015302658081,
+        "exact_count_30": 0.3520583510398865,
+        "exact_age": 0.16077783703804016
+      },
+      "k1": {
+        "rule": {
+          "selected": 51,
+          "onset_hits": 11,
+          "onset_hit_rate": 0.21568627450980393,
+          "recorded_any_hits": 15,
+          "unknown": 12,
+          "unique_objects": 28,
+          "periods": {
+            "2025": {
+              "selected": 51,
+              "onset_hits": 11,
+              "unknown": 12,
+              "unique_objects": 28
+            }
+          },
+          "onset_recall": 0.05472636815920398
+        },
+        "model": {
+          "selected": 51,
+          "onset_hits": 25,
+          "onset_hit_rate": 0.49019607843137253,
+          "recorded_any_hits": 28,
+          "unknown": 7,
+          "unique_objects": 22,
+          "periods": {
+            "2025": {
+              "selected": 51,
+              "onset_hits": 25,
+              "unknown": 7,
+              "unique_objects": 22
+            }
+          },
+          "onset_recall": 0.12437810945273632
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 14,
+          "better_weeks": 16,
+          "worse_weeks": 2,
+          "equal_weeks": 33,
+          "bootstrap_95pct_extra_hits": [
+            6,
+            21
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            9,
+            19
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 204,
+          "onset_hits": 48,
+          "onset_hit_rate": 0.23529411764705882,
+          "recorded_any_hits": 64,
+          "unknown": 58,
+          "unique_objects": 41,
+          "periods": {
+            "2025": {
+              "selected": 204,
+              "onset_hits": 48,
+              "unknown": 58,
+              "unique_objects": 41
+            }
+          },
+          "onset_recall": 0.23880597014925373
+        },
+        "model": {
+          "selected": 203,
+          "onset_hits": 49,
+          "onset_hit_rate": 0.2413793103448276,
+          "recorded_any_hits": 66,
+          "unknown": 47,
+          "unique_objects": 40,
+          "periods": {
+            "2025": {
+              "selected": 203,
+              "onset_hits": 49,
+              "unknown": 47,
+              "unique_objects": 40
+            }
+          },
+          "onset_recall": 0.24378109452736318
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 1,
+          "better_weeks": 15,
+          "worse_weeks": 15,
+          "equal_weeks": 21,
+          "bootstrap_95pct_extra_hits": [
+            -11,
+            13
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -11,
+            12
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_history_2026": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age"
+      ],
+      "fit_rows": 2923,
+      "standardized_coefficients": {
+        "exact_count_7": -0.4055992364883423,
+        "exact_count_30": 0.38822320103645325,
+        "exact_age": 0.14969712495803833
+      },
+      "k1": {
+        "rule": {
+          "selected": 24,
+          "onset_hits": 10,
+          "onset_hit_rate": 0.4166666666666667,
+          "recorded_any_hits": 10,
+          "unknown": 4,
+          "unique_objects": 16,
+          "periods": {
+            "2026": {
+              "selected": 24,
+              "onset_hits": 10,
+              "unknown": 4,
+              "unique_objects": 16
+            }
+          },
+          "onset_recall": 0.1111111111111111
+        },
+        "model": {
+          "selected": 24,
+          "onset_hits": 12,
+          "onset_hit_rate": 0.5,
+          "recorded_any_hits": 16,
+          "unknown": 4,
+          "unique_objects": 14,
+          "periods": {
+            "2026": {
+              "selected": 24,
+              "onset_hits": 12,
+              "unknown": 4,
+              "unique_objects": 14
+            }
+          },
+          "onset_recall": 0.13333333333333333
+        },
+        "paired": {
+          "weeks": 24,
+          "extra_hits": 2,
+          "better_weeks": 5,
+          "worse_weeks": 3,
+          "equal_weeks": 16,
+          "bootstrap_95pct_extra_hits": [
+            -3,
+            8
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -3,
+            7
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 96,
+          "onset_hits": 23,
+          "onset_hit_rate": 0.23958333333333334,
+          "recorded_any_hits": 34,
+          "unknown": 20,
+          "unique_objects": 30,
+          "periods": {
+            "2026": {
+              "selected": 96,
+              "onset_hits": 23,
+              "unknown": 20,
+              "unique_objects": 30
+            }
+          },
+          "onset_recall": 0.25555555555555554
+        },
+        "model": {
+          "selected": 95,
+          "onset_hits": 23,
+          "onset_hit_rate": 0.24210526315789474,
+          "recorded_any_hits": 35,
+          "unknown": 21,
+          "unique_objects": 30,
+          "periods": {
+            "2026": {
+              "selected": 95,
+              "onset_hits": 23,
+              "unknown": 21,
+              "unique_objects": 30
+            }
+          },
+          "onset_recall": 0.25555555555555554
+        },
+        "paired": {
+          "weeks": 24,
+          "extra_hits": 0,
+          "better_weeks": 3,
+          "worse_weeks": 3,
+          "equal_weeks": 18,
+          "bootstrap_95pct_extra_hits": [
+            -5,
+            5
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -3,
+            3
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_and_telemetry_2024": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age",
+        "days_since_arm_event",
+        "n_channels",
+        "n_intrusion",
+        "n_alarms_w30",
+        "n_bad_w30"
+      ],
+      "fit_rows": 867,
+      "standardized_coefficients": {
+        "exact_count_7": -0.2826312780380249,
+        "exact_count_30": 0.05804773047566414,
+        "exact_age": 0.12771230936050415,
+        "days_since_arm_event": 0.15984709560871124,
+        "n_channels": 0.22211702167987823,
+        "n_intrusion": -0.06875817477703094,
+        "n_alarms_w30": 0.09420691430568695,
+        "n_bad_w30": -0.28373971581459045
+      },
+      "k1": {
+        "rule": {
+          "selected": 51,
+          "onset_hits": 16,
+          "onset_hit_rate": 0.3137254901960784,
+          "recorded_any_hits": 16,
+          "unknown": 13,
+          "unique_objects": 28,
+          "periods": {
+            "2024": {
+              "selected": 51,
+              "onset_hits": 16,
+              "unknown": 13,
+              "unique_objects": 28
+            }
+          },
+          "onset_recall": 0.07655502392344497
+        },
+        "model": {
+          "selected": 51,
+          "onset_hits": 14,
+          "onset_hit_rate": 0.27450980392156865,
+          "recorded_any_hits": 18,
+          "unknown": 16,
+          "unique_objects": 26,
+          "periods": {
+            "2024": {
+              "selected": 51,
+              "onset_hits": 14,
+              "unknown": 16,
+              "unique_objects": 26
+            }
+          },
+          "onset_recall": 0.06698564593301436
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": -2,
+          "better_weeks": 9,
+          "worse_weeks": 11,
+          "equal_weeks": 31,
+          "bootstrap_95pct_extra_hits": [
+            -11,
+            7
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -8,
+            4
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 201,
+          "onset_hits": 45,
+          "onset_hit_rate": 0.22388059701492538,
+          "recorded_any_hits": 59,
+          "unknown": 63,
+          "unique_objects": 44,
+          "periods": {
+            "2024": {
+              "selected": 201,
+              "onset_hits": 45,
+              "unknown": 63,
+              "unique_objects": 44
+            }
+          },
+          "onset_recall": 0.215311004784689
+        },
+        "model": {
+          "selected": 202,
+          "onset_hits": 48,
+          "onset_hit_rate": 0.2376237623762376,
+          "recorded_any_hits": 66,
+          "unknown": 68,
+          "unique_objects": 45,
+          "periods": {
+            "2024": {
+              "selected": 202,
+              "onset_hits": 48,
+              "unknown": 68,
+              "unique_objects": 45
+            }
+          },
+          "onset_recall": 0.22966507177033493
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 3,
+          "better_weeks": 14,
+          "worse_weeks": 10,
+          "equal_weeks": 27,
+          "bootstrap_95pct_extra_hits": [
+            -8,
+            14
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -7,
+            13
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_and_telemetry_2025_2026": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age",
+        "days_since_arm_event",
+        "n_channels",
+        "n_intrusion",
+        "n_alarms_w30",
+        "n_bad_w30"
+      ],
+      "fit_rows": 1904,
+      "standardized_coefficients": {
+        "exact_count_7": -0.41129061579704285,
+        "exact_count_30": 0.31748417019844055,
+        "exact_age": 0.1652936190366745,
+        "days_since_arm_event": 0.02080252766609192,
+        "n_channels": 0.038239121437072754,
+        "n_intrusion": -0.14894942939281464,
+        "n_alarms_w30": 0.12273641675710678,
+        "n_bad_w30": 0.07208842039108276
+      },
+      "k1": {
+        "rule": {
+          "selected": 76,
+          "onset_hits": 21,
+          "onset_hit_rate": 0.27631578947368424,
+          "recorded_any_hits": 25,
+          "unknown": 16,
+          "unique_objects": 32,
+          "periods": {
+            "2025": {
+              "selected": 52,
+              "onset_hits": 11,
+              "unknown": 12,
+              "unique_objects": 29
+            },
+            "2026": {
+              "selected": 24,
+              "onset_hits": 10,
+              "unknown": 4,
+              "unique_objects": 16
+            }
+          },
+          "onset_recall": 0.07167235494880546
+        },
+        "model": {
+          "selected": 76,
+          "onset_hits": 32,
+          "onset_hit_rate": 0.42105263157894735,
+          "recorded_any_hits": 41,
+          "unknown": 17,
+          "unique_objects": 22,
+          "periods": {
+            "2025": {
+              "selected": 52,
+              "onset_hits": 22,
+              "unknown": 12,
+              "unique_objects": 21
+            },
+            "2026": {
+              "selected": 24,
+              "onset_hits": 10,
+              "unknown": 5,
+              "unique_objects": 13
+            }
+          },
+          "onset_recall": 0.10921501706484642
+        },
+        "paired": {
+          "weeks": 76,
+          "extra_hits": 11,
+          "better_weeks": 20,
+          "worse_weeks": 9,
+          "equal_weeks": 47,
+          "bootstrap_95pct_extra_hits": [
+            1,
+            21
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            0,
+            22
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 302,
+          "onset_hits": 73,
+          "onset_hit_rate": 0.24172185430463577,
+          "recorded_any_hits": 99,
+          "unknown": 83,
+          "unique_objects": 42,
+          "periods": {
+            "2025": {
+              "selected": 208,
+              "onset_hits": 48,
+              "unknown": 59,
+              "unique_objects": 41
+            },
+            "2026": {
+              "selected": 94,
+              "onset_hits": 25,
+              "unknown": 24,
+              "unique_objects": 31
+            }
+          },
+          "onset_recall": 0.24914675767918087
+        },
+        "model": {
+          "selected": 303,
+          "onset_hits": 85,
+          "onset_hit_rate": 0.28052805280528054,
+          "recorded_any_hits": 116,
+          "unknown": 62,
+          "unique_objects": 41,
+          "periods": {
+            "2025": {
+              "selected": 208,
+              "onset_hits": 59,
+              "unknown": 43,
+              "unique_objects": 41
+            },
+            "2026": {
+              "selected": 95,
+              "onset_hits": 26,
+              "unknown": 19,
+              "unique_objects": 31
+            }
+          },
+          "onset_recall": 0.2901023890784983
+        },
+        "paired": {
+          "weeks": 76,
+          "extra_hits": 12,
+          "better_weeks": 27,
+          "worse_weeks": 19,
+          "equal_weeks": 30,
+          "bootstrap_95pct_extra_hits": [
+            -4,
+            28
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -7,
+            32
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_and_telemetry_2025": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age",
+        "days_since_arm_event",
+        "n_channels",
+        "n_intrusion",
+        "n_alarms_w30",
+        "n_bad_w30"
+      ],
+      "fit_rows": 1904,
+      "standardized_coefficients": {
+        "exact_count_7": -0.41129061579704285,
+        "exact_count_30": 0.31748417019844055,
+        "exact_age": 0.1652936190366745,
+        "days_since_arm_event": 0.02080252766609192,
+        "n_channels": 0.038239121437072754,
+        "n_intrusion": -0.14894942939281464,
+        "n_alarms_w30": 0.12273641675710678,
+        "n_bad_w30": 0.07208842039108276
+      },
+      "k1": {
+        "rule": {
+          "selected": 51,
+          "onset_hits": 11,
+          "onset_hit_rate": 0.21568627450980393,
+          "recorded_any_hits": 15,
+          "unknown": 12,
+          "unique_objects": 28,
+          "periods": {
+            "2025": {
+              "selected": 51,
+              "onset_hits": 11,
+              "unknown": 12,
+              "unique_objects": 28
+            }
+          },
+          "onset_recall": 0.05472636815920398
+        },
+        "model": {
+          "selected": 51,
+          "onset_hits": 22,
+          "onset_hit_rate": 0.43137254901960786,
+          "recorded_any_hits": 26,
+          "unknown": 11,
+          "unique_objects": 20,
+          "periods": {
+            "2025": {
+              "selected": 51,
+              "onset_hits": 22,
+              "unknown": 11,
+              "unique_objects": 20
+            }
+          },
+          "onset_recall": 0.10945273631840796
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 11,
+          "better_weeks": 15,
+          "worse_weeks": 4,
+          "equal_weeks": 32,
+          "bootstrap_95pct_extra_hits": [
+            3,
+            19
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            3,
+            18
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 204,
+          "onset_hits": 48,
+          "onset_hit_rate": 0.23529411764705882,
+          "recorded_any_hits": 64,
+          "unknown": 58,
+          "unique_objects": 41,
+          "periods": {
+            "2025": {
+              "selected": 204,
+              "onset_hits": 48,
+              "unknown": 58,
+              "unique_objects": 41
+            }
+          },
+          "onset_recall": 0.23880597014925373
+        },
+        "model": {
+          "selected": 204,
+          "onset_hits": 58,
+          "onset_hit_rate": 0.28431372549019607,
+          "recorded_any_hits": 74,
+          "unknown": 41,
+          "unique_objects": 41,
+          "periods": {
+            "2025": {
+              "selected": 204,
+              "onset_hits": 58,
+              "unknown": 41,
+              "unique_objects": 41
+            }
+          },
+          "onset_recall": 0.2885572139303483
+        },
+        "paired": {
+          "weeks": 51,
+          "extra_hits": 10,
+          "better_weeks": 20,
+          "worse_weeks": 14,
+          "equal_weeks": 17,
+          "bootstrap_95pct_extra_hits": [
+            -4,
+            25
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -8,
+            29
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    },
+    "alarm_and_telemetry_2026": {
+      "features": [
+        "exact_count_7",
+        "exact_count_30",
+        "exact_age",
+        "days_since_arm_event",
+        "n_channels",
+        "n_intrusion",
+        "n_alarms_w30",
+        "n_bad_w30"
+      ],
+      "fit_rows": 2923,
+      "standardized_coefficients": {
+        "exact_count_7": -0.4043309688568115,
+        "exact_count_30": 0.36086952686309814,
+        "exact_age": 0.1576499491930008,
+        "days_since_arm_event": -0.008574044331908226,
+        "n_channels": 0.06217527762055397,
+        "n_intrusion": -0.14817334711551666,
+        "n_alarms_w30": 0.01626635156571865,
+        "n_bad_w30": 0.06336025148630142
+      },
+      "k1": {
+        "rule": {
+          "selected": 24,
+          "onset_hits": 10,
+          "onset_hit_rate": 0.4166666666666667,
+          "recorded_any_hits": 10,
+          "unknown": 4,
+          "unique_objects": 16,
+          "periods": {
+            "2026": {
+              "selected": 24,
+              "onset_hits": 10,
+              "unknown": 4,
+              "unique_objects": 16
+            }
+          },
+          "onset_recall": 0.1111111111111111
+        },
+        "model": {
+          "selected": 24,
+          "onset_hits": 10,
+          "onset_hit_rate": 0.4166666666666667,
+          "recorded_any_hits": 16,
+          "unknown": 4,
+          "unique_objects": 14,
+          "periods": {
+            "2026": {
+              "selected": 24,
+              "onset_hits": 10,
+              "unknown": 4,
+              "unique_objects": 14
+            }
+          },
+          "onset_recall": 0.1111111111111111
+        },
+        "paired": {
+          "weeks": 24,
+          "extra_hits": 0,
+          "better_weeks": 5,
+          "worse_weeks": 5,
+          "equal_weeks": 14,
+          "bootstrap_95pct_extra_hits": [
+            -6,
+            6
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -7,
+            7
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      },
+      "k4": {
+        "rule": {
+          "selected": 96,
+          "onset_hits": 23,
+          "onset_hit_rate": 0.23958333333333334,
+          "recorded_any_hits": 34,
+          "unknown": 20,
+          "unique_objects": 30,
+          "periods": {
+            "2026": {
+              "selected": 96,
+              "onset_hits": 23,
+              "unknown": 20,
+              "unique_objects": 30
+            }
+          },
+          "onset_recall": 0.25555555555555554
+        },
+        "model": {
+          "selected": 95,
+          "onset_hits": 22,
+          "onset_hit_rate": 0.23157894736842105,
+          "recorded_any_hits": 35,
+          "unknown": 21,
+          "unique_objects": 29,
+          "periods": {
+            "2026": {
+              "selected": 95,
+              "onset_hits": 22,
+              "unknown": 21,
+              "unique_objects": 29
+            }
+          },
+          "onset_recall": 0.24444444444444444
+        },
+        "paired": {
+          "weeks": 24,
+          "extra_hits": -1,
+          "better_weeks": 2,
+          "worse_weeks": 3,
+          "equal_weeks": 19,
+          "bootstrap_95pct_extra_hits": [
+            -6,
+            3
+          ],
+          "bootstrap_month_95pct_extra_hits": [
+            -3,
+            0
+          ],
+          "note": "exploratory paired resampling; reused objects and post-hoc task choice limit inference"
+        }
+      }
+    }
+  }
+}
