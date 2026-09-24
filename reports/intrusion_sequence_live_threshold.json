@@ -1,0 +1,42 @@
+{
+  "note": "threshold-block metrics are selected on this same block",
+  "dates": {
+    "training_end": "2026-03-30",
+    "calibration_start": "2026-05-01",
+    "calibration_end": "2026-05-30",
+    "threshold_start": "2026-05-31",
+    "threshold_end": "2026-06-29"
+  },
+  "variants": [
+    {
+      "name": "baseline",
+      "validation_pr_auc": 0.7091171186492371,
+      "validation_daily_precision": 0.7457627118644068,
+      "threshold_feasible": true,
+      "threshold": 0.2962962962962963,
+      "threshold_precision": 0.75,
+      "threshold_recall": 0.28338762214983715,
+      "threshold_alerts": 116
+    },
+    {
+      "name": "history_tree",
+      "validation_pr_auc": 0.7129774925982898,
+      "validation_daily_precision": 0.7669491525423728,
+      "threshold_feasible": true,
+      "threshold": 0.32893133581726636,
+      "threshold_precision": 0.7719298245614035,
+      "threshold_recall": 0.28664495114006516,
+      "threshold_alerts": 114
+    },
+    {
+      "name": "alarm_history_tree",
+      "validation_pr_auc": 0.7123335393769491,
+      "validation_daily_precision": 0.7542372881355932,
+      "threshold_feasible": true,
+      "threshold": 0.4146341463414634,
+      "threshold_precision": 0.7391304347826086,
+      "threshold_recall": 0.2768729641693811,
+      "threshold_alerts": 115
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "sequence_features": [
+    "seq_n_events_0",
+    "seq_n_alarms_0",
+    "seq_n_bad_0",
+    "seq_temp_max_0",
+    "seq_temp_range_0",
+    "seq_n_events_1",
+    "seq_n_alarms_1",
+    "seq_n_bad_1",
+    "seq_temp_max_1",
+    "seq_temp_range_1",
+    "seq_gap_1",
+    "seq_n_events_2",
+    "seq_n_alarms_2",
+    "seq_n_bad_2",
+    "seq_temp_max_2",
+    "seq_temp_range_2",
+    "seq_gap_2",
+    "seq_n_events_3",
+    "seq_n_alarms_3",
+    "seq_n_bad_3",
+    "seq_temp_max_3",
+    "seq_temp_range_3",
+    "seq_gap_3",
+    "seq_n_events_4",
+    "seq_n_alarms_4",
+    "seq_n_bad_4",
+    "seq_temp_max_4",
+    "seq_temp_range_4",
+    "seq_gap_4",
+    "seq_n_events_5",
+    "seq_n_alarms_5",
+    "seq_n_bad_5",
+    "seq_temp_max_5",
+    "seq_temp_range_5",
+    "seq_gap_5",
+    "seq_n_events_6",
+    "seq_n_alarms_6",
+    "seq_n_bad_6",
+    "seq_temp_max_6",
+    "seq_temp_range_6",
+    "seq_gap_6"
+  ],
+  "n_features": 72,
+  "folds": [
+    {
+      "start": "2025-04-06",
+      "end": "2025-07-04",
+      "n_train": 321570,
+      "n_positive_train": 1818,
+      "mlp_epochs": 17,
+      "mlp": {
+        "n": 40842,
+        "positives": 202,
+        "pr_auc": 0.025194579373115252,
+        "daily_precision": 0.023333333333333334,
+        "daily_recall": 0.10396039603960396
+      },
+      "lightgbm": {
+        "n": 40842,
+        "positives": 202,
+        "pr_auc": 0.08367624256689822,
+        "daily_precision": 0.042222222222222223,
+        "daily_recall": 0.18811881188118812
+      }
+    },
+    {
+      "start": "2025-07-05",
+      "end": "2025-10-02",
+      "n_train": 361641,
+      "n_positive_train": 1995,
+      "mlp_epochs": 18,
+      "mlp": {
+        "n": 41265,
+        "positives": 216,
+        "pr_auc": 0.03356416745303019,
+        "daily_precision": 0.02666666666666667,
+        "daily_recall": 0.1111111111111111
+      },
+      "lightgbm": {
+        "n": 41265,
+        "positives": 216,
+        "pr_auc": 0.052488926440764125,
+        "daily_precision": 0.03777777777777778,
+        "daily_recall": 0.1574074074074074
+      }
+    },
+    {
+      "start": "2025-10-03",
+      "end": "2025-12-31",
+      "n_train": 402902,
+      "n_positive_train": 2145,
+      "mlp_epochs": 25,
+      "mlp": {
+        "n": 38500,
+        "positives": 228,
+        "pr_auc": 0.02998244585707994,
+        "daily_precision": 0.02666666666666667,
+        "daily_recall": 0.10526315789473684
+      },
+      "lightgbm": {
+        "n": 38500,
+        "positives": 228,
+        "pr_auc": 0.07909659518849703,
+        "daily_precision": 0.04666666666666667,
+        "daily_recall": 0.18421052631578946
+      }
+    }
+  ],
+  "mean": {
+    "mlp": {
+      "pr_auc": 0.02958039756107513,
+      "daily_precision": 0.025555555555555557,
+      "daily_recall": 0.10677822168181729
+    },
+    "lightgbm": {
+      "pr_auc": 0.07175392139871979,
+      "daily_precision": 0.042222222222222223,
+      "daily_recall": 0.17657891520146166
+    }
+  }
+}
