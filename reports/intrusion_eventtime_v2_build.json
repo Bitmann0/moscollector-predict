@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "start": "2023-01-01",
+  "end": "2026-06-29",
+  "candidate_rows": 63637,
+  "known_rows": 55572,
+  "positive_rows": 2785,
+  "event_days": 7202
+}

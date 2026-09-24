@@ -29,7 +29,13 @@ sys.stdout.reconfigure(encoding="utf-8")
 START, END = dt.date(2023, 1, 1), dt.date(2025, 12, 30)
 
 
-def build_data():
+def current_candidates(frame: pl.DataFrame) -> pl.DataFrame:
+    """The decision to score uses the current guard state, never tomorrow."""
+    return frame.filter((pl.col("obj_armed") == 1) &
+                        (pl.col("days_since_arm_event") <= 7))
+
+
+def build_data(operational: bool = False):
     cfg = serve.load_heads()["C"]
     base = store.read_slice("object", START, END + dt.timedelta(days=1))
     drop = cfg.get("drop_feature_prefixes") or []
@@ -74,12 +80,21 @@ def build_data():
         y = int((obj, tomorrow) in pos_set)
         eligible = ((obj, tomorrow) in obs_set and
                     (y == 1 or (obj, tomorrow) not in amb_set))
+        known = bool(y or eligible)
         rows.append((obj, day, c1, c7, c30,
                      min((day-pos[right-1]).days, 366) if right else 366,
-                     quiet, eligible, y))
+                     quiet, eligible, known, y))
     extra = pl.DataFrame(rows, schema=["obj", "day", "exact_count_1", "exact_count_7",
-        "exact_count_30", "exact_age", "quiet", "eligible", "exact_y"], orient="row")
+        "exact_count_30", "exact_age", "quiet", "eligible", "known", "exact_y"], orient="row")
     full = full.join(extra, on=["obj", "day"])
+    if operational:
+        data = current_candidates(full.filter(
+            (pl.col("day") >= START + dt.timedelta(days=30)) &
+            (pl.col("day") <= END)
+        )).rename({"exact_y": "y"}).sort(["day", "obj"])
+        feature_cols = [c for c in train.feature_columns(data)
+                        if c not in ("quiet", "eligible", "known")]
+        return data, base_cols, feature_cols, cfg
     con = db.connect()
     db.attach_parquet(con, "daily_channel")
     labels.build_intrusion(con, armed_only=True)
@@ -90,7 +105,7 @@ def build_data():
         pl.col("eligible") & (pl.col("day") >= START + dt.timedelta(days=30)))
     data = data.rename({"exact_y": "y"}).sort(["day", "obj"])
     feature_cols = [c for c in train.feature_columns(data)
-                    if c not in ("legacy_y", "quiet", "eligible")]
+                    if c not in ("legacy_y", "quiet", "eligible", "known")]
     return data, base_cols, feature_cols, cfg
 
 
