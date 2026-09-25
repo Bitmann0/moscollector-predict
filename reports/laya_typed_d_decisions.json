@@ -1,0 +1,40 @@
+{
+  "candidate_count": 360,
+  "known_count": 360,
+  "unknown_count": 0,
+  "needs_review_top_half": {
+    "alerts": 360,
+    "hits": 337,
+    "precision": 0.9361111111111111,
+    "lift_vs_shortlist": 1.0
+  },
+  "action_manual_or_urgent": {
+    "alerts": 277,
+    "hits": 257,
+    "precision": 0.927797833935018,
+    "lift_vs_shortlist": 0.9911193478237581
+  },
+  "outcome_new_signal": {
+    "alerts": 360,
+    "hits": 337,
+    "precision": 0.9361111111111111,
+    "lift_vs_shortlist": 1.0
+  },
+  "action_counts": {
+    "manual_review": 277,
+    "monitor": 83
+  },
+  "outcome_counts": {
+    "new_signal": 360
+  },
+  "risk_band_counts": {
+    "1": 360
+  },
+  "urgency_band_counts": {
+    "1": 360
+  },
+  "shortlist_positive_rate": 0.9361111111111111,
+  "batch_seconds": 1260.3979253749858,
+  "model_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+  "question_hash": "31db22fca4964551"
+}
