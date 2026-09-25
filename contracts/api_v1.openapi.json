@@ -1,0 +1,4542 @@
+{
+  "components": {
+    "schemas": {
+      "AuditItem": {
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "status": {
+            "title": "Status",
+            "type": "integer"
+          },
+          "ts": {
+            "format": "date-time",
+            "title": "Ts",
+            "type": "string"
+          },
+          "user_login": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Login"
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "method",
+          "path",
+          "status"
+        ],
+        "title": "AuditItem",
+        "type": "object"
+      },
+      "Body_ingest_file_api_v1_ingest_events_upload_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_ingest_file_api_v1_ingest_events_upload_post",
+        "type": "object"
+      },
+      "CalendarInfo": {
+        "properties": {
+          "holiday": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Holiday"
+          },
+          "weekday": {
+            "title": "Weekday",
+            "type": "integer"
+          },
+          "weekday_title": {
+            "title": "Weekday Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "weekday",
+          "weekday_title"
+        ],
+        "title": "CalendarInfo",
+        "type": "object"
+      },
+      "ChannelRef": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "picket_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Picket Label"
+          },
+          "sensor_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Type"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "ChannelRef",
+        "type": "object"
+      },
+      "DashboardSummary": {
+        "properties": {
+          "alarms_24h": {
+            "title": "Alarms 24H",
+            "type": "integer"
+          },
+          "demo_today": {
+            "format": "date",
+            "title": "Demo Today",
+            "type": "string"
+          },
+          "heads": {
+            "items": {
+              "$ref": "#/components/schemas/HeadState"
+            },
+            "title": "Heads",
+            "type": "array"
+          },
+          "planned_like_alarms_24h": {
+            "title": "Planned Like Alarms 24H",
+            "type": "integer"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioKpi"
+            },
+            "title": "Scenarios",
+            "type": "array"
+          },
+          "series_coverage_per_day": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesPoint"
+            },
+            "title": "Series Coverage Per Day",
+            "type": "array"
+          },
+          "series_forecasts_per_day": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesPoint"
+            },
+            "title": "Series Forecasts Per Day",
+            "type": "array"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "work_orders_by_status": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Work Orders By Status",
+            "type": "object"
+          }
+        },
+        "required": [
+          "demo_today",
+          "scenarios",
+          "work_orders_by_status",
+          "alarms_24h",
+          "planned_like_alarms_24h",
+          "heads",
+          "series_forecasts_per_day",
+          "series_coverage_per_day",
+          "source"
+        ],
+        "title": "DashboardSummary",
+        "type": "object"
+      },
+      "DecisionIn": {
+        "properties": {
+          "action": {
+            "enum": [
+              "dispatch_crew",
+              "remote_check",
+              "defer",
+              "reject"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "reason_code": {
+            "enum": [
+              "false_alarm",
+              "planned_works",
+              "sensor_fault",
+              "duplicate",
+              "confirmed_by_readings",
+              "confirmed_by_camera",
+              "preventive",
+              "no_crew",
+              "await_data"
+            ],
+            "title": "Reason Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "reason_code"
+        ],
+        "title": "DecisionIn",
+        "type": "object"
+      },
+      "DecisionOut": {
+        "properties": {
+          "action": {
+            "enum": [
+              "dispatch_crew",
+              "remote_check",
+              "defer",
+              "reject"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "author": {
+            "title": "Author",
+            "type": "string"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "reason_code": {
+            "enum": [
+              "false_alarm",
+              "planned_works",
+              "sensor_fault",
+              "duplicate",
+              "confirmed_by_readings",
+              "confirmed_by_camera",
+              "preventive",
+              "no_crew",
+              "await_data"
+            ],
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "reason_code",
+          "author",
+          "created_at",
+          "source"
+        ],
+        "title": "DecisionOut",
+        "type": "object"
+      },
+      "DynamicsPoint": {
+        "properties": {
+          "alarms": {
+            "title": "Alarms",
+            "type": "integer"
+          },
+          "bad_states": {
+            "title": "Bad States",
+            "type": "integer"
+          },
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          }
+        },
+        "required": [
+          "day",
+          "alarms",
+          "bad_states"
+        ],
+        "title": "DynamicsPoint",
+        "type": "object"
+      },
+      "EventItem": {
+        "description": "Строка журнала событий (форма Приложения 2 ТЗ).",
+        "properties": {
+          "alarm": {
+            "title": "Alarm",
+            "type": "boolean"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/ChannelRef"
+          },
+          "event_class": {
+            "enum": [
+              "normal",
+              "warning",
+              "alarm",
+              "critical",
+              "fault",
+              "service"
+            ],
+            "title": "Event Class",
+            "type": "string"
+          },
+          "event_class_title": {
+            "title": "Event Class Title",
+            "type": "string"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hint"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "object": {
+            "$ref": "#/components/schemas/ObjectRef"
+          },
+          "sensor_event": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Event"
+          },
+          "ts": {
+            "format": "date-time",
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "object",
+          "channel",
+          "event_class",
+          "event_class_title",
+          "alarm"
+        ],
+        "title": "EventItem",
+        "type": "object"
+      },
+      "EventRowIn": {
+        "description": "Строка журнала СМВУ в формате журнал_событий_пример.csv (C5).",
+        "properties": {
+          "время": {
+            "title": "Время",
+            "type": "string"
+          },
+          "дата": {
+            "title": "Дата",
+            "type": "string"
+          },
+          "значение_датчика": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Значение Датчика"
+          },
+          "ид_канала_данных": {
+            "title": "Ид Канала Данных",
+            "type": "integer"
+          },
+          "ид_события": {
+            "title": "Ид События",
+            "type": "integer"
+          },
+          "тревожное": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "Тревожное"
+          }
+        },
+        "required": [
+          "ид_события",
+          "ид_канала_данных",
+          "дата",
+          "время",
+          "тревожное"
+        ],
+        "title": "EventRowIn",
+        "type": "object"
+      },
+      "FactorItem": {
+        "properties": {
+          "contribution": {
+            "title": "Contribution",
+            "type": "number"
+          },
+          "feature": {
+            "title": "Feature",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature",
+          "label",
+          "contribution"
+        ],
+        "title": "FactorItem",
+        "type": "object"
+      },
+      "FeatureCollection": {
+        "description": "Условная схема (ТЗ §7 GeoJSON). Координаты не географические — см. properties.note.",
+        "properties": {
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/GeoFeature"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "Properties",
+            "type": "object"
+          },
+          "type": {
+            "const": "FeatureCollection",
+            "default": "FeatureCollection",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "features",
+          "properties"
+        ],
+        "title": "FeatureCollection",
+        "type": "object"
+      },
+      "ForecastCard": {
+        "properties": {
+          "asof": {
+            "format": "date",
+            "title": "Asof",
+            "type": "string"
+          },
+          "calendar": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CalendarInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "case_key": {
+            "title": "Case Key",
+            "type": "string"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChannelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coverage_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Note"
+          },
+          "data_status": {
+            "enum": [
+              "ok",
+              "no_data",
+              "stale"
+            ],
+            "title": "Data Status",
+            "type": "string"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionOut"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
+          "dynamics_30d": {
+            "items": {
+              "$ref": "#/components/schemas/DynamicsPoint"
+            },
+            "title": "Dynamics 30D",
+            "type": "array"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence"
+          },
+          "factors": {
+            "items": {
+              "$ref": "#/components/schemas/FactorItem"
+            },
+            "title": "Factors",
+            "type": "array"
+          },
+          "head": {
+            "title": "Head",
+            "type": "string"
+          },
+          "horizon_hours": {
+            "title": "Horizon Hours",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "alert",
+              "weekly_recommendation"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "object": {
+            "$ref": "#/components/schemas/ObjectRef"
+          },
+          "outcome_auto": {
+            "anyOf": [
+              {
+                "enum": [
+                  "hit",
+                  "miss",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Auto"
+          },
+          "outcome_manual": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed_event",
+                  "sensor_fault",
+                  "normal_activation",
+                  "no_event",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Manual"
+          },
+          "priority_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Score"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "recent_alarm_days_30": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recent Alarm Days 30"
+          },
+          "recent_alarm_days_7": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recent Alarm Days 7"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "scenario_title": {
+            "title": "Scenario Title",
+            "type": "string"
+          },
+          "score_type": {
+            "enum": [
+              "probability",
+              "relative_priority"
+            ],
+            "title": "Score Type",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_to": {
+            "format": "date-time",
+            "title": "Valid To",
+            "type": "string"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/VersionItem"
+            },
+            "title": "Versions",
+            "type": "array"
+          },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Id"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "scenario",
+          "scenario_title",
+          "head",
+          "asof",
+          "valid_from",
+          "valid_to",
+          "horizon_hours",
+          "score_type",
+          "rank",
+          "object",
+          "data_status",
+          "source",
+          "case_key"
+        ],
+        "title": "ForecastCard",
+        "type": "object"
+      },
+      "ForecastItem": {
+        "properties": {
+          "asof": {
+            "format": "date",
+            "title": "Asof",
+            "type": "string"
+          },
+          "case_key": {
+            "title": "Case Key",
+            "type": "string"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChannelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_status": {
+            "enum": [
+              "ok",
+              "no_data",
+              "stale"
+            ],
+            "title": "Data Status",
+            "type": "string"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "head": {
+            "title": "Head",
+            "type": "string"
+          },
+          "horizon_hours": {
+            "title": "Horizon Hours",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "alert",
+              "weekly_recommendation"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "object": {
+            "$ref": "#/components/schemas/ObjectRef"
+          },
+          "outcome_auto": {
+            "anyOf": [
+              {
+                "enum": [
+                  "hit",
+                  "miss",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Auto"
+          },
+          "outcome_manual": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed_event",
+                  "sensor_fault",
+                  "normal_activation",
+                  "no_event",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Manual"
+          },
+          "priority_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Score"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "scenario_title": {
+            "title": "Scenario Title",
+            "type": "string"
+          },
+          "score_type": {
+            "enum": [
+              "probability",
+              "relative_priority"
+            ],
+            "title": "Score Type",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_to": {
+            "format": "date-time",
+            "title": "Valid To",
+            "type": "string"
+          },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Id"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "scenario",
+          "scenario_title",
+          "head",
+          "asof",
+          "valid_from",
+          "valid_to",
+          "horizon_hours",
+          "score_type",
+          "rank",
+          "object",
+          "data_status",
+          "source",
+          "case_key"
+        ],
+        "title": "ForecastItem",
+        "type": "object"
+      },
+      "GeoFeature": {
+        "properties": {
+          "geometry": {
+            "additionalProperties": true,
+            "title": "Geometry",
+            "type": "object"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "Properties",
+            "type": "object"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "geometry",
+          "properties"
+        ],
+        "title": "GeoFeature",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HeadRunResult": {
+        "properties": {
+          "alerts_in_budget": {
+            "title": "Alerts In Budget",
+            "type": "integer"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "result_status": {
+            "enum": [
+              "ok",
+              "empty_valid",
+              "no_data",
+              "stale",
+              "error"
+            ],
+            "title": "Result Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result_status",
+          "alerts_in_budget"
+        ],
+        "title": "HeadRunResult",
+        "type": "object"
+      },
+      "HeadState": {
+        "description": "Статус сценария по последнему прогону: FE-10 показывает его отдельным состоянием.",
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "head": {
+            "title": "Head",
+            "type": "string"
+          },
+          "model_lag_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Lag Days"
+          },
+          "result_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ok",
+                  "empty_valid",
+                  "no_data",
+                  "stale",
+                  "error"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Status"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "threshold_feasible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Feasible"
+          }
+        },
+        "required": [
+          "scenario",
+          "head"
+        ],
+        "title": "HeadState",
+        "type": "object"
+      },
+      "HistoryItem": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "author": {
+            "title": "Author",
+            "type": "string"
+          },
+          "from_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "draft",
+                  "confirmed",
+                  "in_progress",
+                  "completed",
+                  "cancelled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "to_status": {
+            "enum": [
+              "draft",
+              "confirmed",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "title": "To Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "to_status",
+          "author",
+          "at"
+        ],
+        "title": "HistoryItem",
+        "type": "object"
+      },
+      "IngestBatchOut": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "batch_id": {
+            "title": "Batch Id",
+            "type": "integer"
+          },
+          "duplicates": {
+            "title": "Duplicates",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "smvu",
+              "ods",
+              "reset"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "outside_demo_window": {
+            "title": "Outside Demo Window",
+            "type": "integer"
+          },
+          "received_at": {
+            "format": "date-time",
+            "title": "Received At",
+            "type": "string"
+          },
+          "rejected": {
+            "title": "Rejected",
+            "type": "integer"
+          },
+          "rows_total": {
+            "title": "Rows Total",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "partial",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "kind",
+          "received_at",
+          "rows_total",
+          "accepted",
+          "duplicates",
+          "rejected",
+          "outside_demo_window",
+          "status"
+        ],
+        "title": "IngestBatchOut",
+        "type": "object"
+      },
+      "LastRun": {
+        "properties": {
+          "asof": {
+            "format": "date",
+            "title": "Asof",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "asof",
+          "kind"
+        ],
+        "title": "LastRun",
+        "type": "object"
+      },
+      "LoginIn": {
+        "properties": {
+          "login": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Login",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "login",
+          "password"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "MlReady": {
+        "properties": {
+          "data_last_day": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Last Day"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "reachable": {
+            "title": "Reachable",
+            "type": "boolean"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "required": [
+          "reachable"
+        ],
+        "title": "MlReady",
+        "type": "object"
+      },
+      "NotificationItem": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "alert.new",
+              "event.alarm",
+              "run.finished",
+              "workorder.changed"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "read": {
+            "default": false,
+            "title": "Read",
+            "type": "boolean"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "ts": {
+            "format": "date-time",
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "kind",
+          "severity",
+          "title"
+        ],
+        "title": "NotificationItem",
+        "type": "object"
+      },
+      "ObjectRef": {
+        "properties": {
+          "complex_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Complex Id"
+          },
+          "complex_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Complex Name"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "kind_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind Ru"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "ObjectRef",
+        "type": "object"
+      },
+      "OdsRowIn": {
+        "description": "Запись журнала ОДС (ТЗ §7) для /ingest/ods-journal.",
+        "properties": {
+          "decision": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "obj_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Obj Id"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "record_type": {
+            "maxLength": 64,
+            "title": "Record Type",
+            "type": "string"
+          },
+          "ts": {
+            "format": "date-time",
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ts",
+          "record_type"
+        ],
+        "title": "OdsRowIn",
+        "type": "object"
+      },
+      "OutcomeIn": {
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "event_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event At"
+          },
+          "outcome": {
+            "enum": [
+              "confirmed_event",
+              "sensor_fault",
+              "normal_activation",
+              "no_event",
+              "unknown"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "OutcomeIn",
+        "type": "object"
+      },
+      "OutcomeOut": {
+        "properties": {
+          "author": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "event_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event At"
+          },
+          "forecast_id": {
+            "title": "Forecast Id",
+            "type": "string"
+          },
+          "outcome_auto": {
+            "anyOf": [
+              {
+                "enum": [
+                  "hit",
+                  "miss",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Auto"
+          },
+          "outcome_manual": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed_event",
+                  "sensor_fault",
+                  "normal_activation",
+                  "no_event",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Manual"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "forecast_id",
+          "updated_at",
+          "source"
+        ],
+        "title": "OutcomeOut",
+        "type": "object"
+      },
+      "Page_AuditItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[AuditItem]",
+        "type": "object"
+      },
+      "Page_EventItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EventItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[EventItem]",
+        "type": "object"
+      },
+      "Page_ForecastItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[ForecastItem]",
+        "type": "object"
+      },
+      "Page_IngestBatchOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/IngestBatchOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[IngestBatchOut]",
+        "type": "object"
+      },
+      "Page_NotificationItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NotificationItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[NotificationItem]",
+        "type": "object"
+      },
+      "Page_WorkOrderItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WorkOrderItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[WorkOrderItem]",
+        "type": "object"
+      },
+      "QualityOut": {
+        "properties": {
+          "base_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Rate"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "rule_precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Precision"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/QualityWeek"
+            },
+            "title": "Weeks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scenario",
+          "weeks",
+          "source"
+        ],
+        "title": "QualityOut",
+        "type": "object"
+      },
+      "QualityWeek": {
+        "properties": {
+          "hit": {
+            "title": "Hit",
+            "type": "integer"
+          },
+          "issued": {
+            "title": "Issued",
+            "type": "integer"
+          },
+          "miss": {
+            "title": "Miss",
+            "type": "integer"
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precision"
+          },
+          "unknown": {
+            "title": "Unknown",
+            "type": "integer"
+          },
+          "week_start": {
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week_start",
+          "issued",
+          "hit",
+          "miss",
+          "unknown"
+        ],
+        "title": "QualityWeek",
+        "type": "object"
+      },
+      "ReasonCodeOut": {
+        "properties": {
+          "actions": {
+            "items": {
+              "enum": [
+                "dispatch_crew",
+                "remote_check",
+                "defer",
+                "reject"
+              ],
+              "type": "string"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "code": {
+            "enum": [
+              "false_alarm",
+              "planned_works",
+              "sensor_fault",
+              "duplicate",
+              "confirmed_by_readings",
+              "confirmed_by_camera",
+              "preventive",
+              "no_crew",
+              "await_data"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "actions"
+        ],
+        "title": "ReasonCodeOut",
+        "type": "object"
+      },
+      "ResetDayOut": {
+        "properties": {
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "deleted_events": {
+            "title": "Deleted Events",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "day",
+          "deleted_events"
+        ],
+        "title": "ResetDayOut",
+        "type": "object"
+      },
+      "RunDailyIn": {
+        "properties": {
+          "asof": {
+            "format": "date",
+            "title": "Asof",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asof"
+        ],
+        "title": "RunDailyIn",
+        "type": "object"
+      },
+      "RunDailyOut": {
+        "properties": {
+          "asof": {
+            "format": "date",
+            "title": "Asof",
+            "type": "string"
+          },
+          "forecasts_upserted": {
+            "title": "Forecasts Upserted",
+            "type": "integer"
+          },
+          "heads": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/HeadRunResult"
+            },
+            "title": "Heads",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "integer"
+          },
+          "work_orders_upserted": {
+            "title": "Work Orders Upserted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "asof",
+          "heads",
+          "forecasts_upserted",
+          "work_orders_upserted"
+        ],
+        "title": "RunDailyOut",
+        "type": "object"
+      },
+      "ScenarioKpi": {
+        "properties": {
+          "coverage_fraction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Fraction"
+          },
+          "open_forecasts": {
+            "title": "Open Forecasts",
+            "type": "integer"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario",
+          "title",
+          "open_forecasts"
+        ],
+        "title": "ScenarioKpi",
+        "type": "object"
+      },
+      "SeriesPoint": {
+        "properties": {
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "day",
+          "value"
+        ],
+        "title": "SeriesPoint",
+        "type": "object"
+      },
+      "SettingsIn": {
+        "properties": {
+          "demo_today": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demo Today"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "archive",
+                  "replay"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "replay_speed": {
+            "anyOf": [
+              {
+                "maximum": 3600.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replay Speed"
+          }
+        },
+        "title": "SettingsIn",
+        "type": "object"
+      },
+      "SettingsOut": {
+        "properties": {
+          "demo_today": {
+            "format": "date",
+            "title": "Demo Today",
+            "type": "string"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          },
+          "mode": {
+            "enum": [
+              "archive",
+              "replay"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "replay_speed": {
+            "title": "Replay Speed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "demo_today",
+          "mode",
+          "replay_speed",
+          "locked"
+        ],
+        "title": "SettingsOut",
+        "type": "object"
+      },
+      "SyncReport": {
+        "properties": {
+          "added": {
+            "title": "Added",
+            "type": "integer"
+          },
+          "changed": {
+            "title": "Changed",
+            "type": "integer"
+          },
+          "channels": {
+            "title": "Channels",
+            "type": "integer"
+          },
+          "objects": {
+            "title": "Objects",
+            "type": "integer"
+          },
+          "removed": {
+            "title": "Removed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "objects",
+          "channels",
+          "added",
+          "changed",
+          "removed"
+        ],
+        "title": "SyncReport",
+        "type": "object"
+      },
+      "SystemStatus": {
+        "properties": {
+          "demo_today": {
+            "format": "date",
+            "title": "Demo Today",
+            "type": "string"
+          },
+          "heads": {
+            "items": {
+              "$ref": "#/components/schemas/HeadState"
+            },
+            "title": "Heads",
+            "type": "array"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LastRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ml": {
+            "$ref": "#/components/schemas/MlReady"
+          },
+          "mode": {
+            "enum": [
+              "archive",
+              "replay"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "settings_locked": {
+            "title": "Settings Locked",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "demo_today",
+          "mode",
+          "settings_locked",
+          "ml",
+          "heads"
+        ],
+        "title": "SystemStatus",
+        "type": "object"
+      },
+      "TreeNode": {
+        "properties": {
+          "channels": {
+            "default": 0,
+            "title": "Channels",
+            "type": "integer"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/TreeNode"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "picket_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Picket Max"
+          },
+          "picket_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Picket Min"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "kind",
+          "name"
+        ],
+        "title": "TreeNode",
+        "type": "object"
+      },
+      "UserOut": {
+        "properties": {
+          "login": {
+            "title": "Login",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Permissions",
+            "type": "array"
+          },
+          "role": {
+            "enum": [
+              "dispatcher",
+              "technician",
+              "analyst",
+              "manager",
+              "admin",
+              "integration"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "login",
+          "name",
+          "role",
+          "permissions"
+        ],
+        "title": "UserOut",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VersionItem": {
+        "properties": {
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "rank",
+          "recorded_at"
+        ],
+        "title": "VersionItem",
+        "type": "object"
+      },
+      "WorkOrderCard": {
+        "properties": {
+          "channels": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Channels",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "due_by": {
+            "format": "date-time",
+            "title": "Due By",
+            "type": "string"
+          },
+          "forecast_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Forecast Ids",
+            "type": "array"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryItem"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "object": {
+            "$ref": "#/components/schemas/ObjectRef"
+          },
+          "pickets": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Pickets",
+            "type": "array"
+          },
+          "priority": {
+            "enum": [
+              "urgent",
+              "planned",
+              "watch"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "rationale": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rationale",
+            "type": "array"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "confirmed",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "work_type": {
+            "title": "Work Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "scenario",
+          "object",
+          "priority",
+          "work_type",
+          "due_by",
+          "status",
+          "forecast_ids",
+          "created_by",
+          "created_at",
+          "source"
+        ],
+        "title": "WorkOrderCard",
+        "type": "object"
+      },
+      "WorkOrderCreate": {
+        "properties": {
+          "forecast_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Forecast Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "forecast_ids"
+        ],
+        "title": "WorkOrderCreate",
+        "type": "object"
+      },
+      "WorkOrderItem": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "due_by": {
+            "format": "date-time",
+            "title": "Due By",
+            "type": "string"
+          },
+          "forecast_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Forecast Ids",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "object": {
+            "$ref": "#/components/schemas/ObjectRef"
+          },
+          "priority": {
+            "enum": [
+              "urgent",
+              "planned",
+              "watch"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "scenario": {
+            "enum": [
+              "sensor_link",
+              "equipment_diag",
+              "guard_weekly"
+            ],
+            "title": "Scenario",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "confirmed",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "work_type": {
+            "title": "Work Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "scenario",
+          "object",
+          "priority",
+          "work_type",
+          "due_by",
+          "status",
+          "forecast_ids",
+          "created_by",
+          "created_at",
+          "source"
+        ],
+        "title": "WorkOrderItem",
+        "type": "object"
+      },
+      "WorkOrderTransition": {
+        "properties": {
+          "expected_status": {
+            "enum": [
+              "draft",
+              "confirmed",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Expected Status",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "confirmed",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_status",
+          "status"
+        ],
+        "title": "WorkOrderTransition",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Контракт C2 плана команды: backend → frontend. Прогнозы считает ML-сервис (C1); интерфейс читает только этот API.",
+    "title": "Москоллектор — сервис диспетчера",
+    "version": "0.2.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/admin/run-daily": {
+      "post": {
+        "operationId": "run_daily_api_v1_admin_run_daily_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunDailyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDailyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Daily",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "operationId": "list_audit_api_v1_audit_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "user",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AuditItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Audit",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "logout_api_v1_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/dashboard/summary": {
+      "get": {
+        "operationId": "summary_api_v1_dashboard_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Summary",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "operationId": "list_events_api_v1_events_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "in": "query",
+            "name": "obj",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Obj"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sensor_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sensor Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "event_class",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "normal",
+                    "warning",
+                    "alarm",
+                    "critical",
+                    "fault",
+                    "service"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Event Class"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_EventItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Events",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/export/forecasts.xlsx": {
+      "get": {
+        "operationId": "forecasts_xlsx_api_v1_export_forecasts_xlsx_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Forecasts Xlsx",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/v1/forecasts": {
+      "get": {
+        "operationId": "list_forecasts_api_v1_forecasts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "scenario",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "sensor_link",
+                    "equipment_diag",
+                    "guard_weekly"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scenario"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "in": "query",
+            "name": "decision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "none",
+                    "any",
+                    "dispatch_crew",
+                    "remote_check",
+                    "defer",
+                    "reject"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Decision"
+            }
+          },
+          {
+            "in": "query",
+            "name": "outcome",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "hit",
+                    "miss",
+                    "unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outcome"
+            }
+          },
+          {
+            "in": "query",
+            "name": "obj",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Obj"
+            }
+          },
+          {
+            "in": "query",
+            "name": "group_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "obj",
+                    "case_key"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group By"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ForecastItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Forecasts",
+        "tags": [
+          "forecasts"
+        ]
+      }
+    },
+    "/api/v1/forecasts/{forecast_id}": {
+      "get": {
+        "operationId": "get_card_api_v1_forecasts__forecast_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "forecast_id",
+            "required": true,
+            "schema": {
+              "title": "Forecast Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Card",
+        "tags": [
+          "forecasts"
+        ]
+      }
+    },
+    "/api/v1/forecasts/{forecast_id}/decisions": {
+      "post": {
+        "operationId": "create_decision_api_v1_forecasts__forecast_id__decisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "forecast_id",
+            "required": true,
+            "schema": {
+              "title": "Forecast Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Decision",
+        "tags": [
+          "forecasts"
+        ]
+      }
+    },
+    "/api/v1/forecasts/{forecast_id}/outcome": {
+      "post": {
+        "operationId": "set_outcome_api_v1_forecasts__forecast_id__outcome_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "forecast_id",
+            "required": true,
+            "schema": {
+              "title": "Forecast Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Outcome",
+        "tags": [
+          "forecasts"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Health Api V1 Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/ingest/batches": {
+      "get": {
+        "operationId": "list_batches_api_v1_ingest_batches_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_IngestBatchOut_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Batches",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/api/v1/ingest/day/{day}": {
+      "delete": {
+        "operationId": "reset_day_api_v1_ingest_day__day__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetDayOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset Day",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/api/v1/ingest/events": {
+      "post": {
+        "description": "Пачка журнала СМВУ в JSON (до 5 000 строк) — так шлёт replay.py.",
+        "operationId": "ingest_rows_api_v1_ingest_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/EventRowIn"
+                },
+                "title": "Rows",
+                "type": "array"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest Rows",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/api/v1/ingest/events/upload": {
+      "post": {
+        "description": "Файл журнала СМВУ: CSV как журнал_событий_пример.csv или XLSX (ТЗ §7).",
+        "operationId": "ingest_file_api_v1_ingest_events_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_ingest_file_api_v1_ingest_events_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest File",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/api/v1/ingest/ods-journal": {
+      "post": {
+        "operationId": "ingest_ods_api_v1_ingest_ods_journal_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/OdsRowIn"
+                },
+                "title": "Rows",
+                "type": "array"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest Ods",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "me_api_v1_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "operationId": "list_notifications_api_v1_notifications_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_NotificationItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Notifications",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/{notification_id}/read": {
+      "post": {
+        "operationId": "mark_read_api_v1_notifications__notification_id__read_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "notification_id",
+            "required": true,
+            "schema": {
+              "title": "Notification Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mark Read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/quality": {
+      "get": {
+        "operationId": "weekly_api_v1_quality_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "scenario",
+            "required": true,
+            "schema": {
+              "enum": [
+                "sensor_link",
+                "equipment_diag",
+                "guard_weekly"
+              ],
+              "title": "Scenario",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Weekly",
+        "tags": [
+          "quality"
+        ]
+      }
+    },
+    "/api/v1/reason-codes": {
+      "get": {
+        "operationId": "reason_codes_api_v1_reason_codes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReasonCodeOut"
+                  },
+                  "title": "Response Reason Codes Api V1 Reason Codes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Reason Codes",
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/api/v1/reference/sync": {
+      "post": {
+        "operationId": "sync_api_v1_reference_sync_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Sync",
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/api/v1/reference/tree": {
+      "get": {
+        "operationId": "tree_api_v1_reference_tree_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TreeNode"
+                  },
+                  "title": "Response Tree Api V1 Reference Tree Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Tree",
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/api/v1/schema.geojson": {
+      "get": {
+        "operationId": "schema_geojson_api_v1_schema_geojson_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "complex",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Complex"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureCollection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schema Geojson",
+        "tags": [
+          "schema"
+        ]
+      }
+    },
+    "/api/v1/schema.wkt": {
+      "get": {
+        "operationId": "schema_wkt_api_v1_schema_wkt_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "complex",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Complex"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schema Wkt",
+        "tags": [
+          "schema"
+        ]
+      }
+    },
+    "/api/v1/settings": {
+      "get": {
+        "operationId": "get_settings_api_v1_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Settings",
+        "tags": [
+          "settings"
+        ]
+      },
+      "put": {
+        "operationId": "put_settings_api_v1_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Settings",
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/api/v1/stream": {
+      "get": {
+        "operationId": "stream_api_v1_stream_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Stream",
+        "tags": [
+          "stream"
+        ]
+      }
+    },
+    "/api/v1/system/status": {
+      "get": {
+        "operationId": "status_api_v1_system_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Status",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/work-orders": {
+      "get": {
+        "operationId": "list_orders_api_v1_work_orders_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "draft",
+                    "confirmed",
+                    "in_progress",
+                    "completed",
+                    "cancelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "priority",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "urgent",
+                    "planned",
+                    "watch"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priority"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scenario",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "sensor_link",
+                    "equipment_diag",
+                    "guard_weekly"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scenario"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_WorkOrderItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Orders",
+        "tags": [
+          "work-orders"
+        ]
+      },
+      "post": {
+        "operationId": "create_order_api_v1_work_orders_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkOrderCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Order",
+        "tags": [
+          "work-orders"
+        ]
+      }
+    },
+    "/api/v1/work-orders/{order_id}": {
+      "get": {
+        "operationId": "get_order_api_v1_work_orders__order_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Order",
+        "tags": [
+          "work-orders"
+        ]
+      },
+      "patch": {
+        "operationId": "transition_api_v1_work_orders__order_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkOrderTransition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Transition",
+        "tags": [
+          "work-orders"
+        ]
+      }
+    }
+  }
+}

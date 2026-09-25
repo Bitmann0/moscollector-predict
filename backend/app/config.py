@@ -1,38 +1,32 @@
-from __future__ import annotations
-
-import os
-from dataclasses import dataclass
+"""Настройки сервиса из переменных окружения. Живое: менять только добавлением полей."""
+from datetime import date
+from functools import lru_cache
 from pathlib import Path
-from zoneinfo import ZoneInfo
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+APP_DIR = Path(__file__).resolve().parent
+ROOT = APP_DIR.parents[1]
 
 
-@dataclass(frozen=True)
-class Settings:
-    data_dir: Path
-    database_path: Path
-    forecast_hours: int = 24
-    mode: str = "historical"
-    max_data_age_hours: float = 6
-    time_zone: str = "Europe/Moscow"
-    analysis_window_hours: int = 24
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    def __post_init__(self) -> None:
-        if self.mode not in {"historical", "live"}:
-            raise ValueError("MOSCOLLECTOR_MODE: historical или live")
-        if self.max_data_age_hours <= 0 or self.analysis_window_hours <= 0:
-            raise ValueError("Допустимый возраст данных и окно анализа должны быть положительными")
-        if self.forecast_hours < 24:
-            raise ValueError("Целевой горизонт будущей модели должен быть не меньше 24 часов")
-        ZoneInfo(self.time_zone)
+    database_url: str = "sqlite:///./state/moscollector.db"
+    ml_url: str = "http://ml:8001"
+    ml_timeout_s: float = 120.0
+    demo_today: date = date(2026, 6, 30)
+    demo_settings_locked: bool = False
+    secret_key: str = ""
+    demo_password: str = ""
+    integration_api_key: str = ""
+    seed_demo: bool = True
+    cookie_secure: bool = False
+    session_hours: int = 12
+    contracts_dir: Path = ROOT / "contracts"
+    static_dir: Path = APP_DIR / "static"
 
-    @classmethod
-    def from_env(cls) -> Settings:
-        return cls(
-            data_dir=Path(os.getenv("MOSCOLLECTOR_DATA_DIR", "data/raw")),
-            database_path=Path(os.getenv("MOSCOLLECTOR_DB_PATH", "data/moscollector.db")),
-            forecast_hours=int(os.getenv("MOSCOLLECTOR_FORECAST_HOURS", "24")),
-            mode=os.getenv("MOSCOLLECTOR_MODE", "historical"),
-            max_data_age_hours=float(os.getenv("MOSCOLLECTOR_MAX_DATA_AGE_HOURS", "6")),
-            time_zone=os.getenv("MOSCOLLECTOR_TIME_ZONE", "Europe/Moscow"),
-            analysis_window_hours=int(os.getenv("MOSCOLLECTOR_ANALYSIS_WINDOW_HOURS", "24")),
-        )
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
