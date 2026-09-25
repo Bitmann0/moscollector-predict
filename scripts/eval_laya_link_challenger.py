@@ -39,7 +39,21 @@ QUESTION = {
             "true": "An unusually long reporting gap starts tomorrow.",
         },
         "labels": {"false": "B", "true": "A"},
-    }
+    },
+    "recommended_action": {
+        "type": "choice",
+        "instructions": "What should the dispatcher do with this candidate?",
+        "criteria": {
+            "manual_link_diagnostics": "Schedule a remote link diagnostic.",
+            "defer": "Do not schedule a diagnostic yet.",
+            "insufficient_data": "Ask for more telemetry before deciding.",
+        },
+    },
+    "urgency": {
+        "type": "score",
+        "instructions": "How urgently should this candidate be reviewed?",
+        "criteria": ["routine", "soon", "urgent"],
+    },
 }
 QUESTION_HASH = hashlib.sha256(json.dumps(
     {"state_version": STATE_VERSION, "question": QUESTION},
@@ -245,7 +259,14 @@ def infer(args: argparse.Namespace) -> None:
                 p = float(result["answers"]["unusual_gap"]["noul"])
                 if not 0 <= p <= 1 or not math.isfinite(p):
                     raise ValueError("Laya returned an invalid probability")
+                answers = result["answers"]
+                action = answers["recommended_action"]
+                urgency = answers["urgency"]
                 output.write(json.dumps({"id": row["id"], "laya_risk": p,
+                                         "laya_action": action.get("choice"),
+                                         "laya_action_confidence": action.get("confidence"),
+                                         "laya_urgency": urgency.get("score"),
+                                         "laya_urgency_confidence": urgency.get("confidence"),
                                          "model_sha": MODEL_SHA,
                                          "question_hash": QUESTION_HASH,
                                          "batch_seconds": elapsed},
@@ -268,8 +289,12 @@ def score(args: argparse.Namespace) -> None:
     candidates = _jsonl(args.candidates)
     scores = _jsonl(args.scores)
     keyed = {row["id"]: row for row in scores}
-    if len(keyed) != len(candidates) or len(scores) != len(candidates):
+    partial = len(keyed) != len(candidates)
+    if partial and not args.allow_partial:
         raise ValueError("missing or duplicate Laya scores")
+    if len(keyed) != len(scores):
+        raise ValueError("duplicate Laya scores")
+    candidates = [row for row in candidates if row["id"] in keyed]
     if any(row["model_sha"] != MODEL_SHA or row["question_hash"] != QUESTION_HASH
            for row in scores):
         raise ValueError("mixed model or prompt versions")
@@ -283,7 +308,7 @@ def score(args: argparse.Namespace) -> None:
     baseline = _summary_unknown(
         frame.select("ch", "obj", "day", "y",
                      pl.col("lgbm_risk").alias("risk")), threshold, cfg)
-    if (baseline["alerts"], baseline["hits"]) != \
+    if not partial and (baseline["alerts"], baseline["hits"]) != \
             (metadata["full_lgbm_policy"]["alerts"],
              metadata["full_lgbm_policy"]["hits"]):
         raise AssertionError("LightGBM baseline changed during scoring")
@@ -291,6 +316,20 @@ def score(args: argparse.Namespace) -> None:
         frame.select("ch", "obj", "day", "y",
                      pl.col("laya_risk").alias("risk")), None, cfg)
     full = pl.read_parquet(args.full_eval).select("ch", "day", "y")
+
+    def policy_summary(served: pl.DataFrame) -> dict:
+        chosen = served.filter(pl.col("alert"))
+        hits = chosen.filter(pl.col("y") == 1).height
+        unknown = chosen["y"].null_count()
+        return {
+            "alerts": chosen.height, "hits": hits,
+            "known_misses": chosen.height - hits - unknown,
+            "unknown_alerts": unknown,
+            "precision_lower_bound": hits / chosen.height if chosen.height else None,
+            "precision_known_only": hits / (chosen.height - unknown)
+            if chosen.height > unknown else None,
+            "recall_known": hits / full_positive_rows if full_positive_rows else None,
+        }
 
     def full_episode_recall(risk_col: str, cutoff: float | None) -> dict:
         ranked = frame.select(
@@ -307,9 +346,53 @@ def score(args: argparse.Namespace) -> None:
             population["y"].fill_null(0).to_numpy(),
             population["alert"].to_numpy(), horizon_days=1)
 
-    full_baseline_episodes = full_episode_recall("lgbm_risk", threshold)
-    full_laya_episodes = full_episode_recall("laya_risk", None)
+    full_baseline_episodes = (full_episode_recall("lgbm_risk", threshold)
+                              if not partial else None)
+    full_laya_episodes = (full_episode_recall("laya_risk", None)
+                          if not partial else None)
     full_positive_rows = full.filter(pl.col("y") == 1).height
+    lgbm_served = serve.alerts_over_time(
+        frame.select("ch", "obj", "day", "y",
+                     pl.col("lgbm_risk").alias("risk")),
+        cfg["budget_per_day"], entity="ch", cooldown_days=7,
+        threshold=threshold)
+    laya_served = serve.alerts_over_time(
+        frame.select("ch", "obj", "day", "y",
+                     pl.col("laya_risk").alias("risk")),
+        cfg["budget_per_day"], entity="ch", cooldown_days=7)
+    join_keys = ["ch", "day"]
+    consensus = (lgbm_served.select(join_keys + ["alert"])
+                 .rename({"alert": "lgbm_alert"})
+                 .join(laya_served.select(join_keys + ["alert"])
+                       .rename({"alert": "laya_alert"}), on=join_keys)
+                 .with_columns((pl.col("lgbm_alert") & pl.col("laya_alert"))
+                               .alias("alert")))
+    consensus = frame.select(join_keys + ["y"]).join(
+        consensus.select(join_keys + ["alert"]), on=join_keys)
+    consensus_summary = policy_summary(consensus)
+    ranked = frame.with_columns(
+        (pl.col("lgbm_risk").rank("ordinal", descending=True).over("day") /
+         pl.col("lgbm_risk").count().over("day")).alias("lgbm_rank"),
+        (pl.col("laya_risk").rank("ordinal", descending=True).over("day") /
+         pl.col("laya_risk").count().over("day")).alias("laya_rank"))
+    ranked = ranked.with_columns(
+        ((1.0 - pl.col("lgbm_rank") + 1.0 - pl.col("laya_rank")) / 2.0)
+        .alias("ensemble_risk"))
+    ensemble_summary = _summary_unknown(
+        ranked.select("ch", "obj", "day", "y",
+                      pl.col("ensemble_risk").alias("risk")), None, cfg)
+    if partial:
+        for key in ("episodes", "episodes_caught", "episode_recall",
+                    "episodes_per_100_alerts"):
+            ensemble_summary.pop(key, None)
+    action_counts = {}
+    action_hits = {}
+    for row in candidates:
+        score_row = keyed[row["id"]]
+        action = score_row.get("laya_action") or "missing"
+        action_counts[action] = action_counts.get(action, 0) + 1
+        if row.get("y") == 1:
+            action_hits[action] = action_hits.get(action, 0) + 1
     for summary, episode in ((baseline, full_baseline_episodes),
                              (challenger, full_laya_episodes)):
         # _summary_unknown sees only the shortlist here. Its local recall
@@ -318,12 +401,21 @@ def score(args: argparse.Namespace) -> None:
         summary["shortlist_recall_known"] = summary.pop("recall_known")
         summary["recall_known"] = (
             summary["hits"] / full_positive_rows if full_positive_rows else None)
-        for key in ("episodes", "episodes_caught", "episode_recall",
-                    "episodes_per_100_alerts"):
-            summary[key] = episode[key]
+        if episode is not None:
+            for key in ("episodes", "episodes_caught", "episode_recall",
+                        "episodes_per_100_alerts"):
+                summary[key] = episode[key]
+        elif partial:
+            for key in ("episodes", "episodes_caught", "episode_recall",
+                        "episodes_per_100_alerts"):
+                summary.pop(key, None)
     result = {**metadata, "weights_sha256": WEIGHTS_SHA256,
               "weights_bytes": WEIGHTS_BYTES, "laya": challenger,
               "lgbm_same_shortlist": baseline,
+              "consensus_intersection": consensus_summary,
+              "rank_ensemble": ensemble_summary,
+              "action_counts": action_counts,
+              "action_hits_on_recorded_positive": action_hits,
               "full_population_episodes": {
                   "lgbm": full_baseline_episodes,
                   "laya": full_laya_episodes},
@@ -333,7 +425,9 @@ def score(args: argparse.Namespace) -> None:
               "laya_score_unique": frame["laya_risk"].n_unique(),
               "total_recorded_batch_seconds": sum(
                   row["batch_seconds"] for row in scores) / args.batch_size,
+              "partial_inference": partial,
               "decision": (
+                  "routing_slice_only" if partial else
                   "needs_more_temporal_folds" if
                   challenger["precision_lower_bound"] is not None and
                   challenger["precision_lower_bound"] >
@@ -367,6 +461,8 @@ def main() -> None:
                         default=Path("data/tmp/laya_full"))
     parser.add_argument("--threads", type=int, default=8)
     parser.add_argument("--batch-size", type=int, default=8)
+    parser.add_argument("--allow-partial", action="store_true",
+                        help="write a routing slice report when inference was interrupted")
     args = parser.parse_args()
     if args.days <= 0 or args.shortlist < 20 or args.batch_size <= 0:
         parser.error("days > 0, shortlist >= 20 and batch-size > 0 required")
