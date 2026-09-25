@@ -133,5 +133,7 @@ cd frontend && npm run gen:api         # src/api/schema.d.ts из api_v1.openapi
 
 ## Кто за что отвечает
 
+Что каждый делает до сдачи, к какому сроку и как понять, что готово: [docs/MVP_TASKS.md](docs/MVP_TASKS.md).
+
 Путь → роль → ID задачи плана → контракт: [docs/OWNERSHIP.md](docs/OWNERSHIP.md). Правка
 в чужом файле — через PR с ревью владельца.
