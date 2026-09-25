@@ -1,0 +1,317 @@
+{
+  "head": "D",
+  "evaluated_through": "2026-06-23",
+  "policy": "threshold; top_3_per_day; cooldown_7d_no_backfill",
+  "baseline": "n_bad_w7",
+  "folds": [
+    {
+      "test_start": "2025-03-31",
+      "test_end": "2025-06-28",
+      "training_end": "2024-12-16",
+      "calibration": [
+        "2025-01-23",
+        "2025-02-21"
+      ],
+      "threshold_window": [
+        "2025-02-22",
+        "2025-03-23"
+      ],
+      "threshold": 0.5811209439528023,
+      "threshold_feasible": true,
+      "threshold_selection": {
+        "feasible": true,
+        "threshold": 0.5811209439528023,
+        "precision": 0.7752808988764045,
+        "recall": 0.04512753433616743,
+        "k": 89
+      },
+      "known_rows": 20093,
+      "unknown_rows": 0,
+      "model": {
+        "alerts": 123,
+        "true_alerts": 84,
+        "precision": 0.6829268292682927,
+        "recall": 0.013756960366852276,
+        "episodes": 2114,
+        "episodes_caught": 81,
+        "episode_recall": 0.038315988647114475,
+        "episodes_per_100_alerts": 65.85365853658537
+      },
+      "baseline_feature": "n_bad_w7",
+      "baseline": {
+        "alerts": 114,
+        "true_alerts": 60,
+        "precision": 0.5263157894736842,
+        "recall": 0.00982640026203734,
+        "episodes": 2114,
+        "episodes_caught": 50,
+        "episode_recall": 0.023651844843897825,
+        "episodes_per_100_alerts": 43.85964912280702
+      },
+      "baseline_threshold_selection": {
+        "feasible": false,
+        "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+        "max_precision": 1.0
+      },
+      "baseline_thresholded": {
+        "alerts": 0,
+        "true_alerts": 0,
+        "precision": null,
+        "recall": 0.0,
+        "episodes": 2114,
+        "episodes_caught": 0,
+        "episode_recall": 0.0,
+        "episodes_per_100_alerts": null
+      }
+    },
+    {
+      "test_start": "2025-06-29",
+      "test_end": "2025-09-26",
+      "training_end": "2025-03-16",
+      "calibration": [
+        "2025-04-23",
+        "2025-05-22"
+      ],
+      "threshold_window": [
+        "2025-05-23",
+        "2025-06-21"
+      ],
+      "threshold": 0.8786127167630058,
+      "threshold_feasible": true,
+      "threshold_selection": {
+        "feasible": true,
+        "threshold": 0.8786127167630058,
+        "precision": 0.8777777777777778,
+        "recall": 0.03816425120772947,
+        "k": 90
+      },
+      "known_rows": 20315,
+      "unknown_rows": 0,
+      "model": {
+        "alerts": 101,
+        "true_alerts": 85,
+        "precision": 0.8415841584158416,
+        "recall": 0.013423878711307643,
+        "episodes": 2225,
+        "episodes_caught": 70,
+        "episode_recall": 0.03146067415730337,
+        "episodes_per_100_alerts": 69.3069306930693
+      },
+      "baseline_feature": "n_bad_w7",
+      "baseline": {
+        "alerts": 122,
+        "true_alerts": 84,
+        "precision": 0.6885245901639344,
+        "recall": 0.013265950726468731,
+        "episodes": 2225,
+        "episodes_caught": 89,
+        "episode_recall": 0.04,
+        "episodes_per_100_alerts": 72.95081967213115
+      },
+      "baseline_threshold_selection": {
+        "feasible": true,
+        "threshold": 13.0,
+        "precision": 0.7049180327868853,
+        "recall": 0.02077294685990338,
+        "k": 61
+      },
+      "baseline_thresholded": {
+        "alerts": 69,
+        "true_alerts": 50,
+        "precision": 0.7246376811594203,
+        "recall": 0.007896399241945672,
+        "episodes": 2225,
+        "episodes_caught": 51,
+        "episode_recall": 0.02292134831460674,
+        "episodes_per_100_alerts": 73.91304347826087
+      }
+    },
+    {
+      "test_start": "2025-09-27",
+      "test_end": "2025-12-25",
+      "training_end": "2025-06-14",
+      "calibration": [
+        "2025-07-22",
+        "2025-08-20"
+      ],
+      "threshold_window": [
+        "2025-08-21",
+        "2025-09-19"
+      ],
+      "threshold": 0.6691588785046729,
+      "threshold_feasible": true,
+      "threshold_selection": {
+        "feasible": true,
+        "threshold": 0.6691588785046729,
+        "precision": 0.9,
+        "recall": 0.047479484173505275,
+        "k": 90
+      },
+      "known_rows": 16673,
+      "unknown_rows": 0,
+      "model": {
+        "alerts": 123,
+        "true_alerts": 88,
+        "precision": 0.7154471544715447,
+        "recall": 0.014789915966386555,
+        "episodes": 2722,
+        "episodes_caught": 78,
+        "episode_recall": 0.028655400440852314,
+        "episodes_per_100_alerts": 63.41463414634146
+      },
+      "baseline_feature": "n_bad_w7",
+      "baseline": {
+        "alerts": 124,
+        "true_alerts": 72,
+        "precision": 0.5806451612903226,
+        "recall": 0.012100840336134453,
+        "episodes": 2722,
+        "episodes_caught": 72,
+        "episode_recall": 0.02645113886847906,
+        "episodes_per_100_alerts": 58.064516129032256
+      },
+      "baseline_threshold_selection": {
+        "feasible": true,
+        "threshold": 5.0,
+        "precision": 0.7528089887640449,
+        "recall": 0.03927315357561548,
+        "k": 89
+      },
+      "baseline_thresholded": {
+        "alerts": 112,
+        "true_alerts": 69,
+        "precision": 0.6160714285714286,
+        "recall": 0.011596638655462186,
+        "episodes": 2722,
+        "episodes_caught": 67,
+        "episode_recall": 0.02461425422483468,
+        "episodes_per_100_alerts": 59.82142857142857
+      }
+    },
+    {
+      "test_start": "2025-12-26",
+      "test_end": "2026-03-25",
+      "training_end": "2025-09-12",
+      "calibration": [
+        "2025-10-20",
+        "2025-11-18"
+      ],
+      "threshold_window": [
+        "2025-11-19",
+        "2025-12-18"
+      ],
+      "threshold": 0.5343511450381679,
+      "threshold_feasible": true,
+      "threshold_selection": {
+        "feasible": true,
+        "threshold": 0.5343511450381679,
+        "precision": 0.7777777777777778,
+        "recall": 0.024544179523141654,
+        "k": 90
+      },
+      "known_rows": 8847,
+      "unknown_rows": 0,
+      "model": {
+        "alerts": 153,
+        "true_alerts": 114,
+        "precision": 0.7450980392156863,
+        "recall": 0.021923076923076924,
+        "episodes": 3013,
+        "episodes_caught": 131,
+        "episode_recall": 0.043478260869565216,
+        "episodes_per_100_alerts": 85.62091503267973
+      },
+      "baseline_feature": "n_bad_w7",
+      "baseline": {
+        "alerts": 108,
+        "true_alerts": 72,
+        "precision": 0.6666666666666666,
+        "recall": 0.013846153846153847,
+        "episodes": 3013,
+        "episodes_caught": 83,
+        "episode_recall": 0.027547295054762694,
+        "episodes_per_100_alerts": 76.85185185185185
+      },
+      "baseline_threshold_selection": {
+        "feasible": true,
+        "threshold": 5.0,
+        "precision": 0.735632183908046,
+        "recall": 0.02244039270687237,
+        "k": 87
+      },
+      "baseline_thresholded": {
+        "alerts": 97,
+        "true_alerts": 67,
+        "precision": 0.6907216494845361,
+        "recall": 0.012884615384615385,
+        "episodes": 3013,
+        "episodes_caught": 77,
+        "episode_recall": 0.02555592432791238,
+        "episodes_per_100_alerts": 79.38144329896907
+      }
+    },
+    {
+      "test_start": "2026-03-26",
+      "test_end": "2026-06-23",
+      "training_end": "2025-12-11",
+      "calibration": [
+        "2026-01-18",
+        "2026-02-16"
+      ],
+      "threshold_window": [
+        "2026-02-17",
+        "2026-03-18"
+      ],
+      "threshold": 0.8169014084507042,
+      "threshold_feasible": true,
+      "threshold_selection": {
+        "feasible": true,
+        "threshold": 0.8169014084507042,
+        "precision": 0.8555555555555555,
+        "recall": 0.054301833568406205,
+        "k": 90
+      },
+      "known_rows": 24754,
+      "unknown_rows": 0,
+      "model": {
+        "alerts": 123,
+        "true_alerts": 102,
+        "precision": 0.8292682926829268,
+        "recall": 0.010229666031491325,
+        "episodes": 3265,
+        "episodes_caught": 87,
+        "episode_recall": 0.02664624808575804,
+        "episodes_per_100_alerts": 70.73170731707317
+      },
+      "baseline_feature": "n_bad_w7",
+      "baseline": {
+        "alerts": 104,
+        "true_alerts": 73,
+        "precision": 0.7019230769230769,
+        "recall": 0.007321231571557517,
+        "episodes": 3265,
+        "episodes_caught": 74,
+        "episode_recall": 0.022664624808575805,
+        "episodes_per_100_alerts": 71.15384615384616
+      },
+      "baseline_threshold_selection": {
+        "feasible": true,
+        "threshold": 3.0,
+        "precision": 0.7191011235955056,
+        "recall": 0.045133991537376586,
+        "k": 89
+      },
+      "baseline_thresholded": {
+        "alerts": 104,
+        "true_alerts": 73,
+        "precision": 0.7019230769230769,
+        "recall": 0.007321231571557517,
+        "episodes": 3265,
+        "episodes_caught": 74,
+        "episode_recall": 0.022664624808575805,
+        "episodes_per_100_alerts": 71.15384615384616
+      }
+    }
+  ],
+  "caution": "Recorded equipment-state proxy, not confirmed physical wear. Previously examined years are not a fresh independent holdout."
+}

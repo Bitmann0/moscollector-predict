@@ -1,0 +1,239 @@
+# Голова A расщеплена на две. Прежняя метка L5 объединяла отказ и молчание, и
+# 98.89% её позитивов давала ветка молчания: заявленные 0.700 при полноте 0.633
+# были качеством предсказания «канал завтра не отчитается», а не отказа датчика.
+# Выдавать это за одно число нельзя — бригада, выехавшая по такому алерту, в
+# большинстве случаев приедет к работающему датчику, который пропустил сутки.
+
+A_link:
+  direction: sensor_failure  # Отказ датчика
+  title: Потеря связи с каналом
+  product_status: pilot
+  product_target: channel_loses_observability_tomorrow
+  product_action: manual_link_diagnostics
+  product_policy: calibrated_min_precision_0_50; max_20_per_day; cooldown_7d
+  operating_min_precision: 0.50
+  operating_min_alerts: 30
+  unknown_in_budget: true
+  cooldown_days: 7
+  max_model_lag_days: 8
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_link
+  # L9 вместо L4: порог пропуска свой у каждого канала, кратный его обычному
+  # ритму. Фиксированные «двое суток» считали отказом штатный редкий опрос —
+  # 303 617 событий из 982 438 были разрывами ровно в одни сутки.
+  # L9c keeps the rhythm-based transient-gap event but censors each channel's
+  # final report: without a later return, permanent loss/decommissioning is
+  # unknown, not a confirmed negative.
+  variant: L9c
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 20
+  # Политика по новым семействам: все пять семейств отклонены: CUSUM 0 фолдов из 3 по точности,
+  # остальные не лучше
+  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean, cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
+  params:
+    n_estimators: 800
+    learning_rate: 0.03
+    num_leaves: 255
+    min_child_samples: 200
+
+  params_xgb:
+    n_estimators: 800
+    learning_rate: 0.03
+    max_depth: 10
+    min_child_weight: 50
+  params_cat:
+    iterations: 800
+    learning_rate: 0.03
+    depth: 10
+A:
+  direction: sensor_failure  # Отказ датчика
+  title: Отказ датчика
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_failure
+  # L6 — только устойчивые одиночные отказы. База 0.0026, и это честная
+  # редкость события, а не повод подмешивать к нему молчание.
+  variant: L6
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 20
+  # Ступени B4 и B5 показали, что peer-relative и пространственные признаки
+  # ухудшают эту голову: сравнение с соседями шумит там, где вопрос в том,
+  # пропадёт ли канал.
+  # Политика по новым семействам: канальные головы отвергли все пять
+  drop_feature_prefixes: [peer_, nbr_, val_minus_seg_mean, cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
+  # Подобрано тюнингом на победившем наборе: Recall 0.584 при Precision 0.700
+  # против 0.556 на дефолтных параметрах.
+  params:
+    n_estimators: 800
+    learning_rate: 0.03
+    num_leaves: 255
+    min_child_samples: 200
+
+  # Эквивалент по ёмкости для GPU-бэкендов: num_leaves 255 это примерно
+  # глубина 8, а не дефолтная 6. Без этого XGBoost получил бы вдвое
+  # меньшую модель, и сравнение мерило бы ёмкость, а не бэкенд.
+  params_xgb:
+    n_estimators: 800
+    learning_rate: 0.03
+    max_depth: 10
+    min_child_weight: 50
+  params_cat:
+    iterations: 800
+    learning_rate: 0.03
+    depth: 10
+A_strict:
+  direction: sensor_failure  # Отказ датчика
+  title: Аномалия датчика
+  product_status: deferred
+  product_target: recorded_sensor_anomaly_next_day
+  product_action: manual_sensor_diagnostic
+  product_policy: top_1_per_day_tested_below_50_percent
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_failure_strict
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 20
+  # Отсечка внутри объекта, а не глобально: иначе все алерты
+  # оседают на нескольких худших объектах.
+  budget_per_object: true
+  # Политика по новым семействам: все пять отклонены, лучший результат 2 фолда из 3
+  drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
+
+A_deg:
+  direction: sensor_failure  # Отказ датчика
+  title: Деградация датчика
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_degradation
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 30
+  # Отсечка внутри объекта, а не глобально: иначе все алерты
+  # оседают на нескольких худших объектах.
+  budget_per_object: true
+  # Политика по новым семействам: канальные головы отвергли все пять
+  drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
+
+A_prime:
+  direction: beyond_scope  # Вне четырёх направлений ТЗ
+  title: Массовый отказ объекта
+  entity: [obj, day]
+  feature_set: object
+  label: label_group_outage
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 5
+  # Политика по новым семействам: принята только концентрация нагрузки (3 из 3)
+  drop_feature_prefixes: [api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d]
+
+B:
+  direction: fire_risk  # Пожарный риск
+  title: Пожарный риск участка
+  entity: [obj, seg, day]
+  feature_set: segment
+  label: label_fire
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 10
+  # История тревог участка (число дней, частота, давность последней) строится
+  # только до текущих суток. На walk-forward 2025 подняла PR-AUC 0.0329 ->
+  # 0.0671 и точность при 10 алертах В КАЖДЫЕ сутки 0.0407 -> 0.0637.
+  # На ранее просмотренном 2026: 0.0782 -> 0.0950 по дневной точности.
+  # Это прогноз тревожного состояния, НЕ подтверждённого пожара.
+  # Типизированные температура/газ подняли PR-AUC с 0.0313 до 0.0338,
+  # но по реальному лимиту 10 алертов в каждые сутки снизили точность
+  # 0.0430 -> 0.0415 и полноту 0.1144 -> 0.1085 на трёх фолдах 2025.
+  # Оставляем их в фичесторе для следующей проверки, но не в рабочей модели.
+  drop_feature_prefixes: [sensor_]
+
+C:
+  direction: unauthorised_access  # Несанкционированный доступ
+  # ВНИМАНИЕ: сохранённая C использует v1-метку: охрана на КОНЕЦ суток
+  # события. Для сигнала при охране в МОМЕНТ события собрана отдельная v2
+  # разметка (mkl.intrusion_target); качество полной очереди пока не позволяет
+  # автоматически заменить артефакт. См. reports/INTRUSION_OPERATIONAL_QUEUE.md.
+  title: Несанкционированный доступ
+  # Позитив — тревога проникновения при объекте НА ОХРАНЕ. Тревога при
+  # снятой охране это проход персонала, то есть ровно санкционированный
+  # доступ, и прежняя метка считала его позитивом наравне с нарушителем:
+  # по всей истории состояние известно у 86.7% тревог и делит их почти
+  # пополам. Сужение до честного определения стоит двух пунктов точности
+  # (0.773 против 0.796) и ничего не стоит по полноте.
+  #
+  # Цена: данные охраны есть на 47 объектах из 78, и по остальным голова
+  # не работает вовсе. Это честнее, чем выдавать им оценку вслепую, но
+  # отчитываться по двум группам следует раздельно.
+  armed_only: true
+  entity: [obj, day]
+  feature_set: object
+  label: label_intrusion
+  horizon_days: 1
+  embargo_days: 31
+  # Бюджет выбран на валидации (декабрь 2025) по правилу «максимум полноты при
+  # точности не ниже 0.70», а не по кривой отложенного периода. На холдауте
+  # кривая проходит почти точно через целевую точку ТЗ (7 алертов: 0.704/0.485,
+  # 8 алертов: 0.689/0.542), и соблазн взять оттуда бюджет 8 и объявить цель
+  # взятой был прямым повторением того дефекта, который этот пайплайн и чинил:
+  # выбор параметра по ответам отложенного периода. На валидации цель не
+  # берётся ни при каком бюджете до 20.
+  budget_per_day: 4
+  # Подобрано тюнингом: Precision 0.702 при Recall 0.503 против 0.704 при
+  # 0.493 на дефолтных параметрах — этого хватило, чтобы взять цель ТЗ.
+  # Подобрано на нынешней постановке 23.09. Прежние 1200 деревьев выбирались
+  # до аудита, когда метка считала позитивом и проход персонала при снятой
+  # охране. Выигрыш мал (+0.005 точности в среднем), но проходит правило
+  # приёмки — три фолда из трёх, — и модель заодно в полтора раза легче.
+  params:
+    n_estimators: 800
+    learning_rate: 0.02
+    num_leaves: 127
+
+  params_xgb:
+    n_estimators: 800
+    learning_rate: 0.02
+    max_depth: 7
+    min_child_weight: 20
+  params_cat:
+    iterations: 800
+    learning_rate: 0.02
+    depth: 7
+D:
+  direction: infrastructure_wear  # Износ инфраструктуры
+  title: Износ агрегатов
+  product_status: pilot
+  product_target: recorded_equipment_wear_signal_next_7_days
+  product_action: manual_planned_equipment_diagnostic
+  product_policy: calibrated_threshold_and_max_3_per_day; cooldown_7d
+  cooldown_days: 7
+  max_model_lag_days: 14
+  entity: [ch, day]
+  feature_set: sensor
+  label: label_wear
+  horizon_days: 7
+  embargo_days: 37
+  budget_per_day: 3
+  # Отсечка внутри объекта, а не глобально: иначе все алерты
+  # оседают на нескольких худших объектах.
+  budget_per_object: true
+  # Политика по новым семействам: канальные головы отвергли все пять
+  drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
+
+E:
+  direction: beyond_scope  # Вне четырёх направлений ТЗ
+  title: Риск подтопления
+  entity: [obj, day]
+  feature_set: object
+  label: label_flood
+  horizon_days: 1
+  embargo_days: 31
+  budget_per_day: 5
+  # контекст комплекса выиграл 1 фолд из 5 — для подтопления это шум:
+  # насосные объекты все одного вида, а соседи по комплексу заливаются
+  # не вместе, а по своему рельефу
+  # Политика по новым семействам: индекс увлажнения не подтвердился даже после того, как доехал
+  # до объектного уровня: 2 фолда из 3
+  drop_feature_prefixes: [par_, is_guard_object, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d]

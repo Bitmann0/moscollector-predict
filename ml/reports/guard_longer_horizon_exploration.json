@@ -1,0 +1,415 @@
+{
+  "note": "exploratory; recorded SMVU signals, not incidents; old periods",
+  "policies": [
+    {
+      "schedule": "daily",
+      "window_days_after_asof": [
+        1,
+        1
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 0,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 724,
+          "recorded_hits": 164,
+          "unknown": 51,
+          "recorded_hit_rate": 0.2265193370165746
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 736,
+          "recorded_hits": 151,
+          "unknown": 47,
+          "recorded_hit_rate": 0.20516304347826086
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 688,
+          "recorded_hits": 166,
+          "unknown": 36,
+          "recorded_hit_rate": 0.24127906976744187
+        }
+      ],
+      "pooled": {
+        "alerts": 2148,
+        "recorded_hits": 481,
+        "unknown": 134,
+        "recorded_hit_rate": 0.2239292364990689
+      }
+    },
+    {
+      "schedule": "daily",
+      "window_days_after_asof": [
+        1,
+        1
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 1,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 716,
+          "recorded_hits": 163,
+          "unknown": 51,
+          "recorded_hit_rate": 0.2276536312849162
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 732,
+          "recorded_hits": 151,
+          "unknown": 47,
+          "recorded_hit_rate": 0.2062841530054645
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 688,
+          "recorded_hits": 166,
+          "unknown": 36,
+          "recorded_hit_rate": 0.24127906976744187
+        }
+      ],
+      "pooled": {
+        "alerts": 2136,
+        "recorded_hits": 480,
+        "unknown": 134,
+        "recorded_hit_rate": 0.2247191011235955
+      }
+    },
+    {
+      "schedule": "daily",
+      "window_days_after_asof": [
+        1,
+        1
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 2,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 498,
+          "recorded_hits": 137,
+          "unknown": 40,
+          "recorded_hit_rate": 0.2751004016064257
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 528,
+          "recorded_hits": 120,
+          "unknown": 30,
+          "recorded_hit_rate": 0.22727272727272727
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 536,
+          "recorded_hits": 138,
+          "unknown": 29,
+          "recorded_hit_rate": 0.2574626865671642
+        }
+      ],
+      "pooled": {
+        "alerts": 1562,
+        "recorded_hits": 395,
+        "unknown": 99,
+        "recorded_hit_rate": 0.2528809218950064
+      }
+    },
+    {
+      "schedule": "daily",
+      "window_days_after_asof": [
+        1,
+        1
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 3,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 261,
+          "recorded_hits": 97,
+          "unknown": 21,
+          "recorded_hit_rate": 0.3716475095785441
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 231,
+          "recorded_hits": 72,
+          "unknown": 12,
+          "recorded_hit_rate": 0.3116883116883117
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 281,
+          "recorded_hits": 88,
+          "unknown": 15,
+          "recorded_hit_rate": 0.31316725978647686
+        }
+      ],
+      "pooled": {
+        "alerts": 773,
+        "recorded_hits": 257,
+        "unknown": 48,
+        "recorded_hit_rate": 0.33247089262613194
+      }
+    },
+    {
+      "schedule": "daily",
+      "window_days_after_asof": [
+        1,
+        1
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 4,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 130,
+          "recorded_hits": 59,
+          "unknown": 9,
+          "recorded_hit_rate": 0.45384615384615384
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 108,
+          "recorded_hits": 43,
+          "unknown": 3,
+          "recorded_hit_rate": 0.39814814814814814
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 125,
+          "recorded_hits": 43,
+          "unknown": 6,
+          "recorded_hit_rate": 0.344
+        }
+      ],
+      "pooled": {
+        "alerts": 363,
+        "recorded_hits": 145,
+        "unknown": 18,
+        "recorded_hit_rate": 0.39944903581267216
+      }
+    },
+    {
+      "schedule": "weekly_monday",
+      "window_days_after_asof": [
+        2,
+        8
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 0,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 104,
+          "recorded_hits": 62,
+          "unknown": 15,
+          "recorded_hit_rate": 0.5961538461538461
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 104,
+          "recorded_hits": 60,
+          "unknown": 13,
+          "recorded_hit_rate": 0.5769230769230769
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 96,
+          "recorded_hits": 59,
+          "unknown": 7,
+          "recorded_hit_rate": 0.6145833333333334
+        }
+      ],
+      "pooled": {
+        "alerts": 304,
+        "recorded_hits": 181,
+        "unknown": 35,
+        "recorded_hit_rate": 0.5953947368421053
+      }
+    },
+    {
+      "schedule": "weekly_monday",
+      "window_days_after_asof": [
+        2,
+        8
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 1,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 103,
+          "recorded_hits": 62,
+          "unknown": 15,
+          "recorded_hit_rate": 0.6019417475728155
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 104,
+          "recorded_hits": 60,
+          "unknown": 13,
+          "recorded_hit_rate": 0.5769230769230769
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 96,
+          "recorded_hits": 59,
+          "unknown": 7,
+          "recorded_hit_rate": 0.6145833333333334
+        }
+      ],
+      "pooled": {
+        "alerts": 303,
+        "recorded_hits": 181,
+        "unknown": 35,
+        "recorded_hit_rate": 0.5973597359735974
+      }
+    },
+    {
+      "schedule": "weekly_monday",
+      "window_days_after_asof": [
+        2,
+        8
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 2,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 74,
+          "recorded_hits": 49,
+          "unknown": 10,
+          "recorded_hit_rate": 0.6621621621621622
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 77,
+          "recorded_hits": 45,
+          "unknown": 9,
+          "recorded_hit_rate": 0.5844155844155844
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 76,
+          "recorded_hits": 50,
+          "unknown": 4,
+          "recorded_hit_rate": 0.6578947368421053
+        }
+      ],
+      "pooled": {
+        "alerts": 227,
+        "recorded_hits": 144,
+        "unknown": 23,
+        "recorded_hit_rate": 0.6343612334801763
+      }
+    },
+    {
+      "schedule": "weekly_monday",
+      "window_days_after_asof": [
+        2,
+        8
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 3,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 44,
+          "recorded_hits": 32,
+          "unknown": 6,
+          "recorded_hit_rate": 0.7272727272727273
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 31,
+          "recorded_hits": 23,
+          "unknown": 2,
+          "recorded_hit_rate": 0.7419354838709677
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 36,
+          "recorded_hits": 25,
+          "unknown": 1,
+          "recorded_hit_rate": 0.6944444444444444
+        }
+      ],
+      "pooled": {
+        "alerts": 111,
+        "recorded_hits": 80,
+        "unknown": 9,
+        "recorded_hit_rate": 0.7207207207207207
+      }
+    },
+    {
+      "schedule": "weekly_monday",
+      "window_days_after_asof": [
+        2,
+        8
+      ],
+      "budget": 4,
+      "min_alarm_days_in_last_7": 4,
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 19,
+          "recorded_hits": 15,
+          "unknown": 1,
+          "recorded_hit_rate": 0.7894736842105263
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 15,
+          "recorded_hits": 11,
+          "unknown": 1,
+          "recorded_hit_rate": 0.7333333333333333
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 16,
+          "recorded_hits": 13,
+          "unknown": 0,
+          "recorded_hit_rate": 0.8125
+        }
+      ],
+      "pooled": {
+        "alerts": 50,
+        "recorded_hits": 39,
+        "unknown": 2,
+        "recorded_hit_rate": 0.78
+      }
+    }
+  ]
+}

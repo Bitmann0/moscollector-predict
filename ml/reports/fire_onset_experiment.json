@@ -1,0 +1,129 @@
+{
+  "definition": "alarm tomorrow after >=7 calendar days without an alarm",
+  "folds": [
+    {
+      "start": "2025-04-06",
+      "end": "2025-07-04",
+      "all_state": {
+        "n": 40842,
+        "positives": 202,
+        "base_rate": 0.004945889035796484,
+        "pr_auc": 0.06964447095920048,
+        "roc_auc": 0.8751293657909097,
+        "daily_precision": 0.04777777777777778,
+        "daily_recall": 0.21287128712871287,
+        "alerts": 900
+      },
+      "quiet_week": {
+        "n": 40842,
+        "positives": 202,
+        "base_rate": 0.004945889035796484,
+        "pr_auc": 0.08139170680706544,
+        "roc_auc": 0.8778846013292274,
+        "daily_precision": 0.05444444444444444,
+        "daily_recall": 0.24257425742574257,
+        "alerts": 900
+      },
+      "historical_rate": {
+        "pr_auc": 0.017317625833378054,
+        "daily_precision": 0.015555555555555555,
+        "daily_recall": 0.06930693069306931
+      },
+      "weekly_alarms": {
+        "pr_auc": 0.004721359808638159,
+        "daily_precision": 0.0011111111111111111,
+        "daily_recall": 0.0049504950495049506
+      }
+    },
+    {
+      "start": "2025-07-05",
+      "end": "2025-10-02",
+      "all_state": {
+        "n": 41265,
+        "positives": 216,
+        "base_rate": 0.005234460196292257,
+        "pr_auc": 0.05772021166981403,
+        "roc_auc": 0.9102579978941158,
+        "daily_precision": 0.03888888888888889,
+        "daily_recall": 0.16203703703703703,
+        "alerts": 900
+      },
+      "quiet_week": {
+        "n": 41265,
+        "positives": 216,
+        "base_rate": 0.005234460196292257,
+        "pr_auc": 0.05725729046471011,
+        "roc_auc": 0.8992344740657734,
+        "daily_precision": 0.03777777777777778,
+        "daily_recall": 0.1574074074074074,
+        "alerts": 900
+      },
+      "historical_rate": {
+        "pr_auc": 0.01604532797772322,
+        "daily_precision": 0.023333333333333334,
+        "daily_recall": 0.09722222222222222
+      },
+      "weekly_alarms": {
+        "pr_auc": 0.005109771564678812,
+        "daily_precision": 0.0033333333333333335,
+        "daily_recall": 0.013888888888888888
+      }
+    },
+    {
+      "start": "2025-10-03",
+      "end": "2025-12-31",
+      "all_state": {
+        "n": 38500,
+        "positives": 228,
+        "base_rate": 0.005922077922077922,
+        "pr_auc": 0.04917325928638387,
+        "roc_auc": 0.8066408541996715,
+        "daily_precision": 0.044444444444444446,
+        "daily_recall": 0.17543859649122806,
+        "alerts": 900
+      },
+      "quiet_week": {
+        "n": 38500,
+        "positives": 228,
+        "base_rate": 0.005922077922077922,
+        "pr_auc": 0.04337968008456426,
+        "roc_auc": 0.7945457583392008,
+        "daily_precision": 0.03888888888888889,
+        "daily_recall": 0.15350877192982457,
+        "alerts": 900
+      },
+      "historical_rate": {
+        "pr_auc": 0.013545733351882975,
+        "daily_precision": 0.014444444444444444,
+        "daily_recall": 0.05701754385964912
+      },
+      "weekly_alarms": {
+        "pr_auc": 0.007632165957645398,
+        "daily_precision": 0.0077777777777777776,
+        "daily_recall": 0.03070175438596491
+      }
+    }
+  ],
+  "mean": {
+    "all_state": {
+      "pr_auc": 0.05884598063846613,
+      "daily_precision": 0.04370370370370371,
+      "daily_recall": 0.183448973552326
+    },
+    "quiet_week": {
+      "pr_auc": 0.060676225785446604,
+      "daily_precision": 0.04370370370370371,
+      "daily_recall": 0.18449681225432488
+    },
+    "historical_rate": {
+      "pr_auc": 0.01563622905432808,
+      "daily_precision": 0.017777777777777778,
+      "daily_recall": 0.07451556559164689
+    },
+    "weekly_alarms": {
+      "pr_auc": 0.0058210991103207895,
+      "daily_precision": 0.004074074074074074,
+      "daily_recall": 0.01651371277478625
+    }
+  }
+}

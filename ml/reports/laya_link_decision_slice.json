@@ -1,0 +1,100 @@
+{
+  "experiment": "laya_full_english_a_link_rerank_v1",
+  "model_repo": "convaiinnovations/laya",
+  "model_sha": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+  "weights_sha256": "891102d372688fc2a094dac56a384bc537b87c63f21f9f3dac0be2b7cbc8d86c",
+  "weights_bytes": 842609210,
+  "model_package": "laya==0.3.20",
+  "state_version": "link_rhythm_state_v1",
+  "question_hash": "6da4b9a02000b392",
+  "test_start": "2026-04-01",
+  "test_end": "2026-04-30",
+  "training_end": "2025-12-29",
+  "calibration": [
+    "2026-01-30",
+    "2026-02-28"
+  ],
+  "threshold_window": [
+    "2026-03-01",
+    "2026-03-30"
+  ],
+  "threshold": 0.3649054338036624,
+  "threshold_selection": {
+    "feasible": true,
+    "threshold": 0.3649054338036624,
+    "precision": 0.6833333333333333,
+    "recall": 0.05551042512862172,
+    "k": 600
+  },
+  "shortlist_per_day": 40,
+  "candidate_count": 1200,
+  "candidate_days": 30,
+  "full_lgbm_policy": {
+    "alerts": 541,
+    "hits": 347,
+    "known_misses": 177,
+    "unknown_alerts": 17,
+    "precision_lower_bound": 0.6414048059149723,
+    "precision_known_only": 0.6622137404580153,
+    "recall_known": 0.03256075818710707,
+    "episodes": 10657,
+    "episodes_caught": 412,
+    "episode_recall": 0.03866003565731444,
+    "episodes_per_100_alerts": 76.15526802218115
+  },
+  "laya": {
+    "alerts": 183,
+    "hits": 114,
+    "known_misses": 69,
+    "unknown_alerts": 0,
+    "precision_lower_bound": 0.6229508196721312,
+    "precision_known_only": 0.6229508196721312,
+    "shortlist_recall_known": 0.4810126582278481,
+    "recall_known": 0.010697194332363704
+  },
+  "lgbm_same_shortlist": {
+    "alerts": 176,
+    "hits": 119,
+    "known_misses": 54,
+    "unknown_alerts": 3,
+    "precision_lower_bound": 0.6761363636363636,
+    "precision_known_only": 0.6878612716763006,
+    "shortlist_recall_known": 0.5021097046413502,
+    "recall_known": 0.011166369522379656
+  },
+  "consensus_intersection": {
+    "alerts": 93,
+    "hits": 66,
+    "known_misses": 27,
+    "unknown_alerts": 0,
+    "precision_lower_bound": 0.7096774193548387,
+    "precision_known_only": 0.7096774193548387,
+    "recall_known": 0.006193112508210565
+  },
+  "rank_ensemble": {
+    "alerts": 181,
+    "hits": 122,
+    "known_misses": 58,
+    "unknown_alerts": 1,
+    "precision_lower_bound": 0.6740331491712708,
+    "precision_known_only": 0.6777777777777778,
+    "recall_known": 0.5147679324894515
+  },
+  "action_counts": {
+    "defer": 376
+  },
+  "action_hits_on_recorded_positive": {
+    "defer": 237
+  },
+  "full_population_episodes": {
+    "lgbm": null,
+    "laya": null
+  },
+  "full_positive_rows": 10657,
+  "laya_score_min": 0.5047,
+  "laya_score_max": 0.7238,
+  "laya_score_unique": 313,
+  "total_recorded_batch_seconds": 2101.8101418994484,
+  "partial_inference": true,
+  "decision": "routing_slice_only"
+}

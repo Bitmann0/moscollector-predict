@@ -1,0 +1,114 @@
+{
+  "train_rows": 100000,
+  "features": [
+    "seq_n_events_0",
+    "seq_n_alarms_0",
+    "seq_n_bad_0",
+    "seq_temp_max_0",
+    "seq_temp_range_0",
+    "seq_n_events_1",
+    "seq_n_alarms_1",
+    "seq_n_bad_1",
+    "seq_temp_max_1",
+    "seq_temp_range_1",
+    "seq_gap_1",
+    "seq_n_events_2",
+    "seq_n_alarms_2",
+    "seq_n_bad_2",
+    "seq_temp_max_2",
+    "seq_temp_range_2",
+    "seq_gap_2",
+    "seq_n_events_3",
+    "seq_n_alarms_3",
+    "seq_n_bad_3",
+    "seq_temp_max_3",
+    "seq_temp_range_3",
+    "seq_gap_3",
+    "seq_n_events_4",
+    "seq_n_alarms_4",
+    "seq_n_bad_4",
+    "seq_temp_max_4",
+    "seq_temp_range_4",
+    "seq_gap_4",
+    "seq_n_events_5",
+    "seq_n_alarms_5",
+    "seq_n_bad_5",
+    "seq_temp_max_5",
+    "seq_temp_range_5",
+    "seq_gap_5",
+    "seq_n_events_6",
+    "seq_n_alarms_6",
+    "seq_n_bad_6",
+    "seq_temp_max_6",
+    "seq_temp_range_6",
+    "seq_gap_6"
+  ],
+  "folds": [
+    {
+      "start": "2025-04-06",
+      "end": "2025-07-04",
+      "pca": {
+        "n": 40842,
+        "positives": 202,
+        "pr_auc": 0.005819302187189353,
+        "daily_precision": 0.0022222222222222222,
+        "daily_recall": 0.009900990099009901
+      },
+      "isolation_forest": {
+        "n": 40842,
+        "positives": 202,
+        "pr_auc": 0.006527066189444353,
+        "daily_precision": 0.0033333333333333335,
+        "daily_recall": 0.01485148514851485
+      }
+    },
+    {
+      "start": "2025-07-05",
+      "end": "2025-10-02",
+      "pca": {
+        "n": 41265,
+        "positives": 216,
+        "pr_auc": 0.008492832058177439,
+        "daily_precision": 0.0077777777777777776,
+        "daily_recall": 0.032407407407407406
+      },
+      "isolation_forest": {
+        "n": 41265,
+        "positives": 216,
+        "pr_auc": 0.00888340716573292,
+        "daily_precision": 0.0077777777777777776,
+        "daily_recall": 0.032407407407407406
+      }
+    },
+    {
+      "start": "2025-10-03",
+      "end": "2025-12-31",
+      "pca": {
+        "n": 38500,
+        "positives": 228,
+        "pr_auc": 0.017822418231377455,
+        "daily_precision": 0.023333333333333334,
+        "daily_recall": 0.09210526315789473
+      },
+      "isolation_forest": {
+        "n": 38500,
+        "positives": 228,
+        "pr_auc": 0.016911301146489706,
+        "daily_precision": 0.013333333333333334,
+        "daily_recall": 0.05263157894736842
+      }
+    }
+  ],
+  "mean": {
+    "pca": {
+      "pr_auc": 0.010711517492248081,
+      "daily_precision": 0.011111111111111112,
+      "daily_recall": 0.04480455355477068
+    },
+    "isolation_forest": {
+      "pr_auc": 0.010773924833888995,
+      "daily_precision": 0.00814814814814815,
+      "daily_recall": 0.03329682383443022
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "cohort": "middle-history guarded objects, Monday D, D+2..D+8",
+  "fixed_ranking": "one object per week, 28-day cooldown",
+  "fit_end": "2024-12-23",
+  "test_start": "2025-01-06",
+  "gaps": {
+    "3": {
+      "fit_onsets": 549,
+      "test_onsets": 439,
+      "policies": {
+        "rule": {
+          "selected": 76,
+          "onset_hits": 23,
+          "hit_rate": 0.3026315789473684
+        },
+        "model": {
+          "selected": 76,
+          "onset_hits": 38,
+          "hit_rate": 0.5
+        }
+      }
+    },
+    "7": {
+      "fit_onsets": 393,
+      "test_onsets": 293,
+      "policies": {
+        "rule": {
+          "selected": 76,
+          "onset_hits": 21,
+          "hit_rate": 0.27631578947368424
+        },
+        "model": {
+          "selected": 76,
+          "onset_hits": 37,
+          "hit_rate": 0.4868421052631579
+        }
+      }
+    },
+    "14": {
+      "fit_onsets": 201,
+      "test_onsets": 149,
+      "policies": {
+        "rule": {
+          "selected": 76,
+          "onset_hits": 4,
+          "hit_rate": 0.05263157894736842
+        },
+        "model": {
+          "selected": 76,
+          "onset_hits": 18,
+          "hit_rate": 0.23684210526315788
+        }
+      }
+    }
+  }
+}

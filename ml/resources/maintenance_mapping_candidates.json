@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "available_from": "2026-09-25",
+  "source_sha256": {
+    "ppr": "8ae33d6362ee16c935f59349ad9c66c1c76c1785fb10e02b828ce003b672cf4d",
+    "to": "ef14db84b977a418d346afc3b2b5f0a8a5aef1820144fc955a7c774939a9cd68"
+  },
+  "links": [
+    {
+      "source_object_key": "ppr:9",
+      "obj_parent": "3828",
+      "mapping_status": "inferred",
+      "equipment_scope": "Газовый датчик",
+      "evidence": "40 detectors in PPR; 40 GASB units in TO block 9; 40 catalog gas channels at parent 3828; observed shutdown near 2026-04-23"
+    },
+    {
+      "source_object_key": "to:9",
+      "obj_parent": "3828",
+      "mapping_status": "inferred",
+      "equipment_scope": "Газовый датчик",
+      "evidence": "TO block 9 names Yasenevo; a catalog channel at parent 3828 also names Yasenevo; 40 GASB units match 40 catalog gas channels"
+    },
+    {
+      "source_object_key": "ppr:14",
+      "obj_parent": "15",
+      "mapping_status": "inferred",
+      "equipment_scope": "Газовый датчик",
+      "evidence": "33 detectors in PPR; 33 GASB units in TO block 14; 33 catalog gas channels at parent 15; observed shutdown near 2026-06-04"
+    },
+    {
+      "source_object_key": "to:14",
+      "obj_parent": "15",
+      "mapping_status": "inferred",
+      "equipment_scope": "Газовый датчик",
+      "evidence": "33 GASB units match PPR 14 and 33 catalog gas channels; temporal shutdown supports but customer has not confirmed the identity"
+    }
+  ]
+}

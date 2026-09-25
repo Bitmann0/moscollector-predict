@@ -1,0 +1,55 @@
+{
+  "target": "recorded guarded-alarm episode onset in D+2..D+8",
+  "unit": "unique object-onset day in the 2025-2026 middle-history cohort",
+  "limitation": "an event-driven sensor can be healthy without daily events; activity is positive evidence only",
+  "total_onsets": 293,
+  "with_any_trigger_channel_active_prior_7d": 189,
+  "with_all_trigger_channels_active_prior_7d": 165,
+  "with_any_trigger_channel_active_prior_30d": 269,
+  "with_any_object_event_prior_7d": 292,
+  "with_object_events_all_7d": 209,
+  "no_trigger_activity_but_object_active_prior_7d": 103,
+  "by_year": {
+    "2025": {
+      "onsets": 201,
+      "any_active_7d": 125,
+      "all_active_7d": 105
+    },
+    "2026": {
+      "onsets": 92,
+      "any_active_7d": 64,
+      "all_active_7d": 60
+    }
+  },
+  "selected_one_per_week_cooldown28": {
+    "onset_rule": {
+      "recommendations": 76,
+      "recorded_onset_hits": 21,
+      "hits_with_any_trigger_channel_active_prior_7d": 15,
+      "hits_with_all_trigger_channels_active_prior_7d": 14,
+      "hits_with_any_trigger_channel_active_prior_30d": 21,
+      "hits_with_any_object_event_prior_7d": 21
+    },
+    "history_logistic": {
+      "recommendations": 76,
+      "recorded_onset_hits": 37,
+      "hits_with_any_trigger_channel_active_prior_7d": 19,
+      "hits_with_all_trigger_channels_active_prior_7d": 17,
+      "hits_with_any_trigger_channel_active_prior_30d": 34,
+      "hits_with_any_object_event_prior_7d": 37
+    },
+    "active_channel_target_logistic": {
+      "recommendations": 76,
+      "recorded_onset_hits": 33,
+      "hits_with_any_trigger_channel_active_prior_7d": 18,
+      "hits_with_all_trigger_channels_active_prior_7d": 15,
+      "hits_with_any_trigger_channel_active_prior_30d": 30,
+      "hits_with_any_object_event_prior_7d": 33
+    }
+  },
+  "active_channel_target": {
+    "fit_positive_weeks": 273,
+    "test_positive_weeks": 189,
+    "definition": "future recorded onset with at least one triggering channel active in previous seven days; this observation condition uses future outcome information, never a ranking feature"
+  }
+}
