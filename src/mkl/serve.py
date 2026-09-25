@@ -9,7 +9,7 @@ import polars as pl
 import yaml
 
 from . import store
-from .config import PATHS
+from .config import EQUIPMENT_STYPES, PATHS
 
 HEADS_CONFIG = PATHS.root / "configs" / "heads.yaml"
 
@@ -128,6 +128,13 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
 
     feats = (store.latest_snapshot(cfg["feature_set"]) if asof is None
              else store.read_slice(cfg["feature_set"], asof, asof))
+    if head == "D":
+        # The wear target is defined only for equipment sensor types. Scoring
+        # every channel and then taking top-3 lets out-of-scope sensors consume
+        # the entire dispatch budget despite having no defined target.
+        if "stype" not in feats.columns:
+            raise ValueError("D requires stype to match its target population")
+        feats = feats.filter(pl.col("stype").is_in(EQUIPMENT_STYPES))
     # Порядок и состав колонок берутся из артефакта модели, а не из фичестора:
     # так лишний признак, добавленный позже, не сдвинет вектор на инференсе.
     missing = [c for c in art["features"] if c not in feats.columns]
@@ -204,9 +211,27 @@ def score_all(asof: dt.date | None = None) -> dict[str, pl.DataFrame]:
     return {h: score(h, asof) for h in load_heads() if model_path(h).exists()}
 
 
+def apply_issued_cooldown(ranked: pl.DataFrame, entity: str, day: dt.date,
+                          issued: list[tuple[object, dt.date]],
+                          cooldown_days: int = 7) -> pl.DataFrame:
+    """Suppress already issued cases after ranking, without filling freed slots.
+
+    `issued` is the backend's durable journal of *sent* recommendations, not
+    historical high scores. Same-day reruns ignore today's entry and therefore
+    produce the same selection. Calendar dates matter when telemetry skips a day.
+    """
+    if entity not in ranked.columns or "alert" not in ranked.columns:
+        raise ValueError("cooldown requires entity and alert columns")
+    blocked = {key for key, sent_day in issued
+               if 0 < (day - sent_day).days <= cooldown_days}
+    return ranked.with_columns(
+        (pl.col("alert") & ~pl.col(entity).is_in(list(blocked))).alias("alert"))
+
+
 def alerts_over_time(df: pl.DataFrame, budget_per_day: int, entity: str,
                      cooldown_days: int = 0, confirm_of_3: bool = False,
-                     per_object: bool = False) -> pl.DataFrame:
+                     per_object: bool = False,
+                     threshold: float | None = None) -> pl.DataFrame:
     """Суточная выдача с памятью о предыдущих сутках.
 
     Отсечка по бюджету сама по себе состояния не имеет, и канал, лежащий месяц,
@@ -225,24 +250,27 @@ def alerts_over_time(df: pl.DataFrame, budget_per_day: int, entity: str,
     if df.is_empty():
         return df.with_columns(pl.lit(False).alias("alert"))
     days = sorted(df["day"].unique().to_list())
-    last_alert: dict = {}
+    issued: list[tuple[object, dt.date]] = []
     recent_top: dict = {}
     out = []
-    for i, d in enumerate(days):
+    for d in days:
         cur = df.filter(pl.col("day") == d)
         ranked = _apply_budget(cur, budget_per_day, per_object=per_object)
+        if threshold is not None:
+            ranked = ranked.with_columns(
+                (pl.col("alert") & (pl.col("risk") >= threshold)).alias("alert"))
         top = ranked.filter(pl.col("alert"))[entity].to_list()
         for e in top:
-            recent_top.setdefault(e, []).append(i)
-        fresh = []
-        for e in top:
-            if cooldown_days and e in last_alert and i - last_alert[e] <= cooldown_days:
-                continue
-            if confirm_of_3 and sum(1 for j in recent_top.get(e, [])
-                                    if i - j <= 2) < 2:
-                continue
-            fresh.append(e)
-            last_alert[e] = i
-        out.append(ranked.with_columns(
-            pl.col(entity).is_in(fresh).alias("alert")))
+            recent_top.setdefault(e, []).append(d)
+        if confirm_of_3:
+            confirmed = [e for e in top
+                         if sum(0 <= (d - seen).days <= 2
+                                for seen in recent_top[e]) >= 2]
+            ranked = ranked.with_columns(
+                (pl.col("alert") & pl.col(entity).is_in(confirmed)).alias("alert"))
+        selected = apply_issued_cooldown(
+            ranked, entity, d, issued, cooldown_days=cooldown_days)
+        issued.extend((e, d) for e in
+                      selected.filter(pl.col("alert"))[entity].to_list())
+        out.append(selected)
     return pl.concat(out)

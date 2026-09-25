@@ -61,7 +61,9 @@ def _i(v):
 
 
 def alerts_for_head(head: str, asof: dt.date | None = None,
-                    with_factors: bool = True) -> list[Alert]:
+                    with_factors: bool = True,
+                    issued_history: list[tuple[object, dt.date]] | None = None,
+                    history_complete_from: dt.date | None = None) -> list[Alert]:
     """Алерты одной головы за сутки asof в форме контракта."""
     cfg = serve.load_heads()[head]
     df, art, feats = serve.score_with_internals(head, asof)
@@ -71,6 +73,15 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
     day = df["day"][0] if "day" in df.columns else (asof or dt.date.today())
     if isinstance(day, dt.datetime):
         day = day.date()
+    if head == "D":
+        # The ML layer owns the selection policy; durable recommendation history
+        # is supplied by the backend. Without a complete seven-day journal,
+        # returning raw top-3 would silently violate the evaluated policy.
+        if issued_history is None or history_complete_from is None or \
+                history_complete_from > day - dt.timedelta(days=7):
+            raise ValueError("D requires a complete issued-recommendation journal "
+                             "covering the previous 7 calendar days")
+        df = serve.apply_issued_cooldown(df, "ch", day, issued_history)
     horizon = int(cfg["horizon_days"]) * 24
     # Окно прогноза начинается в конце суток, по которым посчитаны признаки:
     # метка живёт в (day, day + horizon], и обещать раньше нечего.
@@ -125,20 +136,29 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
 
 def daily_alerts(asof: dt.date | None = None, heads: list[str] | None = None,
                  only_in_budget: bool = True,
-                 with_factors: bool = True) -> list[Alert]:
+                 with_factors: bool = True,
+                 issued_history: list[tuple[object, dt.date]] | None = None,
+                 history_complete_from: dt.date | None = None) -> list[Alert]:
     """Выдача за сутки по всем головам, у которых обучена модель.
 
     only_in_budget отдаёт лишь то, что сервис действительно предлагает к
     выезду. Полный список с рангами нужен для журнала прогнозов, поэтому
     отключаемо, а не зашито.
     """
-    names = heads or [h for h in serve.load_heads()
-                      if serve.model_path(h).exists()]
+    names = heads if heads is not None else [
+        h for h, cfg in serve.load_heads().items()
+        if cfg.get("product_status") == "pilot" and serve.model_path(h).exists()
+        and (h != "D" or issued_history is not None)]
     out: list[Alert] = []
     for head in names:
         try:
-            got = alerts_for_head(head, asof, with_factors=with_factors)
+            got = alerts_for_head(
+                head, asof, with_factors=with_factors,
+                issued_history=issued_history,
+                history_complete_from=history_complete_from)
         except (ValueError, FileNotFoundError) as exc:
+            if head == "D" or heads is not None:
+                raise
             print(f"голова {head} пропущена: {exc}", flush=True)
             continue
         out.extend(a for a in got if a.in_budget or not only_in_budget)
@@ -177,8 +197,8 @@ def coverage(asof: dt.date | None = None) -> list[Coverage]:
         ent = "obj" if cfg["entity"][0] in ("obj", "seg") else "ch"
         total = ref[ent]
         try:
-            scored = len({a.address.obj if ent == "obj" else a.address.channel
-                          for a in alerts_for_head(head, asof, with_factors=False)})
+            scored_df = serve.score(head, asof)
+            scored = scored_df[ent].n_unique()
         except (ValueError, FileNotFoundError):
             scored = 0
         reason = None

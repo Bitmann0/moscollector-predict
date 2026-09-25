@@ -272,3 +272,23 @@ def test_per_object_budget_still_spreads_across_objects():
     })
     out = serve._apply_budget(df, budget=3, per_object=True)
     assert out.filter(pl.col("alert"))["obj"].n_unique() == 3
+
+
+def test_d_scores_only_equipment_channels_with_defined_target(monkeypatch):
+    import datetime as dt
+
+    day = dt.date(2026, 6, 30)
+    feats = pl.DataFrame({"ch": [1, 2], "obj": ["A", "B"],
+                          "day": [day, day],
+                          "stype": ["Состояние насоса", "Температура"],
+                          "x": [0.1, 0.2]})
+    art = {"model": _ConstantModel(), "iso": None, "features": ["x"],
+           "threshold": 0.4, "feature_signature": None}
+    monkeypatch.setattr(serve, "load_heads", lambda: {
+        "D": {"entity": ["ch", "day"], "feature_set": "sensor",
+              "budget_per_day": 2, "budget_per_object": True}})
+    monkeypatch.setattr(serve.store, "latest_snapshot", lambda name: feats)
+    monkeypatch.setattr(serve, "model_path", lambda head: _FakeArtifactPath(art))
+    got = serve.score("D")
+    assert got["ch"].to_list() == [1]
+    assert got["alert"].to_list() == [True]
