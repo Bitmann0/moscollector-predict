@@ -56,10 +56,43 @@ def test_duplicate_historical_object_day_is_rejected():
 
 def test_weekly_api_is_separate_from_automatic_work_orders(monkeypatch):
     monkeypatch.setattr(api.guard_weekly, "weekly_inspections", lambda asof=None: {
+        "schema_version": "1.0", "model_version": "weekly_recurrence_rule_v1",
+        "result_status": "ok",
         "asof": "2025-04-07", "valid_from": "2025-04-09",
         "valid_to": "2025-04-16", "action": "manual_plan_guard_loop_inspection",
-        "priorities": [{"obj": "A", "rank": 1}]})
+        "priorities": [{"obj": "A", "rank": 1,
+                        "recommendation_id": "stable-id"}]})
     got = TestClient(api.app).get("/api/v1/guard-weekly-inspections").json()
     assert got["valid_from"] == "2025-04-09"
     assert got["action"] == "manual_plan_guard_loop_inspection"
+    assert got["result_status"] == "ok"
+    assert got["priorities"][0]["recommendation_id"] == "stable-id"
     assert "work_order_id" not in got["priorities"][0]
+
+
+def test_weekly_api_exposes_stale_data_as_conflict(monkeypatch):
+    def stale(_asof=None):
+        raise ValueError("event-time cache is stale for this day; rebuild labels")
+    monkeypatch.setattr(api.guard_weekly, "weekly_inspections", stale)
+    got = TestClient(api.app).get(
+        "/api/v1/guard-weekly-inspections?asof=2025-04-07")
+    assert got.status_code == 409
+    assert "stale" in got.json()["detail"]
+
+
+def test_weekly_calculation_blocks_unready_queue(monkeypatch):
+    monkeypatch.setattr(api.guard_weekly, "readiness", lambda: {
+        "status": "stale", "scenario": "weekly_recurrence_rule_v1"})
+    got = TestClient(api.app).get(
+        "/api/v1/guard-weekly-inspections?asof=2025-04-07")
+    assert got.status_code == 409
+    assert "refresh" in got.json()["detail"]
+
+
+def test_readiness_is_separate_from_legacy_model_health(monkeypatch):
+    monkeypatch.setattr(api.guard_weekly, "readiness", lambda: {
+        "status": "ready", "scenario": "weekly_recurrence_rule_v1"})
+    got = TestClient(api.app).get("/ready")
+    assert got.status_code == 200
+    assert got.json() == {"status": "ready",
+                          "scenario": "weekly_recurrence_rule_v1"}

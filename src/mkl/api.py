@@ -58,6 +58,12 @@ def health() -> dict:
     }
 
 
+@app.get("/ready")
+def ready() -> dict:
+    """Readiness of the production pilot queue, separate from model health."""
+    return guard_weekly.readiness()
+
+
 @app.get(f"{API_PREFIX}/directions")
 def directions() -> list[dict]:
     """Направления прогнозирования по ТЗ и головы, которые их закрывают."""

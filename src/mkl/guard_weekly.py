@@ -21,6 +21,8 @@ FIRST_REPLAY_DAY = dt.date(2023, 2, 1)
 MIN_ALARM_DAYS = 4
 COOLDOWN_DAYS = 14
 BUDGET = 4
+SCHEMA_VERSION = "1.0"
+METHOD = "weekly_recurrence_rule_v1"
 
 
 def replay(frame: pl.DataFrame, event_days: pl.DataFrame,
@@ -75,8 +77,14 @@ def replay(frame: pl.DataFrame, event_days: pl.DataFrame,
 
 def weekly_inspections(asof: dt.date | None = None) -> dict:
     """Return a small scheduled watchlist; refuse missing or stale v2 cache."""
-    if not guard_queue.EVENT_DAYS.exists() or not guard_queue.BUILD_INFO.exists():
-        raise FileNotFoundError("event-time cache missing; run build_intrusion_eventtime_labels.py")
+    ready = readiness()
+    if ready["status"] != "ready":
+        if ready["status"] == "missing_data":
+            missing = ", ".join(ready.get("missing", []))
+            raise FileNotFoundError(
+                f"weekly queue data missing ({missing}); rebuild the data cache")
+        raise ValueError(
+            f"weekly queue is {ready['status']}; refresh the data cache before serving")
     info = json.loads(guard_queue.BUILD_INFO.read_text(encoding="utf-8"))
     last_day = pl.scan_parquet(PATHS.features / "object.parquet").select(
         pl.col("day").max()).collect().item()
@@ -93,27 +101,70 @@ def weekly_inspections(asof: dt.date | None = None) -> dict:
         obj = str(row["obj"])
         addr = address.describe(obj=obj)
         rows.append({"obj": obj, "rank": rank,
+                     "recommendation_id": contract.make_alert_id(
+                         "guard_weekly", {"obj": obj, "target": "D+2..D+8"}, day),
                      "case_key": contract.make_case_key("guard_weekly", {"obj": obj}),
                      "priority_score": float(row["priority_score"]),
                      "recent_alarm_days_7": int(row["exact_count_7"]),
                      "recent_alarm_days_30": int(row["exact_count_30"]),
                      "guard_state_age_days": int(row["days_since_arm_event"]),
+                     "evidence": "alarm_on_at_least_4_of_previous_7_days",
                      "obj_name": addr.get("obj_name"),
                      "obj_parent_name": addr.get("obj_parent_name"),
                      "address_known": addr.get("address_known", False)})
-    return {"asof": day.isoformat(),
+    cache_through = (dt.date.fromisoformat(info["end"]) +
+                     dt.timedelta(days=1)).isoformat()
+    return {"schema_version": SCHEMA_VERSION,
+            "asof": day.isoformat(),
             "valid_from": (day+dt.timedelta(days=2)).isoformat(),
             "valid_to": (day+dt.timedelta(days=9)).isoformat(),
             "next_run": (day+dt.timedelta(days=7)).isoformat(),
             "target": "continued_recorded_smvu_guard_alarm_activity",
             "target_version": 2,
+            "model_version": METHOD,
             "action": "manual_plan_guard_loop_inspection",
             "score_type": "relative_priority_not_probability",
-            "method": "weekly_recurrence_rule_v1",
+            "method": METHOD,
+            "result_status": "ok" if rows else "empty_valid",
             "policy": {"alarm_days_in_last_7_at_least": MIN_ALARM_DAYS,
                        "max_objects_per_week": BUDGET,
                        "same_object_cooldown_days": COOLDOWN_DAYS},
             **counts, "priorities": rows,
-            "event_cache_through": (dt.date.fromisoformat(info["end"]) +
-                                    dt.timedelta(days=1)).isoformat(),
+            "event_cache_through": cache_through,
+            "data_snapshot": {"object_features_through": last_day.isoformat(),
+                              "event_cache_through": cache_through,
+                              "event_cache_version": info.get("version"),
+                              "label_build_end": info.get("end")},
             "data_last_day": last_day.isoformat()}
+
+
+def readiness() -> dict:
+    """Readiness of the weekly manual queue, independent of legacy models."""
+    required = {
+        "object_features": PATHS.features / "object.parquet",
+        "event_days": guard_queue.EVENT_DAYS,
+        "event_build_info": guard_queue.BUILD_INFO,
+        "channel_catalog": PATHS.interim / "channels.parquet",
+    }
+    missing = [name for name, path in required.items() if not path.exists()]
+    if missing:
+        return {"status": "missing_data", "scenario": METHOD,
+                "missing": missing}
+    try:
+        info = json.loads(guard_queue.BUILD_INFO.read_text(encoding="utf-8"))
+        last_day = pl.scan_parquet(PATHS.features / "object.parquet").select(
+            pl.col("day").max()).collect().item()
+        cache_through = (dt.date.fromisoformat(info["end"]) +
+                         dt.timedelta(days=1))
+    except (OSError, ValueError, KeyError) as exc:
+        return {"status": "error", "scenario": METHOD,
+                "detail": f"cannot inspect data freshness: {exc}"}
+    status = "ready"
+    if info.get("version") != 2 or last_day > cache_through:
+        status = "stale"
+    return {"status": status, "scenario": METHOD,
+            "schema_version": SCHEMA_VERSION, "model_version": METHOD,
+            "data_last_day": last_day.isoformat(),
+            "event_cache_through": cache_through.isoformat(),
+            "event_cache_version": info.get("version"),
+            "missing": []}
