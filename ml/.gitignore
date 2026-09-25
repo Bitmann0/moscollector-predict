@@ -12,3 +12,8 @@ configs/features.yaml
 reports/latest_model_refresh.json
 Materials/
 ChatExport_2026-09-19/
+
+# Монорепо: любые данные внутри ml/
+/data/
+/models/
+/Materials/
