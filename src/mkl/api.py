@@ -15,6 +15,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Query
 
 from . import contract, guard_queue, guard_weekly, service, workorders
+from .config import PATHS
 from .serve import load_heads
 
 API_PREFIX = "/api/v1"
@@ -30,18 +31,39 @@ app = FastAPI(
 )
 
 _cache: dict[Any, Any] = {}
+_cache_version: Any = None
+
+
+def _cache_generation() -> tuple:
+    """A new day, feature snapshot, catalog or model invalidates old alerts."""
+    paths = [PATHS.features / "sensor.parquet",
+             PATHS.interim / "channels.parquet",
+             PATHS.models / "D.pkl", PATHS.models / "A_link.pkl"]
+    return (dt.date.today(), tuple(
+        path.stat().st_mtime_ns if path.exists() else None for path in paths))
 
 
 def _alerts(asof: dt.date | None, only_in_budget: bool) -> list:
+    global _cache_version
+    generation = _cache_generation()
+    if generation != _cache_version:
+        _cache.clear()
+        _cache_version = generation
     key = ("alerts", asof, only_in_budget)
     if key not in _cache:
-        _cache[key] = service.daily_alerts(asof=asof, only_in_budget=only_in_budget)
+        try:
+            _cache[key] = service.daily_alerts(
+                asof=asof, only_in_budget=only_in_budget)
+        except (ValueError, FileNotFoundError) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
     return _cache[key]
 
 
 def reset_cache() -> None:
     """Сбросить кэш — после пересборки фичестора или переобучения."""
     _cache.clear()
+    global _cache_version
+    _cache_version = None
 
 
 @app.get("/health")

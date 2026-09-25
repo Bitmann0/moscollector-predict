@@ -163,7 +163,7 @@ def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1,
     L8 = L6 объединить L7, то есть отказ или аномальный уход в молчание."""
     if variant == "L4":
         events = _SILENCE_SQL
-    elif variant == "L9":
+    elif variant in ("L9", "L9c"):
         events = _SILENCE_RHYTHM_SQL
     elif variant == "L7":
         events = _SILENCE_STRICT_SQL
@@ -181,6 +181,17 @@ def build_sensor_failure(con, variant: str = "L3", horizon_days: int = 1,
           WHERE {_VARIANT_FILTER[variant]}
         """
     _emit(con, table, events, "ch", horizon_days)
+    if variant == "L9c":
+        # L9 recognises an anomalous gap only when a later report reveals its
+        # length. The last observed row of a channel has no later report: a
+        # permanent outage or decommissioning would otherwise be labelled 0.
+        # Keep that outcome unknown until an external status or return arrives.
+        con.execute(f"""
+        DELETE FROM {table} AS l USING (
+          SELECT ch, max(day) AS last_day FROM daily_channel GROUP BY ch
+        ) AS t
+        WHERE l.ch = t.ch AND l.day = t.last_day
+        """)
 
 
 def build_sensor_failure_strict(con, horizon_days: int = 1) -> None:

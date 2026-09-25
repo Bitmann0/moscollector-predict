@@ -63,6 +63,8 @@ def stages() -> list[Stage]:
 
     raw, interim, feat = PATHS.raw, PATHS.interim, PATHS.features
     py = [sys.executable]
+    pilot_heads = [head for head, cfg in load_heads().items()
+                   if cfg.get("product_status") == "pilot"]
     return [
         Stage(
             name="ingest", title="Приём журнала и справочников",
@@ -113,7 +115,7 @@ def stages() -> list[Stage]:
                     feat / "segment.parquet", ROOT / "configs" / "heads.yaml",
                     SRC / "train.py", SRC / "labels.py",
                     ROOT / "scripts" / "train_latest.py"],
-            outputs=[PATHS.models / f"{head}.pkl" for head in load_heads()],
+            outputs=[PATHS.models / f"{head}.pkl" for head in pilot_heads],
             needs=("features",),
             note="порог выбирается на последних наблюдаемых 30 сутках; 2026 benchmark отдельно",
         ),

@@ -1,5 +1,6 @@
 """Weekly guard-loop watchlist: lead time, abstention, and cooldown."""
 import datetime as dt
+import json
 
 import polars as pl
 import pytest
@@ -81,7 +82,7 @@ def test_weekly_api_exposes_stale_data_as_conflict(monkeypatch):
 
 
 def test_weekly_calculation_blocks_unready_queue(monkeypatch):
-    monkeypatch.setattr(api.guard_weekly, "readiness", lambda: {
+    monkeypatch.setattr(api.guard_weekly, "readiness", lambda **kw: {
         "status": "stale", "scenario": "weekly_recurrence_rule_v1"})
     got = TestClient(api.app).get(
         "/api/v1/guard-weekly-inspections?asof=2025-04-07")
@@ -96,3 +97,31 @@ def test_readiness_is_separate_from_legacy_model_health(monkeypatch):
     assert got.status_code == 200
     assert got.json() == {"status": "ready",
                           "scenario": "weekly_recurrence_rule_v1"}
+
+
+def test_live_readiness_rejects_old_telemetry_but_allows_archive_audit(
+        tmp_path, monkeypatch):
+    last = dt.date(2026, 6, 30)
+    features, interim = tmp_path / "features", tmp_path / "interim"
+    features.mkdir()
+    interim.mkdir()
+    pl.DataFrame({"day": [last]}).write_parquet(features / "object.parquet")
+    (interim / "channels.parquet").touch()
+    event_days = interim / "event_days.parquet"
+    event_days.touch()
+    build_info = interim / "build_info.json"
+    build_info.write_text(json.dumps({"version": 2, "end": "2026-06-29"}))
+    monkeypatch.setattr(guard_weekly, "PATHS", type("Paths", (), {
+        "features": features, "interim": interim})())
+    monkeypatch.setattr(guard_weekly.guard_queue, "EVENT_DAYS", event_days)
+    monkeypatch.setattr(guard_weekly.guard_queue, "BUILD_INFO", build_info)
+
+    assert guard_weekly.readiness(now=last+dt.timedelta(days=1))["status"] == "ready"
+    assert guard_weekly.readiness(now=last-dt.timedelta(days=1))["status"] == "future_source"
+    stale = guard_weekly.readiness(now=last+dt.timedelta(days=30))
+    assert stale["status"] == "stale_source" and stale["data_age_days"] == 30
+    assert guard_weekly.readiness(
+        now=last+dt.timedelta(days=30), require_recent=False)["status"] == "ready"
+    pl.DataFrame({"day": []}, schema={"day": pl.Date}).write_parquet(
+        features / "object.parquet")
+    assert guard_weekly.readiness(now=last)["status"] == "missing_data"

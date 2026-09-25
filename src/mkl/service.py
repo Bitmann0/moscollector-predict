@@ -73,15 +73,25 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
     day = df["day"][0] if "day" in df.columns else (asof or dt.date.today())
     if isinstance(day, dt.datetime):
         day = day.date()
-    if head == "D":
-        # The ML layer owns the selection policy; durable recommendation history
-        # is supplied by the backend. Without a complete seven-day journal,
-        # returning raw top-3 would silently violate the evaluated policy.
-        if issued_history is None or history_complete_from is None or \
-                history_complete_from > day - dt.timedelta(days=7):
-            raise ValueError("D requires a complete issued-recommendation journal "
-                             "covering the previous 7 calendar days")
-        df = serve.apply_issued_cooldown(df, "ch", day, issued_history)
+    if cfg.get("product_status") == "pilot":
+        if asof is None and (dt.date.today() - day).days > 2:
+            raise ValueError(f"{head}: latest feature day {day} is stale for live pilot")
+        serve.validate_pilot_artifact(
+            head, art, day, max_lag_days=int(cfg.get("max_model_lag_days", 14)))
+        cooldown = int(cfg.get("cooldown_days", 0))
+        if cooldown:
+            # Durable history belongs to the backend. An absent or incomplete
+            # journal must never silently turn the evaluated policy into raw
+            # daily top-k. The journal is scoped to this head, not shared with
+            # another model that happens to score the same channel.
+            if issued_history is None or history_complete_from is None or \
+                    history_complete_from > day - dt.timedelta(days=cooldown):
+                raise ValueError(
+                    f"{head} requires a complete issued-recommendation journal "
+                    f"covering the previous {cooldown} calendar days")
+            df = serve.apply_issued_cooldown(
+                df, cfg["entity"][0], day, issued_history,
+                cooldown_days=cooldown)
     horizon = int(cfg["horizon_days"]) * 24
     # Окно прогноза начинается в конце суток, по которым посчитаны признаки:
     # метка живёт в (day, day + horizon], и обещать раньше нечего.
@@ -137,7 +147,7 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
 def daily_alerts(asof: dt.date | None = None, heads: list[str] | None = None,
                  only_in_budget: bool = True,
                  with_factors: bool = True,
-                 issued_history: list[tuple[object, dt.date]] | None = None,
+                 issued_histories: dict[str, list[tuple[object, dt.date]]] | None = None,
                  history_complete_from: dt.date | None = None) -> list[Alert]:
     """Выдача за сутки по всем головам, у которых обучена модель.
 
@@ -145,19 +155,25 @@ def daily_alerts(asof: dt.date | None = None, heads: list[str] | None = None,
     выезду. Полный список с рангами нужен для журнала прогнозов, поэтому
     отключаемо, а не зашито.
     """
+    configs = serve.load_heads()
     names = heads if heads is not None else [
-        h for h, cfg in serve.load_heads().items()
-        if cfg.get("product_status") == "pilot" and serve.model_path(h).exists()
-        and (h != "D" or issued_history is not None)]
+        h for h, cfg in configs.items() if cfg.get("product_status") == "pilot"]
+    histories = issued_histories or {}
+    missing = [h for h in names if configs[h].get("product_status") == "pilot"
+               and configs[h].get("cooldown_days") and h not in histories]
+    if missing:
+        raise ValueError("pilot recommendation journal missing for " +
+                         ", ".join(missing))
     out: list[Alert] = []
     for head in names:
         try:
             got = alerts_for_head(
                 head, asof, with_factors=with_factors,
-                issued_history=issued_history,
+                issued_history=histories.get(head),
                 history_complete_from=history_complete_from)
         except (ValueError, FileNotFoundError) as exc:
-            if head == "D" or heads is not None:
+            if configs[head].get("product_status") == "pilot" or \
+                    head == "D" or heads is not None:
                 raise
             print(f"голова {head} пропущена: {exc}", flush=True)
             continue

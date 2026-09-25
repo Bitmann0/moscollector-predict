@@ -45,9 +45,9 @@ def _scored(block: pl.DataFrame, model, iso, names: list[str],
 
 
 def _summary(scored: pl.DataFrame, threshold: float | None,
-             cfg: dict) -> dict:
+             cfg: dict, cooldown_days: int = 7) -> dict:
     served = serve.alerts_over_time(
-        scored, cfg["budget_per_day"], entity="ch", cooldown_days=7,
+        scored, cfg["budget_per_day"], entity="ch", cooldown_days=cooldown_days,
         per_object=bool(cfg.get("budget_per_object")), threshold=threshold)
     picked = served.filter(pl.col("alert"))
     raw = served.filter(pl.col("y") == 1)

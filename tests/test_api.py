@@ -79,6 +79,32 @@ def test_unknown_alert_gives_404(client):
     assert client.get("/api/v1/alerts/нетакого").status_code == 404
 
 
+def test_stale_pilot_data_is_conflict_not_empty_success(monkeypatch):
+    monkeypatch.setattr(api.service, "daily_alerts",
+                        lambda **kw: (_ for _ in ()).throw(
+                            ValueError("latest feature day is stale")))
+    api.reset_cache()
+    got = TestClient(api.app).get("/api/v1/alerts")
+    assert got.status_code == 409
+    assert "stale" in got.json()["detail"]
+
+
+def test_alert_cache_invalidates_on_new_data_or_day(monkeypatch):
+    calls = []
+    generation = [1]
+    monkeypatch.setattr(api, "_cache_generation", lambda: generation[0])
+    monkeypatch.setattr(api.service, "daily_alerts",
+                        lambda **kw: calls.append(1) or [])
+    api.reset_cache()
+    client = TestClient(api.app)
+    assert client.get("/api/v1/alerts").status_code == 200
+    assert client.get("/api/v1/alerts").status_code == 200
+    assert len(calls) == 1
+    generation[0] = 2
+    assert client.get("/api/v1/alerts").status_code == 200
+    assert len(calls) == 2
+
+
 def test_coverage_shows_the_gap_not_a_full_bar(client):
     """Доля покрытия единицей ровно там, где разрыв и надо показать, — это
     дефект, который уже случался: знаменатель брался из среза, а не справочника.

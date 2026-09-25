@@ -10,14 +10,22 @@ A_link:
   product_status: pilot
   product_target: channel_loses_observability_tomorrow
   product_action: manual_link_diagnostics
-  product_policy: fixed_top_20_per_day; abstain_if_fresh_threshold_unavailable
+  product_policy: calibrated_min_precision_0_50; max_20_per_day; cooldown_7d
+  operating_min_precision: 0.50
+  operating_min_alerts: 30
+  unknown_in_budget: true
+  cooldown_days: 7
+  max_model_lag_days: 8
   entity: [ch, day]
   feature_set: sensor
   label: label_link
   # L9 вместо L4: порог пропуска свой у каждого канала, кратный его обычному
   # ритму. Фиксированные «двое суток» считали отказом штатный редкий опрос —
   # 303 617 событий из 982 438 были разрывами ровно в одни сутки.
-  variant: L9
+  # L9c keeps the rhythm-based transient-gap event but censors each channel's
+  # final report: without a later return, permanent loss/decommissioning is
+  # unknown, not a confirmed negative.
+  variant: L9c
   horizon_days: 1
   embargo_days: 31
   budget_per_day: 20
@@ -200,6 +208,8 @@ D:
   product_target: recorded_equipment_wear_signal_next_7_days
   product_action: manual_planned_equipment_diagnostic
   product_policy: calibrated_threshold_and_max_3_per_day; cooldown_7d
+  cooldown_days: 7
+  max_model_lag_days: 14
   entity: [ch, day]
   feature_set: sensor
   label: label_wear

@@ -36,7 +36,8 @@ def feature_signature(name: str) -> str:
 
 
 def save(head: str, model, iso, feature_names: list[str],
-         threshold: float | None = None) -> Path:
+         threshold: float | None = None,
+         metadata: dict | None = None) -> Path:
     PATHS.models.mkdir(parents=True, exist_ok=True)
     registry = store.load_registry()
     cfg = load_heads()[head]
@@ -53,6 +54,7 @@ def save(head: str, model, iso, feature_names: list[str],
         "feature_signature": feature_signature(cfg["feature_set"]),
         "feature_set_built_at": {k: v.get("built_at") for k, v in registry.items()},
         "saved_at": dt.datetime.now().isoformat(timespec="seconds"),
+        "metadata": metadata or {},
     }
     # В живом сервисе старый артефакт должен оставаться читаемым до завершения
     # нового обучения: прерванная запись прямо в .pkl оставляла битую модель.
@@ -128,6 +130,8 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
 
     feats = (store.latest_snapshot(cfg["feature_set"]) if asof is None
              else store.read_slice(cfg["feature_set"], asof, asof))
+    if feats.is_empty():
+        raise ValueError(f"{head}: no feature rows for requested day {asof}")
     if head == "D":
         # The wear target is defined only for equipment sensor types. Scoring
         # every channel and then taking top-3 lets out-of-scope sensors consume
@@ -209,6 +213,35 @@ def score_with_internals(head: str, asof: dt.date | None = None):
 
 def score_all(asof: dt.date | None = None) -> dict[str, pl.DataFrame]:
     return {h: score(h, asof) for h in load_heads() if model_path(h).exists()}
+
+
+def validate_pilot_artifact(head: str, artifact: dict, day: dt.date,
+                            max_lag_days: int = 14) -> None:
+    """Reject a missing or future-trained model before issuing a recommendation.
+
+    The threshold window must be past and fully observed at `day`. A weekly
+    refresh gives D seven days for label maturation and seven more for the next
+    run. Beyond that, scoring can proceed for research but not for the pilot.
+    """
+    meta = artifact.get("metadata") or {}
+    if meta.get("head") != head or "threshold_end" not in meta:
+        raise ValueError(f"{head}: pilot model lacks dated training metadata; refresh it")
+    cfg = load_heads()[head]
+    if meta.get("label") != cfg["label"] or \
+            meta.get("horizon_days") != cfg["horizon_days"] or \
+            meta.get("variant") != cfg.get("variant") or \
+            meta.get("unknown_in_budget") != bool(cfg.get("unknown_in_budget")) or \
+            meta.get("operating_min_precision") != float(
+                cfg.get("operating_min_precision", 0.7)):
+        raise ValueError(f"{head}: pilot target changed since training; refresh it")
+    threshold_end = dt.date.fromisoformat(meta["threshold_end"])
+    lag = (day - threshold_end).days
+    if not 0 < lag <= max_lag_days:
+        raise ValueError(
+            f"{head}: model threshold window ends {threshold_end}, "
+            f"outside the 1..{max_lag_days} day pilot lag for {day}")
+    if artifact.get("threshold") is None:
+        raise ValueError(f"{head}: pilot model has no saved operating threshold")
 
 
 def apply_issued_cooldown(ranked: pl.DataFrame, entity: str, day: dt.date,

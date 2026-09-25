@@ -43,7 +43,7 @@ def test_link_and_failure_are_separate_heads():
     ветка молчания. Это разные события с разной ценой выезда."""
     heads = serve.load_heads()
     assert heads["A_link"]["label"] != heads["A"]["label"]
-    assert heads["A_link"]["variant"] == "L9"
+    assert heads["A_link"]["variant"] == "L9c"
     assert heads["A"]["variant"] == "L6"
 
 
@@ -292,3 +292,15 @@ def test_d_scores_only_equipment_channels_with_defined_target(monkeypatch):
     got = serve.score("D")
     assert got["ch"].to_list() == [1]
     assert got["alert"].to_list() == [True]
+
+
+def test_missing_requested_day_is_not_reported_as_no_alerts(monkeypatch):
+    import datetime as dt
+
+    day = dt.date(2026, 7, 1)
+    monkeypatch.setattr(serve, "load_heads", lambda: {
+        "D": {"feature_set": "sensor"}})
+    monkeypatch.setattr(serve.store, "read_slice", lambda *args: pl.DataFrame())
+    monkeypatch.setattr(serve, "model_path", lambda head: _FakeArtifactPath({}))
+    with pytest.raises(ValueError, match="no feature rows"):
+        serve.score("D", day)

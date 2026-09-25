@@ -23,6 +23,7 @@ COOLDOWN_DAYS = 14
 BUDGET = 4
 SCHEMA_VERSION = "1.0"
 METHOD = "weekly_recurrence_rule_v1"
+MAX_LIVE_DATA_LAG_DAYS = 2
 
 
 def replay(frame: pl.DataFrame, event_days: pl.DataFrame,
@@ -77,7 +78,9 @@ def replay(frame: pl.DataFrame, event_days: pl.DataFrame,
 
 def weekly_inspections(asof: dt.date | None = None) -> dict:
     """Return a small scheduled watchlist; refuse missing or stale v2 cache."""
-    ready = readiness()
+    # An explicit date is an archive replay. Only the implicit "latest" request
+    # claims to be current and therefore needs a wall-clock freshness check.
+    ready = readiness(require_recent=asof is None)
     if ready["status"] != "ready":
         if ready["status"] == "missing_data":
             missing = ", ".join(ready.get("missing", []))
@@ -138,7 +141,8 @@ def weekly_inspections(asof: dt.date | None = None) -> dict:
             "data_last_day": last_day.isoformat()}
 
 
-def readiness() -> dict:
+def readiness(now: dt.date | None = None,
+              require_recent: bool = True) -> dict:
     """Readiness of the weekly manual queue, independent of legacy models."""
     required = {
         "object_features": PATHS.features / "object.parquet",
@@ -154,17 +158,28 @@ def readiness() -> dict:
         info = json.loads(guard_queue.BUILD_INFO.read_text(encoding="utf-8"))
         last_day = pl.scan_parquet(PATHS.features / "object.parquet").select(
             pl.col("day").max()).collect().item()
+        if last_day is None:
+            return {"status": "missing_data", "scenario": METHOD,
+                    "missing": ["object_feature_rows"]}
         cache_through = (dt.date.fromisoformat(info["end"]) +
                          dt.timedelta(days=1))
     except (OSError, ValueError, KeyError) as exc:
         return {"status": "error", "scenario": METHOD,
                 "detail": f"cannot inspect data freshness: {exc}"}
+    today = now or dt.date.today()
+    data_age_days = (today - last_day).days
     status = "ready"
     if info.get("version") != 2 or last_day > cache_through:
         status = "stale"
+    elif require_recent and data_age_days < 0:
+        status = "future_source"
+    elif require_recent and data_age_days > MAX_LIVE_DATA_LAG_DAYS:
+        status = "stale_source"
     return {"status": status, "scenario": METHOD,
             "schema_version": SCHEMA_VERSION, "model_version": METHOD,
             "data_last_day": last_day.isoformat(),
+            "data_age_days": data_age_days,
+            "max_live_data_lag_days": MAX_LIVE_DATA_LAG_DAYS,
             "event_cache_through": cache_through.isoformat(),
             "event_cache_version": info.get("version"),
             "missing": []}

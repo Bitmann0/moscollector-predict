@@ -29,7 +29,7 @@ def evaluate(start: dt.date = FROZEN_START, end: dt.date | None = None) -> dict:
     if (guard_weekly.MIN_ALARM_DAYS, guard_weekly.COOLDOWN_DAYS,
             guard_weekly.BUDGET) != FROZEN_POLICY:
         raise ValueError("weekly pilot policy changed; start a new evaluation version")
-    ready = guard_weekly.readiness()
+    ready = guard_weekly.readiness(require_recent=False)
     if ready["status"] != "ready":
         raise ValueError(f"weekly pilot data are {ready['status']}; refresh first")
     last_day = dt.date.fromisoformat(ready["data_last_day"])

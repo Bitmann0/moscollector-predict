@@ -139,6 +139,24 @@ def test_L7_catches_gap_in_regular_channel(con):
     assert pos == ["2025-01-28"]
 
 
+def test_L9c_censors_final_channel_report_without_return(con):
+    for d in range(1, 9):
+        _dc(con, ch=2, day=f"2025-01-{d:02d}")
+    labels.build_sensor_failure(con, variant="L9", horizon_days=1,
+                                table="label_link")
+    assert con.execute(
+        "SELECT y FROM label_link WHERE ch=2 AND day=DATE '2025-01-08'"
+    ).fetchone() == (0,)
+    labels.build_sensor_failure(con, variant="L9c", horizon_days=1,
+                                table="label_link")
+    assert con.execute(
+        "SELECT count(*) FROM label_link WHERE ch=2 AND day=DATE '2025-01-08'"
+    ).fetchone() == (0,)
+    assert con.execute(
+        "SELECT count(*) FROM label_link WHERE ch=2 AND day=DATE '2025-01-07'"
+    ).fetchone() == (1,)
+
+
 def test_horizon_widens_positive_window(con):
     """Данные в фикстуре кончаются 01-10, поэтому при горизонте 7 суток метку
     можно ставить только до 01-03: у 01-04 и дальше окно уже выходит за край."""

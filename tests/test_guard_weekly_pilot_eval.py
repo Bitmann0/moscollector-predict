@@ -11,7 +11,7 @@ def test_last_complete_monday_leaves_full_target_window():
 def test_pilot_evaluator_waits_for_new_complete_week(monkeypatch):
     monkeypatch.setattr(
         "scripts.evaluate_guard_weekly_pilot.guard_weekly.readiness",
-        lambda: {"status": "ready", "data_last_day": "2026-06-30",
+        lambda require_recent=False: {"status": "ready", "data_last_day": "2026-06-30",
                  "event_cache_through": "2026-06-30"},
     )
     result = evaluate()
