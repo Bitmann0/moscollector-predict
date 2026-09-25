@@ -1,0 +1,13 @@
+# Концы строк. На Windows с core.autocrlf=true скрипт с CRLF ломает контейнер:
+# /bin/sh читает «set -e\r» и падает. Всё, что попадает в образ или исполняется
+# в Linux, хранится и выгружается с LF.
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+*.dockerignore text eol=lf
+Makefile text eol=lf
+Caddyfile text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf

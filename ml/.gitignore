@@ -1,0 +1,19 @@
+.venv/
+data/raw/
+data/tmp/
+data/interim/
+data/features/
+__pycache__/
+*.pyc
+mlruns/
+catboost_info/
+models/
+configs/features.yaml
+reports/latest_model_refresh.json
+Materials/
+ChatExport_2026-09-19/
+
+# Монорепо: любые данные внутри ml/
+/data/
+/models/
+/Materials/

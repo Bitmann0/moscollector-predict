@@ -1,0 +1,131 @@
+{
+  "backend": "lgbm",
+  "start": "2023-01-01",
+  "end": "2025-12-31",
+  "results": {
+    "baseline": {
+      "n_features": 28,
+      "mean": {
+        "pr_auc": 0.03134306717286923,
+        "pr_auc_norm": 0.023251306723031998,
+        "roc_auc": 0.7663269229247041,
+        "precision_at_k": 0.05333333333333334,
+        "recall_at_k": 0.13770628725013456,
+        "daily_precision_at_k": 0.04296296296296296,
+        "daily_recall_at_k": 0.11443754718188677,
+        "global_days_over_budget": 26.666666666666668,
+        "episode_recall": 0.1761927369648509,
+        "op_precision": 0.09771213294451675,
+        "op_recall": 0.040723892239842935,
+        "n_pos": 1051,
+        "n": 127194
+      },
+      "folds": [
+        {
+          "test_start": "2025-04-06",
+          "test_end": "2025-07-04",
+          "pr_auc": 0.02432043803094812,
+          "pr_auc_norm": 0.017387863207649675,
+          "precision_at_k": 0.04888888888888889,
+          "recall_at_k": 0.1456953642384106,
+          "daily_precision_at_k": 0.044444444444444446,
+          "daily_recall_at_k": 0.13245033112582782,
+          "global_days_over_budget": 21,
+          "episode_recall": 0.15517241379310345,
+          "n_pos": 302,
+          "n": 42805
+        },
+        {
+          "test_start": "2025-07-05",
+          "test_end": "2025-10-02",
+          "pr_auc": 0.026329542210704042,
+          "pr_auc_norm": 0.019570944366419075,
+          "precision_at_k": 0.044444444444444446,
+          "recall_at_k": 0.13468013468013468,
+          "daily_precision_at_k": 0.04111111111111111,
+          "daily_recall_at_k": 0.12457912457912458,
+          "global_days_over_budget": 33,
+          "episode_recall": 0.18840579710144928,
+          "n_pos": 297,
+          "n": 43084
+        },
+        {
+          "test_start": "2025-10-03",
+          "test_end": "2025-12-31",
+          "pr_auc": 0.04337922127695553,
+          "pr_auc_norm": 0.03279511259502725,
+          "precision_at_k": 0.06666666666666667,
+          "recall_at_k": 0.13274336283185842,
+          "daily_precision_at_k": 0.043333333333333335,
+          "daily_recall_at_k": 0.08628318584070796,
+          "global_days_over_budget": 26,
+          "episode_recall": 0.185,
+          "n_pos": 452,
+          "n": 41305
+        }
+      ]
+    },
+    "typed": {
+      "n_features": 36,
+      "mean": {
+        "pr_auc": 0.033760850594806574,
+        "pr_auc_norm": 0.025688480929933102,
+        "roc_auc": 0.7657205015256169,
+        "precision_at_k": 0.05185185185185185,
+        "recall_at_k": 0.1337504743265747,
+        "daily_precision_at_k": 0.04148148148148148,
+        "daily_recall_at_k": 0.10848305082906266,
+        "global_days_over_budget": 26.333333333333332,
+        "episode_recall": 0.16340288189238714,
+        "op_precision": 0.10731655176099619,
+        "op_recall": 0.031514836448513606,
+        "n_pos": 1051,
+        "n": 127194
+      },
+      "folds": [
+        {
+          "test_start": "2025-04-06",
+          "test_end": "2025-07-04",
+          "pr_auc": 0.022605420908483453,
+          "pr_auc_norm": 0.015660660235457126,
+          "precision_at_k": 0.04,
+          "recall_at_k": 0.11920529801324503,
+          "daily_precision_at_k": 0.04,
+          "daily_recall_at_k": 0.11920529801324503,
+          "global_days_over_budget": 30,
+          "episode_recall": 0.15517241379310345,
+          "n_pos": 302,
+          "n": 42805
+        },
+        {
+          "test_start": "2025-07-05",
+          "test_end": "2025-10-02",
+          "pr_auc": 0.033331835136697734,
+          "pr_auc_norm": 0.026621842733294813,
+          "precision_at_k": 0.05,
+          "recall_at_k": 0.15151515151515152,
+          "daily_precision_at_k": 0.03666666666666667,
+          "daily_recall_at_k": 0.1111111111111111,
+          "global_days_over_budget": 26,
+          "episode_recall": 0.17753623188405798,
+          "n_pos": 297,
+          "n": 43084
+        },
+        {
+          "test_start": "2025-10-03",
+          "test_end": "2025-12-31",
+          "pr_auc": 0.045345295739238546,
+          "pr_auc_norm": 0.03478293982104737,
+          "precision_at_k": 0.06555555555555556,
+          "recall_at_k": 0.13053097345132744,
+          "daily_precision_at_k": 0.04777777777777778,
+          "daily_recall_at_k": 0.09513274336283185,
+          "global_days_over_budget": 23,
+          "episode_recall": 0.1575,
+          "n_pos": 452,
+          "n": 41305
+        }
+      ]
+    }
+  }
+}

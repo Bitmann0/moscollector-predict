@@ -1,0 +1,24 @@
+{
+  "note": "2026 already viewed by team; not a blind holdout",
+  "baseline": {
+    "n": 6105,
+    "positives": 1723,
+    "pr_auc": 0.6784155176991699,
+    "daily_precision": 0.6675977653631285,
+    "daily_recall": 0.277423099245502
+  },
+  "history_tree": {
+    "n": 6105,
+    "positives": 1723,
+    "pr_auc": 0.6855010294829375,
+    "daily_precision": 0.6843575418994413,
+    "daily_recall": 0.2843876958792803
+  },
+  "alarm_history_tree": {
+    "n": 6105,
+    "positives": 1723,
+    "pr_auc": 0.6833025322693169,
+    "daily_precision": 0.6815642458100558,
+    "daily_recall": 0.2832269297736506
+  }
+}

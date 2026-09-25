@@ -1,0 +1,127 @@
+"""Weekly guard-loop watchlist: lead time, abstention, and cooldown."""
+import datetime as dt
+import json
+
+import polars as pl
+import pytest
+from fastapi.testclient import TestClient
+
+from mkl import api, guard_weekly
+
+
+MONDAY = dt.date(2025, 4, 7)
+
+
+def _data():
+    mondays = [MONDAY+dt.timedelta(days=7*i) for i in range(4)]
+    frame = pl.DataFrame({"obj": ["A", "B"]*4,
+                          "day": [day for day in mondays for _ in range(2)],
+                          "obj_armed": [1]*8,
+                          "days_since_arm_event": [0]*8})
+    days = [day+dt.timedelta(days=offset)
+            for day in mondays for offset in (-6, -5, -4, -3)]
+    events = pl.DataFrame({"obj": ["A"]*len(days),
+                           "day": days, "positive": [True]*len(days)})
+    return frame, events, mondays
+
+
+def test_weekly_replay_avoids_duplicate_recommendations_for_14_days():
+    frame, events, mondays = _data()
+    selected, counts = guard_weekly.replay(frame, events, mondays[-1])
+    shuffled, _ = guard_weekly.replay(frame.sample(fraction=1, shuffle=True, seed=7),
+                                      events, mondays[-1])
+    assert [(r["obj"], r["day"]) for r in selected] == [
+        ("A", mondays[0]), ("A", mondays[3])]
+    assert [(r["obj"], r["day"]) for r in shuffled] == [
+        ("A", mondays[0]), ("A", mondays[3])]
+    assert counts["meeting_alarm_threshold"] == 1
+    assert counts["returned"] == 1
+    assert all(r["exact_count_7"] == 4 for r in selected)
+
+
+def test_weekly_replay_abstains_without_four_alarm_days():
+    frame, events, mondays = _data()
+    events = events.filter(pl.col("day") >= mondays[-1]-dt.timedelta(days=3))
+    selected, counts = guard_weekly.replay(frame, events, mondays[0])
+    assert selected == []
+    assert counts["returned"] == 0
+    with pytest.raises(ValueError, match="Monday"):
+        guard_weekly.replay(frame, events, mondays[0]+dt.timedelta(days=1))
+
+
+def test_duplicate_historical_object_day_is_rejected():
+    frame, events, mondays = _data()
+    with pytest.raises(ValueError, match="unique non-null object-day"):
+        guard_weekly.replay(pl.concat([frame, frame.head(1)]), events, mondays[-1])
+
+
+def test_weekly_api_is_separate_from_automatic_work_orders(monkeypatch):
+    monkeypatch.setattr(api.guard_weekly, "weekly_inspections", lambda asof=None: {
+        "schema_version": "1.0", "model_version": "weekly_recurrence_rule_v1",
+        "result_status": "ok",
+        "asof": "2025-04-07", "valid_from": "2025-04-09",
+        "valid_to": "2025-04-16", "action": "manual_plan_guard_loop_inspection",
+        "priorities": [{"obj": "A", "rank": 1,
+                        "recommendation_id": "stable-id"}]})
+    got = TestClient(api.app).get("/api/v1/guard-weekly-inspections").json()
+    assert got["valid_from"] == "2025-04-09"
+    assert got["action"] == "manual_plan_guard_loop_inspection"
+    assert got["result_status"] == "ok"
+    assert got["priorities"][0]["recommendation_id"] == "stable-id"
+    assert "work_order_id" not in got["priorities"][0]
+
+
+def test_weekly_api_exposes_stale_data_as_conflict(monkeypatch):
+    def stale(_asof=None):
+        raise ValueError("event-time cache is stale for this day; rebuild labels")
+    monkeypatch.setattr(api.guard_weekly, "weekly_inspections", stale)
+    got = TestClient(api.app).get(
+        "/api/v1/guard-weekly-inspections?asof=2025-04-07")
+    assert got.status_code == 409
+    assert "stale" in got.json()["detail"]
+
+
+def test_weekly_calculation_blocks_unready_queue(monkeypatch):
+    monkeypatch.setattr(api.guard_weekly, "readiness", lambda **kw: {
+        "status": "stale", "scenario": "weekly_recurrence_rule_v1"})
+    got = TestClient(api.app).get(
+        "/api/v1/guard-weekly-inspections?asof=2025-04-07")
+    assert got.status_code == 409
+    assert "refresh" in got.json()["detail"]
+
+
+def test_readiness_is_separate_from_legacy_model_health(monkeypatch):
+    monkeypatch.setattr(api.guard_weekly, "readiness", lambda: {
+        "status": "ready", "scenario": "weekly_recurrence_rule_v1"})
+    got = TestClient(api.app).get("/ready")
+    assert got.status_code == 200
+    assert got.json() == {"status": "ready",
+                          "scenario": "weekly_recurrence_rule_v1"}
+
+
+def test_live_readiness_rejects_old_telemetry_but_allows_archive_audit(
+        tmp_path, monkeypatch):
+    last = dt.date(2026, 6, 30)
+    features, interim = tmp_path / "features", tmp_path / "interim"
+    features.mkdir()
+    interim.mkdir()
+    pl.DataFrame({"day": [last]}).write_parquet(features / "object.parquet")
+    (interim / "channels.parquet").touch()
+    event_days = interim / "event_days.parquet"
+    event_days.touch()
+    build_info = interim / "build_info.json"
+    build_info.write_text(json.dumps({"version": 2, "end": "2026-06-29"}))
+    monkeypatch.setattr(guard_weekly, "PATHS", type("Paths", (), {
+        "features": features, "interim": interim})())
+    monkeypatch.setattr(guard_weekly.guard_queue, "EVENT_DAYS", event_days)
+    monkeypatch.setattr(guard_weekly.guard_queue, "BUILD_INFO", build_info)
+
+    assert guard_weekly.readiness(now=last+dt.timedelta(days=1))["status"] == "ready"
+    assert guard_weekly.readiness(now=last-dt.timedelta(days=1))["status"] == "future_source"
+    stale = guard_weekly.readiness(now=last+dt.timedelta(days=30))
+    assert stale["status"] == "stale_source" and stale["data_age_days"] == 30
+    assert guard_weekly.readiness(
+        now=last+dt.timedelta(days=30), require_recent=False)["status"] == "ready"
+    pl.DataFrame({"day": []}, schema={"day": pl.Date}).write_parquet(
+        features / "object.parquet")
+    assert guard_weekly.readiness(now=last)["status"] == "missing_data"

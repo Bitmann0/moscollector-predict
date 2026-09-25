@@ -1,0 +1,306 @@
+{
+  "fit_end": "2024-12-23",
+  "test_start": "2025-01-06",
+  "target": "recorded guarded alarm in days D+2..D+8",
+  "note": "not blind; no threshold tuned on test; same current candidates",
+  "features": [
+    "n_channels",
+    "n_events",
+    "n_alarms",
+    "n_bad",
+    "n_fire",
+    "n_intrusion",
+    "n_flood",
+    "n_pump_on",
+    "n_all_pumps",
+    "n_pumps",
+    "pump_switches",
+    "pump_bad",
+    "n_chatter_1min",
+    "n_transitions",
+    "n_alarms_w7",
+    "n_alarms_w30",
+    "n_bad_w7",
+    "n_bad_w30",
+    "n_events_w7",
+    "n_events_w30",
+    "n_chatter_1min_w7",
+    "silence_ratio_mean",
+    "silence_ratio_max",
+    "silence_z_mean",
+    "silence_z_max",
+    "age_days_mean",
+    "age_days_min",
+    "days_since_last_bad_mean",
+    "days_since_last_bad_min",
+    "n_prior_failures",
+    "n_channels_bad",
+    "frac_channels_bad",
+    "dow",
+    "month",
+    "is_weekend",
+    "is_holiday",
+    "doy_sin",
+    "doy_cos",
+    "t_mean",
+    "t_min",
+    "t_max",
+    "precip_mm",
+    "snow_depth_cm",
+    "t_range",
+    "precip_24h",
+    "precip_48h",
+    "precip_72h",
+    "snowmelt",
+    "snow_delta",
+    "api_85",
+    "api_90",
+    "api_95",
+    "precip_7d",
+    "precip_14d",
+    "precip_30d",
+    "snowmelt_7d",
+    "snowmelt_30d",
+    "frost_intensity",
+    "n_flood_bins",
+    "time_in_alarm_s",
+    "time_in_bad_s",
+    "max_hold_alarm_s",
+    "n_standing_4h",
+    "n_stale_24h",
+    "n_many_bad",
+    "n_battery_power",
+    "n_talk",
+    "n_call",
+    "n_arm",
+    "n_disarm",
+    "chatter_psi_alarm_max",
+    "chatter_psi_alarm_mean",
+    "max_alarm_10min",
+    "chatter_psi_mean",
+    "chatter_psi_max",
+    "night_frac_mean",
+    "workhours_frac_mean",
+    "is_guard_object",
+    "top1_share_alarm",
+    "top1_share_bad",
+    "hhi_alarm",
+    "hhi_bad",
+    "n_channels_80pct",
+    "top10_share_alarm",
+    "obj_armed",
+    "days_since_arm_event",
+    "par_n_siblings",
+    "par_n_channels",
+    "par_n_events",
+    "par_n_alarms",
+    "par_n_bad",
+    "par_n_bad_w7",
+    "par_n_intrusion",
+    "par_n_flood",
+    "par_n_fire",
+    "par_n_objects_bad",
+    "par_frac_objects_bad",
+    "par_share_bad",
+    "par_share_alarms",
+    "par_bad_per_channel",
+    "exact_count_1",
+    "exact_count_7",
+    "exact_count_30",
+    "exact_age"
+  ],
+  "results": [
+    {
+      "min_alarm_days_in_last_7": 0,
+      "method": "rule",
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 104,
+          "hits": 62,
+          "hit_rate": 0.5961538461538461
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 104,
+          "hits": 60,
+          "hit_rate": 0.5769230769230769
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 96,
+          "hits": 59,
+          "hit_rate": 0.6145833333333334
+        }
+      ],
+      "pooled": {
+        "alerts": 304,
+        "hits": 181,
+        "hit_rate": 0.5953947368421053
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 0,
+      "method": "ml",
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 104,
+          "hits": 61,
+          "hit_rate": 0.5865384615384616
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 104,
+          "hits": 61,
+          "hit_rate": 0.5865384615384616
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 96,
+          "hits": 58,
+          "hit_rate": 0.6041666666666666
+        }
+      ],
+      "pooled": {
+        "alerts": 304,
+        "hits": 180,
+        "hit_rate": 0.5921052631578947
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 3,
+      "method": "rule",
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 44,
+          "hits": 32,
+          "hit_rate": 0.7272727272727273
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 31,
+          "hits": 23,
+          "hit_rate": 0.7419354838709677
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 36,
+          "hits": 25,
+          "hit_rate": 0.6944444444444444
+        }
+      ],
+      "pooled": {
+        "alerts": 111,
+        "hits": 80,
+        "hit_rate": 0.7207207207207207
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 3,
+      "method": "ml",
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 44,
+          "hits": 32,
+          "hit_rate": 0.7272727272727273
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 31,
+          "hits": 23,
+          "hit_rate": 0.7419354838709677
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 36,
+          "hits": 26,
+          "hit_rate": 0.7222222222222222
+        }
+      ],
+      "pooled": {
+        "alerts": 111,
+        "hits": 81,
+        "hit_rate": 0.7297297297297297
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 4,
+      "method": "rule",
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 19,
+          "hits": 15,
+          "hit_rate": 0.7894736842105263
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 15,
+          "hits": 11,
+          "hit_rate": 0.7333333333333333
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 16,
+          "hits": 13,
+          "hit_rate": 0.8125
+        }
+      ],
+      "pooled": {
+        "alerts": 50,
+        "hits": 39,
+        "hit_rate": 0.78
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 4,
+      "method": "ml",
+      "periods": [
+        {
+          "start": "2025-01-01",
+          "end": "2025-06-30",
+          "alerts": 19,
+          "hits": 15,
+          "hit_rate": 0.7894736842105263
+        },
+        {
+          "start": "2025-07-01",
+          "end": "2025-12-31",
+          "alerts": 15,
+          "hits": 11,
+          "hit_rate": 0.7333333333333333
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 16,
+          "hits": 13,
+          "hit_rate": 0.8125
+        }
+      ],
+      "pooled": {
+        "alerts": 50,
+        "hits": 39,
+        "hit_rate": 0.78
+      }
+    }
+  ]
+}
