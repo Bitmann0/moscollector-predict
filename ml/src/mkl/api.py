@@ -14,7 +14,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 
-from . import contract, guard_queue, guard_weekly, service, workorders
+from . import contract, guard_queue, guard_weekly, maintenance, service, workorders
 from .config import PATHS
 from .serve import load_heads
 
@@ -36,10 +36,12 @@ _cache_version: Any = None
 
 def _cache_generation() -> tuple:
     """A new day, feature snapshot, catalog or model invalidates old alerts."""
+    schedule_path, mapping_path = maintenance.snapshot_paths(PATHS.root, PATHS.interim)
     paths = [PATHS.features / "sensor.parquet",
              PATHS.interim / "channels.parquet",
+             schedule_path, mapping_path,
              PATHS.models / "D.pkl", PATHS.models / "A_link.pkl"]
-    return (dt.date.today(), tuple(
+    return (dt.date.today(), str(schedule_path), str(mapping_path), tuple(
         path.stat().st_mtime_ns if path.exists() else None for path in paths))
 
 

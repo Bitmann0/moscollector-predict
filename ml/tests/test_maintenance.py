@@ -2,10 +2,12 @@ import datetime as dt
 import json
 
 import pytest
+import polars as pl
 
 from mkl.maintenance import (available_asof, load_mapping, maintenance_context,
-                             parse_ppr, parse_to)
+                             parse_ppr, parse_to, snapshot_paths)
 from scripts.annotate_maintenance_alerts import annotate
+from mkl.maintenance_eval import evaluate_link_schedule
 
 
 def test_ppr_preserves_missing_dates_and_never_assigns_catalog_object():
@@ -47,6 +49,14 @@ def test_schedule_is_unavailable_to_earlier_backtest():
     received = dt.date(2026, 9, 25)
     assert not available_asof(received, dt.date(2026, 4, 1))
     assert available_asof(received, received)
+
+
+def test_next_year_snapshot_can_be_selected_without_code_change(monkeypatch, tmp_path):
+    monkeypatch.setenv("MKL_MAINTENANCE_SCHEDULE", "data/interim/maintenance_2027.json")
+    monkeypatch.setenv("MKL_MAINTENANCE_MAPPING", "resources/mapping_2027.json")
+    schedule, mapping = snapshot_paths(tmp_path, tmp_path / "data" / "interim")
+    assert schedule == tmp_path / "data" / "interim" / "maintenance_2027.json"
+    assert mapping == tmp_path / "resources" / "mapping_2027.json"
 
 
 @pytest.fixture
@@ -101,6 +111,7 @@ def test_to_month_context_is_uncertain_and_equipment_scoped(context_inputs):
         "month": 11, "work_type": "ТО", "equipment_source_row": 77}]
     # The December UPS row is not a gas-sensor work marker.
     assert _context(schedule, mapping, start="2026-12-03", end="2026-12-04")["matches"] == []
+    assert _context(schedule, mapping, start="2027-01-02", end="2027-01-03")["status"] == "outside_schedule_year"
 
 
 def test_ppr_context_and_half_open_alert_window(context_inputs):
@@ -133,3 +144,71 @@ def test_mapping_rejects_changed_source_or_unknown_key(context_inputs, tmp_path)
     path.write_text(json.dumps(mapping), encoding="utf-8")
     with pytest.raises(ValueError, match="unknown source key"):
         load_mapping(path, schedule)
+
+
+def test_link_monitor_separates_historical_audit_and_new_metrics(context_inputs):
+    schedule, mapping = context_inputs
+    scored = pl.DataFrame({
+        "ch": [1, 1, 2],
+        "day": [dt.date(2026, 9, 24), dt.date(2026, 11, 1), dt.date(2026, 11, 1)],
+        "risk": [0.9, 0.9, 0.8], "y": [1, 1, 0],
+    })
+    channels = pl.DataFrame({"ch": [1, 2], "obj_parent": ["3828", "999"],
+                             "stype": ["Газовый датчик", "Газовый датчик"]})
+    report = evaluate_link_schedule(scored, channels, schedule, mapping,
+                                    threshold=0.5,
+                                    labels_mature_through=dt.date(2026, 11, 2))
+    assert report["retrospective_audit"]["valid_as_new_schedule_metric"] is False
+    assert report["retrospective_audit"]["existing_policy_proxy"]["alerts"] == 1
+    assert report["mapping_coverage"]["catalog_gas_channels_mapped_candidates"] == 1
+    assert report["mapping_coverage"]["customer_confirmed_links"] == 0
+    prospective = report["prospective"]
+    assert prospective["status"] == "descriptive_proxy_metrics_available"
+    assert prospective["context_status_counts"] == {
+        "schedule_overlap_unconfirmed": 1, "unmapped": 1}
+    assert prospective["matured_policy_proxy"]["precision_lower_bound"] == 0.5
+    assert prospective["matured_policy_proxy"]["recall_known"] == 1.0
+    assert prospective["planned_cause_review_metrics"] is None
+    assert prospective["product_gate_passed"] is False
+    reviews = pl.DataFrame({
+        "ch": [1, 2], "day": [dt.date(2026, 11, 1)] * 2,
+        "verdict": ["confirmed_planned_cause", "confirmed_unrelated"],
+    })
+    reviewed = evaluate_link_schedule(
+        scored, channels, schedule, mapping, threshold=0.5,
+        labels_mature_through=dt.date(2026, 11, 2), reviews=reviews)
+    review_metrics = reviewed["prospective"]["planned_cause_review_metrics"]
+    assert review_metrics["flag_precision_known_only"] == 1.0
+    assert review_metrics["flag_recall_among_reviewed_issued"] == 1.0
+
+
+def test_link_monitor_does_not_report_unmatured_precision(context_inputs):
+    schedule, mapping = context_inputs
+    scored = pl.DataFrame({"ch": [1], "day": [dt.date(2026, 11, 1)],
+                           "risk": [0.9], "y": [None]}).with_columns(pl.col("y").cast(pl.Int32))
+    channels = pl.DataFrame({"ch": [1], "obj_parent": ["3828"],
+                             "stype": ["Газовый датчик"]})
+    pending = evaluate_link_schedule(scored, channels, schedule, mapping, threshold=0.5)
+    assert pending["prospective"]["status"] == "label_maturity_not_declared"
+    assert pending["prospective"]["matured_policy_proxy"] is None
+    still_unknown = evaluate_link_schedule(
+        scored, channels, schedule, mapping, threshold=0.5,
+        labels_mature_through=dt.date(2026, 11, 2))
+    assert still_unknown["prospective"]["status"] == "awaiting_observed_outcomes"
+
+
+def test_link_monitor_rejects_duplicate_or_invalid_reviews(context_inputs):
+    schedule, mapping = context_inputs
+    scored = pl.DataFrame({"ch": [1], "day": [dt.date(2026, 11, 1)],
+                           "risk": [0.9], "y": [1]})
+    channels = pl.DataFrame({"ch": [1], "obj_parent": ["3828"],
+                             "stype": ["Газовый датчик"]})
+    duplicate = pl.DataFrame({"ch": [1, 1], "day": [dt.date(2026, 11, 1)] * 2,
+                              "verdict": ["unknown", "confirmed_planned_cause"]})
+    with pytest.raises(ValueError, match="duplicate review"):
+        evaluate_link_schedule(scored, channels, schedule, mapping,
+                               threshold=0.5, reviews=duplicate)
+    invalid = duplicate.head(1).with_columns(pl.lit("maybe").alias("verdict"))
+    with pytest.raises(ValueError, match="invalid maintenance review"):
+        evaluate_link_schedule(scored, channels, schedule, mapping,
+                               threshold=0.5, reviews=invalid)
