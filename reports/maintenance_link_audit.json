@@ -1,0 +1,122 @@
+{
+  "audit_type": "retrospective_mapping_evidence_not_asof_backtest",
+  "schedule_available_from": "2026-09-25",
+  "mapping_available_from": "2026-09-25",
+  "candidate_links": [
+    {
+      "source_object_key": "ppr:9",
+      "obj_parent": "3828",
+      "mapping_status": "inferred",
+      "ppr_sensor_count": 40,
+      "catalog_gas_channel_count": 40,
+      "planned_dismantle": "2026-04-23",
+      "active_gas_channels_before_7d": [
+        27,
+        28,
+        27,
+        28,
+        27,
+        26,
+        26
+      ],
+      "active_gas_channels_after_7d": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        38
+      ],
+      "median_active_before": 27,
+      "median_active_after": 1,
+      "a_link_policy_on_planned_start": {
+        "all_alerts": 18,
+        "mapped_gas_alerts": 12,
+        "mapped_gas_proxy_positive": 12
+      }
+    },
+    {
+      "source_object_key": "ppr:14",
+      "obj_parent": "15",
+      "mapping_status": "inferred",
+      "ppr_sensor_count": 33,
+      "catalog_gas_channel_count": 33,
+      "planned_dismantle": "2026-06-04",
+      "active_gas_channels_before_7d": [
+        20,
+        19,
+        18,
+        18,
+        0,
+        31,
+        20
+      ],
+      "active_gas_channels_after_7d": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "median_active_before": 19,
+      "median_active_after": 0
+    }
+  ],
+  "gas_to_months": [
+    {
+      "source_object_key": "to:9",
+      "obj_parent": "3828",
+      "source_name": "к-р Ясенево",
+      "mapping_status": "inferred",
+      "catalog_gas_channel_count": 40,
+      "gasb_count": 40,
+      "months": [
+        {
+          "month": 2,
+          "work_type": "ТО"
+        },
+        {
+          "month": 5,
+          "work_type": "ТО+ТР"
+        },
+        {
+          "month": 8,
+          "work_type": "ТО"
+        },
+        {
+          "month": 11,
+          "work_type": "ТО"
+        }
+      ]
+    },
+    {
+      "source_object_key": "to:14",
+      "obj_parent": "15",
+      "source_name": "Объект",
+      "mapping_status": "inferred",
+      "catalog_gas_channel_count": 33,
+      "gasb_count": 33,
+      "months": [
+        {
+          "month": 3,
+          "work_type": "ТО"
+        },
+        {
+          "month": 6,
+          "work_type": "ТО+ТР"
+        },
+        {
+          "month": 9,
+          "work_type": "ТО"
+        },
+        {
+          "month": 12,
+          "work_type": "ТО"
+        }
+      ]
+    }
+  ]
+}
