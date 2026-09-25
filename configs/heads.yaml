@@ -79,6 +79,10 @@ A:
 A_strict:
   direction: sensor_failure  # Отказ датчика
   title: Аномалия датчика
+  product_status: deferred
+  product_target: recorded_sensor_anomaly_next_day
+  product_action: manual_sensor_diagnostic
+  product_policy: top_1_per_day_tested_below_50_percent
   entity: [ch, day]
   feature_set: sensor
   label: label_failure_strict

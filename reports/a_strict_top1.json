@@ -1,0 +1,116 @@
+{
+  "head": "A_strict",
+  "budget_per_day": 1,
+  "target": "recorded_sensor_anomaly_next_day",
+  "folds": [
+    {
+      "test_start": "2025-04-06",
+      "test_end": "2025-07-04",
+      "model": {
+        "daily_precision_at_k": 0.5,
+        "daily_recall_at_k": 0.014155394778232149,
+        "daily_alerts": 90,
+        "global_days_over_budget": 8,
+        "alerts": 90,
+        "episodes": 3170,
+        "episodes_caught": 56,
+        "episode_recall": 0.017665615141955835,
+        "episodes_per_100_alerts": 62.22222222222222,
+        "precision_at_k": 0.7555555555555555,
+        "recall_at_k": 0.0213903743315508
+      },
+      "rule": {
+        "daily_precision_at_k": 0.0,
+        "daily_recall_at_k": 0.0,
+        "daily_alerts": 90,
+        "global_days_over_budget": 7,
+        "alerts": 90,
+        "episodes": 3170,
+        "episodes_caught": 0,
+        "episode_recall": 0.0,
+        "episodes_per_100_alerts": 0.0,
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0
+      }
+    },
+    {
+      "test_start": "2025-07-05",
+      "test_end": "2025-10-02",
+      "model": {
+        "daily_precision_at_k": 0.5222222222222223,
+        "daily_recall_at_k": 0.01448382126348228,
+        "daily_alerts": 90,
+        "global_days_over_budget": 15,
+        "alerts": 90,
+        "episodes": 3232,
+        "episodes_caught": 59,
+        "episode_recall": 0.018254950495049504,
+        "episodes_per_100_alerts": 65.55555555555556,
+        "precision_at_k": 0.8777777777777778,
+        "recall_at_k": 0.024345146379044683
+      },
+      "rule": {
+        "daily_precision_at_k": 0.0,
+        "daily_recall_at_k": 0.0,
+        "daily_alerts": 90,
+        "global_days_over_budget": 27,
+        "alerts": 90,
+        "episodes": 3232,
+        "episodes_caught": 0,
+        "episode_recall": 0.0,
+        "episodes_per_100_alerts": 0.0,
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0
+      }
+    },
+    {
+      "test_start": "2025-10-03",
+      "test_end": "2025-12-31",
+      "model": {
+        "daily_precision_at_k": 0.4666666666666667,
+        "daily_recall_at_k": 0.011692650334075724,
+        "daily_alerts": 90,
+        "global_days_over_budget": 10,
+        "alerts": 90,
+        "episodes": 3552,
+        "episodes_caught": 53,
+        "episode_recall": 0.014921171171171171,
+        "episodes_per_100_alerts": 58.888888888888886,
+        "precision_at_k": 0.9,
+        "recall_at_k": 0.02255011135857461
+      },
+      "rule": {
+        "daily_precision_at_k": 0.044444444444444446,
+        "daily_recall_at_k": 0.0011135857461024498,
+        "daily_alerts": 90,
+        "global_days_over_budget": 16,
+        "alerts": 90,
+        "episodes": 3552,
+        "episodes_caught": 4,
+        "episode_recall": 0.0011261261261261261,
+        "episodes_per_100_alerts": 4.444444444444445,
+        "precision_at_k": 0.14444444444444443,
+        "recall_at_k": 0.003619153674832962
+      }
+    }
+  ],
+  "pooled": {
+    "model": {
+      "alerts": 270,
+      "hits": 168,
+      "episodes": 9954,
+      "daily_precision": 0.4962962962962963,
+      "episodes_per_100_alerts": 62.22222222222222,
+      "episode_recall": 0.016877637130801686
+    },
+    "rule": {
+      "alerts": 270,
+      "hits": 4,
+      "episodes": 9954,
+      "daily_precision": 0.014814814814814815,
+      "episodes_per_100_alerts": 1.4814814814814814,
+      "episode_recall": 0.0004018485031143259
+    }
+  },
+  "note": "walk-forward; proxy label, one channel per day"
+}
