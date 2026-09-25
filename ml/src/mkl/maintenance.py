@@ -8,6 +8,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 from typing import Iterable
@@ -15,6 +16,20 @@ from typing import Iterable
 
 PPR_OBJECT = re.compile(r"^Объект\s+(\d+)$", re.IGNORECASE)
 WORK_MARKERS = {"ТО", "ТР", "ТО+ТР"}
+
+
+def snapshot_paths(root: Path, interim: Path) -> tuple[Path, Path]:
+    """Select a versioned schedule/mapping pair without baking in 2026 forever."""
+    def resolve(value: str | None, default: Path) -> Path:
+        path = Path(value) if value else default
+        return path if path.is_absolute() else root / path
+
+    return (
+        resolve(os.environ.get("MKL_MAINTENANCE_SCHEDULE"),
+                interim / "maintenance_2026.json"),
+        resolve(os.environ.get("MKL_MAINTENANCE_MAPPING"),
+                root / "resources" / "maintenance_mapping_candidates.json"),
+    )
 
 
 def _date(value: object) -> str | None:
@@ -179,11 +194,15 @@ def maintenance_context(schedule: dict, mapping: dict, *, obj_parent: str | None
     if not available_asof(first_known, asof):
         return {"status": "unavailable_asof", "available_from": first_known.isoformat(),
                 "matches": []}
+    schedule_year = start_year(schedule)
+    if window_start.year != schedule_year or window_end.year != schedule_year:
+        return {"status": "outside_schedule_year", "schedule_year": schedule_year,
+                "matches": []}
+    if sensor_type != "Газовый датчик":
+        return {"status": "outside_equipment_scope", "matches": []}
     links = [x for x in mapping["links"] if str(x["obj_parent"]) == str(obj_parent)]
     if not links:
         return {"status": "unmapped", "matches": []}
-    if sensor_type != "Газовый датчик":
-        return {"status": "outside_equipment_scope", "matches": []}
     matches = []
     for link in links:
         key = link["source_object_key"]
@@ -211,8 +230,6 @@ def maintenance_context(schedule: dict, mapping: dict, *, obj_parent: str | None
                 month = row["month"]
                 month_start = dt.date(window_start.year, month, 1)
                 # Each schedule is a single calendar year; reject cross-year forecasts.
-                if month_start.year != start_year(schedule):
-                    continue
                 next_month = (dt.date(month_start.year + 1, 1, 1) if month == 12
                               else dt.date(month_start.year, month + 1, 1))
                 month_end = next_month - dt.timedelta(days=1)

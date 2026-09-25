@@ -105,6 +105,18 @@ def test_alert_cache_invalidates_on_new_data_or_day(monkeypatch):
     assert len(calls) == 2
 
 
+def test_alert_cache_generation_includes_new_schedule(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+    monkeypatch.setattr(api, "PATHS", SimpleNamespace(
+        root=tmp_path, features=tmp_path / "features",
+        interim=tmp_path / "interim", models=tmp_path / "models"))
+    before = api._cache_generation()
+    plan = tmp_path / "interim" / "maintenance_2026.json"
+    plan.parent.mkdir()
+    plan.write_text("{}", encoding="utf-8")
+    assert api._cache_generation() != before
+
+
 def test_coverage_shows_the_gap_not_a_full_bar(client):
     """Доля покрытия единицей ровно там, где разрыв и надо показать, — это
     дефект, который уже случался: знаменатель брался из среза, а не справочника.
