@@ -195,7 +195,7 @@ D:
   product_status: pilot
   product_target: recorded_equipment_wear_signal_next_7_days
   product_action: manual_planned_equipment_diagnostic
-  product_policy: calibrated_threshold_and_max_3_per_day
+  product_policy: calibrated_threshold_and_max_3_per_day; cooldown_7d
   entity: [ch, day]
   feature_set: sensor
   label: label_wear
