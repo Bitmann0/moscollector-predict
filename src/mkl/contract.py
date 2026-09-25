@@ -119,6 +119,8 @@ class Alert:
     model_version: str | None = None
     feature_signature: str | None = None
     factors: list[dict] = field(default_factory=list)
+    # Source-aware operational note, separate from model contributions/risk.
+    maintenance_context: dict | None = None
 
     def to_dict(self) -> dict:
         d = asdict(self)

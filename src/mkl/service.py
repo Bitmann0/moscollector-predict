@@ -9,10 +9,12 @@
 встроить в чужой процесс, если веб-часть решит вызывать напрямую.
 """
 import datetime as dt
+import json
 
 import polars as pl
 
-from . import address, contract, explain, serve, store, train
+from . import address, contract, explain, maintenance, serve, store, train
+from .config import PATHS
 from .contract import Address, Alert, Coverage
 
 # Сколько факторов показывать в карточке алерта.
@@ -60,6 +62,20 @@ def _i(v):
     return None if v is None else int(v)
 
 
+def _load_maintenance_snapshot() -> tuple[dict | None, dict | None, dict | None]:
+    """Load the current customer snapshot; malformed context never changes risk."""
+    schedule_path, mapping_path = maintenance.snapshot_paths(PATHS.root, PATHS.interim)
+    if not schedule_path.exists():
+        return None, None, {"status": "schedule_not_loaded", "matches": []}
+    try:
+        schedule = json.loads(schedule_path.read_text(encoding="utf-8"))
+        mapping = maintenance.load_mapping(mapping_path, schedule)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return None, None, {"status": "schedule_invalid", "reason": str(exc),
+                            "matches": []}
+    return schedule, mapping, None
+
+
 def alerts_for_head(head: str, asof: dt.date | None = None,
                     with_factors: bool = True,
                     issued_history: list[tuple[object, dt.date]] | None = None,
@@ -96,6 +112,9 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
     # Окно прогноза начинается в конце суток, по которым посчитаны признаки:
     # метка живёт в (day, day + horizon], и обещать раньше нечего.
     start = dt.datetime.combine(day, dt.time()) + dt.timedelta(days=1)
+    end = start + dt.timedelta(hours=horizon)
+    schedule, mapping, schedule_error = (_load_maintenance_snapshot()
+                                         if head == "A_link" else (None, None, None))
 
     factors: list[list[dict]] = []
     if with_factors:
@@ -120,6 +139,21 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
     out: list[Alert] = []
     for rank, row in enumerate(rows, start=1):
         ent = {k: row[k] for k in ("ch", "obj", "seg") if k in row}
+        addr = _address(row)
+        context = None
+        if head == "A_link" and bool(row.get("alert", False)):
+            if schedule_error is not None:
+                context = schedule_error
+            else:
+                try:
+                    context = maintenance.maintenance_context(
+                        schedule, mapping, obj_parent=addr.obj_parent,
+                        sensor_type=addr.sensor_type, asof=day,
+                        window_start=start.date(),
+                        window_end=(end - dt.timedelta(microseconds=1)).date())
+                except (ValueError, KeyError, TypeError) as exc:
+                    context = {"status": "schedule_invalid", "reason": str(exc),
+                               "matches": []}
         out.append(Alert(
             alert_id=contract.make_alert_id(head, ent, day),
             case_key=contract.make_case_key(head, ent),
@@ -130,16 +164,17 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
             title=cfg["title"],
             asof=day,
             valid_from=start,
-            valid_to=start + dt.timedelta(hours=horizon),
+            valid_to=end,
             horizon_hours=horizon,
             risk=float(row["risk"]),
             rank=rank,
             in_budget=bool(row.get("alert", False)),
             above_threshold=row.get("above_thr"),
-            address=_address(row),
+            address=addr,
             model_version=art.get("saved_at"),
             feature_signature=art.get("feature_signature"),
             factors=factors[rank - 1] if rank - 1 < len(factors) else [],
+            maintenance_context=context,
         ))
     return out
 

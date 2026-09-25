@@ -5,7 +5,7 @@ import pytest
 import polars as pl
 
 from mkl.maintenance import (available_asof, load_mapping, maintenance_context,
-                             parse_ppr, parse_to)
+                             parse_ppr, parse_to, snapshot_paths)
 from scripts.annotate_maintenance_alerts import annotate
 from mkl.maintenance_eval import evaluate_link_schedule
 
@@ -49,6 +49,14 @@ def test_schedule_is_unavailable_to_earlier_backtest():
     received = dt.date(2026, 9, 25)
     assert not available_asof(received, dt.date(2026, 4, 1))
     assert available_asof(received, received)
+
+
+def test_next_year_snapshot_can_be_selected_without_code_change(monkeypatch, tmp_path):
+    monkeypatch.setenv("MKL_MAINTENANCE_SCHEDULE", "data/interim/maintenance_2027.json")
+    monkeypatch.setenv("MKL_MAINTENANCE_MAPPING", "resources/mapping_2027.json")
+    schedule, mapping = snapshot_paths(tmp_path, tmp_path / "data" / "interim")
+    assert schedule == tmp_path / "data" / "interim" / "maintenance_2027.json"
+    assert mapping == tmp_path / "resources" / "mapping_2027.json"
 
 
 @pytest.fixture

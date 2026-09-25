@@ -8,6 +8,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 from typing import Iterable
@@ -15,6 +16,20 @@ from typing import Iterable
 
 PPR_OBJECT = re.compile(r"^Объект\s+(\d+)$", re.IGNORECASE)
 WORK_MARKERS = {"ТО", "ТР", "ТО+ТР"}
+
+
+def snapshot_paths(root: Path, interim: Path) -> tuple[Path, Path]:
+    """Select a versioned schedule/mapping pair without baking in 2026 forever."""
+    def resolve(value: str | None, default: Path) -> Path:
+        path = Path(value) if value else default
+        return path if path.is_absolute() else root / path
+
+    return (
+        resolve(os.environ.get("MKL_MAINTENANCE_SCHEDULE"),
+                interim / "maintenance_2026.json"),
+        resolve(os.environ.get("MKL_MAINTENANCE_MAPPING"),
+                root / "resources" / "maintenance_mapping_candidates.json"),
+    )
 
 
 def _date(value: object) -> str | None:
