@@ -1,0 +1,1267 @@
+{
+  "$defs": {
+    "AddressOut": {
+      "properties": {
+        "address_known": {
+          "default": true,
+          "title": "Address Known",
+          "type": "boolean"
+        },
+        "channel": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "obj": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj"
+        },
+        "obj_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Kind"
+        },
+        "obj_kind_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Kind Ru"
+        },
+        "obj_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Name"
+        },
+        "obj_parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Parent"
+        },
+        "obj_parent_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Parent Name"
+        },
+        "picket": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Picket"
+        },
+        "picket_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Picket Label"
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segment"
+        },
+        "segment_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segment Label"
+        },
+        "sensor_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sensor Name"
+        },
+        "sensor_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sensor Type"
+        },
+        "tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tag"
+        }
+      },
+      "title": "AddressOut",
+      "type": "object"
+    },
+    "AlertOut": {
+      "properties": {
+        "above_threshold": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Above Threshold"
+        },
+        "address": {
+          "$ref": "#/$defs/AddressOut"
+        },
+        "alert_id": {
+          "title": "Alert Id",
+          "type": "string"
+        },
+        "asof": {
+          "format": "date",
+          "title": "Asof",
+          "type": "string"
+        },
+        "case_key": {
+          "title": "Case Key",
+          "type": "string"
+        },
+        "direction": {
+          "title": "Direction",
+          "type": "string"
+        },
+        "direction_title": {
+          "title": "Direction Title",
+          "type": "string"
+        },
+        "factors": {
+          "items": {
+            "$ref": "#/$defs/FactorOut"
+          },
+          "title": "Factors",
+          "type": "array"
+        },
+        "feature_signature": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Feature Signature"
+        },
+        "head": {
+          "title": "Head",
+          "type": "string"
+        },
+        "horizon_hours": {
+          "title": "Horizon Hours",
+          "type": "integer"
+        },
+        "in_budget": {
+          "title": "In Budget",
+          "type": "boolean"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Version"
+        },
+        "rank": {
+          "title": "Rank",
+          "type": "integer"
+        },
+        "risk": {
+          "title": "Risk",
+          "type": "number"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "default": "ok",
+          "enum": [
+            "ok",
+            "no_data",
+            "stale"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "status_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Status Note"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "valid_from": {
+          "format": "date-time",
+          "title": "Valid From",
+          "type": "string"
+        },
+        "valid_to": {
+          "format": "date-time",
+          "title": "Valid To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alert_id",
+        "case_key",
+        "head",
+        "direction",
+        "direction_title",
+        "title",
+        "asof",
+        "valid_from",
+        "valid_to",
+        "horizon_hours",
+        "risk",
+        "rank",
+        "in_budget",
+        "address"
+      ],
+      "title": "AlertOut",
+      "type": "object"
+    },
+    "CoverageOut": {
+      "properties": {
+        "direction": {
+          "title": "Direction",
+          "type": "string"
+        },
+        "entities_scored": {
+          "title": "Entities Scored",
+          "type": "integer"
+        },
+        "entities_total": {
+          "title": "Entities Total",
+          "type": "integer"
+        },
+        "fraction": {
+          "title": "Fraction",
+          "type": "number"
+        },
+        "head": {
+          "title": "Head",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "head",
+        "direction",
+        "entities_total",
+        "entities_scored",
+        "fraction"
+      ],
+      "title": "CoverageOut",
+      "type": "object"
+    },
+    "DirectionHead": {
+      "properties": {
+        "budget_per_day": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Budget Per Day"
+        },
+        "head": {
+          "title": "Head",
+          "type": "string"
+        },
+        "horizon_hours": {
+          "title": "Horizon Hours",
+          "type": "integer"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "head",
+        "title",
+        "horizon_hours"
+      ],
+      "title": "DirectionHead",
+      "type": "object"
+    },
+    "DirectionItem": {
+      "properties": {
+        "direction": {
+          "title": "Direction",
+          "type": "string"
+        },
+        "heads": {
+          "items": {
+            "$ref": "#/$defs/DirectionHead"
+          },
+          "title": "Heads",
+          "type": "array"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "direction",
+        "title",
+        "heads"
+      ],
+      "title": "DirectionItem",
+      "type": "object"
+    },
+    "FactorOut": {
+      "properties": {
+        "contribution": {
+          "title": "Contribution",
+          "type": "number"
+        },
+        "feature": {
+          "title": "Feature",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "feature",
+        "label",
+        "contribution"
+      ],
+      "title": "FactorOut",
+      "type": "object"
+    },
+    "HeadStatus": {
+      "properties": {
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "model_lag_days": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Lag Days"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Version"
+        },
+        "result_status": {
+          "enum": [
+            "ok",
+            "empty_valid",
+            "no_data",
+            "stale",
+            "error"
+          ],
+          "title": "Result Status",
+          "type": "string"
+        },
+        "threshold_end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold End"
+        },
+        "threshold_feasible": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold Feasible"
+        }
+      },
+      "required": [
+        "result_status"
+      ],
+      "title": "HeadStatus",
+      "type": "object"
+    },
+    "Health": {
+      "properties": {
+        "mode": {
+          "enum": [
+            "stub",
+            "real"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "const": "ok",
+          "default": "ok",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "title": "Health",
+      "type": "object"
+    },
+    "IssuedEntry": {
+      "description": "Строка журнала выданного: канал (A_link, D) или объект — и день выдачи.",
+      "properties": {
+        "channel": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "obj": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj"
+        },
+        "sent_day": {
+          "format": "date",
+          "title": "Sent Day",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sent_day"
+      ],
+      "title": "IssuedEntry",
+      "type": "object"
+    },
+    "OutcomeQuery": {
+      "properties": {
+        "asof": {
+          "format": "date",
+          "title": "Asof",
+          "type": "string"
+        },
+        "channel": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "head": {
+          "title": "Head",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "alert",
+            "weekly_recommendation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "obj": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "head",
+        "asof"
+      ],
+      "title": "OutcomeQuery",
+      "type": "object"
+    },
+    "OutcomeResult": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "hit",
+            "miss",
+            "unknown"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "outcome"
+      ],
+      "title": "OutcomeResult",
+      "type": "object"
+    },
+    "ReadyResponse": {
+      "properties": {
+        "asof": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asof"
+        },
+        "data_last_day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Last Day"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "source": {
+          "enum": [
+            "stub",
+            "live"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ready",
+            "missing_data",
+            "stale",
+            "stale_source",
+            "future_source",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "source"
+      ],
+      "title": "ReadyResponse",
+      "type": "object"
+    },
+    "ScoreRequest": {
+      "properties": {
+        "asof": {
+          "format": "date",
+          "title": "Asof",
+          "type": "string"
+        },
+        "heads": {
+          "items": {
+            "enum": [
+              "A_link",
+              "D"
+            ],
+            "type": "string"
+          },
+          "title": "Heads",
+          "type": "array"
+        },
+        "history_complete_from": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "History Complete From"
+        },
+        "issued_histories": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/IssuedEntry"
+            },
+            "type": "array"
+          },
+          "propertyNames": {
+            "enum": [
+              "A_link",
+              "D"
+            ]
+          },
+          "title": "Issued Histories",
+          "type": "object"
+        },
+        "with_factors": {
+          "default": true,
+          "title": "With Factors",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "asof"
+      ],
+      "title": "ScoreRequest",
+      "type": "object"
+    },
+    "ScoreResponse": {
+      "properties": {
+        "alerts": {
+          "items": {
+            "$ref": "#/$defs/AlertOut"
+          },
+          "title": "Alerts",
+          "type": "array"
+        },
+        "asof": {
+          "format": "date",
+          "title": "Asof",
+          "type": "string"
+        },
+        "coverage": {
+          "items": {
+            "$ref": "#/$defs/CoverageOut"
+          },
+          "title": "Coverage",
+          "type": "array"
+        },
+        "data_snapshot": {
+          "additionalProperties": true,
+          "title": "Data Snapshot",
+          "type": "object"
+        },
+        "heads": {
+          "additionalProperties": {
+            "$ref": "#/$defs/HeadStatus"
+          },
+          "title": "Heads",
+          "type": "object"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "stub",
+            "live"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "work_orders": {
+          "items": {
+            "$ref": "#/$defs/WorkOrderOut"
+          },
+          "title": "Work Orders",
+          "type": "array"
+        }
+      },
+      "required": [
+        "asof",
+        "source",
+        "heads"
+      ],
+      "title": "ScoreResponse",
+      "type": "object"
+    },
+    "WeeklyPriority": {
+      "properties": {
+        "address_known": {
+          "default": false,
+          "title": "Address Known",
+          "type": "boolean"
+        },
+        "case_key": {
+          "title": "Case Key",
+          "type": "string"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "string"
+        },
+        "guard_state_age_days": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Guard State Age Days"
+        },
+        "obj": {
+          "title": "Obj",
+          "type": "string"
+        },
+        "obj_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Name"
+        },
+        "obj_parent_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Parent Name"
+        },
+        "priority_score": {
+          "title": "Priority Score",
+          "type": "number"
+        },
+        "rank": {
+          "title": "Rank",
+          "type": "integer"
+        },
+        "recent_alarm_days_30": {
+          "title": "Recent Alarm Days 30",
+          "type": "integer"
+        },
+        "recent_alarm_days_7": {
+          "title": "Recent Alarm Days 7",
+          "type": "integer"
+        },
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "obj",
+        "rank",
+        "recommendation_id",
+        "case_key",
+        "priority_score",
+        "recent_alarm_days_7",
+        "recent_alarm_days_30",
+        "evidence"
+      ],
+      "title": "WeeklyPriority",
+      "type": "object"
+    },
+    "WeeklyResponse": {
+      "properties": {
+        "action": {
+          "default": "manual_plan_guard_loop_inspection",
+          "title": "Action",
+          "type": "string"
+        },
+        "asof": {
+          "format": "date",
+          "title": "Asof",
+          "type": "string"
+        },
+        "data_last_day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Last Day"
+        },
+        "data_snapshot": {
+          "additionalProperties": true,
+          "title": "Data Snapshot",
+          "type": "object"
+        },
+        "event_cache_through": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Cache Through"
+        },
+        "method": {
+          "default": "weekly_recurrence_rule_v1",
+          "title": "Method",
+          "type": "string"
+        },
+        "model_version": {
+          "default": "weekly_recurrence_rule_v1",
+          "title": "Model Version",
+          "type": "string"
+        },
+        "next_run": {
+          "format": "date",
+          "title": "Next Run",
+          "type": "string"
+        },
+        "policy": {
+          "additionalProperties": true,
+          "title": "Policy",
+          "type": "object"
+        },
+        "priorities": {
+          "items": {
+            "$ref": "#/$defs/WeeklyPriority"
+          },
+          "title": "Priorities",
+          "type": "array"
+        },
+        "result_status": {
+          "enum": [
+            "ok",
+            "empty_valid",
+            "no_data",
+            "stale",
+            "error"
+          ],
+          "title": "Result Status",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "score_type": {
+          "const": "relative_priority_not_probability",
+          "default": "relative_priority_not_probability",
+          "title": "Score Type",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "stub",
+            "live"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "default": "continued_recorded_smvu_guard_alarm_activity",
+          "title": "Target",
+          "type": "string"
+        },
+        "target_version": {
+          "default": 2,
+          "title": "Target Version",
+          "type": "integer"
+        },
+        "valid_from": {
+          "format": "date",
+          "title": "Valid From",
+          "type": "string"
+        },
+        "valid_to": {
+          "format": "date",
+          "title": "Valid To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asof",
+        "valid_from",
+        "valid_to",
+        "next_run",
+        "result_status",
+        "source"
+      ],
+      "title": "WeeklyResponse",
+      "type": "object"
+    },
+    "WorkOrderOut": {
+      "properties": {
+        "alert_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alert Ids",
+          "type": "array"
+        },
+        "case_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Keys",
+          "type": "array"
+        },
+        "channels": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Channels",
+          "type": "array"
+        },
+        "created_for": {
+          "format": "date",
+          "title": "Created For",
+          "type": "string"
+        },
+        "direction": {
+          "title": "Direction",
+          "type": "string"
+        },
+        "direction_title": {
+          "title": "Direction Title",
+          "type": "string"
+        },
+        "due_by": {
+          "format": "date-time",
+          "title": "Due By",
+          "type": "string"
+        },
+        "max_risk": {
+          "default": 0.0,
+          "title": "Max Risk",
+          "type": "number"
+        },
+        "n_alerts": {
+          "default": 0,
+          "title": "N Alerts",
+          "type": "integer"
+        },
+        "obj": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj"
+        },
+        "obj_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Kind"
+        },
+        "obj_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Name"
+        },
+        "obj_parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Parent"
+        },
+        "obj_parent_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obj Parent Name"
+        },
+        "order_id": {
+          "title": "Order Id",
+          "type": "string"
+        },
+        "pickets": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Pickets",
+          "type": "array"
+        },
+        "priority": {
+          "enum": [
+            "срочная",
+            "плановая",
+            "наблюдение"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "rationale": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rationale",
+          "type": "array"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "default": "новая",
+          "title": "Status",
+          "type": "string"
+        },
+        "work_type": {
+          "title": "Work Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "order_id",
+        "created_for",
+        "due_by",
+        "priority",
+        "work_type",
+        "direction",
+        "direction_title"
+      ],
+      "title": "WorkOrderOut",
+      "type": "object"
+    }
+  },
+  "schema_version": "1.0",
+  "title": "Контракт C1: ML → backend"
+}
