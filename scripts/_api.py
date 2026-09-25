@@ -37,8 +37,20 @@ def env_value(name: str, env_file: Path = ROOT / ".env") -> str | None:
     for line in env_file.read_text(encoding="utf-8").splitlines():
         key, sep, raw = line.partition("=")
         if sep and key.strip() == name:
-            return raw.strip().strip('"').strip("'") or None
+            return _dotenv_value(raw) or None
     return None
+
+
+def _dotenv_value(raw: str) -> str:
+    """Как compose читает значение: в кавычках — до закрывающей кавычки, без кавычек —
+    до комментария « #». Подстановку $VAR compose делает, мы — нет: поэтому в .env.example
+    сказано не использовать $ в паролях."""
+    raw = raw.strip()
+    if raw[:1] in ("'", '"'):
+        end = raw.find(raw[0], 1)
+        return raw[1:end] if end > 0 else raw[1:]
+    comment = raw.find(" #")
+    return (raw[:comment] if comment >= 0 else raw).strip()
 
 
 class ApiError(RuntimeError):

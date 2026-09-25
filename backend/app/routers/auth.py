@@ -23,7 +23,7 @@ def login(body: LoginIn, request: Request, response: Response,
     if row is None or not verify_password(body.password, row.password_hash):
         raise HTTPException(status_code=401, detail="bad_credentials")
     settings = get_settings()
-    response.set_cookie(COOKIE, issue_session(row.login), httponly=True, samesite="lax",
+    response.set_cookie(COOKIE, issue_session(row.login, row.password_hash), httponly=True, samesite="lax",
                         secure=settings.cookie_secure, max_age=settings.session_hours * 3600)
     user = CurrentUser(row.login, row.name, row.role, vocab.permissions_of(row.role))
     request.state.user = user

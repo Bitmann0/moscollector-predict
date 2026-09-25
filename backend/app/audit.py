@@ -2,11 +2,15 @@
 
 Пишется каждый изменяющий запрос (POST, PUT, PATCH, DELETE) и выгрузки
 (GET /export, GET /audit): кто, метод, путь, код ответа. Запись идёт в своей
-сессии БД, чтобы откат транзакции запроса не стирал след попытки.
+сессии БД, чтобы откат транзакции запроса не стирал след попытки, и в пуле
+потоков, чтобы не останавливать цикл событий. Необработанное исключение
+обработчика записывается как 500 и пробрасывается дальше. Анонимные 404/405
+(перебор несуществующих путей) не пишутся: иначе их поток забивает журнал.
 """
 import logging
 from datetime import UTC, datetime
 
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
@@ -17,6 +21,8 @@ log = logging.getLogger(__name__)
 
 MUTATING = {"POST", "PUT", "PATCH", "DELETE"}
 AUDITED_READS = ("/api/v1/export", "/api/v1/audit")
+PATH_MAX = 500    # длина колонки audit_log.path
+ENTITY_MAX = 200  # длина колонки audit_log.entity
 
 
 def should_audit(method: str, path: str) -> bool:
@@ -29,26 +35,36 @@ def _entity(request: Request) -> str | None:
     """Первый параметр пути (id прогноза, заявки, день) — чтобы запись находилась по объекту."""
     params = request.path_params or {}
     value = next(iter(params.values()), None)
-    return None if value is None else str(value)[:200]
+    return None if value is None else str(value)[:ENTITY_MAX]
+
+
+def _write(record: dict) -> None:
+    try:
+        with session_factory()() as db:
+            db.add(models.AuditRecord(**record))
+            db.commit()
+    except Exception:  # аудит не должен ронять ответ пользователю
+        log.exception("audit write failed: %s %s", record.get("method"), record.get("path"))
 
 
 class AuditMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        if should_audit(request.method, request.url.path):
+        if not should_audit(request.method, request.url.path):
+            return await call_next(request)
+        status = 500
+        try:
+            response = await call_next(request)
+            status = response.status_code
+            return response
+        finally:
             user = getattr(request.state, "user", None)
-            try:
-                with session_factory()() as db:
-                    db.add(models.AuditRecord(
-                        ts=datetime.now(UTC),
-                        user_login=getattr(user, "login", None),
-                        role=getattr(user, "role", None),
-                        method=request.method,
-                        path=request.url.path,
-                        status=response.status_code,
-                        entity=_entity(request),
-                    ))
-                    db.commit()
-            except Exception:  # аудит не должен ронять ответ пользователю
-                log.exception("audit write failed")
-        return response
+            if user is not None or status not in (404, 405):
+                await run_in_threadpool(_write, {
+                    "ts": datetime.now(UTC),
+                    "user_login": getattr(user, "login", None),
+                    "role": getattr(user, "role", None),
+                    "method": request.method,
+                    "path": request.url.path[:PATH_MAX],
+                    "status": status,
+                    "entity": _entity(request),
+                })

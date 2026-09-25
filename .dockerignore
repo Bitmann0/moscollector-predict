@@ -15,6 +15,7 @@ bundle/
 docs/
 tests/
 state/
+**/state/
 **/__pycache__
 **/*.pyc
 .pytest_cache
@@ -22,7 +23,11 @@ state/
 .ruff_cache
 **/.ruff_cache
 *.db
+**/*.db
 .env
+**/.env
+**/.env.*
+!.env.example
 *.7z
 *.zip
 *.parquet

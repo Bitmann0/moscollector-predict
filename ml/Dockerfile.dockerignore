@@ -13,5 +13,13 @@ ml/experiments
 ml/catboost_info
 ml/.venv
 ml/.pytest_cache
+ml/mlruns
+ml/**/ChatExport*
+ml/**/.env
+ml/**/*.pkl
+ml/**/*.parquet
+ml/**/*.duckdb
+ml/**/*.7z
+ml/**/*.db
 **/__pycache__
 **/*.pyc

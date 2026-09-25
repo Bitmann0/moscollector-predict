@@ -47,7 +47,10 @@ class MlClient:
             raise MlUnavailable(f"{type(exc).__name__}: {exc}") from exc
         if resp.status_code >= 400:
             raise MlUnavailable(f"HTTP {resp.status_code}: {resp.text[:500]}")
-        return resp.json()
+        try:
+            return resp.json()
+        except ValueError as exc:  # например, ML_URL указывает не на ML и отдаёт HTML
+            raise MlUnavailable(f"ответ не JSON: {resp.text[:200]}") from exc
 
     def health(self) -> dict:
         return self._get("/health")

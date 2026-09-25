@@ -3741,6 +3741,7 @@
                 "items": {
                   "$ref": "#/components/schemas/EventRowIn"
                 },
+                "maxItems": 5000,
                 "title": "Rows",
                 "type": "array"
               }
@@ -3778,7 +3779,7 @@
     },
     "/api/v1/ingest/events/upload": {
       "post": {
-        "description": "Файл журнала СМВУ: CSV как журнал_событий_пример.csv или XLSX (ТЗ §7).",
+        "description": "Файл журнала СМВУ: CSV как журнал_событий_пример.csv или XLSX (ТЗ §7).\n\nСинхронная функция намеренно: FastAPI выполняет её в пуле потоков. Разбор файла\nв async-обработчике остановил бы цикл событий — и весь API, включая SSE и health.",
         "operationId": "ingest_file_api_v1_ingest_events_upload_post",
         "requestBody": {
           "content": {
@@ -3828,6 +3829,7 @@
                 "items": {
                   "$ref": "#/components/schemas/OdsRowIn"
                 },
+                "maxItems": 5000,
                 "title": "Rows",
                 "type": "array"
               }

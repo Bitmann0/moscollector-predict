@@ -24,6 +24,7 @@ tests/test_daily_run.py должен остаться зелёным.
 """
 import argparse
 import logging
+import threading
 from datetime import date, timedelta
 
 from pydantic import ValidationError
@@ -277,7 +278,18 @@ def _alert_new(row: models.Forecast) -> None:
     }, severity="warning", title=f"{scenario['title']}: {obj}")
 
 
+_RUN_LOCK = threading.Lock()
+
+
 def run_daily(db: Session, asof: date, ml: MlClient) -> RunDailyOut:
+    """Дневной цикл. Прогоны сериализуются: два параллельных run-daily на один asof
+    иначе вставляют одинаковые прогнозы и второй падает на уникальном ключе.
+    Замок процесса достаточен: api запускается одним процессом uvicorn."""
+    with _RUN_LOCK:
+        return _run_daily(db, asof, ml)
+
+
+def _run_daily(db: Session, asof: date, ml: MlClient) -> RunDailyOut:
     run = models.ForecastRun(asof=asof, kind="daily", started_at=now_utc(), heads={}, raw={})
     db.add(run)
     db.flush()

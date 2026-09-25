@@ -98,13 +98,17 @@ def create_app(mode: str | None = None) -> FastAPI:
         raise ValueError(f"ML_MODE={mode!r}: допустимо {', '.join(MODES)}")
     lock = threading.Lock()
 
-    def run(stub_fn: Callable, real_fn: Callable, *args):
+    def run(stub_fn: Callable, real_fn: Callable, *args, exclusive: bool = True):
+        """exclusive=False — для лёгких проверок вроде /ready: они не должны ждать
+        минутный расчёт /score, иначе backend сочтёт ML недоступным."""
         fn = real_fn if mode == "real" else stub_fn
-        with lock:
-            try:
+        try:
+            if not exclusive:
                 return fn(*args)
-            except NotImplementedError as exc:
-                raise HTTPException(status_code=501, detail=str(exc)) from exc
+            with lock:
+                return fn(*args)
+        except NotImplementedError as exc:
+            raise HTTPException(status_code=501, detail=str(exc)) from exc
 
     app = FastAPI(
         title="Москоллектор ML — контракт C1",
@@ -121,7 +125,7 @@ def create_app(mode: str | None = None) -> FastAPI:
 
     @app.get("/ready", response_model=ReadyResponse)
     def ready(asof: dt.date | None = Query(None, description="сутки расчёта")) -> ReadyResponse:
-        return run(product_stub.ready, _real_ready, asof)
+        return run(product_stub.ready, _real_ready, asof, exclusive=False)
 
     @app.get(f"{API_PREFIX}/directions", response_model=list[DirectionItem])
     def directions() -> list[DirectionItem]:
