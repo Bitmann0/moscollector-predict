@@ -1,0 +1,447 @@
+{
+  "items": [
+    {
+      "alarm": true,
+      "channel": {
+        "id": 9000001,
+        "name": "Датчик движения ПК0 (заглушка)",
+        "picket_label": "ПК 0",
+        "sensor_type": "Датчик движения"
+      },
+      "event_class": "alarm",
+      "event_class_title": "Тревога",
+      "hint": null,
+      "id": 1,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9101",
+        "kind_ru": null,
+        "name": "Объект-заглушка 1"
+      },
+      "sensor_event": "Сработка (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000002,
+        "name": "Состояние насоса ПК8 (заглушка)",
+        "picket_label": "ПК 8",
+        "sensor_type": "Состояние насоса"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 2,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9101",
+        "kind_ru": null,
+        "name": "Объект-заглушка 1"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000003,
+        "name": "Состояние вентилятора ПК16 (заглушка)",
+        "picket_label": "ПК 16",
+        "sensor_type": "Состояние вентилятора"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 3,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9101",
+        "kind_ru": null,
+        "name": "Объект-заглушка 1"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000004,
+        "name": "Газовый датчик ПК24 (заглушка)",
+        "picket_label": "ПК 24",
+        "sensor_type": "Газовый датчик"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 4,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9101",
+        "kind_ru": null,
+        "name": "Объект-заглушка 1"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000005,
+        "name": "Датчик дыма ПК32 (заглушка)",
+        "picket_label": "ПК 32",
+        "sensor_type": "Датчик дыма"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 5,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9101",
+        "kind_ru": null,
+        "name": "Объект-заглушка 1"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000006,
+        "name": "Состояние насоса ПК40 (заглушка)",
+        "picket_label": "ПК 40",
+        "sensor_type": "Состояние насоса"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 6,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9102",
+        "kind_ru": null,
+        "name": "Объект-заглушка 2"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000007,
+        "name": "Состояние вентилятора ПК48 (заглушка)",
+        "picket_label": "ПК 48",
+        "sensor_type": "Состояние вентилятора"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 7,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9102",
+        "kind_ru": null,
+        "name": "Объект-заглушка 2"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": true,
+      "channel": {
+        "id": 9000008,
+        "name": "Газовый датчик ПК56 (заглушка)",
+        "picket_label": "ПК 56",
+        "sensor_type": "Газовый датчик"
+      },
+      "event_class": "alarm",
+      "event_class_title": "Тревога",
+      "hint": null,
+      "id": 8,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9102",
+        "kind_ru": null,
+        "name": "Объект-заглушка 2"
+      },
+      "sensor_event": "Сработка (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000009,
+        "name": "Датчик дыма ПК64 (заглушка)",
+        "picket_label": "ПК 64",
+        "sensor_type": "Датчик дыма"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 9,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9102",
+        "kind_ru": null,
+        "name": "Объект-заглушка 2"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000010,
+        "name": "ИБП ПК72 (заглушка)",
+        "picket_label": "ПК 72",
+        "sensor_type": "ИБП"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 10,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9102",
+        "kind_ru": null,
+        "name": "Объект-заглушка 2"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000011,
+        "name": "Состояние вентилятора ПК80 (заглушка)",
+        "picket_label": "ПК 80",
+        "sensor_type": "Состояние вентилятора"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 11,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9103",
+        "kind_ru": null,
+        "name": "Объект-заглушка 3"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000012,
+        "name": "Газовый датчик ПК88 (заглушка)",
+        "picket_label": "ПК 88",
+        "sensor_type": "Газовый датчик"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 12,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9103",
+        "kind_ru": null,
+        "name": "Объект-заглушка 3"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000013,
+        "name": "Датчик дыма ПК96 (заглушка)",
+        "picket_label": "ПК 96",
+        "sensor_type": "Датчик дыма"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 13,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9103",
+        "kind_ru": null,
+        "name": "Объект-заглушка 3"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000014,
+        "name": "ИБП ПК104 (заглушка)",
+        "picket_label": "ПК 104",
+        "sensor_type": "ИБП"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 14,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9103",
+        "kind_ru": null,
+        "name": "Объект-заглушка 3"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": true,
+      "channel": {
+        "id": 9000015,
+        "name": "Датчик температуры ПК112 (заглушка)",
+        "picket_label": "ПК 112",
+        "sensor_type": "Датчик температуры"
+      },
+      "event_class": "alarm",
+      "event_class_title": "Тревога",
+      "hint": null,
+      "id": 15,
+      "object": {
+        "complex_id": "9100",
+        "complex_name": "Комплекс-заглушка 1",
+        "id": "9103",
+        "kind_ru": null,
+        "name": "Объект-заглушка 3"
+      },
+      "sensor_event": "Сработка (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000016,
+        "name": "Газовый датчик ПК0 (заглушка)",
+        "picket_label": "ПК 0",
+        "sensor_type": "Газовый датчик"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 16,
+      "object": {
+        "complex_id": "9200",
+        "complex_name": "Комплекс-заглушка 2",
+        "id": "9201",
+        "kind_ru": null,
+        "name": "Объект-заглушка 4"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000017,
+        "name": "Датчик дыма ПК8 (заглушка)",
+        "picket_label": "ПК 8",
+        "sensor_type": "Датчик дыма"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 17,
+      "object": {
+        "complex_id": "9200",
+        "complex_name": "Комплекс-заглушка 2",
+        "id": "9201",
+        "kind_ru": null,
+        "name": "Объект-заглушка 4"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000018,
+        "name": "ИБП ПК16 (заглушка)",
+        "picket_label": "ПК 16",
+        "sensor_type": "ИБП"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 18,
+      "object": {
+        "complex_id": "9200",
+        "complex_name": "Комплекс-заглушка 2",
+        "id": "9201",
+        "kind_ru": null,
+        "name": "Объект-заглушка 4"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000019,
+        "name": "Датчик температуры ПК24 (заглушка)",
+        "picket_label": "ПК 24",
+        "sensor_type": "Датчик температуры"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 19,
+      "object": {
+        "complex_id": "9200",
+        "complex_name": "Комплекс-заглушка 2",
+        "id": "9201",
+        "kind_ru": null,
+        "name": "Объект-заглушка 4"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    },
+    {
+      "alarm": false,
+      "channel": {
+        "id": 9000020,
+        "name": "КД Дверь ПК32 (заглушка)",
+        "picket_label": "ПК 32",
+        "sensor_type": "КД Дверь"
+      },
+      "event_class": "normal",
+      "event_class_title": "Норма",
+      "hint": null,
+      "id": 20,
+      "object": {
+        "complex_id": "9200",
+        "complex_name": "Комплекс-заглушка 2",
+        "id": "9201",
+        "kind_ru": null,
+        "name": "Объект-заглушка 4"
+      },
+      "sensor_event": "Норма (заглушка)",
+      "ts": "2026-06-16T00:00:00+03:00"
+    }
+  ],
+  "page": 1,
+  "page_size": 20,
+  "total": 500
+}

@@ -1,0 +1,175 @@
+{
+  "alarms_24h": 0,
+  "demo_today": "2026-06-30",
+  "heads": [
+    {
+      "detail": null,
+      "head": "A_link",
+      "model_lag_days": 7,
+      "result_status": "ok",
+      "scenario": "sensor_link",
+      "threshold_feasible": true
+    },
+    {
+      "detail": null,
+      "head": "D",
+      "model_lag_days": 14,
+      "result_status": "ok",
+      "scenario": "equipment_diag",
+      "threshold_feasible": true
+    },
+    {
+      "detail": null,
+      "head": "guard_weekly",
+      "model_lag_days": null,
+      "result_status": "ok",
+      "scenario": "guard_weekly",
+      "threshold_feasible": null
+    }
+  ],
+  "planned_like_alarms_24h": 0,
+  "scenarios": [
+    {
+      "coverage_fraction": 0.9333,
+      "open_forecasts": 17,
+      "scenario": "sensor_link",
+      "title": "Отказ датчика: риск потери связи"
+    },
+    {
+      "coverage_fraction": 0.9091,
+      "open_forecasts": 2,
+      "scenario": "equipment_diag",
+      "title": "Износ: плановая диагностика оборудования"
+    },
+    {
+      "coverage_fraction": null,
+      "open_forecasts": 1,
+      "scenario": "guard_weekly",
+      "title": "НСД: проверка объектов с хроническими охранными тревогами"
+    }
+  ],
+  "series_coverage_per_day": [
+    {
+      "day": "2026-06-17",
+      "value": 0.944
+    },
+    {
+      "day": "2026-06-18",
+      "value": 0.937
+    },
+    {
+      "day": "2026-06-19",
+      "value": 0.806
+    },
+    {
+      "day": "2026-06-20",
+      "value": 0.963
+    },
+    {
+      "day": "2026-06-21",
+      "value": 0.836
+    },
+    {
+      "day": "2026-06-22",
+      "value": 0.81
+    },
+    {
+      "day": "2026-06-23",
+      "value": 0.944
+    },
+    {
+      "day": "2026-06-24",
+      "value": 0.911
+    },
+    {
+      "day": "2026-06-25",
+      "value": 0.92
+    },
+    {
+      "day": "2026-06-26",
+      "value": 0.815
+    },
+    {
+      "day": "2026-06-27",
+      "value": 0.944
+    },
+    {
+      "day": "2026-06-28",
+      "value": 0.844
+    },
+    {
+      "day": "2026-06-29",
+      "value": 0.919
+    },
+    {
+      "day": "2026-06-30",
+      "value": 0.808
+    }
+  ],
+  "series_forecasts_per_day": [
+    {
+      "day": "2026-06-17",
+      "value": 7.0
+    },
+    {
+      "day": "2026-06-18",
+      "value": 20.0
+    },
+    {
+      "day": "2026-06-19",
+      "value": 15.0
+    },
+    {
+      "day": "2026-06-20",
+      "value": 24.0
+    },
+    {
+      "day": "2026-06-21",
+      "value": 7.0
+    },
+    {
+      "day": "2026-06-22",
+      "value": 16.0
+    },
+    {
+      "day": "2026-06-23",
+      "value": 21.0
+    },
+    {
+      "day": "2026-06-24",
+      "value": 7.0
+    },
+    {
+      "day": "2026-06-25",
+      "value": 6.0
+    },
+    {
+      "day": "2026-06-26",
+      "value": 18.0
+    },
+    {
+      "day": "2026-06-27",
+      "value": 13.0
+    },
+    {
+      "day": "2026-06-28",
+      "value": 19.0
+    },
+    {
+      "day": "2026-06-29",
+      "value": 9.0
+    },
+    {
+      "day": "2026-06-30",
+      "value": 21.0
+    }
+  ],
+  "source": "stub",
+  "work_orders_by_status": {
+    "cancelled": 0,
+    "completed": 0,
+    "confirmed": 0,
+    "draft": 8,
+    "in_progress": 0
+  }
+}

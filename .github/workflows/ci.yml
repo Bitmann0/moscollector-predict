@@ -2,36 +2,138 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "chore/**", "feat/**"]
   pull_request:
-    branches: [main]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  quality:
+  backend:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: moscollector_test
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci -d moscollector_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: pyproject.toml
       - name: Install
         run: python -m pip install -e '.[dev]'
       - name: Lint
         run: ruff check backend tests scripts
-      - name: Tests
+      - name: Tests (SQLite)
+        run: pytest -q
+      - name: Tests (PostgreSQL 16)
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg://ci:ci@localhost:5432/moscollector_test
         run: pytest -q
 
-  container:
+  ml:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ml/requirements.lock
+      - name: Install
+        run: |
+          python -m pip install -r ml/requirements.lock
+          python -m pip install --no-deps -e ml
+          python -m pip install pytest httpx
+      # Три теста требуют данных заказчика, в CI их нет.
+      - name: Tests
+        working-directory: ml
+        run: >-
+          pytest -q
+          --deselect tests/test_address.py
+          --deselect tests/test_config.py::test_paths_exist
+          --deselect tests/test_db.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Types from contracts/api_v1.openapi.json are committed
+        run: |
+          npm run gen:api
+          git diff --exit-code src/api/schema.d.ts
+      - run: npm run typecheck
+      - run: npm run build
+
+  contracts:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
-      - name: Build production image
-        run: docker build --tag moscollector-predict:test .
-      - name: Verify Compose startup and persistence
-        run: python scripts/smoke_compose.py
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      # backend целиком; ML-заглушке хватает fastapi и pydantic из него плюс pyyaml.
+      - name: Install
+        run: python -m pip install -e . pyyaml
+      - name: Export contracts
+        run: python scripts/export_contracts.py --strict
+      - name: contracts/ matches the code
+        run: |
+          git diff --exit-code contracts/
+          untracked="$(git ls-files --others --exclude-standard contracts/)"
+          if [ -n "$untracked" ]; then
+            echo "Не закоммичены новые файлы контрактов:"; echo "$untracked"; exit 1
+          fi
+
+  smoke:
+    needs: [backend, ml, frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: .env with throwaway values
+        run: |
+          cp .env.example .env
+          sed -i \
+            -e "s/^DEMO_PASSWORD=.*/DEMO_PASSWORD=ci-$(openssl rand -hex 12)/" \
+            -e "s/^SECRET_KEY=.*/SECRET_KEY=$(openssl rand -hex 32)/" \
+            -e "s/^INTEGRATION_API_KEY=.*/INTEGRATION_API_KEY=ci-$(openssl rand -hex 12)/" \
+            .env
+      - name: Compose up
+        run: docker compose up -d --build --wait --wait-timeout 600
+      - name: Smoke
+        run: python3 scripts/smoke_compose.py
+      - name: Compose logs
+        if: failure()
+        run: docker compose logs --no-color --tail 200
+      - name: Compose down
+        if: always()
+        run: docker compose down -v

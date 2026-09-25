@@ -1,0 +1,35 @@
+# ЗАГЛУШКА — владелец PM-10 (стенд, решения D9 и D13).
+# Заменить: домен и TLS для реальной ВМ, бэкап pg_dump (ML1-13), replay.py как сервис,
+# лимиты ресурсов, журналы.
+# Контракт: api снаружи доступен только через Caddy (80/443), демо-настройки закрыты;
+# scripts/smoke_compose.py --base-url https://$STAND_DOMAIN должен остаться зелёным.
+#
+#   docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml up -d --build
+services:
+  api:
+    ports: !reset []
+    environment:
+      DEMO_SETTINGS_LOCKED: "1"
+      COOKIE_SECURE: "1"
+      # Caddy в той же сети compose: доверяем его X-Forwarded-Proto и X-Forwarded-For.
+      FORWARDED_ALLOW_IPS: "*"
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      STAND_DOMAIN: ${STAND_DOMAIN:?задайте STAND_DOMAIN в .env - домен стенда}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

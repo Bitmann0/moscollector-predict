@@ -1,0 +1,90 @@
+{
+  "request": [
+    {
+      "asof": "2026-06-15",
+      "channel": 9000026,
+      "head": "A_link",
+      "id": "4ec915ed398ac359",
+      "kind": "alert",
+      "obj": "9203"
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": 9000005,
+      "head": "A_link",
+      "id": "38fcdf03cb27553f",
+      "kind": "alert",
+      "obj": "9101"
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": 9000019,
+      "head": "A_link",
+      "id": "57e0059f536fdceb",
+      "kind": "alert",
+      "obj": "9201"
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": 9000012,
+      "head": "A_link",
+      "id": "feca4118442daf0d",
+      "kind": "alert",
+      "obj": "9103"
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": 9000022,
+      "head": "A_link",
+      "id": "efde88f867fa5c33",
+      "kind": "alert",
+      "obj": "9202"
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": 9000003,
+      "head": "A_link",
+      "id": "c5e57a72bfa68946",
+      "kind": "alert",
+      "obj": "9101"
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": null,
+      "head": "guard_weekly",
+      "id": "530a003a8ca7711f",
+      "kind": "weekly_recommendation",
+      "obj": "9201"
+    }
+  ],
+  "response": [
+    {
+      "id": "4ec915ed398ac359",
+      "outcome": "miss"
+    },
+    {
+      "id": "38fcdf03cb27553f",
+      "outcome": "hit"
+    },
+    {
+      "id": "57e0059f536fdceb",
+      "outcome": "hit"
+    },
+    {
+      "id": "feca4118442daf0d",
+      "outcome": "miss"
+    },
+    {
+      "id": "efde88f867fa5c33",
+      "outcome": "miss"
+    },
+    {
+      "id": "c5e57a72bfa68946",
+      "outcome": "miss"
+    },
+    {
+      "id": "530a003a8ca7711f",
+      "outcome": "unknown"
+    }
+  ]
+}
