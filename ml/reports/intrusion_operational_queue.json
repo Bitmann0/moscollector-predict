@@ -1,0 +1,1501 @@
+{
+  "target": "recorded alarm tomorrow with guard armed at alarm time",
+  "candidate": "current object-store row, armed EOD, guard message <=7d old",
+  "outcome": "positive recorded; negative only if tomorrow object telemetry and no unresolved armed state; otherwise unknown",
+  "note": "2025 periods already explored; no blind validation; model scores are not calibrated probabilities",
+  "folds": [
+    {
+      "fit_end": "2024-12-03",
+      "cal_start": "2025-01-04",
+      "cal_end": "2025-03-04",
+      "test_start": "2025-04-05",
+      "test_end": "2025-07-03",
+      "fit_known": 18897,
+      "fit_positive": 1305,
+      "models": {
+        "rule_week": {
+          "seconds": 0.0001640999980736524,
+          "all_top1": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 90,
+            "recorded_hits": 35,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.3888888888888889,
+            "recorded_recall": 0.15418502202643172
+          },
+          "selection_all_top1": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 60,
+            "recorded_hits": 24,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.4,
+            "recorded_recall": 0.1791044776119403
+          },
+          "all_top4": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 360,
+            "recorded_hits": 83,
+            "unknown_outcome_alerts": 22,
+            "recorded_hits_per_alert": 0.23055555555555557,
+            "recorded_recall": 0.3656387665198238
+          },
+          "selection_all_top4": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 240,
+            "recorded_hits": 60,
+            "unknown_outcome_alerts": 24,
+            "recorded_hits_per_alert": 0.25,
+            "recorded_recall": 0.44776119402985076
+          },
+          "quiet_top1": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 90,
+            "recorded_hits": 1,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.011111111111111112,
+            "recorded_recall": 0.017241379310344827
+          },
+          "selection_quiet_top1": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 60,
+            "recorded_hits": 0,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.0,
+            "recorded_recall": 0.0
+          },
+          "quiet_top4": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 360,
+            "recorded_hits": 16,
+            "unknown_outcome_alerts": 7,
+            "recorded_hits_per_alert": 0.044444444444444446,
+            "recorded_recall": 0.27586206896551724
+          },
+          "selection_quiet_top4": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 240,
+            "recorded_hits": 8,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.03333333333333333,
+            "recorded_recall": 0.34782608695652173
+          }
+        },
+        "conditional_simple": {
+          "seconds": 5.285006399994018,
+          "all_top1": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 90,
+            "recorded_hits": 29,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.32222222222222224,
+            "recorded_recall": 0.1277533039647577
+          },
+          "selection_all_top1": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 60,
+            "recorded_hits": 23,
+            "unknown_outcome_alerts": 8,
+            "recorded_hits_per_alert": 0.38333333333333336,
+            "recorded_recall": 0.17164179104477612
+          },
+          "all_top4": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 360,
+            "recorded_hits": 79,
+            "unknown_outcome_alerts": 26,
+            "recorded_hits_per_alert": 0.21944444444444444,
+            "recorded_recall": 0.34801762114537443
+          },
+          "selection_all_top4": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 240,
+            "recorded_hits": 65,
+            "unknown_outcome_alerts": 28,
+            "recorded_hits_per_alert": 0.2708333333333333,
+            "recorded_recall": 0.48507462686567165
+          },
+          "quiet_top1": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 90,
+            "recorded_hits": 8,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.08888888888888889,
+            "recorded_recall": 0.13793103448275862
+          },
+          "selection_quiet_top1": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 60,
+            "recorded_hits": 6,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.2608695652173913
+          },
+          "quiet_top4": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 360,
+            "recorded_hits": 25,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.06944444444444445,
+            "recorded_recall": 0.43103448275862066
+          },
+          "selection_quiet_top4": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 240,
+            "recorded_hits": 11,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.04583333333333333,
+            "recorded_recall": 0.4782608695652174
+          }
+        },
+        "conditional_full": {
+          "seconds": 7.436347000009846,
+          "all_top1": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 90,
+            "recorded_hits": 31,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.34444444444444444,
+            "recorded_recall": 0.13656387665198239
+          },
+          "selection_all_top1": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 60,
+            "recorded_hits": 24,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.4,
+            "recorded_recall": 0.1791044776119403
+          },
+          "all_top4": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 360,
+            "recorded_hits": 85,
+            "unknown_outcome_alerts": 31,
+            "recorded_hits_per_alert": 0.2361111111111111,
+            "recorded_recall": 0.3744493392070485
+          },
+          "selection_all_top4": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 240,
+            "recorded_hits": 66,
+            "unknown_outcome_alerts": 26,
+            "recorded_hits_per_alert": 0.275,
+            "recorded_recall": 0.4925373134328358
+          },
+          "quiet_top1": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 90,
+            "recorded_hits": 8,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.08888888888888889,
+            "recorded_recall": 0.13793103448275862
+          },
+          "selection_quiet_top1": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 60,
+            "recorded_hits": 6,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.2608695652173913
+          },
+          "quiet_top4": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 360,
+            "recorded_hits": 26,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.07222222222222222,
+            "recorded_recall": 0.4482758620689655
+          },
+          "selection_quiet_top4": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 240,
+            "recorded_hits": 11,
+            "unknown_outcome_alerts": 9,
+            "recorded_hits_per_alert": 0.04583333333333333,
+            "recorded_recall": 0.4782608695652174
+          }
+        },
+        "recorded_full": {
+          "seconds": 9.090270499989856,
+          "all_top1": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 90,
+            "recorded_hits": 31,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.34444444444444444,
+            "recorded_recall": 0.13656387665198239
+          },
+          "selection_all_top1": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 60,
+            "recorded_hits": 23,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.38333333333333336,
+            "recorded_recall": 0.17164179104477612
+          },
+          "all_top4": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 360,
+            "recorded_hits": 88,
+            "unknown_outcome_alerts": 11,
+            "recorded_hits_per_alert": 0.24444444444444444,
+            "recorded_recall": 0.3876651982378855
+          },
+          "selection_all_top4": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 240,
+            "recorded_hits": 66,
+            "unknown_outcome_alerts": 17,
+            "recorded_hits_per_alert": 0.275,
+            "recorded_recall": 0.4925373134328358
+          },
+          "quiet_top1": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 90,
+            "recorded_hits": 10,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.1111111111111111,
+            "recorded_recall": 0.1724137931034483
+          },
+          "selection_quiet_top1": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 60,
+            "recorded_hits": 3,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.05,
+            "recorded_recall": 0.13043478260869565
+          },
+          "quiet_top4": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 360,
+            "recorded_hits": 28,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.07777777777777778,
+            "recorded_recall": 0.4827586206896552
+          },
+          "selection_quiet_top4": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 240,
+            "recorded_hits": 10,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.041666666666666664,
+            "recorded_recall": 0.43478260869565216
+          }
+        },
+        "joint_full": {
+          "seconds": 7.369462000002386,
+          "all_top1": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 90,
+            "recorded_hits": 34,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.37777777777777777,
+            "recorded_recall": 0.14977973568281938
+          },
+          "selection_all_top1": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 60,
+            "recorded_hits": 26,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.43333333333333335,
+            "recorded_recall": 0.19402985074626866
+          },
+          "all_top4": {
+            "candidates": 2851,
+            "known_candidates": 2639,
+            "positive_recorded": 227,
+            "alerts": 360,
+            "recorded_hits": 89,
+            "unknown_outcome_alerts": 10,
+            "recorded_hits_per_alert": 0.24722222222222223,
+            "recorded_recall": 0.3920704845814978
+          },
+          "selection_all_top4": {
+            "candidates": 1799,
+            "known_candidates": 1613,
+            "positive_recorded": 134,
+            "alerts": 240,
+            "recorded_hits": 65,
+            "unknown_outcome_alerts": 13,
+            "recorded_hits_per_alert": 0.2708333333333333,
+            "recorded_recall": 0.48507462686567165
+          },
+          "quiet_top1": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 90,
+            "recorded_hits": 9,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.15517241379310345
+          },
+          "selection_quiet_top1": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 60,
+            "recorded_hits": 6,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.2608695652173913
+          },
+          "quiet_top4": {
+            "candidates": 1410,
+            "known_candidates": 1383,
+            "positive_recorded": 58,
+            "alerts": 360,
+            "recorded_hits": 26,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.07222222222222222,
+            "recorded_recall": 0.4482758620689655
+          },
+          "selection_quiet_top4": {
+            "candidates": 884,
+            "known_candidates": 863,
+            "positive_recorded": 23,
+            "alerts": 240,
+            "recorded_hits": 11,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.04583333333333333,
+            "recorded_recall": 0.4782608695652174
+          }
+        }
+      }
+    },
+    {
+      "fit_end": "2025-03-03",
+      "cal_start": "2025-04-04",
+      "cal_end": "2025-06-02",
+      "test_start": "2025-07-04",
+      "test_end": "2025-10-01",
+      "fit_known": 21295,
+      "fit_positive": 1481,
+      "models": {
+        "rule_week": {
+          "seconds": 4.3800013372674584e-05,
+          "all_top1": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 90,
+            "recorded_hits": 38,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.4222222222222222,
+            "recorded_recall": 0.17757009345794392
+          },
+          "selection_all_top1": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 60,
+            "recorded_hits": 14,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.23333333333333334,
+            "recorded_recall": 0.11475409836065574
+          },
+          "all_top4": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 360,
+            "recorded_hits": 86,
+            "unknown_outcome_alerts": 22,
+            "recorded_hits_per_alert": 0.2388888888888889,
+            "recorded_recall": 0.40186915887850466
+          },
+          "selection_all_top4": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 240,
+            "recorded_hits": 43,
+            "unknown_outcome_alerts": 15,
+            "recorded_hits_per_alert": 0.17916666666666667,
+            "recorded_recall": 0.3524590163934426
+          },
+          "quiet_top1": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 90,
+            "recorded_hits": 1,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.011111111111111112,
+            "recorded_recall": 0.02127659574468085
+          },
+          "selection_quiet_top1": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 60,
+            "recorded_hits": 1,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.016666666666666666,
+            "recorded_recall": 0.025
+          },
+          "quiet_top4": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 360,
+            "recorded_hits": 17,
+            "unknown_outcome_alerts": 15,
+            "recorded_hits_per_alert": 0.04722222222222222,
+            "recorded_recall": 0.3617021276595745
+          },
+          "selection_quiet_top4": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 240,
+            "recorded_hits": 9,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.0375,
+            "recorded_recall": 0.225
+          }
+        },
+        "conditional_simple": {
+          "seconds": 5.744906999985687,
+          "all_top1": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 90,
+            "recorded_hits": 25,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.2777777777777778,
+            "recorded_recall": 0.11682242990654206
+          },
+          "selection_all_top1": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 60,
+            "recorded_hits": 14,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.23333333333333334,
+            "recorded_recall": 0.11475409836065574
+          },
+          "all_top4": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 360,
+            "recorded_hits": 84,
+            "unknown_outcome_alerts": 28,
+            "recorded_hits_per_alert": 0.23333333333333334,
+            "recorded_recall": 0.3925233644859813
+          },
+          "selection_all_top4": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 240,
+            "recorded_hits": 36,
+            "unknown_outcome_alerts": 18,
+            "recorded_hits_per_alert": 0.15,
+            "recorded_recall": 0.29508196721311475
+          },
+          "quiet_top1": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 90,
+            "recorded_hits": 11,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.12222222222222222,
+            "recorded_recall": 0.23404255319148937
+          },
+          "selection_quiet_top1": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 60,
+            "recorded_hits": 3,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.05,
+            "recorded_recall": 0.075
+          },
+          "quiet_top4": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 360,
+            "recorded_hits": 25,
+            "unknown_outcome_alerts": 14,
+            "recorded_hits_per_alert": 0.06944444444444445,
+            "recorded_recall": 0.5319148936170213
+          },
+          "selection_quiet_top4": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 240,
+            "recorded_hits": 9,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.0375,
+            "recorded_recall": 0.225
+          }
+        },
+        "conditional_full": {
+          "seconds": 8.13872590000392,
+          "all_top1": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 90,
+            "recorded_hits": 36,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.4,
+            "recorded_recall": 0.16822429906542055
+          },
+          "selection_all_top1": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 60,
+            "recorded_hits": 10,
+            "unknown_outcome_alerts": 7,
+            "recorded_hits_per_alert": 0.16666666666666666,
+            "recorded_recall": 0.08196721311475409
+          },
+          "all_top4": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 360,
+            "recorded_hits": 88,
+            "unknown_outcome_alerts": 21,
+            "recorded_hits_per_alert": 0.24444444444444444,
+            "recorded_recall": 0.411214953271028
+          },
+          "selection_all_top4": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 240,
+            "recorded_hits": 39,
+            "unknown_outcome_alerts": 19,
+            "recorded_hits_per_alert": 0.1625,
+            "recorded_recall": 0.319672131147541
+          },
+          "quiet_top1": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 90,
+            "recorded_hits": 9,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.19148936170212766
+          },
+          "selection_quiet_top1": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 60,
+            "recorded_hits": 5,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.08333333333333333,
+            "recorded_recall": 0.125
+          },
+          "quiet_top4": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 360,
+            "recorded_hits": 23,
+            "unknown_outcome_alerts": 10,
+            "recorded_hits_per_alert": 0.06388888888888888,
+            "recorded_recall": 0.48936170212765956
+          },
+          "selection_quiet_top4": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 240,
+            "recorded_hits": 16,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.06666666666666667,
+            "recorded_recall": 0.4
+          }
+        },
+        "recorded_full": {
+          "seconds": 9.525500599993393,
+          "all_top1": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 90,
+            "recorded_hits": 33,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.36666666666666664,
+            "recorded_recall": 0.1542056074766355
+          },
+          "selection_all_top1": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 60,
+            "recorded_hits": 16,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.26666666666666666,
+            "recorded_recall": 0.13114754098360656
+          },
+          "all_top4": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 360,
+            "recorded_hits": 94,
+            "unknown_outcome_alerts": 16,
+            "recorded_hits_per_alert": 0.2611111111111111,
+            "recorded_recall": 0.4392523364485981
+          },
+          "selection_all_top4": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 240,
+            "recorded_hits": 40,
+            "unknown_outcome_alerts": 10,
+            "recorded_hits_per_alert": 0.16666666666666666,
+            "recorded_recall": 0.32786885245901637
+          },
+          "quiet_top1": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 90,
+            "recorded_hits": 8,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.08888888888888889,
+            "recorded_recall": 0.1702127659574468
+          },
+          "selection_quiet_top1": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 60,
+            "recorded_hits": 4,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.06666666666666667,
+            "recorded_recall": 0.1
+          },
+          "quiet_top4": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 360,
+            "recorded_hits": 24,
+            "unknown_outcome_alerts": 12,
+            "recorded_hits_per_alert": 0.06666666666666667,
+            "recorded_recall": 0.5106382978723404
+          },
+          "selection_quiet_top4": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 240,
+            "recorded_hits": 14,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.058333333333333334,
+            "recorded_recall": 0.35
+          }
+        },
+        "joint_full": {
+          "seconds": 8.629542000009678,
+          "all_top1": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 90,
+            "recorded_hits": 36,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.4,
+            "recorded_recall": 0.16822429906542055
+          },
+          "selection_all_top1": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 60,
+            "recorded_hits": 15,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.25,
+            "recorded_recall": 0.12295081967213115
+          },
+          "all_top4": {
+            "candidates": 2837,
+            "known_candidates": 2559,
+            "positive_recorded": 214,
+            "alerts": 360,
+            "recorded_hits": 94,
+            "unknown_outcome_alerts": 7,
+            "recorded_hits_per_alert": 0.2611111111111111,
+            "recorded_recall": 0.4392523364485981
+          },
+          "selection_all_top4": {
+            "candidates": 1958,
+            "known_candidates": 1814,
+            "positive_recorded": 122,
+            "alerts": 240,
+            "recorded_hits": 39,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.1625,
+            "recorded_recall": 0.319672131147541
+          },
+          "quiet_top1": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 90,
+            "recorded_hits": 9,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.19148936170212766
+          },
+          "selection_quiet_top1": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 60,
+            "recorded_hits": 5,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.08333333333333333,
+            "recorded_recall": 0.125
+          },
+          "quiet_top4": {
+            "candidates": 1256,
+            "known_candidates": 1207,
+            "positive_recorded": 47,
+            "alerts": 360,
+            "recorded_hits": 23,
+            "unknown_outcome_alerts": 10,
+            "recorded_hits_per_alert": 0.06388888888888888,
+            "recorded_recall": 0.48936170212765956
+          },
+          "selection_quiet_top4": {
+            "candidates": 1063,
+            "known_candidates": 1044,
+            "positive_recorded": 40,
+            "alerts": 240,
+            "recorded_hits": 16,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.06666666666666667,
+            "recorded_recall": 0.4
+          }
+        }
+      }
+    },
+    {
+      "fit_end": "2025-06-01",
+      "cal_start": "2025-07-03",
+      "cal_end": "2025-08-31",
+      "test_start": "2025-10-02",
+      "test_end": "2025-12-30",
+      "fit_known": 23982,
+      "fit_positive": 1653,
+      "models": {
+        "rule_week": {
+          "seconds": 6.889997166581452e-05,
+          "all_top1": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 90,
+            "recorded_hits": 21,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.23333333333333334,
+            "recorded_recall": 0.13548387096774195
+          },
+          "selection_all_top1": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 60,
+            "recorded_hits": 19,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.31666666666666665,
+            "recorded_recall": 0.13970588235294118
+          },
+          "all_top4": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 360,
+            "recorded_hits": 54,
+            "unknown_outcome_alerts": 24,
+            "recorded_hits_per_alert": 0.15,
+            "recorded_recall": 0.34838709677419355
+          },
+          "selection_all_top4": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 240,
+            "recorded_hits": 55,
+            "unknown_outcome_alerts": 17,
+            "recorded_hits_per_alert": 0.22916666666666666,
+            "recorded_recall": 0.40441176470588236
+          },
+          "quiet_top1": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 90,
+            "recorded_hits": 1,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.011111111111111112,
+            "recorded_recall": 0.018867924528301886
+          },
+          "selection_quiet_top1": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 60,
+            "recorded_hits": 1,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.016666666666666666,
+            "recorded_recall": 0.038461538461538464
+          },
+          "quiet_top4": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 360,
+            "recorded_hits": 13,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.03611111111111111,
+            "recorded_recall": 0.24528301886792453
+          },
+          "selection_quiet_top4": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 240,
+            "recorded_hits": 9,
+            "unknown_outcome_alerts": 10,
+            "recorded_hits_per_alert": 0.0375,
+            "recorded_recall": 0.34615384615384615
+          }
+        },
+        "conditional_simple": {
+          "seconds": 6.300887099991087,
+          "all_top1": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 90,
+            "recorded_hits": 12,
+            "unknown_outcome_alerts": 7,
+            "recorded_hits_per_alert": 0.13333333333333333,
+            "recorded_recall": 0.07741935483870968
+          },
+          "selection_all_top1": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 60,
+            "recorded_hits": 15,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.25,
+            "recorded_recall": 0.11029411764705882
+          },
+          "all_top4": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 360,
+            "recorded_hits": 58,
+            "unknown_outcome_alerts": 30,
+            "recorded_hits_per_alert": 0.16111111111111112,
+            "recorded_recall": 0.3741935483870968
+          },
+          "selection_all_top4": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 240,
+            "recorded_hits": 54,
+            "unknown_outcome_alerts": 23,
+            "recorded_hits_per_alert": 0.225,
+            "recorded_recall": 0.39705882352941174
+          },
+          "quiet_top1": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 90,
+            "recorded_hits": 8,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.08888888888888889,
+            "recorded_recall": 0.1509433962264151
+          },
+          "selection_quiet_top1": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 60,
+            "recorded_hits": 3,
+            "unknown_outcome_alerts": 2,
+            "recorded_hits_per_alert": 0.05,
+            "recorded_recall": 0.11538461538461539
+          },
+          "quiet_top4": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 360,
+            "recorded_hits": 23,
+            "unknown_outcome_alerts": 18,
+            "recorded_hits_per_alert": 0.06388888888888888,
+            "recorded_recall": 0.4339622641509434
+          },
+          "selection_quiet_top4": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 240,
+            "recorded_hits": 11,
+            "unknown_outcome_alerts": 8,
+            "recorded_hits_per_alert": 0.04583333333333333,
+            "recorded_recall": 0.4230769230769231
+          }
+        },
+        "conditional_full": {
+          "seconds": 9.323412700003246,
+          "all_top1": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 90,
+            "recorded_hits": 19,
+            "unknown_outcome_alerts": 9,
+            "recorded_hits_per_alert": 0.2111111111111111,
+            "recorded_recall": 0.12258064516129032
+          },
+          "selection_all_top1": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 60,
+            "recorded_hits": 19,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.31666666666666665,
+            "recorded_recall": 0.13970588235294118
+          },
+          "all_top4": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 360,
+            "recorded_hits": 55,
+            "unknown_outcome_alerts": 32,
+            "recorded_hits_per_alert": 0.1527777777777778,
+            "recorded_recall": 0.3548387096774194
+          },
+          "selection_all_top4": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 240,
+            "recorded_hits": 55,
+            "unknown_outcome_alerts": 21,
+            "recorded_hits_per_alert": 0.22916666666666666,
+            "recorded_recall": 0.40441176470588236
+          },
+          "quiet_top1": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 90,
+            "recorded_hits": 7,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.07777777777777778,
+            "recorded_recall": 0.1320754716981132
+          },
+          "selection_quiet_top1": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 60,
+            "recorded_hits": 6,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.23076923076923078
+          },
+          "quiet_top4": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 360,
+            "recorded_hits": 20,
+            "unknown_outcome_alerts": 13,
+            "recorded_hits_per_alert": 0.05555555555555555,
+            "recorded_recall": 0.37735849056603776
+          },
+          "selection_quiet_top4": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 240,
+            "recorded_hits": 11,
+            "unknown_outcome_alerts": 9,
+            "recorded_hits_per_alert": 0.04583333333333333,
+            "recorded_recall": 0.4230769230769231
+          }
+        },
+        "recorded_full": {
+          "seconds": 10.245150200003991,
+          "all_top1": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 90,
+            "recorded_hits": 18,
+            "unknown_outcome_alerts": 5,
+            "recorded_hits_per_alert": 0.2,
+            "recorded_recall": 0.11612903225806452
+          },
+          "selection_all_top1": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 60,
+            "recorded_hits": 18,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.3,
+            "recorded_recall": 0.1323529411764706
+          },
+          "all_top4": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 360,
+            "recorded_hits": 61,
+            "unknown_outcome_alerts": 22,
+            "recorded_hits_per_alert": 0.16944444444444445,
+            "recorded_recall": 0.3935483870967742
+          },
+          "selection_all_top4": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 240,
+            "recorded_hits": 64,
+            "unknown_outcome_alerts": 9,
+            "recorded_hits_per_alert": 0.26666666666666666,
+            "recorded_recall": 0.47058823529411764
+          },
+          "quiet_top1": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 90,
+            "recorded_hits": 7,
+            "unknown_outcome_alerts": 1,
+            "recorded_hits_per_alert": 0.07777777777777778,
+            "recorded_recall": 0.1320754716981132
+          },
+          "selection_quiet_top1": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 60,
+            "recorded_hits": 4,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.06666666666666667,
+            "recorded_recall": 0.15384615384615385
+          },
+          "quiet_top4": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 360,
+            "recorded_hits": 21,
+            "unknown_outcome_alerts": 13,
+            "recorded_hits_per_alert": 0.058333333333333334,
+            "recorded_recall": 0.39622641509433965
+          },
+          "selection_quiet_top4": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 240,
+            "recorded_hits": 12,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.05,
+            "recorded_recall": 0.46153846153846156
+          }
+        },
+        "joint_full": {
+          "seconds": 9.635999199992511,
+          "all_top1": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 90,
+            "recorded_hits": 18,
+            "unknown_outcome_alerts": 4,
+            "recorded_hits_per_alert": 0.2,
+            "recorded_recall": 0.11612903225806452
+          },
+          "selection_all_top1": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 60,
+            "recorded_hits": 20,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.3333333333333333,
+            "recorded_recall": 0.14705882352941177
+          },
+          "all_top4": {
+            "candidates": 2741,
+            "known_candidates": 2525,
+            "positive_recorded": 155,
+            "alerts": 360,
+            "recorded_hits": 54,
+            "unknown_outcome_alerts": 14,
+            "recorded_hits_per_alert": 0.15,
+            "recorded_recall": 0.34838709677419355
+          },
+          "selection_all_top4": {
+            "candidates": 1881,
+            "known_candidates": 1699,
+            "positive_recorded": 136,
+            "alerts": 240,
+            "recorded_hits": 59,
+            "unknown_outcome_alerts": 6,
+            "recorded_hits_per_alert": 0.24583333333333332,
+            "recorded_recall": 0.4338235294117647
+          },
+          "quiet_top1": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 90,
+            "recorded_hits": 7,
+            "unknown_outcome_alerts": 3,
+            "recorded_hits_per_alert": 0.07777777777777778,
+            "recorded_recall": 0.1320754716981132
+          },
+          "selection_quiet_top1": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 60,
+            "recorded_hits": 6,
+            "unknown_outcome_alerts": 0,
+            "recorded_hits_per_alert": 0.1,
+            "recorded_recall": 0.23076923076923078
+          },
+          "quiet_top4": {
+            "candidates": 1301,
+            "known_candidates": 1251,
+            "positive_recorded": 53,
+            "alerts": 360,
+            "recorded_hits": 21,
+            "unknown_outcome_alerts": 12,
+            "recorded_hits_per_alert": 0.058333333333333334,
+            "recorded_recall": 0.39622641509433965
+          },
+          "selection_quiet_top4": {
+            "candidates": 868,
+            "known_candidates": 838,
+            "positive_recorded": 26,
+            "alerts": 240,
+            "recorded_hits": 10,
+            "unknown_outcome_alerts": 7,
+            "recorded_hits_per_alert": 0.041666666666666664,
+            "recorded_recall": 0.38461538461538464
+          }
+        }
+      }
+    }
+  ],
+  "overall_candidates": 33025,
+  "overall_known": 29948,
+  "overall_recorded_positive": 2129,
+  "pooled": {
+    "rule_week": {
+      "all_top1": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 270,
+        "recorded_hits": 94,
+        "unknown_outcome_alerts": 13,
+        "recorded_hits_per_alert": 0.34814814814814815,
+        "recorded_recall": 0.15771812080536912
+      },
+      "all_top4": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 1080,
+        "recorded_hits": 223,
+        "unknown_outcome_alerts": 68,
+        "recorded_hits_per_alert": 0.2064814814814815,
+        "recorded_recall": 0.37416107382550334
+      },
+      "quiet_top1": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 270,
+        "recorded_hits": 3,
+        "unknown_outcome_alerts": 7,
+        "recorded_hits_per_alert": 0.011111111111111112,
+        "recorded_recall": 0.0189873417721519
+      },
+      "quiet_top4": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 1080,
+        "recorded_hits": 46,
+        "unknown_outcome_alerts": 28,
+        "recorded_hits_per_alert": 0.04259259259259259,
+        "recorded_recall": 0.2911392405063291
+      }
+    },
+    "conditional_simple": {
+      "all_top1": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 270,
+        "recorded_hits": 66,
+        "unknown_outcome_alerts": 13,
+        "recorded_hits_per_alert": 0.24444444444444444,
+        "recorded_recall": 0.11073825503355705
+      },
+      "all_top4": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 1080,
+        "recorded_hits": 221,
+        "unknown_outcome_alerts": 84,
+        "recorded_hits_per_alert": 0.20462962962962963,
+        "recorded_recall": 0.37080536912751677
+      },
+      "quiet_top1": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 270,
+        "recorded_hits": 27,
+        "unknown_outcome_alerts": 7,
+        "recorded_hits_per_alert": 0.1,
+        "recorded_recall": 0.17088607594936708
+      },
+      "quiet_top4": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 1080,
+        "recorded_hits": 73,
+        "unknown_outcome_alerts": 37,
+        "recorded_hits_per_alert": 0.06759259259259259,
+        "recorded_recall": 0.4620253164556962
+      }
+    },
+    "conditional_full": {
+      "all_top1": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 270,
+        "recorded_hits": 86,
+        "unknown_outcome_alerts": 19,
+        "recorded_hits_per_alert": 0.31851851851851853,
+        "recorded_recall": 0.14429530201342283
+      },
+      "all_top4": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 1080,
+        "recorded_hits": 228,
+        "unknown_outcome_alerts": 84,
+        "recorded_hits_per_alert": 0.2111111111111111,
+        "recorded_recall": 0.3825503355704698
+      },
+      "quiet_top1": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 270,
+        "recorded_hits": 24,
+        "unknown_outcome_alerts": 9,
+        "recorded_hits_per_alert": 0.08888888888888889,
+        "recorded_recall": 0.1518987341772152
+      },
+      "quiet_top4": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 1080,
+        "recorded_hits": 69,
+        "unknown_outcome_alerts": 29,
+        "recorded_hits_per_alert": 0.06388888888888888,
+        "recorded_recall": 0.43670886075949367
+      }
+    },
+    "recorded_full": {
+      "all_top1": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 270,
+        "recorded_hits": 82,
+        "unknown_outcome_alerts": 8,
+        "recorded_hits_per_alert": 0.3037037037037037,
+        "recorded_recall": 0.13758389261744966
+      },
+      "all_top4": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 1080,
+        "recorded_hits": 243,
+        "unknown_outcome_alerts": 49,
+        "recorded_hits_per_alert": 0.225,
+        "recorded_recall": 0.4077181208053691
+      },
+      "quiet_top1": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 270,
+        "recorded_hits": 25,
+        "unknown_outcome_alerts": 4,
+        "recorded_hits_per_alert": 0.09259259259259259,
+        "recorded_recall": 0.15822784810126583
+      },
+      "quiet_top4": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 1080,
+        "recorded_hits": 73,
+        "unknown_outcome_alerts": 31,
+        "recorded_hits_per_alert": 0.06759259259259259,
+        "recorded_recall": 0.4620253164556962
+      }
+    },
+    "joint_full": {
+      "all_top1": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 270,
+        "recorded_hits": 88,
+        "unknown_outcome_alerts": 4,
+        "recorded_hits_per_alert": 0.32592592592592595,
+        "recorded_recall": 0.1476510067114094
+      },
+      "all_top4": {
+        "candidates": 8429,
+        "known_candidates": 7723,
+        "positive_recorded": 596,
+        "alerts": 1080,
+        "recorded_hits": 237,
+        "unknown_outcome_alerts": 31,
+        "recorded_hits_per_alert": 0.21944444444444444,
+        "recorded_recall": 0.3976510067114094
+      },
+      "quiet_top1": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 270,
+        "recorded_hits": 25,
+        "unknown_outcome_alerts": 6,
+        "recorded_hits_per_alert": 0.09259259259259259,
+        "recorded_recall": 0.15822784810126583
+      },
+      "quiet_top4": {
+        "candidates": 3967,
+        "known_candidates": 3841,
+        "positive_recorded": 158,
+        "alerts": 1080,
+        "recorded_hits": 70,
+        "unknown_outcome_alerts": 28,
+        "recorded_hits_per_alert": 0.06481481481481481,
+        "recorded_recall": 0.4430379746835443
+      }
+    }
+  }
+}

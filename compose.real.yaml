@@ -1,0 +1,21 @@
+# Override: ML на реальных моделях из бандла C4 (ML-инженеры, стенд).
+#   docker compose -f compose.yaml -f compose.real.yaml up --build
+# Бандл распаковать заранее (scripts/fetch_bundle.sh или .ps1) в ./bundle или в
+# каталог из BUNDLE_DIR. Раскладка — раздел 3 плана команды:
+# образ несёт ml/ как /srv/ml (MKL_ROOT), бандл монтируется поверх.
+# Одиночные файлы должны существовать до старта: иначе Docker создаст на их месте
+# пустые каталоги, и скоринг упадёт на чтении features.yaml.
+# Тома без :ro: дообучение ML1-10 пишет в models/retrain. На стенде не запускать.
+services:
+  ml:
+    environment:
+      ML_MODE: real
+    volumes:
+      - ${BUNDLE_DIR:-./bundle}/data:/srv/ml/data
+      - ${BUNDLE_DIR:-./bundle}/models:/srv/ml/models
+      - ${BUNDLE_DIR:-./bundle}/configs/features.yaml:/srv/ml/configs/features.yaml
+      # Обязан совпадать с v2-кэшем охранной очереди (validate_cache_day).
+      - ${BUNDLE_DIR:-./bundle}/reports/intrusion_eventtime_v2_build.json:/srv/ml/reports/intrusion_eventtime_v2_build.json
+    healthcheck:
+      # Холодная загрузка моделей и фичестора дольше, чем старт заглушки.
+      start_period: 180s

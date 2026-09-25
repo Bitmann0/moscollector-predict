@@ -1,0 +1,58 @@
+# Закреплённые версии образа ml (ml/Dockerfile): python 3.12, linux x86_64 и aarch64.
+# Источник — pip freeze окружения CAML (U:\hackathon\.venv), отфильтрованный до
+# зависимостей mkl и mkl[api] с транзитивными. Dev-пакеты и Windows-only
+# (colorama, tzdata) исключены; uvloop добавлен: uvicorn[standard] ставит его
+# только вне Windows.
+#
+# xgboost-cpu вместо xgboost той же версии 3.4.1: модуль тот же (import xgboost),
+# но без CUDA. Пакет xgboost на Linux тянет nvidia-nccl-cu13 (290 МБ) и колесо
+# 54 МБ против 5 МБ, а GPU в контейнере нет. mkl ставится с --no-deps, поэтому
+# его требование xgboost>=3.0 pip не перепроверяет.
+#
+# Обновить: поменять пин, проверить колесо под manylinux и cp312, пересобрать образ.
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.15.1
+catboost==1.2.10
+click==8.5.0
+cloudpickle==3.1.2
+contourpy==1.4.0
+cycler==0.12.1
+duckdb==1.5.5
+fastapi==0.141.1
+fonttools==4.65.0
+graphviz==0.21
+h11==0.16.0
+httptools==0.8.0
+idna==3.20
+joblib==1.6.0
+kiwisolver==1.5.1
+lightgbm==4.7.0
+matplotlib==3.11.2
+narwhals==2.26.0
+numpy==2.5.3
+packaging==26.3
+pandas==3.0.5
+pillow==12.3.0
+plotly==7.0.0
+polars-runtime-32==1.44.2
+polars==1.44.2
+pyarrow==25.0.1
+pydantic==2.13.5
+pydantic_core==2.46.5
+pyparsing==3.3.2
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.3
+PyYAML==6.0.3
+scikit-learn==1.9.1
+scipy==1.18.1
+six==1.17.0
+starlette==1.6.0
+threadpoolctl==3.6.0
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+uvicorn[standard]==0.53.0
+uvloop==0.22.1
+watchfiles==1.2.0
+websockets==17.1
+xgboost-cpu==3.4.1

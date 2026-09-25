@@ -1,0 +1,24 @@
+{
+  "experiment": "laya_schedule_counterfactual_behavior_only",
+  "pairs": 15,
+  "paired_route_changes": 0,
+  "route_counts": {
+    "no_plan": {
+      "verify_planned_work": 15
+    },
+    "planned_month": {
+      "verify_planned_work": 15
+    }
+  },
+  "mean_claimed_cause_score": {
+    "no_plan": 0.3448066666666667,
+    "planned_month": 0.44692666666666664
+  },
+  "model_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851",
+  "question_hash": "edbcf06f52aad206",
+  "predictive_metric_valid": false,
+  "reason": "telemetry states were transplanted to a later date; no post-release outcomes or actual work labels exist",
+  "include_issued_alert": true,
+  "case_file_sha256": "6701c68020f973db0e9a47d063dd17f0554874c32a92110823b00eafdd4ff9ef",
+  "score_file_sha256": "4f9c6eb4d7bd5f6f97cc654d0889fd817af1ae1dd41ae29a288b32864f5fecec"
+}

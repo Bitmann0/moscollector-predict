@@ -1,0 +1,666 @@
+{
+  "target": "recorded guarded alarm in days D+2..D+8",
+  "reports": [
+    {
+      "min_alarm_days_in_last_7": 3,
+      "cooldown_days": 0,
+      "periods": [
+        {
+          "start": "2023-02-01",
+          "end": "2023-12-31",
+          "alerts": 59,
+          "hits": 43,
+          "unknown": 3,
+          "hit_rate": 0.7288135593220338,
+          "eligible_candidate_weeks": 1562,
+          "eligible_positive_weeks": 394,
+          "recorded_recall": 0.10913705583756345,
+          "unique_objects": 17,
+          "unique_hit_episodes": 27
+        },
+        {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "alerts": 75,
+          "hits": 48,
+          "unknown": 9,
+          "hit_rate": 0.64,
+          "eligible_candidate_weeks": 1707,
+          "eligible_positive_weeks": 462,
+          "recorded_recall": 0.1038961038961039,
+          "unique_objects": 20,
+          "unique_hit_episodes": 31
+        },
+        {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "alerts": 75,
+          "hits": 55,
+          "unknown": 8,
+          "hit_rate": 0.7333333333333333,
+          "eligible_candidate_weeks": 1721,
+          "eligible_positive_weeks": 466,
+          "recorded_recall": 0.11802575107296137,
+          "unique_objects": 17,
+          "unique_hit_episodes": 35
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 36,
+          "hits": 25,
+          "unknown": 1,
+          "hit_rate": 0.6944444444444444,
+          "eligible_candidate_weeks": 710,
+          "eligible_positive_weeks": 218,
+          "recorded_recall": 0.11467889908256881,
+          "unique_objects": 11,
+          "unique_hit_episodes": 12
+        }
+      ],
+      "pooled": {
+        "alerts": 245,
+        "hits": 171,
+        "hit_rate": 0.6979591836734694,
+        "eligible_positive_weeks": 1540,
+        "recorded_recall": 0.11103896103896103,
+        "unknown": 21,
+        "unique_objects": 26,
+        "unique_hit_episodes": 105,
+        "top_object_alerts": [
+          [
+            "3356",
+            35
+          ],
+          [
+            "5676",
+            34
+          ],
+          [
+            "3215",
+            27
+          ],
+          [
+            "4391",
+            18
+          ],
+          [
+            "4648",
+            17
+          ],
+          [
+            "42",
+            17
+          ],
+          [
+            "28",
+            13
+          ],
+          [
+            "5113",
+            9
+          ],
+          [
+            "5343",
+            9
+          ],
+          [
+            "4370",
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 3,
+      "cooldown_days": 14,
+      "periods": [
+        {
+          "start": "2023-02-01",
+          "end": "2023-12-31",
+          "alerts": 44,
+          "hits": 32,
+          "unknown": 2,
+          "hit_rate": 0.7272727272727273,
+          "eligible_candidate_weeks": 1562,
+          "eligible_positive_weeks": 394,
+          "recorded_recall": 0.08121827411167512,
+          "unique_objects": 17,
+          "unique_hit_episodes": 27
+        },
+        {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "alerts": 56,
+          "hits": 34,
+          "unknown": 8,
+          "hit_rate": 0.6071428571428571,
+          "eligible_candidate_weeks": 1707,
+          "eligible_positive_weeks": 462,
+          "recorded_recall": 0.0735930735930736,
+          "unique_objects": 20,
+          "unique_hit_episodes": 29
+        },
+        {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "alerts": 52,
+          "hits": 38,
+          "unknown": 5,
+          "hit_rate": 0.7307692307692307,
+          "eligible_candidate_weeks": 1721,
+          "eligible_positive_weeks": 466,
+          "recorded_recall": 0.0815450643776824,
+          "unique_objects": 18,
+          "unique_hit_episodes": 34
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 24,
+          "hits": 15,
+          "unknown": 0,
+          "hit_rate": 0.625,
+          "eligible_candidate_weeks": 710,
+          "eligible_positive_weeks": 218,
+          "recorded_recall": 0.06880733944954129,
+          "unique_objects": 11,
+          "unique_hit_episodes": 12
+        }
+      ],
+      "pooled": {
+        "alerts": 176,
+        "hits": 119,
+        "hit_rate": 0.6761363636363636,
+        "eligible_positive_weeks": 1540,
+        "recorded_recall": 0.07727272727272727,
+        "unknown": 15,
+        "unique_objects": 26,
+        "unique_hit_episodes": 102,
+        "top_object_alerts": [
+          [
+            "5676",
+            22
+          ],
+          [
+            "3356",
+            22
+          ],
+          [
+            "3215",
+            16
+          ],
+          [
+            "4648",
+            13
+          ],
+          [
+            "42",
+            12
+          ],
+          [
+            "28",
+            11
+          ],
+          [
+            "4391",
+            10
+          ],
+          [
+            "5113",
+            10
+          ],
+          [
+            "20",
+            8
+          ],
+          [
+            "4370",
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 3,
+      "cooldown_days": 28,
+      "periods": [
+        {
+          "start": "2023-02-01",
+          "end": "2023-12-31",
+          "alerts": 40,
+          "hits": 27,
+          "unknown": 2,
+          "hit_rate": 0.675,
+          "eligible_candidate_weeks": 1562,
+          "eligible_positive_weeks": 394,
+          "recorded_recall": 0.06852791878172589,
+          "unique_objects": 17,
+          "unique_hit_episodes": 25
+        },
+        {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "alerts": 49,
+          "hits": 27,
+          "unknown": 7,
+          "hit_rate": 0.5510204081632653,
+          "eligible_candidate_weeks": 1707,
+          "eligible_positive_weeks": 462,
+          "recorded_recall": 0.05844155844155844,
+          "unique_objects": 20,
+          "unique_hit_episodes": 25
+        },
+        {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "alerts": 44,
+          "hits": 30,
+          "unknown": 4,
+          "hit_rate": 0.6818181818181818,
+          "eligible_candidate_weeks": 1721,
+          "eligible_positive_weeks": 466,
+          "recorded_recall": 0.06437768240343347,
+          "unique_objects": 18,
+          "unique_hit_episodes": 29
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 21,
+          "hits": 12,
+          "unknown": 0,
+          "hit_rate": 0.5714285714285714,
+          "eligible_candidate_weeks": 710,
+          "eligible_positive_weeks": 218,
+          "recorded_recall": 0.05504587155963303,
+          "unique_objects": 11,
+          "unique_hit_episodes": 12
+        }
+      ],
+      "pooled": {
+        "alerts": 154,
+        "hits": 96,
+        "hit_rate": 0.6233766233766234,
+        "eligible_positive_weeks": 1540,
+        "recorded_recall": 0.06233766233766234,
+        "unknown": 13,
+        "unique_objects": 26,
+        "unique_hit_episodes": 91,
+        "top_object_alerts": [
+          [
+            "3356",
+            19
+          ],
+          [
+            "3215",
+            16
+          ],
+          [
+            "5676",
+            16
+          ],
+          [
+            "42",
+            11
+          ],
+          [
+            "4648",
+            10
+          ],
+          [
+            "4391",
+            10
+          ],
+          [
+            "28",
+            9
+          ],
+          [
+            "20",
+            8
+          ],
+          [
+            "5113",
+            8
+          ],
+          [
+            "4370",
+            7
+          ]
+        ]
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 4,
+      "cooldown_days": 0,
+      "periods": [
+        {
+          "start": "2023-02-01",
+          "end": "2023-12-31",
+          "alerts": 20,
+          "hits": 18,
+          "unknown": 0,
+          "hit_rate": 0.9,
+          "eligible_candidate_weeks": 1562,
+          "eligible_positive_weeks": 394,
+          "recorded_recall": 0.04568527918781726,
+          "unique_objects": 7,
+          "unique_hit_episodes": 11
+        },
+        {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "alerts": 30,
+          "hits": 21,
+          "unknown": 3,
+          "hit_rate": 0.7,
+          "eligible_candidate_weeks": 1707,
+          "eligible_positive_weeks": 462,
+          "recorded_recall": 0.045454545454545456,
+          "unique_objects": 14,
+          "unique_hit_episodes": 17
+        },
+        {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "alerts": 34,
+          "hits": 26,
+          "unknown": 2,
+          "hit_rate": 0.7647058823529411,
+          "eligible_candidate_weeks": 1721,
+          "eligible_positive_weeks": 466,
+          "recorded_recall": 0.055793991416309016,
+          "unique_objects": 11,
+          "unique_hit_episodes": 15
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 16,
+          "hits": 13,
+          "unknown": 0,
+          "hit_rate": 0.8125,
+          "eligible_candidate_weeks": 710,
+          "eligible_positive_weeks": 218,
+          "recorded_recall": 0.05963302752293578,
+          "unique_objects": 7,
+          "unique_hit_episodes": 10
+        }
+      ],
+      "pooled": {
+        "alerts": 100,
+        "hits": 78,
+        "hit_rate": 0.78,
+        "eligible_positive_weeks": 1540,
+        "recorded_recall": 0.05064935064935065,
+        "unknown": 5,
+        "unique_objects": 20,
+        "unique_hit_episodes": 53,
+        "top_object_alerts": [
+          [
+            "3215",
+            15
+          ],
+          [
+            "5676",
+            15
+          ],
+          [
+            "3356",
+            12
+          ],
+          [
+            "42",
+            10
+          ],
+          [
+            "4648",
+            8
+          ],
+          [
+            "5343",
+            6
+          ],
+          [
+            "4391",
+            5
+          ],
+          [
+            "28",
+            5
+          ],
+          [
+            "5339",
+            4
+          ],
+          [
+            "4095",
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 4,
+      "cooldown_days": 14,
+      "periods": [
+        {
+          "start": "2023-02-01",
+          "end": "2023-12-31",
+          "alerts": 15,
+          "hits": 13,
+          "unknown": 0,
+          "hit_rate": 0.8666666666666667,
+          "eligible_candidate_weeks": 1562,
+          "eligible_positive_weeks": 394,
+          "recorded_recall": 0.03299492385786802,
+          "unique_objects": 7,
+          "unique_hit_episodes": 11
+        },
+        {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "alerts": 27,
+          "hits": 19,
+          "unknown": 3,
+          "hit_rate": 0.7037037037037037,
+          "eligible_candidate_weeks": 1707,
+          "eligible_positive_weeks": 462,
+          "recorded_recall": 0.04112554112554113,
+          "unique_objects": 14,
+          "unique_hit_episodes": 17
+        },
+        {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "alerts": 23,
+          "hits": 16,
+          "unknown": 2,
+          "hit_rate": 0.6956521739130435,
+          "eligible_candidate_weeks": 1721,
+          "eligible_positive_weeks": 466,
+          "recorded_recall": 0.034334763948497854,
+          "unique_objects": 11,
+          "unique_hit_episodes": 14
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 14,
+          "hits": 11,
+          "unknown": 0,
+          "hit_rate": 0.7857142857142857,
+          "eligible_candidate_weeks": 710,
+          "eligible_positive_weeks": 218,
+          "recorded_recall": 0.05045871559633028,
+          "unique_objects": 7,
+          "unique_hit_episodes": 9
+        }
+      ],
+      "pooled": {
+        "alerts": 79,
+        "hits": 59,
+        "hit_rate": 0.7468354430379747,
+        "eligible_positive_weeks": 1540,
+        "recorded_recall": 0.03831168831168831,
+        "unknown": 5,
+        "unique_objects": 20,
+        "unique_hit_episodes": 51,
+        "top_object_alerts": [
+          [
+            "3215",
+            11
+          ],
+          [
+            "3356",
+            11
+          ],
+          [
+            "5676",
+            11
+          ],
+          [
+            "42",
+            7
+          ],
+          [
+            "4648",
+            6
+          ],
+          [
+            "4391",
+            4
+          ],
+          [
+            "28",
+            4
+          ],
+          [
+            "5343",
+            3
+          ],
+          [
+            "5339",
+            3
+          ],
+          [
+            "4095",
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "min_alarm_days_in_last_7": 4,
+      "cooldown_days": 28,
+      "periods": [
+        {
+          "start": "2023-02-01",
+          "end": "2023-12-31",
+          "alerts": 15,
+          "hits": 13,
+          "unknown": 0,
+          "hit_rate": 0.8666666666666667,
+          "eligible_candidate_weeks": 1562,
+          "eligible_positive_weeks": 394,
+          "recorded_recall": 0.03299492385786802,
+          "unique_objects": 7,
+          "unique_hit_episodes": 11
+        },
+        {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "alerts": 23,
+          "hits": 16,
+          "unknown": 2,
+          "hit_rate": 0.6956521739130435,
+          "eligible_candidate_weeks": 1707,
+          "eligible_positive_weeks": 462,
+          "recorded_recall": 0.03463203463203463,
+          "unique_objects": 14,
+          "unique_hit_episodes": 15
+        },
+        {
+          "start": "2025-01-01",
+          "end": "2025-12-31",
+          "alerts": 19,
+          "hits": 14,
+          "unknown": 1,
+          "hit_rate": 0.7368421052631579,
+          "eligible_candidate_weeks": 1721,
+          "eligible_positive_weeks": 466,
+          "recorded_recall": 0.030042918454935622,
+          "unique_objects": 10,
+          "unique_hit_episodes": 13
+        },
+        {
+          "start": "2026-01-01",
+          "end": "2026-06-22",
+          "alerts": 11,
+          "hits": 9,
+          "unknown": 0,
+          "hit_rate": 0.8181818181818182,
+          "eligible_candidate_weeks": 710,
+          "eligible_positive_weeks": 218,
+          "recorded_recall": 0.04128440366972477,
+          "unique_objects": 7,
+          "unique_hit_episodes": 9
+        }
+      ],
+      "pooled": {
+        "alerts": 68,
+        "hits": 52,
+        "hit_rate": 0.7647058823529411,
+        "eligible_positive_weeks": 1540,
+        "recorded_recall": 0.033766233766233764,
+        "unknown": 3,
+        "unique_objects": 20,
+        "unique_hit_episodes": 48,
+        "top_object_alerts": [
+          [
+            "3215",
+            10
+          ],
+          [
+            "3356",
+            9
+          ],
+          [
+            "5676",
+            9
+          ],
+          [
+            "42",
+            6
+          ],
+          [
+            "4648",
+            5
+          ],
+          [
+            "4391",
+            4
+          ],
+          [
+            "28",
+            4
+          ],
+          [
+            "5339",
+            3
+          ],
+          [
+            "4095",
+            3
+          ],
+          [
+            "20",
+            3
+          ]
+        ]
+      }
+    }
+  ],
+  "service_replay_matches_backtest": true
+}

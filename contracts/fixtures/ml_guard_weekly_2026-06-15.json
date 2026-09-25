@@ -1,0 +1,41 @@
+{
+  "action": "manual_plan_guard_loop_inspection",
+  "asof": "2026-06-15",
+  "data_last_day": "2026-06-30",
+  "data_snapshot": {
+    "data_last_day": "2026-06-30"
+  },
+  "event_cache_through": "2026-07-01",
+  "method": "weekly_recurrence_rule_v1",
+  "model_version": "stub-guard_weekly-v0",
+  "next_run": "2026-06-22",
+  "policy": {
+    "alarm_days_in_last_7_at_least": 4,
+    "max_objects_per_week": 4,
+    "same_object_cooldown_days": 14
+  },
+  "priorities": [
+    {
+      "address_known": true,
+      "case_key": "2cdef0a76f2d73cf",
+      "evidence": "alarm_on_at_least_4_of_previous_7_days",
+      "guard_state_age_days": 30,
+      "obj": "9201",
+      "obj_name": "Объект-заглушка 4",
+      "obj_parent_name": "Комплекс-заглушка 2",
+      "priority_score": 0.3036,
+      "rank": 1,
+      "recent_alarm_days_30": 11,
+      "recent_alarm_days_7": 4,
+      "recommendation_id": "530a003a8ca7711f"
+    }
+  ],
+  "result_status": "ok",
+  "schema_version": "1.0",
+  "score_type": "relative_priority_not_probability",
+  "source": "stub",
+  "target": "continued_recorded_smvu_guard_alarm_activity",
+  "target_version": 2,
+  "valid_from": "2026-06-17",
+  "valid_to": "2026-06-24"
+}

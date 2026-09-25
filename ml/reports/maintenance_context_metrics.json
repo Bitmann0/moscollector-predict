@@ -1,0 +1,71 @@
+{
+  "evaluation_target": "A_link_L9c_recorded_gap_not_physical_failure",
+  "schedule_available_from": "2026-09-25",
+  "mapping_available_from": "2026-09-25",
+  "last_scored_day": "2026-04-30",
+  "mapping_coverage": {
+    "ppr_objects_mapped_candidates": 2,
+    "ppr_objects_total": 26,
+    "to_objects_mapped_candidates": 2,
+    "to_objects_total": 24,
+    "catalog_gas_channels_mapped_candidates": 73,
+    "catalog_gas_channels_total": 529,
+    "future_ppr_objects_with_start": 3,
+    "future_ppr_objects_mapped_candidates": 0,
+    "customer_confirmed_links": 0
+  },
+  "retrospective_audit": {
+    "valid_as_new_schedule_metric": false,
+    "reason": "schedule and candidate mapping were received after these predictions",
+    "existing_policy_proxy": {
+      "alerts": 541,
+      "proxy_hits": 347,
+      "known_misses": 177,
+      "unknown": 17,
+      "precision_lower_bound": 0.6414048059149723,
+      "precision_known_only": 0.6622137404580153,
+      "recall_known": 0.03256075818710707
+    },
+    "context_status_counts": {
+      "outside_equipment_scope": 497,
+      "schedule_overlap_unconfirmed": 13,
+      "unmapped": 31
+    },
+    "planned_overlap_alerts": 13,
+    "planned_overlap_proxy_hits": 12,
+    "hypothetical_remaining_proxy_if_overlap_hidden_not_deployable": {
+      "alerts": 528,
+      "proxy_hits": 335,
+      "known_misses": 176,
+      "unknown": 17,
+      "precision_lower_bound": 0.634469696969697,
+      "precision_known_only": 0.6555772994129159,
+      "recall_known": null
+    },
+    "planned_overlap_by_source": {
+      "ppr:9": 13
+    }
+  },
+  "prospective": {
+    "status": "awaiting_post_release_predictions",
+    "labels_mature_through": "2026-05-31",
+    "issued_alerts_since_release": 0,
+    "context_status_counts": {},
+    "planned_overlap_alerts": 0,
+    "matured_policy_proxy": null,
+    "planned_cause_review_metrics": null,
+    "planned_cause_review_note": "no confirmed actual-work log or dispatcher decisions",
+    "product_gate_passed": false,
+    "product_gate_reason": "no independent new holdouts, baseline comparison or confirmed work outcome"
+  },
+  "policy_effect_claim": "none: context does not change alerts or their ranking",
+  "policy_provenance": {
+    "mode": "offline_replay_not_backend_issued_journal",
+    "scored_model_id": "lgbm_baseline_in_laya_challenger",
+    "scored_sha256": "99417a2bd9f924ce5571625a85a9ca7983f5ebc3da43749a8474ded355d4ed9a",
+    "metadata_file": "laya_link_metadata.json",
+    "metadata_sha256": "2377f8297dfdc298a562b6782d58927ce896f3009e3d81cfb70c85f36313e050",
+    "metadata_experiment": "laya_full_english_a_link_rerank_v1",
+    "threshold": 0.3649054338036624
+  }
+}

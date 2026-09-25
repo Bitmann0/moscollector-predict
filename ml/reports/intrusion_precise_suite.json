@@ -1,0 +1,2306 @@
+{
+  "note": "new event-time proxy; previously explored calendar periods, not blind",
+  "threshold_protocol": "60 days selection, 31 days embargo on either side, min 20 alerts",
+  "rows": 30844,
+  "positives": 2233,
+  "folds": [
+    {
+      "train_end": "2024-12-03",
+      "selection_start": "2025-01-04",
+      "selection_end": "2025-03-04",
+      "test_start": "2025-04-05",
+      "test_end": "2025-07-03",
+      "variants": {
+        "legacy_lgb": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.1390621889913225,
+            "top1": {
+              "alerts": 90,
+              "hits": 15,
+              "precision": 0.16666666666666666,
+              "recall": 0.06224066390041494
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 59,
+              "precision": 0.1638888888888889,
+              "recall": 0.24481327800829875
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.23076923076923078
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.23076923076923078
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.07083434605256564,
+            "top1": {
+              "alerts": 90,
+              "hits": 5,
+              "precision": 0.05555555555555555,
+              "recall": 0.0847457627118644
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 21,
+              "precision": 0.058333333333333334,
+              "recall": 0.3559322033898305
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.1
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.1
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.108231300022453
+        },
+        "exact_lgb": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.2014920470614666,
+            "top1": {
+              "alerts": 90,
+              "hits": 19,
+              "precision": 0.2111111111111111,
+              "recall": 0.07883817427385892
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 73,
+              "precision": 0.20277777777777778,
+              "recall": 0.3029045643153527
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.5
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.5
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.09516355051585927,
+            "top1": {
+              "alerts": 90,
+              "hits": 9,
+              "precision": 0.1,
+              "recall": 0.15254237288135594
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 25,
+              "precision": 0.06944444444444445,
+              "recall": 0.423728813559322
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.008769399981247
+        },
+        "exact_counts_lgb": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.28517760319968993,
+            "top1": {
+              "alerts": 90,
+              "hits": 31,
+              "precision": 0.34444444444444444,
+              "recall": 0.12863070539419086
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 90,
+              "precision": 0.25,
+              "recall": 0.37344398340248963
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.5250870562224136,
+                "precision": 0.5102040816326531,
+                "recall": 0.18248175182481752,
+                "k": 49
+              },
+              "test": {
+                "alerts": 66,
+                "hits": 31,
+                "precision": 0.4696969696969697,
+                "recall": 0.12863070539419086
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.525
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.11582456155799414,
+            "top1": {
+              "alerts": 90,
+              "hits": 10,
+              "precision": 0.1111111111111111,
+              "recall": 0.1694915254237288
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 26,
+              "precision": 0.07222222222222222,
+              "recall": 0.4406779661016949
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.3333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.3333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 4.986136499996064
+        },
+        "exact_history_lgb": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.29894317218567024,
+            "top1": {
+              "alerts": 90,
+              "hits": 28,
+              "precision": 0.3111111111111111,
+              "recall": 0.11618257261410789
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 95,
+              "precision": 0.2638888888888889,
+              "recall": 0.3941908713692946
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.5176521224422767,
+                "precision": 0.5,
+                "recall": 0.12408759124087591,
+                "k": 34
+              },
+              "test": {
+                "alerts": 54,
+                "hits": 27,
+                "precision": 0.5,
+                "recall": 0.11203319502074689
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.5714285714285714
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.1358348667959115,
+            "top1": {
+              "alerts": 90,
+              "hits": 8,
+              "precision": 0.08888888888888889,
+              "recall": 0.13559322033898305
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 27,
+              "precision": 0.075,
+              "recall": 0.4576271186440678
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 8.429938399989624
+        },
+        "exact_recent_lgb": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.3194028942494299,
+            "top1": {
+              "alerts": 90,
+              "hits": 34,
+              "precision": 0.37777777777777777,
+              "recall": 0.14107883817427386
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 96,
+              "precision": 0.26666666666666666,
+              "recall": 0.3983402489626556
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.4405495595941088,
+                "precision": 0.5166666666666667,
+                "recall": 0.22627737226277372,
+                "k": 60
+              },
+              "test": {
+                "alerts": 73,
+                "hits": 39,
+                "precision": 0.5342465753424658,
+                "recall": 0.16182572614107885
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.5263157894736842
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.13978858530969412,
+            "top1": {
+              "alerts": 90,
+              "hits": 10,
+              "precision": 0.1111111111111111,
+              "recall": 0.1694915254237288
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 29,
+              "precision": 0.08055555555555556,
+              "recall": 0.4915254237288136
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.0967741935483871
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.0967741935483871
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 7.937239999999292
+        },
+        "exact_logistic": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.33159283812486484,
+            "top1": {
+              "alerts": 90,
+              "hits": 36,
+              "precision": 0.4,
+              "recall": 0.14937759336099585
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 92,
+              "precision": 0.25555555555555554,
+              "recall": 0.3817427385892116
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.5333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.5333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.1403008591838721,
+            "top1": {
+              "alerts": 90,
+              "hits": 7,
+              "precision": 0.07777777777777778,
+              "recall": 0.11864406779661017
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 22,
+              "precision": 0.06111111111111111,
+              "recall": 0.3728813559322034
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.10714285714285714
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.10714285714285714
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 0.6003278999996837
+        },
+        "exact_catboost": {
+          "all": {
+            "n": 2728,
+            "positives": 241,
+            "pr_auc": 0.2715250763578927,
+            "top1": {
+              "alerts": 90,
+              "hits": 30,
+              "precision": 0.3333333333333333,
+              "recall": 0.12448132780082988
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 81,
+              "precision": 0.225,
+              "recall": 0.3360995850622407
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.625
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.625
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1391,
+            "positives": 59,
+            "pr_auc": 0.13815438399203722,
+            "top1": {
+              "alerts": 90,
+              "hits": 7,
+              "precision": 0.07777777777777778,
+              "recall": 0.11864406779661017
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 26,
+              "precision": 0.07222222222222222,
+              "recall": 0.4406779661016949
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 11.967682000016794
+        }
+      }
+    },
+    {
+      "train_end": "2025-03-03",
+      "selection_start": "2025-04-04",
+      "selection_end": "2025-06-02",
+      "test_start": "2025-07-04",
+      "test_end": "2025-10-01",
+      "variants": {
+        "legacy_lgb": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.17318611961165886,
+            "top1": {
+              "alerts": 90,
+              "hits": 21,
+              "precision": 0.23333333333333334,
+              "recall": 0.09292035398230089
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 70,
+              "precision": 0.19444444444444445,
+              "recall": 0.30973451327433627
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.16666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.16666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.05502501023400203,
+            "top1": {
+              "alerts": 90,
+              "hits": 6,
+              "precision": 0.06666666666666667,
+              "recall": 0.1276595744680851
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 22,
+              "precision": 0.06162464985994398,
+              "recall": 0.46808510638297873
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.14285714285714285
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.14285714285714285
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.837103700003354
+        },
+        "exact_lgb": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.16327291273723524,
+            "top1": {
+              "alerts": 90,
+              "hits": 16,
+              "precision": 0.17777777777777778,
+              "recall": 0.07079646017699115
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 63,
+              "precision": 0.175,
+              "recall": 0.27876106194690264
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.06131798723611575,
+            "top1": {
+              "alerts": 90,
+              "hits": 8,
+              "precision": 0.08888888888888889,
+              "recall": 0.1702127659574468
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 21,
+              "precision": 0.058823529411764705,
+              "recall": 0.44680851063829785
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.125
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.125
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.720824199990602
+        },
+        "exact_counts_lgb": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.21960677844734722,
+            "top1": {
+              "alerts": 90,
+              "hits": 24,
+              "precision": 0.26666666666666666,
+              "recall": 0.10619469026548672
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 97,
+              "precision": 0.26944444444444443,
+              "recall": 0.42920353982300885
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.8333333333333334
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.8333333333333334
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.06026364027791882,
+            "top1": {
+              "alerts": 90,
+              "hits": 7,
+              "precision": 0.07777777777777778,
+              "recall": 0.14893617021276595
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 23,
+              "precision": 0.06442577030812324,
+              "recall": 0.48936170212765956
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.3333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.3333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.918389200000092
+        },
+        "exact_history_lgb": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.2470157149130911,
+            "top1": {
+              "alerts": 90,
+              "hits": 33,
+              "precision": 0.36666666666666664,
+              "recall": 0.14601769911504425
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 101,
+              "precision": 0.28055555555555556,
+              "recall": 0.4469026548672566
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.75
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.75
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.057383934349301474,
+            "top1": {
+              "alerts": 90,
+              "hits": 9,
+              "precision": 0.1,
+              "recall": 0.19148936170212766
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 22,
+              "precision": 0.06162464985994398,
+              "recall": 0.46808510638297873
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.4
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.4
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 9.017611799994484
+        },
+        "exact_recent_lgb": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.24488081102403525,
+            "top1": {
+              "alerts": 90,
+              "hits": 34,
+              "precision": 0.37777777777777777,
+              "recall": 0.1504424778761062
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 94,
+              "precision": 0.2611111111111111,
+              "recall": 0.415929203539823
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.6666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.6666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.0606169412627695,
+            "top1": {
+              "alerts": 90,
+              "hits": 7,
+              "precision": 0.07777777777777778,
+              "recall": 0.14893617021276595
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 24,
+              "precision": 0.06722689075630252,
+              "recall": 0.5106382978723404
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 8.37101000000257
+        },
+        "exact_logistic": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.26010857456170255,
+            "top1": {
+              "alerts": 90,
+              "hits": 31,
+              "precision": 0.34444444444444444,
+              "recall": 0.13716814159292035
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 95,
+              "precision": 0.2638888888888889,
+              "recall": 0.42035398230088494
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.06858653072013247,
+            "top1": {
+              "alerts": 90,
+              "hits": 12,
+              "precision": 0.13333333333333333,
+              "recall": 0.2553191489361702
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 30,
+              "precision": 0.08403361344537816,
+              "recall": 0.6382978723404256
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 0.6706479999993462
+        },
+        "exact_catboost": {
+          "all": {
+            "n": 2674,
+            "positives": 226,
+            "pr_auc": 0.20416164638260678,
+            "top1": {
+              "alerts": 90,
+              "hits": 31,
+              "precision": 0.34444444444444444,
+              "recall": 0.13716814159292035
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 85,
+              "precision": 0.2361111111111111,
+              "recall": 0.37610619469026546
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.7413254106734466,
+                "precision": 0.5217391304347826,
+                "recall": 0.09448818897637795,
+                "k": 23
+              },
+              "test": {
+                "alerts": 79,
+                "hits": 25,
+                "precision": 0.31645569620253167,
+                "recall": 0.11061946902654868
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 1.0
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1220,
+            "positives": 47,
+            "pr_auc": 0.05956109729892797,
+            "top1": {
+              "alerts": 90,
+              "hits": 7,
+              "precision": 0.07777777777777778,
+              "recall": 0.14893617021276595
+            },
+            "top4": {
+              "alerts": 357,
+              "hits": 24,
+              "precision": 0.06722689075630252,
+              "recall": 0.5106382978723404
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.2727272727272727
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.2727272727272727
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 12.26854259998072
+        }
+      }
+    },
+    {
+      "train_end": "2025-06-01",
+      "selection_start": "2025-07-03",
+      "selection_end": "2025-08-31",
+      "test_start": "2025-10-02",
+      "test_end": "2025-12-30",
+      "variants": {
+        "legacy_lgb": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.10979219118311927,
+            "top1": {
+              "alerts": 90,
+              "hits": 12,
+              "precision": 0.13333333333333333,
+              "recall": 0.06818181818181818
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 35,
+              "precision": 0.09722222222222222,
+              "recall": 0.19886363636363635
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.22857142857142856
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.22857142857142856
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.06038485008748428,
+            "top1": {
+              "alerts": 90,
+              "hits": 6,
+              "precision": 0.06666666666666667,
+              "recall": 0.11320754716981132
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 15,
+              "precision": 0.041666666666666664,
+              "recall": 0.2830188679245283
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.07352941176470588
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.07352941176470588
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 6.105655499995919
+        },
+        "exact_lgb": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.1694313891991001,
+            "top1": {
+              "alerts": 90,
+              "hits": 20,
+              "precision": 0.2222222222222222,
+              "recall": 0.11363636363636363
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 63,
+              "precision": 0.175,
+              "recall": 0.35795454545454547
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.5
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.5
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.10031211697106376,
+            "top1": {
+              "alerts": 90,
+              "hits": 10,
+              "precision": 0.1111111111111111,
+              "recall": 0.18867924528301888
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 23,
+              "precision": 0.06388888888888888,
+              "recall": 0.4339622641509434
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.0975609756097561
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.0975609756097561
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.994764600007329
+        },
+        "exact_counts_lgb": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.20790811185287048,
+            "top1": {
+              "alerts": 90,
+              "hits": 25,
+              "precision": 0.2777777777777778,
+              "recall": 0.14204545454545456
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 71,
+              "precision": 0.19722222222222222,
+              "recall": 0.4034090909090909
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.6666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.6666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.09637529894201255,
+            "top1": {
+              "alerts": 90,
+              "hits": 9,
+              "precision": 0.1,
+              "recall": 0.16981132075471697
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 22,
+              "precision": 0.06111111111111111,
+              "recall": 0.41509433962264153
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 5.923014399973908
+        },
+        "exact_history_lgb": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.22391128890864187,
+            "top1": {
+              "alerts": 90,
+              "hits": 29,
+              "precision": 0.32222222222222224,
+              "recall": 0.16477272727272727
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 72,
+              "precision": 0.2,
+              "recall": 0.4090909090909091
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.31868131868131866
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.31868131868131866
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.11976159398053803,
+            "top1": {
+              "alerts": 90,
+              "hits": 9,
+              "precision": 0.1,
+              "recall": 0.16981132075471697
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 26,
+              "precision": 0.07222222222222222,
+              "recall": 0.49056603773584906
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.0851063829787234
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.0851063829787234
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 9.39394499998889
+        },
+        "exact_recent_lgb": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.20298131918184265,
+            "top1": {
+              "alerts": 90,
+              "hits": 28,
+              "precision": 0.3111111111111111,
+              "recall": 0.1590909090909091
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 72,
+              "precision": 0.2,
+              "recall": 0.4090909090909091
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.4
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.4
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.08769889787753751,
+            "top1": {
+              "alerts": 90,
+              "hits": 9,
+              "precision": 0.1,
+              "recall": 0.16981132075471697
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 21,
+              "precision": 0.058333333333333334,
+              "recall": 0.39622641509433965
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.25
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 9.234958599990932
+        },
+        "exact_logistic": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.1798693001127623,
+            "top1": {
+              "alerts": 90,
+              "hits": 25,
+              "precision": 0.2777777777777778,
+              "recall": 0.14204545454545456
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 70,
+              "precision": 0.19444444444444445,
+              "recall": 0.3977272727272727
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.5
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.5
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.07080880498927858,
+            "top1": {
+              "alerts": 90,
+              "hits": 9,
+              "precision": 0.1,
+              "recall": 0.16981132075471697
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 25,
+              "precision": 0.06944444444444445,
+              "recall": 0.4716981132075472
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.16666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.16666666666666666
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 0.7966373000235762
+        },
+        "exact_catboost": {
+          "all": {
+            "n": 2644,
+            "positives": 176,
+            "pr_auc": 0.17632797810897477,
+            "top1": {
+              "alerts": 90,
+              "hits": 24,
+              "precision": 0.26666666666666666,
+              "recall": 0.13636363636363635
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 61,
+              "precision": 0.16944444444444445,
+              "recall": 0.3465909090909091
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.3333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.3333333333333333
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "quiet": {
+            "n": 1269,
+            "positives": 53,
+            "pr_auc": 0.06967478080210404,
+            "top1": {
+              "alerts": 90,
+              "hits": 6,
+              "precision": 0.06666666666666667,
+              "recall": 0.11320754716981132
+            },
+            "top4": {
+              "alerts": 360,
+              "hits": 21,
+              "precision": 0.058333333333333334,
+              "recall": 0.39622641509433965
+            },
+            "precision_0.5": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.5 и не менее 20 алертов",
+                "max_precision": 0.15384615384615385
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            },
+            "precision_0.7": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 20 алертов",
+                "max_precision": 0.15384615384615385
+              },
+              "test": {
+                "alerts": 0,
+                "hits": 0,
+                "precision": null,
+                "recall": 0.0
+              }
+            }
+          },
+          "seconds": 13.645946500007994
+        }
+      }
+    }
+  ],
+  "pooled": {
+    "legacy_lgb": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 48,
+          "precision": 0.17777777777777778,
+          "recall": 0.07465007776049767
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 164,
+          "precision": 0.15185185185185185,
+          "recall": 0.25505443234836706
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 17,
+          "precision": 0.06296296296296296,
+          "recall": 0.1069182389937107
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 58,
+          "precision": 0.05385329619312906,
+          "recall": 0.36477987421383645
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    },
+    "exact_lgb": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 55,
+          "precision": 0.2037037037037037,
+          "recall": 0.08553654743390357
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 199,
+          "precision": 0.18425925925925926,
+          "recall": 0.3094867807153966
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 27,
+          "precision": 0.1,
+          "recall": 0.16981132075471697
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 69,
+          "precision": 0.06406685236768803,
+          "recall": 0.4339622641509434
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    },
+    "exact_counts_lgb": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 80,
+          "precision": 0.2962962962962963,
+          "recall": 0.12441679626749612
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 258,
+          "precision": 0.2388888888888889,
+          "recall": 0.401244167962675
+        },
+        "precision_0.5": {
+          "alerts": 66,
+          "hits": 31,
+          "precision": 0.4696969696969697,
+          "recall": 0.04821150855365474
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 26,
+          "precision": 0.0962962962962963,
+          "recall": 0.16352201257861634
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 71,
+          "precision": 0.06592386258124419,
+          "recall": 0.44654088050314467
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    },
+    "exact_history_lgb": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 90,
+          "precision": 0.3333333333333333,
+          "recall": 0.13996889580093314
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 268,
+          "precision": 0.24814814814814815,
+          "recall": 0.416796267496112
+        },
+        "precision_0.5": {
+          "alerts": 54,
+          "hits": 27,
+          "precision": 0.5,
+          "recall": 0.041990668740279936
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 26,
+          "precision": 0.0962962962962963,
+          "recall": 0.16352201257861634
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 75,
+          "precision": 0.06963788300835655,
+          "recall": 0.4716981132075472
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    },
+    "exact_recent_lgb": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 96,
+          "precision": 0.35555555555555557,
+          "recall": 0.14930015552099535
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 262,
+          "precision": 0.24259259259259258,
+          "recall": 0.40746500777604977
+        },
+        "precision_0.5": {
+          "alerts": 73,
+          "hits": 39,
+          "precision": 0.5342465753424658,
+          "recall": 0.060653188180404355
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 26,
+          "precision": 0.0962962962962963,
+          "recall": 0.16352201257861634
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 74,
+          "precision": 0.06870937790157845,
+          "recall": 0.46540880503144655
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    },
+    "exact_logistic": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 92,
+          "precision": 0.34074074074074073,
+          "recall": 0.14307931570762053
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 257,
+          "precision": 0.23796296296296296,
+          "recall": 0.39968895800933124
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 28,
+          "precision": 0.1037037037037037,
+          "recall": 0.1761006289308176
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 77,
+          "precision": 0.07149489322191271,
+          "recall": 0.48427672955974843
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    },
+    "exact_catboost": {
+      "all": {
+        "positives": 643,
+        "top1": {
+          "alerts": 270,
+          "hits": 85,
+          "precision": 0.3148148148148148,
+          "recall": 0.1321928460342146
+        },
+        "top4": {
+          "alerts": 1080,
+          "hits": 227,
+          "precision": 0.2101851851851852,
+          "recall": 0.35303265940902023
+        },
+        "precision_0.5": {
+          "alerts": 79,
+          "hits": 25,
+          "precision": 0.31645569620253167,
+          "recall": 0.038880248833592534
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      },
+      "quiet": {
+        "positives": 159,
+        "top1": {
+          "alerts": 270,
+          "hits": 20,
+          "precision": 0.07407407407407407,
+          "recall": 0.12578616352201258
+        },
+        "top4": {
+          "alerts": 1077,
+          "hits": 71,
+          "precision": 0.06592386258124419,
+          "recall": 0.44654088050314467
+        },
+        "precision_0.5": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        },
+        "precision_0.7": {
+          "alerts": 0,
+          "hits": 0,
+          "precision": null,
+          "recall": 0.0
+        }
+      }
+    }
+  }
+}

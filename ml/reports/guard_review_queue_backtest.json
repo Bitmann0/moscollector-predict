@@ -1,0 +1,43 @@
+{
+  "method": "history_rule_v1",
+  "target": "recorded guarded SMVU alarm next day",
+  "note": "explored 2025 blocks, not blind; unknown outcomes included in denominator",
+  "folds": [
+    {
+      "start": "2025-04-05",
+      "end": "2025-07-03",
+      "candidate_rows": 2851,
+      "recorded_positives": 227,
+      "alerts": 360,
+      "recorded_hits": 89,
+      "unknown_outcome_alerts": 20,
+      "recorded_hits_per_alert": 0.24722222222222223
+    },
+    {
+      "start": "2025-07-04",
+      "end": "2025-10-01",
+      "candidate_rows": 2837,
+      "recorded_positives": 214,
+      "alerts": 360,
+      "recorded_hits": 91,
+      "unknown_outcome_alerts": 19,
+      "recorded_hits_per_alert": 0.25277777777777777
+    },
+    {
+      "start": "2025-10-02",
+      "end": "2025-12-30",
+      "candidate_rows": 2741,
+      "recorded_positives": 155,
+      "alerts": 360,
+      "recorded_hits": 57,
+      "unknown_outcome_alerts": 27,
+      "recorded_hits_per_alert": 0.15833333333333333
+    }
+  ],
+  "pooled": {
+    "alerts": 1080,
+    "recorded_hits": 237,
+    "unknown_outcome_alerts": 66,
+    "recorded_hits_per_alert": 0.21944444444444444
+  }
+}

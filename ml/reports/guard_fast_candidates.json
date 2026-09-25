@@ -1,0 +1,38 @@
+{
+  "source": "raw events through asof; prototype only",
+  "results": [
+    {
+      "asof": "2024-06-17",
+      "seconds": 5.662,
+      "object_rows": 55,
+      "fast_rows": 55,
+      "state_mismatch": 0,
+      "age_mismatch": 0,
+      "eligible_actual": 35,
+      "eligible_fast": 35,
+      "eligible_symmetric_difference": 0
+    },
+    {
+      "asof": "2025-06-16",
+      "seconds": 8.274,
+      "object_rows": 52,
+      "fast_rows": 52,
+      "state_mismatch": 0,
+      "age_mismatch": 0,
+      "eligible_actual": 30,
+      "eligible_fast": 30,
+      "eligible_symmetric_difference": 0
+    },
+    {
+      "asof": "2026-06-29",
+      "seconds": 10.258,
+      "object_rows": 53,
+      "fast_rows": 53,
+      "state_mismatch": 0,
+      "age_mismatch": 0,
+      "eligible_actual": 32,
+      "eligible_fast": 32,
+      "eligible_symmetric_difference": 0
+    }
+  ]
+}

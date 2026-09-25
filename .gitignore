@@ -27,3 +27,22 @@ analysis/extracted/
 analysis/duckdb_tmp/
 analysis/*.duckdb*
 analysis/tz_page-*.png
+
+# Данные заказчика и артефакты ML — никогда в репозиторий (репозиторий станет публичным)
+/Materials/
+**/ChatExport*/
+/models/
+/data/
+catboost_info/
+*.parquet
+*.pkl
+*.7z
+*.duckdb
+.env
+# Фронтенд
+frontend/node_modules/
+frontend/dist/
+# Бандл данных C4 и локальное состояние сервиса
+/bundle/
+/state/
+backend/state/

@@ -1,0 +1,25 @@
+# Контекст образа ml — корень репозитория (compose.yaml: context ., dockerfile ml/Dockerfile):
+# ML-заглушке нужен contracts/synthetic_reference.json, а он лежит вне ml/.
+# BuildKit читает этот файл вместо корневого .dockerignore, который исключает ml/ целиком.
+# Пути здесь — от корня репозитория.
+*
+!ml/
+!contracts/synthetic_reference.json
+!contracts/vocabularies.json
+ml/data
+ml/models
+ml/Materials
+ml/experiments
+ml/catboost_info
+ml/.venv
+ml/.pytest_cache
+ml/mlruns
+ml/**/ChatExport*
+ml/**/.env
+ml/**/*.pkl
+ml/**/*.parquet
+ml/**/*.duckdb
+ml/**/*.7z
+ml/**/*.db
+**/__pycache__
+**/*.pyc

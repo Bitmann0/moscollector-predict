@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "_note": "Словари C3 плана команды. Меняются только PR с аппрувом PM, ML-1, BE и FE. Коды — стабильные идентификаторы, title — то, что видит человек.",
+  "scenario": [
+    {"code": "sensor_link", "head": "A_link", "direction": "sensor_failure",
+     "title": "Отказ датчика: риск потери связи", "score_type": "probability", "horizon_hours": 24},
+    {"code": "equipment_diag", "head": "D", "direction": "infrastructure_wear",
+     "title": "Износ: плановая диагностика оборудования", "score_type": "probability", "horizon_hours": 168},
+    {"code": "guard_weekly", "head": "guard_weekly", "direction": "unauthorised_access",
+     "title": "НСД: проверка объектов с хроническими охранными тревогами", "score_type": "relative_priority", "horizon_hours": 168}
+  ],
+  "kind": [
+    {"code": "alert", "title": "Прогноз"},
+    {"code": "weekly_recommendation", "title": "Недельная рекомендация"}
+  ],
+  "score_type": [
+    {"code": "probability", "title": "вероятность"},
+    {"code": "relative_priority", "title": "относительный приоритет, не вероятность", "ml_code": "relative_priority_not_probability"}
+  ],
+  "source": [
+    {"code": "live", "title": "расчёт сервиса"},
+    {"code": "emulated", "title": "эмуляция"},
+    {"code": "stub", "title": "заглушка каркаса"}
+  ],
+  "action": [
+    {"code": "dispatch_crew", "title": "Выезд бригады", "ml_code": "check"},
+    {"code": "remote_check", "title": "Удалённая проверка / мониторинг", "ml_code": "check"},
+    {"code": "defer", "title": "Отложить", "ml_code": "defer"},
+    {"code": "reject", "title": "Отклонить", "ml_code": "reject"}
+  ],
+  "reason_code": [
+    {"code": "false_alarm", "title": "Ложное срабатывание", "actions": ["reject"]},
+    {"code": "planned_works", "title": "Плановые работы (ППР, поверка, огневые работы)", "actions": ["reject"]},
+    {"code": "sensor_fault", "title": "Неисправность датчика", "actions": ["reject"]},
+    {"code": "duplicate", "title": "Уже отработано", "actions": ["reject"]},
+    {"code": "confirmed_by_readings", "title": "Подтверждено показаниями", "actions": ["dispatch_crew", "remote_check"]},
+    {"code": "confirmed_by_camera", "title": "Подтверждено камерами", "actions": ["dispatch_crew", "remote_check"]},
+    {"code": "preventive", "title": "Профилактика по рекомендации", "actions": ["dispatch_crew", "remote_check"]},
+    {"code": "no_crew", "title": "Нет свободной бригады", "actions": ["defer"]},
+    {"code": "await_data", "title": "Ждём новых данных", "actions": ["defer"]}
+  ],
+  "outcome_manual": [
+    {"code": "confirmed_event", "title": "Событие подтвердилось"},
+    {"code": "sensor_fault", "title": "Неисправность датчика"},
+    {"code": "normal_activation", "title": "Штатное срабатывание"},
+    {"code": "no_event", "title": "Событие не подтвердилось"},
+    {"code": "unknown", "title": "Не удалось установить"}
+  ],
+  "outcome_auto": [
+    {"code": "hit", "title": "Наступило по данным СМВУ"},
+    {"code": "miss", "title": "Не наступило по данным СМВУ"},
+    {"code": "unknown", "title": "Неизвестно: день не наблюдаем"}
+  ],
+  "result_status": [
+    {"code": "ok", "title": "Расчёт выполнен"},
+    {"code": "empty_valid", "title": "Расчёт выполнен, кандидатов нет"},
+    {"code": "no_data", "title": "Нет данных за сутки"},
+    {"code": "stale", "title": "Данные устарели"},
+    {"code": "error", "title": "Ошибка расчёта"}
+  ],
+  "work_order_status": [
+    {"code": "draft", "title": "Черновик", "ml_code": "новая"},
+    {"code": "confirmed", "title": "Подтверждена"},
+    {"code": "in_progress", "title": "В работе"},
+    {"code": "completed", "title": "Выполнена"},
+    {"code": "cancelled", "title": "Отменена"}
+  ],
+  "work_order_transitions": {
+    "draft": ["confirmed", "cancelled"],
+    "confirmed": ["in_progress", "cancelled"],
+    "in_progress": ["completed", "cancelled"],
+    "completed": [],
+    "cancelled": []
+  },
+  "work_order_transition_perm": {
+    "confirmed": "work_order_manage",
+    "cancelled": "work_order_manage",
+    "in_progress": "work_order_progress",
+    "completed": "work_order_progress"
+  },
+  "work_order_priority": [
+    {"code": "urgent", "title": "Срочная", "ml_code": "срочная"},
+    {"code": "planned", "title": "Плановая", "ml_code": "плановая"},
+    {"code": "watch", "title": "Наблюдение", "ml_code": "наблюдение"}
+  ],
+  "event_class": [
+    {"code": "normal", "title": "Норма"},
+    {"code": "warning", "title": "Предупреждение"},
+    {"code": "alarm", "title": "Тревога"},
+    {"code": "critical", "title": "Критическое"},
+    {"code": "fault", "title": "Неисправность"},
+    {"code": "service", "title": "Служебное"}
+  ],
+  "roles": [
+    {"code": "dispatcher", "title": "Диспетчер ОДС"},
+    {"code": "technician", "title": "Технический персонал"},
+    {"code": "analyst", "title": "Аналитик"},
+    {"code": "manager", "title": "Руководитель подразделения"},
+    {"code": "admin", "title": "Администратор"},
+    {"code": "integration", "title": "Внешняя система (X-API-Key)"}
+  ],
+  "permissions": {
+    "view": ["dispatcher", "technician", "analyst", "manager", "admin"],
+    "decide": ["dispatcher", "admin"],
+    "outcome": ["dispatcher", "technician", "analyst", "admin"],
+    "work_order_manage": ["dispatcher", "manager", "admin"],
+    "work_order_progress": ["technician", "admin", "integration"],
+    "ingest": ["analyst", "admin", "integration"],
+    "export": ["dispatcher", "analyst", "manager", "admin"],
+    "admin": ["admin"],
+    "integration": ["integration"]
+  }
+}
