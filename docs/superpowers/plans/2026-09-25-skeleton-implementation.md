@@ -82,7 +82,7 @@
   - при `ML_MODE=real` `POST /score` → 501, `detail` содержит `ML1-03`.
 - [ ] Реализовать генератор и приложение. Тяжёлые модули `mkl` не импортируются в stub-режиме.
 - [ ] `pytest ml/tests/test_product_api.py -q` — PASS; `pytest ml/tests -q --deselect tests/test_address.py --deselect tests/test_config.py::test_paths_exist --deselect tests/test_db.py` — без новых падений.
-- [ ] `ml/Dockerfile` собирается (`docker build -t mkl-ml ml`), контейнер отвечает на `/health`.
+- [ ] `ml/Dockerfile` собирается из корня (`docker build -f ml/Dockerfile -t mkl-ml .`; исключения — `ml/Dockerfile.dockerignore`), контейнер отвечает на `/health`.
 - [ ] Коммит `feat(ml): сервис C1 на заглушках для каркаса`.
 
 ### Задача 3: сервисы, миграция, seed и тесты backend

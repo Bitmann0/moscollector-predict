@@ -1,19 +1,60 @@
+# Продукт целиком на машине без данных заказчика: db, ml (заглушки C1), api (C2 + фронт).
+#   cp .env.example .env    # вписать DEMO_PASSWORD, SECRET_KEY, INTEGRATION_API_KEY
+#   docker compose up --build
+# Реальные модели: -f compose.yaml -f compose.real.yaml. Стенд: + compose.stand.yaml.
+name: moscollector
+
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-moscollector}
+      POSTGRES_USER: ${POSTGRES_USER:-moscollector}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-moscollector}
+      TZ: Europe/Moscow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Внутренний сервис (решение D3): порт наружу не публикуется, ходит только api.
+  ml:
+    build:
+      context: .
+      dockerfile: ml/Dockerfile
+    environment:
+      ML_MODE: ${ML_MODE:-stub}
+      TZ: Europe/Moscow
+    expose:
+      - "8001"
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 10
+    restart: unless-stopped
+
   api:
     build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-moscollector}:${POSTGRES_PASSWORD:-moscollector}@db:5432/${POSTGRES_DB:-moscollector}
+      ML_URL: http://ml:8001
+      TZ: Europe/Moscow
     ports:
       - "8000:8000"
-    environment:
-      MOSCOLLECTOR_DATA_DIR: /app/data/raw
-      MOSCOLLECTOR_DB_PATH: /app/state/moscollector.db
-      MOSCOLLECTOR_FORECAST_HOURS: 24
-      MOSCOLLECTOR_MODE: historical
-      MOSCOLLECTOR_TIME_ZONE: Europe/Moscow
-      MOSCOLLECTOR_MAX_DATA_AGE_HOURS: 6
-    volumes:
-      - ./data/raw:/app/data/raw:ro
-      - app-state:/app/state
+    depends_on:
+      db:
+        condition: service_healthy
+      ml:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  app-state:
+  pgdata:

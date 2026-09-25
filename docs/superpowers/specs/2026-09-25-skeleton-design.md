@@ -208,7 +208,7 @@ docs/
 | `ingest.events(db, file_or_rows)` | Счётчики партии без записи | ML2-03 |
 | `ingest.ods_journal(...)` | Счётчики партии без записи | BE-06 |
 | `ingest.reset_day(...)` | Счётчики партии без записи | ML2-03 |
-| `semantics.classify(sensor_type, val_raw, val_num, alarm)` | `("alarm" if alarm else "normal", val_raw, None)` | ML2-01 |
+| `semantics.classify(sensor_type, val_raw, val_num, alarm)` → `(event_class, hint)` | `("alarm" if alarm else "normal", None)` | ML2-01 |
 | `reference.tree(db)` | Дерево из синтетического справочника seed | BE-03 |
 | `geo.schema_geojson(db, complex)` | `FeatureCollection` с 2 линиями и точками, `properties.note` | ML1-11 |
 | `geo.schema_wkt(...)` | То же в WKT | ML1-11 |
