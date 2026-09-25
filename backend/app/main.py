@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 
 from .audit import AuditMiddleware
 from .config import get_settings
+from .limits import BodyLimitMiddleware
 from .routers import (
     admin,
     audit,
@@ -43,6 +44,8 @@ def create_app() -> FastAPI:
         ),
     )
     app.add_middleware(AuditMiddleware)
+    # Добавлен последним — значит, самый внешний: лишнее тело отсекается до разбора и аудита.
+    app.add_middleware(BodyLimitMiddleware)
     for module in ROUTERS:
         app.include_router(module.router, prefix=API_PREFIX)
 

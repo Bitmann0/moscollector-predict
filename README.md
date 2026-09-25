@@ -87,7 +87,7 @@ ML_URL=http://localhost:8001
 | api на :8000 | `make dev-api` | `.venv\Scripts\alembic -c backend\alembic.ini upgrade head; $env:PYTHONPATH="backend"; .venv\Scripts\python -m app.seed; .venv\Scripts\uvicorn app.main:app --app-dir backend --reload --port 8000` |
 | Фронт на :5173, `/api` проксируется на :8000 | `make dev-fe` | `cd frontend; npm run dev` |
 | Тесты backend | `make test-backend` | `.venv\Scripts\pytest -q` |
-| Тесты ML | `make test-ml` | `cd ml; .venv\Scripts\pytest -q --deselect tests/test_address.py --deselect tests/test_config.py::test_paths_exist --deselect tests/test_db.py` |
+| Тесты ML | `make test-ml` | `cd ml; .venv\Scripts\python -m pytest -q --deselect tests/test_address.py --deselect tests/test_config.py::test_paths_exist --deselect tests/test_db.py` |
 | Линтер | `make lint` | `.venv\Scripts\ruff check backend tests scripts` |
 | Контракты | `make contracts` | `.venv\Scripts\python scripts\export_contracts.py; cd frontend; npm run gen:api` |
 | Compose | `make up`, `make smoke`, `make down` | `docker compose up -d --build`, `python scripts\smoke_compose.py`, `docker compose down` |

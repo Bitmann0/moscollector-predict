@@ -5,7 +5,7 @@
 import asyncio
 import json
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from ..db import session_factory
@@ -25,7 +25,9 @@ def _frame(kind: str, data: dict) -> str:
 async def stream(request: Request) -> StreamingResponse:
     def check() -> None:
         with session_factory()() as db:
-            authenticate(request, db)
+            user = authenticate(request, db)
+        if "view" not in user.perms:  # integration и прочие машинные роли — без ленты
+            raise HTTPException(status_code=403, detail="forbidden")
 
     await asyncio.to_thread(check)
     queue = broker.subscribe()

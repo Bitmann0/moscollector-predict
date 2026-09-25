@@ -9,7 +9,7 @@ from ..services import settings_store
 router = APIRouter(tags=["settings"])
 
 
-@router.get("/settings", response_model=SettingsOut, dependencies=[Depends(require_perm("view"))])
+@router.get("/settings", response_model=SettingsOut, dependencies=[Depends(require_perm("admin"))])
 def get_settings(db: Session = Depends(get_db)) -> SettingsOut:
     return settings_store.get(db)
 

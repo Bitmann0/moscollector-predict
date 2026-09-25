@@ -26,7 +26,7 @@ test-backend:
 
 # Три теста CAML требуют данных заказчика — как в CI, они исключены.
 test-ml:
-	cd ml && .venv/bin/pytest -q $(ML_DESELECT)
+	cd ml && .venv/bin/python -m pytest -q $(ML_DESELECT)
 
 lint:
 	$(BIN)/ruff check backend tests scripts

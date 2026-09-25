@@ -274,6 +274,9 @@ export interface paths {
         /**
          * Ingest File
          * @description Файл журнала СМВУ: CSV как журнал_событий_пример.csv или XLSX (ТЗ §7).
+         *
+         *     Синхронная функция намеренно: FastAPI выполняет её в пуле потоков. Разбор файла
+         *     в async-обработчике остановил бы цикл событий — и весь API, включая SSE и health.
          */
         post: operations["ingest_file_api_v1_ingest_events_upload_post"];
         delete?: never;

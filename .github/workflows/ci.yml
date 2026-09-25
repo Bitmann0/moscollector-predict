@@ -61,10 +61,12 @@ jobs:
           python -m pip install --no-deps -e ml
           python -m pip install pytest httpx
       # Три теста требуют данных заказчика, в CI их нет.
+      # python -m pytest, а не pytest: тесты CAML импортируют пакет scripts из ml/,
+      # и только запуск через -m кладёт текущий каталог в sys.path.
       - name: Tests
         working-directory: ml
         run: >-
-          pytest -q
+          python -m pytest -q
           --deselect tests/test_address.py
           --deselect tests/test_config.py::test_paths_exist
           --deselect tests/test_db.py

@@ -4,6 +4,12 @@
 в браузере не умеет ставить заголовки, поэтому токен в заголовке не подходит.
 Машинные клиенты (replay.py, эмуляторы, внешние системы) шлют X-API-Key и
 получают роль integration. Права роли берутся из матрицы vocabularies.json.
+
+Защита сессии:
+- в токене лежит отпечаток хеша пароля: смена DEMO_PASSWORD (и seed) гасит старые сессии;
+- изменяющий запрос по cookie с чужого сайта отклоняется (Sec-Fetch-Site, иначе Origin).
+Не сделано, владелец BE-09: отзыв сессии при выходе — нужен users.session_version,
+который выход увеличивает, а authenticate() сверяет.
 """
 import hashlib
 import hmac
@@ -53,8 +59,34 @@ def _serializer() -> URLSafeTimedSerializer:
     return URLSafeTimedSerializer(secret, salt="mk-session")
 
 
-def issue_session(login: str) -> str:
-    return _serializer().dumps({"login": login})
+def _password_mark(password_hash: str) -> str:
+    """Отпечаток хеша пароля в токене: пароль сменили — старые сессии недействительны."""
+    key = get_settings().secret_key.encode()
+    return hmac.new(key, password_hash.encode(), hashlib.sha256).hexdigest()[:16]
+
+
+def issue_session(login: str, password_hash: str) -> str:
+    return _serializer().dumps({"login": login, "pw": _password_mark(password_hash)})
+
+
+SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
+SAME_SITE_FETCH = {"same-origin", "none"}
+
+
+def _check_csrf(request: Request) -> None:
+    """Cookie браузер шлёт и на запросы, начатые чужой страницей. Изменяющие запросы
+    принимаем только со своей страницы: Sec-Fetch-Site есть у всех актуальных браузеров,
+    Origin — запасная проверка для остальных."""
+    if request.method in SAFE_METHODS:
+        return
+    fetch_site = request.headers.get("Sec-Fetch-Site")
+    if fetch_site is not None:
+        if fetch_site not in SAME_SITE_FETCH:
+            raise HTTPException(status_code=403, detail="csrf_rejected")
+        return
+    origin = request.headers.get("Origin")
+    if origin and origin.split("://", 1)[-1] != request.headers.get("Host", ""):
+        raise HTTPException(status_code=403, detail="csrf_rejected")
 
 
 def current_user(request: Request, db: Session = Depends(get_db)) -> CurrentUser:
@@ -68,7 +100,8 @@ def authenticate(request: Request, db: Session) -> CurrentUser:
     api_key = request.headers.get("X-API-Key")
     if api_key is not None:
         expected = settings.integration_api_key
-        if expected and hmac.compare_digest(api_key, expected):
+        # Сравнение байтов: str с не-ASCII символами compare_digest не принимает (TypeError → 500).
+        if expected and hmac.compare_digest(api_key.encode(), expected.encode()):
             user = CurrentUser("integration", "Внешняя система", "integration",
                                vocab.permissions_of("integration"))
             request.state.user = user
@@ -82,8 +115,9 @@ def authenticate(request: Request, db: Session) -> CurrentUser:
     except (BadSignature, SignatureExpired):
         raise HTTPException(status_code=401, detail="session_invalid") from None
     row = db.get(models.User, data.get("login"))
-    if row is None:
+    if row is None or data.get("pw") != _password_mark(row.password_hash):
         raise HTTPException(status_code=401, detail="session_invalid")
+    _check_csrf(request)
     user = CurrentUser(row.login, row.name, row.role, vocab.permissions_of(row.role))
     request.state.user = user
     return user
