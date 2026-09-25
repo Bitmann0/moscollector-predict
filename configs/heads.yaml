@@ -7,6 +7,10 @@
 A_link:
   direction: sensor_failure  # Отказ датчика
   title: Потеря связи с каналом
+  product_status: pilot
+  product_target: channel_loses_observability_tomorrow
+  product_action: manual_link_diagnostics
+  product_policy: fixed_top_20_per_day; abstain_if_fresh_threshold_unavailable
   entity: [ch, day]
   feature_set: sensor
   label: label_link
@@ -188,6 +192,10 @@ C:
 D:
   direction: infrastructure_wear  # Износ инфраструктуры
   title: Износ агрегатов
+  product_status: pilot
+  product_target: recorded_equipment_wear_signal_next_7_days
+  product_action: manual_planned_equipment_diagnostic
+  product_policy: calibrated_threshold_and_max_3_per_day
   entity: [ch, day]
   feature_set: sensor
   label: label_wear
