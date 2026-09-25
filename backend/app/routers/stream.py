@@ -38,7 +38,8 @@ async def stream(request: Request) -> StreamingResponse:
                 try:
                     event = await asyncio.wait_for(queue.get(), timeout=HEARTBEAT_S)
                 except TimeoutError:
-                    yield ": heartbeat\n\n"
+                    # Событие, а не SSE-комментарий: фронт его видит и ловит зависшее соединение.
+                    yield _frame("ping", {})
                     continue
                 yield _frame(event["kind"], event)
         finally:

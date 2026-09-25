@@ -52,9 +52,11 @@ class MlClient:
     def health(self) -> dict:
         return self._get("/health")
 
-    def ready(self, asof: date | None = None) -> ReadyResponse:
+    def ready(self, asof: date | None = None, timeout: float = 5.0) -> ReadyResponse:
+        """Короткий таймаут: /system/status не должен ждать зависший ML две минуты."""
+        params = {"asof": asof.isoformat()} if asof else {}
         return ReadyResponse.model_validate(
-            self._get("/ready", asof=asof.isoformat() if asof else None))
+            self._call("GET", "/ready", params=params, timeout=timeout))
 
     def score(self, request: ScoreRequest) -> ScoreResponse:
         body = request.model_dump(mode="json")
