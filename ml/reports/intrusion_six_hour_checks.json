@@ -1,0 +1,131 @@
+{
+  "seed": 42,
+  "resamples": 5000,
+  "note": "Paired circular day-block bootstrap on explored 2025 folds; fitted models fixed; diagnostic only",
+  "views": {
+    "all": {
+      "14": {
+        "lgb_joint_minus_rule_week": {
+          "difference_pp": 1.506591337099812,
+          "paired_95_percent_interval_pp": [
+            -0.3745406105535849,
+            3.125074052132701
+          ]
+        },
+        "lgb_recorded_minus_rule_week": {
+          "difference_pp": 0.4708097928436919,
+          "paired_95_percent_interval_pp": [
+            -1.7907634307257307,
+            2.6628140435663092
+          ]
+        },
+        "lgb_joint_minus_lgb_extended": {
+          "difference_pp": 2.3540489642184554,
+          "paired_95_percent_interval_pp": [
+            1.3120899718837855,
+            3.467666354264291
+          ]
+        },
+        "lgb_recorded_minus_lgb_simple": {
+          "difference_pp": 1.8832391713747647,
+          "paired_95_percent_interval_pp": [
+            -0.09496676163342765,
+            3.954802259887005
+          ]
+        }
+      },
+      "30": {
+        "lgb_joint_minus_rule_week": {
+          "difference_pp": 1.506591337099812,
+          "paired_95_percent_interval_pp": [
+            0.09442647923459235,
+            2.8355387523629485
+          ]
+        },
+        "lgb_recorded_minus_rule_week": {
+          "difference_pp": 0.4708097928436919,
+          "paired_95_percent_interval_pp": [
+            -1.313320825515947,
+            2.443666492194738
+          ]
+        },
+        "lgb_joint_minus_lgb_extended": {
+          "difference_pp": 2.3540489642184554,
+          "paired_95_percent_interval_pp": [
+            1.41643059490085,
+            3.2925682031984955
+          ]
+        },
+        "lgb_recorded_minus_lgb_simple": {
+          "difference_pp": 1.8832391713747647,
+          "paired_95_percent_interval_pp": [
+            -0.09407559176760491,
+            3.675777568331763
+          ]
+        }
+      }
+    },
+    "quiet": {
+      "14": {
+        "lgb_joint_minus_rule_week": {
+          "difference_pp": 1.0546500479386387,
+          "paired_95_percent_interval_pp": [
+            0.19083969465648862,
+            2.0212228855001744
+          ]
+        },
+        "lgb_recorded_minus_rule_week": {
+          "difference_pp": 1.4381591562799616,
+          "paired_95_percent_interval_pp": [
+            0.7611798287345385,
+            2.2094140249759846
+          ]
+        },
+        "lgb_joint_minus_lgb_extended": {
+          "difference_pp": 0.3835091083413232,
+          "paired_95_percent_interval_pp": [
+            -0.09634143622387836,
+            0.8746568388333653
+          ]
+        },
+        "lgb_recorded_minus_lgb_simple": {
+          "difference_pp": 0.09587727708533084,
+          "paired_95_percent_interval_pp": [
+            -0.5797101449275363,
+            0.7655502392344496
+          ]
+        }
+      },
+      "30": {
+        "lgb_joint_minus_rule_week": {
+          "difference_pp": 1.0546500479386387,
+          "paired_95_percent_interval_pp": [
+            0.1910219675262656,
+            2.023121387283237
+          ]
+        },
+        "lgb_recorded_minus_rule_week": {
+          "difference_pp": 1.4381591562799616,
+          "paired_95_percent_interval_pp": [
+            0.8563273073263558,
+            2.121504339440694
+          ]
+        },
+        "lgb_joint_minus_lgb_extended": {
+          "difference_pp": 0.3835091083413232,
+          "paired_95_percent_interval_pp": [
+            -0.09587727708533049,
+            0.872093023255814
+          ]
+        },
+        "lgb_recorded_minus_lgb_simple": {
+          "difference_pp": 0.09587727708533084,
+          "paired_95_percent_interval_pp": [
+            -0.580846597176884,
+            0.7633587786259542
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,415 @@
+{
+  "note": "Post-hoc history rule; 5000 paired day-block resamples within explored test folds; fixed fitted models",
+  "seed": 42,
+  "resamples": 5000,
+  "views": {
+    "all_top1": {
+      "models": {
+        "conditional_full": {
+          "hits": 86,
+          "alerts": 270,
+          "unknown": 19,
+          "recorded_hits_per_alert": 0.31851851851851853
+        },
+        "conditional_simple": {
+          "hits": 66,
+          "alerts": 270,
+          "unknown": 13,
+          "recorded_hits_per_alert": 0.24444444444444444
+        },
+        "joint_full": {
+          "hits": 88,
+          "alerts": 270,
+          "unknown": 4,
+          "recorded_hits_per_alert": 0.32592592592592595
+        },
+        "recorded_full": {
+          "hits": 82,
+          "alerts": 270,
+          "unknown": 8,
+          "recorded_hits_per_alert": 0.3037037037037037
+        },
+        "rule_history": {
+          "hits": 88,
+          "alerts": 270,
+          "unknown": 8,
+          "recorded_hits_per_alert": 0.32592592592592595
+        },
+        "rule_week": {
+          "hits": 94,
+          "alerts": 270,
+          "unknown": 13,
+          "recorded_hits_per_alert": 0.34814814814814815
+        }
+      },
+      "block_days": {
+        "14": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": -4.4444444444444455,
+            "paired_95_percent_interval_pp": [
+              -9.629629629629633,
+              1.481481481481478
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": -2.2222222222222254,
+            "paired_95_percent_interval_pp": [
+              -7.4074074074074066,
+              2.962962962962962
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": -1.4814814814814836,
+            "paired_95_percent_interval_pp": [
+              -4.814814814814817,
+              1.851851851851849
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": -2.2222222222222197,
+            "paired_95_percent_interval_pp": [
+              -7.777777777777778,
+              3.7037037037037033
+            ]
+          }
+        },
+        "30": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": -4.4444444444444455,
+            "paired_95_percent_interval_pp": [
+              -8.888888888888886,
+              0.0
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": -2.2222222222222254,
+            "paired_95_percent_interval_pp": [
+              -5.925925925925924,
+              1.481481481481478
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": -1.4814814814814836,
+            "paired_95_percent_interval_pp": [
+              -4.074074074074074,
+              0.7407407407407418
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": -2.2222222222222197,
+            "paired_95_percent_interval_pp": [
+              -7.4074074074074066,
+              2.962962962962962
+            ]
+          }
+        }
+      }
+    },
+    "all_top4": {
+      "models": {
+        "conditional_full": {
+          "hits": 228,
+          "alerts": 1080,
+          "unknown": 84,
+          "recorded_hits_per_alert": 0.2111111111111111
+        },
+        "conditional_simple": {
+          "hits": 221,
+          "alerts": 1080,
+          "unknown": 84,
+          "recorded_hits_per_alert": 0.20462962962962963
+        },
+        "joint_full": {
+          "hits": 237,
+          "alerts": 1080,
+          "unknown": 31,
+          "recorded_hits_per_alert": 0.21944444444444444
+        },
+        "recorded_full": {
+          "hits": 243,
+          "alerts": 1080,
+          "unknown": 49,
+          "recorded_hits_per_alert": 0.225
+        },
+        "rule_history": {
+          "hits": 237,
+          "alerts": 1080,
+          "unknown": 66,
+          "recorded_hits_per_alert": 0.21944444444444444
+        },
+        "rule_week": {
+          "hits": 223,
+          "alerts": 1080,
+          "unknown": 68,
+          "recorded_hits_per_alert": 0.2064814814814815
+        }
+      },
+      "block_days": {
+        "14": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": 1.8518518518518516,
+            "paired_95_percent_interval_pp": [
+              0.3680555555555542,
+              3.3333333333333326
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": 0.5555555555555564,
+            "paired_95_percent_interval_pp": [
+              -0.8333333333333359,
+              2.037037037037037
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": 1.3888888888888895,
+            "paired_95_percent_interval_pp": [
+              0.3703703703703709,
+              2.407407407407405
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": 1.2962962962962954,
+            "paired_95_percent_interval_pp": [
+              -0.2777777777777768,
+              2.8703703703703702
+            ]
+          }
+        },
+        "30": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": 1.8518518518518516,
+            "paired_95_percent_interval_pp": [
+              0.8333333333333331,
+              2.8703703703703702
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": 0.5555555555555564,
+            "paired_95_percent_interval_pp": [
+              -0.46296296296296224,
+              1.4814814814814836
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": 1.3888888888888895,
+            "paired_95_percent_interval_pp": [
+              0.46296296296296224,
+              2.2222222222222228
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": 1.2962962962962954,
+            "paired_95_percent_interval_pp": [
+              0.0,
+              2.777777777777779
+            ]
+          }
+        }
+      }
+    },
+    "quiet_top1": {
+      "models": {
+        "conditional_full": {
+          "hits": 24,
+          "alerts": 270,
+          "unknown": 9,
+          "recorded_hits_per_alert": 0.08888888888888889
+        },
+        "conditional_simple": {
+          "hits": 27,
+          "alerts": 270,
+          "unknown": 7,
+          "recorded_hits_per_alert": 0.1
+        },
+        "joint_full": {
+          "hits": 25,
+          "alerts": 270,
+          "unknown": 6,
+          "recorded_hits_per_alert": 0.09259259259259259
+        },
+        "recorded_full": {
+          "hits": 25,
+          "alerts": 270,
+          "unknown": 4,
+          "recorded_hits_per_alert": 0.09259259259259259
+        },
+        "rule_history": {
+          "hits": 22,
+          "alerts": 270,
+          "unknown": 1,
+          "recorded_hits_per_alert": 0.08148148148148149
+        },
+        "rule_week": {
+          "hits": 3,
+          "alerts": 270,
+          "unknown": 7,
+          "recorded_hits_per_alert": 0.011111111111111112
+        }
+      },
+      "block_days": {
+        "14": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": 8.148148148148147,
+            "paired_95_percent_interval_pp": [
+              4.4444444444444455,
+              11.851851851851851
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": 1.1111111111111098,
+            "paired_95_percent_interval_pp": [
+              -2.2222222222222228,
+              4.444444444444444
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": 0.3703703703703695,
+            "paired_95_percent_interval_pp": [
+              -1.8518518518518516,
+              2.592592592592593
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": 8.148148148148147,
+            "paired_95_percent_interval_pp": [
+              4.444444444444444,
+              12.22222222222222
+            ]
+          }
+        },
+        "30": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": 8.148148148148147,
+            "paired_95_percent_interval_pp": [
+              5.185185185185184,
+              11.481481481481481
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": 1.1111111111111098,
+            "paired_95_percent_interval_pp": [
+              -1.481481481481481,
+              3.7037037037037033
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": 0.3703703703703695,
+            "paired_95_percent_interval_pp": [
+              -1.481481481481481,
+              2.2222222222222228
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": 8.148148148148147,
+            "paired_95_percent_interval_pp": [
+              4.444444444444445,
+              11.851851851851851
+            ]
+          }
+        }
+      }
+    },
+    "quiet_top4": {
+      "models": {
+        "conditional_full": {
+          "hits": 69,
+          "alerts": 1080,
+          "unknown": 29,
+          "recorded_hits_per_alert": 0.06388888888888888
+        },
+        "conditional_simple": {
+          "hits": 73,
+          "alerts": 1080,
+          "unknown": 37,
+          "recorded_hits_per_alert": 0.06759259259259259
+        },
+        "joint_full": {
+          "hits": 70,
+          "alerts": 1080,
+          "unknown": 28,
+          "recorded_hits_per_alert": 0.06481481481481481
+        },
+        "recorded_full": {
+          "hits": 73,
+          "alerts": 1080,
+          "unknown": 31,
+          "recorded_hits_per_alert": 0.06759259259259259
+        },
+        "rule_history": {
+          "hits": 77,
+          "alerts": 1080,
+          "unknown": 25,
+          "recorded_hits_per_alert": 0.0712962962962963
+        },
+        "rule_week": {
+          "hits": 46,
+          "alerts": 1080,
+          "unknown": 28,
+          "recorded_hits_per_alert": 0.04259259259259259
+        }
+      },
+      "block_days": {
+        "14": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": 2.5,
+            "paired_95_percent_interval_pp": [
+              1.3888888888888888,
+              3.7037037037037033
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": -0.3703703703703709,
+            "paired_95_percent_interval_pp": [
+              -1.666666666666667,
+              0.9259259259259258
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": 0.3703703703703709,
+            "paired_95_percent_interval_pp": [
+              -0.09259259259259273,
+              0.9259259259259258
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": 2.222222222222222,
+            "paired_95_percent_interval_pp": [
+              1.1111111111111114,
+              3.3333333333333335
+            ]
+          }
+        },
+        "30": {
+          "recorded_full_minus_rule_week": {
+            "difference_pp": 2.5,
+            "paired_95_percent_interval_pp": [
+              1.3888888888888888,
+              3.7037037037037033
+            ]
+          },
+          "recorded_full_minus_rule_history": {
+            "difference_pp": -0.3703703703703709,
+            "paired_95_percent_interval_pp": [
+              -1.4814814814814816,
+              0.8333333333333331
+            ]
+          },
+          "recorded_full_minus_conditional_full": {
+            "difference_pp": 0.3703703703703709,
+            "paired_95_percent_interval_pp": [
+              0.0,
+              0.8333333333333331
+            ]
+          },
+          "joint_full_minus_rule_week": {
+            "difference_pp": 2.222222222222222,
+            "paired_95_percent_interval_pp": [
+              1.1111111111111114,
+              3.333333333333334
+            ]
+          }
+        }
+      }
+    }
+  }
+}

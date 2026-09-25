@@ -1,0 +1,140 @@
+{
+  "note": "2023-2025 target sensitivity; no confirmed incident outcomes",
+  "counts": {
+    "current_proxy": {
+      "positive_object_days": 11375,
+      "overlap_current": 11375,
+      "added": 0,
+      "removed": 0
+    },
+    "alarm_flag_and_eod": {
+      "positive_object_days": 11375,
+      "overlap_current": 11375,
+      "added": 0,
+      "removed": 0
+    },
+    "alarm_flag_and_asof": {
+      "positive_object_days": 2647,
+      "overlap_current": 2567,
+      "added": 80,
+      "removed": 8808
+    },
+    "security_types_and_asof": {
+      "positive_object_days": 2479,
+      "overlap_current": 2402,
+      "added": 77,
+      "removed": 8973
+    }
+  },
+  "alarm_events_by_type": [
+    {
+      "stype": "КД АВ",
+      "events": 113777,
+      "armed": 1175,
+      "disarmed": 73518,
+      "unknown": 39084
+    },
+    {
+      "stype": "Датчик движения",
+      "events": 38686,
+      "armed": 25974,
+      "disarmed": 2105,
+      "unknown": 10607
+    },
+    {
+      "stype": "КД Дверь",
+      "events": 8948,
+      "armed": 3374,
+      "disarmed": 251,
+      "unknown": 5323
+    },
+    {
+      "stype": "Стекло",
+      "events": 4004,
+      "armed": 133,
+      "disarmed": 3871,
+      "unknown": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "events": 2983,
+      "armed": 983,
+      "disarmed": 1995,
+      "unknown": 5
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "events": 1634,
+      "armed": 405,
+      "disarmed": 921,
+      "unknown": 308
+    },
+    {
+      "stype": "КД Люк",
+      "events": 1451,
+      "armed": 49,
+      "disarmed": 1402,
+      "unknown": 0
+    },
+    {
+      "stype": "Тепловой датчик",
+      "events": 1391,
+      "armed": 109,
+      "disarmed": 1282,
+      "unknown": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "events": 385,
+      "armed": 11,
+      "disarmed": 96,
+      "unknown": 278
+    },
+    {
+      "stype": "9-секционный люк",
+      "events": 15,
+      "armed": 0,
+      "disarmed": 0,
+      "unknown": 15
+    },
+    {
+      "stype": "Датчик дыма",
+      "events": 14,
+      "armed": 12,
+      "disarmed": 2,
+      "unknown": 0
+    },
+    {
+      "stype": "Датчик температуры",
+      "events": 1,
+      "armed": 0,
+      "disarmed": 1,
+      "unknown": 0
+    }
+  ],
+  "same_second_guard_alarm_events": 27,
+  "guard_eod_consistency": {
+    "object_days": 54163,
+    "mismatches": 4
+  },
+  "per_year": [
+    {
+      "year": 2023,
+      "current_proxy": 3685,
+      "exact_event_time": 808,
+      "security_event_time": 757
+    },
+    {
+      "year": 2024,
+      "current_proxy": 3922,
+      "exact_event_time": 887,
+      "security_event_time": 826
+    },
+    {
+      "year": 2025,
+      "current_proxy": 3768,
+      "exact_event_time": 952,
+      "security_event_time": 896
+    }
+  ]
+}

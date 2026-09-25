@@ -1,0 +1,1013 @@
+{
+  "target": "L6: sustained, non-group bad-state episode on a recently live channel",
+  "prediction": "end of day D for an episode starting on D+1",
+  "note": "Counts of proxy outcomes with an actual D sensor record; no repair/false-alarm confirmation",
+  "types": [
+    {
+      "stype": "Состояние фазы",
+      "candidate_days": 470986,
+      "channels": 957,
+      "test_days": 49877,
+      "target_channel_days": 11830,
+      "forecastable_channel_days": 5588,
+      "pre2025_positives": 4866,
+      "test_positives": 557
+    },
+    {
+      "stype": null,
+      "candidate_days": 264545,
+      "channels": 1142,
+      "test_days": 120,
+      "target_channel_days": 4531,
+      "forecastable_channel_days": 3031,
+      "pre2025_positives": 3031,
+      "test_positives": 0
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "candidate_days": 108208,
+      "channels": 762,
+      "test_days": 12139,
+      "target_channel_days": 1086,
+      "forecastable_channel_days": 629,
+      "pre2025_positives": 609,
+      "test_positives": 19
+    },
+    {
+      "stype": "Состояние насоса",
+      "candidate_days": 87328,
+      "channels": 180,
+      "test_days": 10419,
+      "target_channel_days": 689,
+      "forecastable_channel_days": 231,
+      "pre2025_positives": 209,
+      "test_positives": 17
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "candidate_days": 352797,
+      "channels": 354,
+      "test_days": 42861,
+      "target_channel_days": 326,
+      "forecastable_channel_days": 164,
+      "pre2025_positives": 142,
+      "test_positives": 20
+    },
+    {
+      "stype": "Датчик дыма",
+      "candidate_days": 383995,
+      "channels": 4337,
+      "test_days": 64754,
+      "target_channel_days": 628,
+      "forecastable_channel_days": 134,
+      "pre2025_positives": 98,
+      "test_positives": 35
+    },
+    {
+      "stype": "Газовый датчик",
+      "candidate_days": 446164,
+      "channels": 529,
+      "test_days": 57233,
+      "target_channel_days": 109,
+      "forecastable_channel_days": 83,
+      "pre2025_positives": 45,
+      "test_positives": 36
+    },
+    {
+      "stype": "ИБП",
+      "candidate_days": 15141,
+      "channels": 79,
+      "test_days": 1808,
+      "target_channel_days": 157,
+      "forecastable_channel_days": 70,
+      "pre2025_positives": 56,
+      "test_positives": 12
+    },
+    {
+      "stype": "Датчик движения",
+      "candidate_days": 339069,
+      "channels": 804,
+      "test_days": 38433,
+      "target_channel_days": 91,
+      "forecastable_channel_days": 51,
+      "pre2025_positives": 45,
+      "test_positives": 5
+    },
+    {
+      "stype": "Датчик температуры",
+      "candidate_days": 357133,
+      "channels": 600,
+      "test_days": 48295,
+      "target_channel_days": 80,
+      "forecastable_channel_days": 42,
+      "pre2025_positives": 33,
+      "test_positives": 7
+    },
+    {
+      "stype": "КД АВ",
+      "candidate_days": 84161,
+      "channels": 397,
+      "test_days": 9051,
+      "target_channel_days": 80,
+      "forecastable_channel_days": 32,
+      "pre2025_positives": 28,
+      "test_positives": 4
+    },
+    {
+      "stype": "КД Дверь",
+      "candidate_days": 369064,
+      "channels": 916,
+      "test_days": 44297,
+      "target_channel_days": 62,
+      "forecastable_channel_days": 25,
+      "pre2025_positives": 21,
+      "test_positives": 4
+    },
+    {
+      "stype": "Тепловой датчик",
+      "candidate_days": 37990,
+      "channels": 472,
+      "test_days": 4906,
+      "target_channel_days": 38,
+      "forecastable_channel_days": 16,
+      "pre2025_positives": 16,
+      "test_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "candidate_days": 4689,
+      "channels": 130,
+      "test_days": 1430,
+      "target_channel_days": 22,
+      "forecastable_channel_days": 13,
+      "pre2025_positives": 0,
+      "test_positives": 13
+    },
+    {
+      "stype": "Переключатель",
+      "candidate_days": 553486,
+      "channels": 801,
+      "test_days": 63135,
+      "target_channel_days": 17,
+      "forecastable_channel_days": 8,
+      "pre2025_positives": 8,
+      "test_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "candidate_days": 1779,
+      "channels": 25,
+      "test_days": 284,
+      "target_channel_days": 1,
+      "forecastable_channel_days": 1,
+      "pre2025_positives": 0,
+      "test_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "candidate_days": 58376,
+      "channels": 47,
+      "test_days": 7027,
+      "target_channel_days": 1,
+      "forecastable_channel_days": 1,
+      "pre2025_positives": 0,
+      "test_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "candidate_days": 5532,
+      "channels": 55,
+      "test_days": 539,
+      "target_channel_days": 2,
+      "forecastable_channel_days": 0,
+      "pre2025_positives": 0,
+      "test_positives": 0
+    },
+    {
+      "stype": "9-секционный люк",
+      "candidate_days": 96,
+      "channels": 9,
+      "test_days": 96,
+      "target_channel_days": null,
+      "forecastable_channel_days": null,
+      "pre2025_positives": null,
+      "test_positives": null
+    },
+    {
+      "stype": "Стекло",
+      "candidate_days": 5503,
+      "channels": 29,
+      "test_days": 958,
+      "target_channel_days": null,
+      "forecastable_channel_days": null,
+      "pre2025_positives": null,
+      "test_positives": null
+    }
+  ],
+  "by_year": [
+    {
+      "stype": "9-секционный люк",
+      "year": 2025,
+      "candidate_days": 96,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2019,
+      "candidate_days": 48366,
+      "forecastable_positives": 3
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2020,
+      "candidate_days": 36268,
+      "forecastable_positives": 15
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2021,
+      "candidate_days": 53850,
+      "forecastable_positives": 7
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2022,
+      "candidate_days": 78225,
+      "forecastable_positives": 5
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2023,
+      "candidate_days": 76330,
+      "forecastable_positives": 9
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2024,
+      "candidate_days": 78142,
+      "forecastable_positives": 6
+    },
+    {
+      "stype": "Газовый датчик",
+      "year": 2025,
+      "candidate_days": 74983,
+      "forecastable_positives": 38
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2019,
+      "candidate_days": 49213,
+      "forecastable_positives": 8
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2020,
+      "candidate_days": 51137,
+      "forecastable_positives": 29
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2021,
+      "candidate_days": 45194,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2022,
+      "candidate_days": 46710,
+      "forecastable_positives": 6
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2023,
+      "candidate_days": 48028,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2024,
+      "candidate_days": 48085,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Датчик движения",
+      "year": 2025,
+      "candidate_days": 50702,
+      "forecastable_positives": 6
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2019,
+      "candidate_days": 8772,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2020,
+      "candidate_days": 95471,
+      "forecastable_positives": 55
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2021,
+      "candidate_days": 45672,
+      "forecastable_positives": 13
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2022,
+      "candidate_days": 55524,
+      "forecastable_positives": 21
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2023,
+      "candidate_days": 63680,
+      "forecastable_positives": 4
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2024,
+      "candidate_days": 39491,
+      "forecastable_positives": 3
+    },
+    {
+      "stype": "Датчик дыма",
+      "year": 2025,
+      "candidate_days": 75385,
+      "forecastable_positives": 36
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2019,
+      "candidate_days": 223,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2020,
+      "candidate_days": 325,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2021,
+      "candidate_days": 110,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2022,
+      "candidate_days": 282,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2023,
+      "candidate_days": 276,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2024,
+      "candidate_days": 212,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик затопления",
+      "year": 2025,
+      "candidate_days": 351,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2019,
+      "candidate_days": 44003,
+      "forecastable_positives": 3
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2020,
+      "candidate_days": 49139,
+      "forecastable_positives": 24
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2021,
+      "candidate_days": 43309,
+      "forecastable_positives": 5
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2022,
+      "candidate_days": 50917,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2023,
+      "candidate_days": 57096,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2024,
+      "candidate_days": 52938,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Датчик температуры",
+      "year": 2025,
+      "candidate_days": 59731,
+      "forecastable_positives": 9
+    },
+    {
+      "stype": "ИБП",
+      "year": 2019,
+      "candidate_days": 1797,
+      "forecastable_positives": 12
+    },
+    {
+      "stype": "ИБП",
+      "year": 2020,
+      "candidate_days": 2230,
+      "forecastable_positives": 29
+    },
+    {
+      "stype": "ИБП",
+      "year": 2021,
+      "candidate_days": 1989,
+      "forecastable_positives": 6
+    },
+    {
+      "stype": "ИБП",
+      "year": 2022,
+      "candidate_days": 2442,
+      "forecastable_positives": 4
+    },
+    {
+      "stype": "ИБП",
+      "year": 2023,
+      "candidate_days": 2361,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "ИБП",
+      "year": 2024,
+      "candidate_days": 2033,
+      "forecastable_positives": 4
+    },
+    {
+      "stype": "ИБП",
+      "year": 2025,
+      "candidate_days": 2289,
+      "forecastable_positives": 14
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2019,
+      "candidate_days": 14666,
+      "forecastable_positives": 10
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2020,
+      "candidate_days": 15316,
+      "forecastable_positives": 15
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2021,
+      "candidate_days": 9876,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2022,
+      "candidate_days": 10995,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2023,
+      "candidate_days": 11368,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2024,
+      "candidate_days": 10398,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "КД АВ",
+      "year": 2025,
+      "candidate_days": 11542,
+      "forecastable_positives": 4
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2019,
+      "candidate_days": 47575,
+      "forecastable_positives": 5
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2020,
+      "candidate_days": 50162,
+      "forecastable_positives": 9
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2021,
+      "candidate_days": 49212,
+      "forecastable_positives": 5
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2022,
+      "candidate_days": 53548,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2023,
+      "candidate_days": 54646,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2024,
+      "candidate_days": 55777,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Дверь",
+      "year": 2025,
+      "candidate_days": 58144,
+      "forecastable_positives": 4
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2019,
+      "candidate_days": 1002,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2020,
+      "candidate_days": 1266,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2021,
+      "candidate_days": 719,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2022,
+      "candidate_days": 594,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2023,
+      "candidate_days": 629,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2024,
+      "candidate_days": 602,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "КД Люк",
+      "year": 2025,
+      "candidate_days": 720,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2019,
+      "candidate_days": 74407,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2020,
+      "candidate_days": 100311,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2021,
+      "candidate_days": 82766,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2022,
+      "candidate_days": 73556,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2023,
+      "candidate_days": 77140,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2024,
+      "candidate_days": 69087,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Переключатель",
+      "year": 2025,
+      "candidate_days": 76219,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2019,
+      "candidate_days": 684,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2020,
+      "candidate_days": 758,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2021,
+      "candidate_days": 472,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2022,
+      "candidate_days": 406,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2023,
+      "candidate_days": 396,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2024,
+      "candidate_days": 404,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Ручной извещатель",
+      "year": 2025,
+      "candidate_days": 1569,
+      "forecastable_positives": 13
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2019,
+      "candidate_days": 16068,
+      "forecastable_positives": 263
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2020,
+      "candidate_days": 21201,
+      "forecastable_positives": 258
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2021,
+      "candidate_days": 18790,
+      "forecastable_positives": 47
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2022,
+      "candidate_days": 17786,
+      "forecastable_positives": 28
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2023,
+      "candidate_days": 9554,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2024,
+      "candidate_days": 10746,
+      "forecastable_positives": 12
+    },
+    {
+      "stype": "Состояние УИР-Р",
+      "year": 2025,
+      "candidate_days": 14063,
+      "forecastable_positives": 20
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2019,
+      "candidate_days": 45394,
+      "forecastable_positives": 20
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2020,
+      "candidate_days": 66527,
+      "forecastable_positives": 24
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2021,
+      "candidate_days": 52845,
+      "forecastable_positives": 34
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2022,
+      "candidate_days": 46176,
+      "forecastable_positives": 26
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2023,
+      "candidate_days": 49642,
+      "forecastable_positives": 23
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2024,
+      "candidate_days": 42371,
+      "forecastable_positives": 15
+    },
+    {
+      "stype": "Состояние вентилятора",
+      "year": 2025,
+      "candidate_days": 49842,
+      "forecastable_positives": 22
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2019,
+      "candidate_days": 7926,
+      "forecastable_positives": 35
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2020,
+      "candidate_days": 12376,
+      "forecastable_positives": 46
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2021,
+      "candidate_days": 13781,
+      "forecastable_positives": 45
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2022,
+      "candidate_days": 12271,
+      "forecastable_positives": 30
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2023,
+      "candidate_days": 13293,
+      "forecastable_positives": 19
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2024,
+      "candidate_days": 13755,
+      "forecastable_positives": 34
+    },
+    {
+      "stype": "Состояние насоса",
+      "year": 2025,
+      "candidate_days": 13926,
+      "forecastable_positives": 22
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2019,
+      "candidate_days": 6476,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2020,
+      "candidate_days": 7512,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2021,
+      "candidate_days": 7717,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2022,
+      "candidate_days": 8653,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2023,
+      "candidate_days": 9295,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2024,
+      "candidate_days": 9347,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Состояние охраны",
+      "year": 2025,
+      "candidate_days": 9376,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2019,
+      "candidate_days": 60546,
+      "forecastable_positives": 677
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2020,
+      "candidate_days": 74212,
+      "forecastable_positives": 1239
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2021,
+      "candidate_days": 67035,
+      "forecastable_positives": 605
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2022,
+      "candidate_days": 66799,
+      "forecastable_positives": 741
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2023,
+      "candidate_days": 67776,
+      "forecastable_positives": 777
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2024,
+      "candidate_days": 68204,
+      "forecastable_positives": 827
+    },
+    {
+      "stype": "Состояние фазы",
+      "year": 2025,
+      "candidate_days": 66414,
+      "forecastable_positives": 722
+    },
+    {
+      "stype": "Стекло",
+      "year": 2019,
+      "candidate_days": 683,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Стекло",
+      "year": 2020,
+      "candidate_days": 774,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Стекло",
+      "year": 2021,
+      "candidate_days": 740,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Стекло",
+      "year": 2022,
+      "candidate_days": 732,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Стекло",
+      "year": 2023,
+      "candidate_days": 613,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Стекло",
+      "year": 2024,
+      "candidate_days": 781,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Стекло",
+      "year": 2025,
+      "candidate_days": 1180,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2019,
+      "candidate_days": 12782,
+      "forecastable_positives": 7
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2020,
+      "candidate_days": 8718,
+      "forecastable_positives": 5
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2021,
+      "candidate_days": 4034,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2022,
+      "candidate_days": 2821,
+      "forecastable_positives": 2
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2023,
+      "candidate_days": 1598,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2024,
+      "candidate_days": 2155,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": "Тепловой датчик",
+      "year": 2025,
+      "candidate_days": 5882,
+      "forecastable_positives": 0
+    },
+    {
+      "stype": null,
+      "year": 2019,
+      "candidate_days": 92466,
+      "forecastable_positives": 978
+    },
+    {
+      "stype": null,
+      "year": 2020,
+      "candidate_days": 92619,
+      "forecastable_positives": 1489
+    },
+    {
+      "stype": null,
+      "year": 2021,
+      "candidate_days": 66483,
+      "forecastable_positives": 537
+    },
+    {
+      "stype": null,
+      "year": 2022,
+      "candidate_days": 10413,
+      "forecastable_positives": 17
+    },
+    {
+      "stype": null,
+      "year": 2023,
+      "candidate_days": 1935,
+      "forecastable_positives": 9
+    },
+    {
+      "stype": null,
+      "year": 2024,
+      "candidate_days": 479,
+      "forecastable_positives": 1
+    },
+    {
+      "stype": null,
+      "year": 2025,
+      "candidate_days": 150,
+      "forecastable_positives": 0
+    }
+  ]
+}

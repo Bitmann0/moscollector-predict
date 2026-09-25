@@ -1,0 +1,164 @@
+{
+  "sequence_features": [
+    "seq_n_alarms_1",
+    "seq_n_intrusion_1",
+    "seq_n_arm_1",
+    "seq_n_disarm_1",
+    "seq_obj_armed_1",
+    "seq_days_since_arm_event_1",
+    "seq_n_bad_1",
+    "seq_night_frac_mean_1",
+    "seq_gap_days_1",
+    "seq_n_alarms_2",
+    "seq_n_intrusion_2",
+    "seq_n_arm_2",
+    "seq_n_disarm_2",
+    "seq_obj_armed_2",
+    "seq_days_since_arm_event_2",
+    "seq_n_bad_2",
+    "seq_night_frac_mean_2",
+    "seq_gap_days_2",
+    "seq_n_alarms_3",
+    "seq_n_intrusion_3",
+    "seq_n_arm_3",
+    "seq_n_disarm_3",
+    "seq_obj_armed_3",
+    "seq_days_since_arm_event_3",
+    "seq_n_bad_3",
+    "seq_night_frac_mean_3",
+    "seq_gap_days_3",
+    "seq_n_alarms_4",
+    "seq_n_intrusion_4",
+    "seq_n_arm_4",
+    "seq_n_disarm_4",
+    "seq_obj_armed_4",
+    "seq_days_since_arm_event_4",
+    "seq_n_bad_4",
+    "seq_night_frac_mean_4",
+    "seq_gap_days_4",
+    "seq_n_alarms_5",
+    "seq_n_intrusion_5",
+    "seq_n_arm_5",
+    "seq_n_disarm_5",
+    "seq_obj_armed_5",
+    "seq_days_since_arm_event_5",
+    "seq_n_bad_5",
+    "seq_night_frac_mean_5",
+    "seq_gap_days_5",
+    "seq_n_alarms_6",
+    "seq_n_intrusion_6",
+    "seq_n_arm_6",
+    "seq_n_disarm_6",
+    "seq_obj_armed_6",
+    "seq_days_since_arm_event_6",
+    "seq_n_bad_6",
+    "seq_night_frac_mean_6",
+    "seq_gap_days_6",
+    "seq_n_alarms_7",
+    "seq_n_intrusion_7",
+    "seq_n_arm_7",
+    "seq_n_disarm_7",
+    "seq_obj_armed_7",
+    "seq_days_since_arm_event_7",
+    "seq_n_bad_7",
+    "seq_night_frac_mean_7",
+    "seq_gap_days_7"
+  ],
+  "folds": [
+    {
+      "start": "2025-04-06",
+      "end": "2025-07-04",
+      "baseline": {
+        "n": 3065,
+        "positives": 872,
+        "pr_auc": 0.6392865826498931,
+        "daily_precision": 0.6,
+        "daily_recall": 0.24770642201834864
+      },
+      "history_tree": {
+        "n": 3065,
+        "positives": 872,
+        "pr_auc": 0.646933223295868,
+        "daily_precision": 0.6138888888888889,
+        "daily_recall": 0.25344036697247707
+      },
+      "history_mlp": {
+        "n": 3065,
+        "positives": 872,
+        "pr_auc": 0.6468454456212654,
+        "daily_precision": 0.6138888888888889,
+        "daily_recall": 0.25344036697247707
+      },
+      "mlp_epochs": 23
+    },
+    {
+      "start": "2025-07-05",
+      "end": "2025-10-02",
+      "baseline": {
+        "n": 3057,
+        "positives": 887,
+        "pr_auc": 0.6654329659157113,
+        "daily_precision": 0.6361111111111111,
+        "daily_recall": 0.25817361894024804
+      },
+      "history_tree": {
+        "n": 3057,
+        "positives": 887,
+        "pr_auc": 0.684859908002601,
+        "daily_precision": 0.675,
+        "daily_recall": 0.27395715896279593
+      },
+      "history_mlp": {
+        "n": 3057,
+        "positives": 887,
+        "pr_auc": 0.6440569164986176,
+        "daily_precision": 0.6611111111111111,
+        "daily_recall": 0.26832018038331457
+      },
+      "mlp_epochs": 21
+    },
+    {
+      "start": "2025-10-03",
+      "end": "2025-12-31",
+      "baseline": {
+        "n": 3011,
+        "positives": 880,
+        "pr_auc": 0.6537019587051127,
+        "daily_precision": 0.6194444444444445,
+        "daily_recall": 0.2534090909090909
+      },
+      "history_tree": {
+        "n": 3011,
+        "positives": 880,
+        "pr_auc": 0.6645043603552199,
+        "daily_precision": 0.6333333333333333,
+        "daily_recall": 0.2590909090909091
+      },
+      "history_mlp": {
+        "n": 3011,
+        "positives": 880,
+        "pr_auc": 0.612554019342831,
+        "daily_precision": 0.6055555555555555,
+        "daily_recall": 0.24772727272727274
+      },
+      "mlp_epochs": 13
+    }
+  ],
+  "mean": {
+    "baseline": {
+      "pr_auc": 0.6528071690902391,
+      "daily_precision": 0.6185185185185186,
+      "daily_recall": 0.2530963772892292
+    },
+    "history_tree": {
+      "pr_auc": 0.6654324972178963,
+      "daily_precision": 0.6407407407407407,
+      "daily_recall": 0.262162811675394
+    },
+    "history_mlp": {
+      "pr_auc": 0.6344854604875714,
+      "daily_precision": 0.6268518518518519,
+      "daily_recall": 0.2564959400276881
+    }
+  }
+}

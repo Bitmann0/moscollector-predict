@@ -1,0 +1,116 @@
+{
+  "head": "D",
+  "budget_per_day": 3,
+  "cooldowns": [
+    0,
+    3,
+    7
+  ],
+  "folds": [
+    {
+      "test_start": "2025-04-06",
+      "test_end": "2025-07-04",
+      "policies": {
+        "0": {
+          "alerts": 270,
+          "episodes": 2094,
+          "episodes_caught": 77,
+          "episode_recall": 0.03677172874880611,
+          "episodes_per_100_alerts": 28.51851851851852
+        },
+        "3": {
+          "alerts": 146,
+          "episodes": 2094,
+          "episodes_caught": 75,
+          "episode_recall": 0.03581661891117478,
+          "episodes_per_100_alerts": 51.36986301369863
+        },
+        "7": {
+          "alerts": 114,
+          "episodes": 2094,
+          "episodes_caught": 71,
+          "episode_recall": 0.03390639923591213,
+          "episodes_per_100_alerts": 62.280701754385966
+        }
+      }
+    },
+    {
+      "test_start": "2025-07-05",
+      "test_end": "2025-10-02",
+      "policies": {
+        "0": {
+          "alerts": 270,
+          "episodes": 2365,
+          "episodes_caught": 69,
+          "episode_recall": 0.029175475687103596,
+          "episodes_per_100_alerts": 25.555555555555557
+        },
+        "3": {
+          "alerts": 127,
+          "episodes": 2365,
+          "episodes_caught": 69,
+          "episode_recall": 0.029175475687103596,
+          "episodes_per_100_alerts": 54.330708661417326
+        },
+        "7": {
+          "alerts": 88,
+          "episodes": 2365,
+          "episodes_caught": 64,
+          "episode_recall": 0.027061310782241013,
+          "episodes_per_100_alerts": 72.72727272727273
+        }
+      }
+    },
+    {
+      "test_start": "2025-10-03",
+      "test_end": "2025-12-31",
+      "policies": {
+        "0": {
+          "alerts": 270,
+          "episodes": 2627,
+          "episodes_caught": 84,
+          "episode_recall": 0.03197563760944042,
+          "episodes_per_100_alerts": 31.11111111111111
+        },
+        "3": {
+          "alerts": 138,
+          "episodes": 2627,
+          "episodes_caught": 82,
+          "episode_recall": 0.03121431290445375,
+          "episodes_per_100_alerts": 59.42028985507246
+        },
+        "7": {
+          "alerts": 104,
+          "episodes": 2627,
+          "episodes_caught": 79,
+          "episode_recall": 0.030072325846973735,
+          "episodes_per_100_alerts": 75.96153846153847
+        }
+      }
+    }
+  ],
+  "pooled": {
+    "0": {
+      "alerts": 810,
+      "episodes": 7086,
+      "episodes_caught": 230,
+      "episodes_per_100_alerts": 28.395061728395063,
+      "episode_recall": 0.03245836861416879
+    },
+    "3": {
+      "alerts": 411,
+      "episodes": 7086,
+      "episodes_caught": 226,
+      "episodes_per_100_alerts": 54.98783454987834,
+      "episode_recall": 0.031893875246965846
+    },
+    "7": {
+      "alerts": 306,
+      "episodes": 7086,
+      "episodes_caught": 214,
+      "episodes_per_100_alerts": 69.93464052287581,
+      "episode_recall": 0.030200395145357044
+    }
+  },
+  "note": "walk-forward folds; recorded wear proxy, not repair truth"
+}

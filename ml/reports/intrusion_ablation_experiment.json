@@ -1,0 +1,112 @@
+{
+  "note": "exploratory feature selection on already used 2025 folds",
+  "groups": {
+    "alarm_history": [
+      "n_alarms",
+      "n_intrusion"
+    ],
+    "guard_history": [
+      "n_arm",
+      "n_disarm",
+      "obj_armed",
+      "days_since_arm_event"
+    ],
+    "quality_history": [
+      "n_bad",
+      "night_frac_mean",
+      "gap_days"
+    ]
+  },
+  "variants": {
+    "alarm_history": {
+      "folds": [
+        {
+          "start": "2025-04-06",
+          "end": "2025-07-04",
+          "pr_auc": 0.6440925904287215,
+          "daily_precision": 0.6277777777777778,
+          "daily_recall": 0.2591743119266055
+        },
+        {
+          "start": "2025-07-05",
+          "end": "2025-10-02",
+          "pr_auc": 0.6785801422791033,
+          "daily_precision": 0.6805555555555556,
+          "daily_recall": 0.2762119503945885
+        },
+        {
+          "start": "2025-10-03",
+          "end": "2025-12-31",
+          "pr_auc": 0.6675627808160772,
+          "daily_precision": 0.6194444444444445,
+          "daily_recall": 0.2534090909090909
+        }
+      ],
+      "mean": {
+        "pr_auc": 0.6634118378413008,
+        "daily_precision": 0.6425925925925926,
+        "daily_recall": 0.26293178441009496
+      }
+    },
+    "guard_history": {
+      "folds": [
+        {
+          "start": "2025-04-06",
+          "end": "2025-07-04",
+          "pr_auc": 0.6406636795032449,
+          "daily_precision": 0.6055555555555555,
+          "daily_recall": 0.25
+        },
+        {
+          "start": "2025-07-05",
+          "end": "2025-10-02",
+          "pr_auc": 0.6685018632357304,
+          "daily_precision": 0.6305555555555555,
+          "daily_recall": 0.25591882750845546
+        },
+        {
+          "start": "2025-10-03",
+          "end": "2025-12-31",
+          "pr_auc": 0.6563775939183634,
+          "daily_precision": 0.625,
+          "daily_recall": 0.2556818181818182
+        }
+      ],
+      "mean": {
+        "pr_auc": 0.6551810455524462,
+        "daily_precision": 0.6203703703703703,
+        "daily_recall": 0.2538668818967578
+      }
+    },
+    "quality_history": {
+      "folds": [
+        {
+          "start": "2025-04-06",
+          "end": "2025-07-04",
+          "pr_auc": 0.6376470239780213,
+          "daily_precision": 0.5972222222222222,
+          "daily_recall": 0.24655963302752293
+        },
+        {
+          "start": "2025-07-05",
+          "end": "2025-10-02",
+          "pr_auc": 0.6726622204898993,
+          "daily_precision": 0.6583333333333333,
+          "daily_recall": 0.26719278466741825
+        },
+        {
+          "start": "2025-10-03",
+          "end": "2025-12-31",
+          "pr_auc": 0.6571371766292743,
+          "daily_precision": 0.5944444444444444,
+          "daily_recall": 0.2431818181818182
+        }
+      ],
+      "mean": {
+        "pr_auc": 0.655815473699065,
+        "daily_precision": 0.6166666666666667,
+        "daily_recall": 0.25231141195891976
+      }
+    }
+  }
+}
