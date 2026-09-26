@@ -125,13 +125,19 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
     """Скоринг одной головы. Фичи берутся только из фичестора,
     построенного той же функцией compute.build_all, что и на обучении."""
     cfg = load_heads()[head]
-    with model_path(head).open("rb") as f:
-        art = pickle.load(f)
-
     feats = (store.latest_snapshot(cfg["feature_set"]) if asof is None
              else store.read_slice(cfg["feature_set"], asof, asof))
     if feats.is_empty():
         raise ValueError(f"{head}: no feature rows for requested day {asof}")
+    if cfg.get("serving_rule"):
+        # Голова-правило (reports/RULE_VS_MODEL_RESULT.md): порог выбирается к
+        # дню расчёта, файла модели нет.
+        from . import rule_head
+        day = asof or feats["day"].max()
+        art = rule_head.artifact(head, cfg, day)
+    else:
+        with model_path(head).open("rb") as f:
+            art = pickle.load(f)
     if head == "D":
         # The wear target is defined only for equipment sensor types. Scoring
         # every channel and then taking top-3 lets out-of-scope sensors consume
@@ -180,10 +186,15 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
     keys = [k for k in cfg["entity"] if k in feats.columns]
     keys += [c for c in ("obj", "obj_parent", "picket", "stype")
              if c in feats.columns and c not in keys]
-    risk = art["model"].predict_proba(feats.select(art["features"]).to_numpy())[:, 1]
-    if art["iso"] is not None:
-        from .calibrate import apply as cal_apply
-        risk = cal_apply(art["iso"], risk)
+    if art.get("rule"):
+        # Риск правила — значение признака, а не вероятность.
+        risk = (feats[art["rule"]].cast(pl.Float64).fill_nan(0.0).fill_null(0.0)
+                .to_numpy())
+    else:
+        risk = art["model"].predict_proba(feats.select(art["features"]).to_numpy())[:, 1]
+        if art["iso"] is not None:
+            from .calibrate import apply as cal_apply
+            risk = cal_apply(art["iso"], risk)
 
     out = feats.select(keys).with_columns(pl.Series("risk", risk))
     if art.get("threshold") is not None:

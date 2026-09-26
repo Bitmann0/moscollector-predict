@@ -122,13 +122,17 @@ class _Saver:
         if scenario is None:
             log.warning("alert %s: голова %s вне словаря scenario", alert.alert_id, alert.head)
             return None
+        probability = scenario["score_type"] == "probability"
         fields = {
             "id": alert.alert_id, "kind": "alert", "scenario": scenario["code"],
             "head": alert.head, "asof": alert.asof,
             "valid_from": to_db(assume_msk(alert.valid_from)),
             "valid_to": to_db(assume_msk(alert.valid_to)),
-            "horizon_hours": alert.horizon_hours, "score_type": "probability",
-            "risk": alert.risk, "priority_score": None, "rank": alert.rank,
+            # Тип оценки — из словаря C3: у головы-правила D риск — значение
+            # признака, а не вероятность (ml/reports/RULE_VS_MODEL_RESULT.md).
+            "horizon_hours": alert.horizon_hours, "score_type": scenario["score_type"],
+            "risk": alert.risk if probability else None,
+            "priority_score": None if probability else alert.risk, "rank": alert.rank,
             "in_budget": alert.in_budget, "obj_id": alert.address.obj,
             "channel_id": alert.address.channel,
             "address": alert.address.model_dump(mode="json"),

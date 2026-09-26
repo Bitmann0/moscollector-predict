@@ -79,10 +79,14 @@ def _artifact_info(path: Path, mtime_ns: int) -> dict:
 
 
 def _pilot_artifact(head: str, day: dt.date) -> dict:
-    from . import serve
+    from . import rule_head, serve
 
-    path = serve.model_path(head)
-    art = _artifact_info(path, path.stat().st_mtime_ns)
+    cfg = serve.load_heads()[head]
+    if rule_head.is_rule(cfg):
+        art = rule_head.artifact(head, cfg, day)
+    else:
+        path = serve.model_path(head)
+        art = _artifact_info(path, path.stat().st_mtime_ns)
     serve.validate_pilot_artifact(
         head, art, day,
         max_lag_days=int(serve.load_heads()[head].get("max_model_lag_days", 14)))
@@ -113,7 +117,15 @@ def _real_ready(asof: dt.date | None) -> ReadyResponse:
             return ReadyResponse(status="stale_source", asof=None,
                                  data_last_day=last_day, source="live",
                                  detail="новые данные не поступали более двух суток")
+        from . import rule_head, serve
+        heads = serve.load_heads()
         for head in PILOT_HEADS:
+            if rule_head.is_rule(heads[head]):
+                # Порог правила считается при /score: здесь только наличие входов,
+                # иначе /ready не уложится в таймаут backend.
+                if not rule_head.inputs_ready():
+                    raise FileNotFoundError(f"{head}: нет панели исходов для порога правила")
+                continue
             _pilot_artifact(head, day)
         return ReadyResponse(status="ready", asof=asof,
                              data_last_day=last_day, source="live")
@@ -152,7 +164,7 @@ def _real_directions() -> list[DirectionItem]:
 
 def _real_score(req: ScoreRequest) -> ScoreResponse:
     """Score each head independently; a failed head never produces fake alerts."""
-    from . import service, serve, workorders
+    from . import rule_head, service, serve, workorders
     from .config import EQUIPMENT_STYPES, PATHS
 
     statuses: dict[str, HeadStatus] = {}
@@ -191,9 +203,9 @@ def _real_score(req: ScoreRequest) -> ScoreResponse:
                 threshold_end=dt.date.fromisoformat(art["metadata"]["threshold_end"]),
                 model_lag_days=(req.asof - dt.date.fromisoformat(
                     art["metadata"]["threshold_end"])).days,
-                # train_latest.py saves nextafter(1.0) when no threshold meets the
-                # precision gate: the head is silent by design, not merely empty.
-                threshold_feasible=art["threshold"] <= 1.0)
+                # train_latest.py saves nextafter(1.0), a rule head saves inf when
+                # no threshold meets the precision gate: silent by design.
+                threshold_feasible=rule_head.feasible(art))
             scored = len({a.address.channel for a in got if a.address.channel is not None})
         except Exception as exc:
             detail = str(exc)
