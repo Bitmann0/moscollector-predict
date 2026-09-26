@@ -38,6 +38,9 @@ export function ForecastCard() {
         {(data) => (
           <>
             <CardView card={data} />
+            {can("work_order_manage") && !data.work_order_id && (
+              <DraftOrderButton forecastId={data.id} onCreated={card.reload} />
+            )}
             {can("decide") ? (
               <DecisionForm forecastId={data.id} onSaved={card.reload} />
             ) : (
@@ -48,6 +51,21 @@ export function ForecastCard() {
       </Loaded>
     </section>
   );
+}
+
+function DraftOrderButton({ forecastId, onCreated }: { forecastId: string; onCreated: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  async function create() {
+    setBusy(true); setMessage(null);
+    try {
+      const { data, error, response } = await api.POST("/api/v1/work-orders", { body: { forecast_ids: [forecastId] } });
+      if (data) { setMessage(`Черновик ${data.id} сформирован`); onCreated(); }
+      else setMessage(errorText(error, response));
+    } catch { setMessage(errorText(null, undefined)); }
+    finally { setBusy(false); }
+  }
+  return <div className="draft-order"><div><strong>Превентивное обслуживание</strong><span>Сформировать заявку из факторов и объекта этого прогноза</span></div><button type="button" className="button button--primary" disabled={busy} onClick={() => void create()}>{busy ? "Формирование…" : "Создать черновик заявки"}</button>{message && <p role="status">{message}</p>}</div>;
 }
 
 function CardView({ card }: { card: Card }) {
