@@ -1,6 +1,6 @@
 # Независимый пересчёт D и A_link на доступной выгрузке
 
-26.09.2026. Это **первый запуск** [аудита второго ML-разработчика](https://github.com/Bitmann0/moscollector-predict/blob/review/second-ml-d-link/reports/SECOND_ML_INDEPENDENT_REVIEW.md) на четырёх реальных входных файлах, отсутствовавших на его машине. Код аудита не менялся: `review/second-ml-d-link@4cce147`. Полный машинный результат с недельными порогами и SHA-256 входов — [second_ml_42d_local.json](second_ml_42d_local.json). Данные и модели в Git не добавлены.
+26.09.2026. Это **первый запуск** [аудита второго ML-разработчика](SECOND_ML_INDEPENDENT_REVIEW.md) на четырёх реальных входных файлах, отсутствовавших на его машине. Код аудита не менялся: `review/second-ml-d-link@4cce147`. Полный машинный результат с недельными порогами и SHA-256 входов — [second_ml_42d_local.json](second_ml_42d_local.json). Данные и модели в Git не добавлены.
 
 ## Что и как проверено
 
@@ -37,7 +37,7 @@
 
 ## Воспроизведение и границы
 
-Запуск выполнен на Windows 11, Python 3.12, четырёх потоках. Команда эквивалентна:
+Запуск выполнен на Windows 11, Python 3.12, четырёх потоках. Команда из папки `ml/` эквивалентна:
 
 ```bash
 python scripts/audit_second_ml.py --mode historical \
