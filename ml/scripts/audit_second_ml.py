@@ -241,7 +241,8 @@ def evaluate_head(con, features, head, cfg, end, *, n_splits=5, test_days=90,
                        "catalog are assumed as-of safe. Rebuild/verify from raw events before product approval."}
 
 
-def historical(data_root, *, n_splits=5, test_days=90, threads=4, refresh_days=7):
+def historical(data_root, *, n_splits=5, test_days=90, threads=4, refresh_days=7,
+               end_limit: dt.date | None = None):
     status = preflight(data_root)
     if status["status"] != "ready":
         return status
@@ -262,6 +263,8 @@ def historical(data_root, *, n_splits=5, test_days=90, threads=4, refresh_days=7
         for head in ("D", "A_link"):
             cfg = configs[head]
             end = min(features["day"].max(), source_last-dt.timedelta(days=cfg["horizon_days"]))
+            if end_limit is not None:  # валидация до отложенного периода
+                end = min(end, end_limit)
             reference = channels.filter(pl.col("stype").is_in(EQUIPMENT_STYPES)) if head == "D" else channels
             results.append(evaluate_head(con, features, head, cfg, end,
                            n_splits=n_splits, test_days=test_days, refresh_days=refresh_days,
@@ -317,13 +320,16 @@ def main():
     parser.add_argument("--test-days", type=int, default=90)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--refresh-days", type=int, default=7)
+    parser.add_argument("--end", type=dt.date.fromisoformat,
+                        help="последний день теста, например 2025-12-31 (по умолчанию — конец данных)")
     args = parser.parse_args()
     if min(args.splits, args.test_days, args.threads, args.refresh_days) < 1:
         parser.error("counts must be positive")
     output = args.output or ROOT/"reports"/f"second_ml_{args.mode}.json"
     result = (preflight(args.data_root) if args.mode == "preflight" else
               historical(args.data_root, n_splits=args.splits, test_days=args.test_days,
-                         threads=args.threads, refresh_days=args.refresh_days))
+                         threads=args.threads, refresh_days=args.refresh_days,
+                         end_limit=args.end))
     result["code_commit"] = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     result["code_files_sha256"] = {name: sha256(ROOT/name) for name in (
