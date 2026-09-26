@@ -117,3 +117,6 @@ button, input, select, textarea { font-family: inherit; }
   .mobile-more__panel a svg{width:18px;height:18px}
   .mobile-more__panel a b{margin-left:auto;color:#f7aab4}
 }
+
+.drawer-forecasts{margin-top:16px}.drawer-forecasts>strong{display:block;margin-bottom:8px;font-size:12px}.drawer-forecasts>div{display:grid;gap:6px}.drawer-forecasts a{display:grid;grid-template-columns:18px minmax(0,1fr) 16px;align-items:center;gap:9px;min-height:38px;padding:8px 10px;border-radius:9px;color:#4d48a8;background:#f3f2ff;font-size:11px;text-decoration:none}.drawer-forecasts a:hover{background:#e7e4ff}.drawer-forecasts a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.drawer-forecasts svg{width:16px;height:16px}
+.drawer-feedback{margin:14px 0;padding:10px 12px;border:1px solid #bde8da;border-radius:9px;background:#eaf9f4;font-size:12px}
