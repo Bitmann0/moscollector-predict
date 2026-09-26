@@ -66,7 +66,7 @@ export function Layout() {
 function StatusBar({ status, failed, unread }: { status?: Schemas["SystemStatus"]; failed: boolean; unread: number }) {
   return <div className="statusbar">
     <div className="statusbar__main"><span className="live-dot" />{status ? <><strong>Демо-контур</strong><span>{fmtDate(status.demo_today)}</span><span className="statusbar__divider" /><span>Историческое воспроизведение</span></> : <span>{failed ? "Статус системы недоступен" : "Получаем состояние системы…"}</span>}</div>
-    {status && <div className="statusbar__heads"><span className={status.ml.reachable ? "status-ok" : "status-bad"}>ML {status.ml.reachable ? "на связи" : "недоступна"}</span>{status.heads.map((head) => { const state = headState(head); return <span key={head.head} title={[title("scenario", head.scenario), head.detail].filter(Boolean).join(": ")}>{SHORT_SCENARIO[head.scenario] ?? head.scenario} · {state ? <StateView state={state} compact /> : "ожидание"}</span>; })}</div>}
+    {status && <div className="statusbar__heads"><span className={status.ml.reachable ? "status-ok" : "status-bad"}>ML {status.ml.reachable ? (status.ml.mode === "stub" ? "на связи · заглушка" : "на связи") : "недоступна"}</span>{status.heads.map((head) => { const state = headState(head); return <span key={head.head} title={[title("scenario", head.scenario), head.detail].filter(Boolean).join(": ")}>{SHORT_SCENARIO[head.scenario] ?? head.scenario} · {state ? <StateView state={state} compact /> : "ожидание"}</span>; })}</div>}
     <NavLink to="/notifications" className="notification-button desktop-only" aria-label={`Уведомления: ${unread}`}><Icon name="bell" />{unread > 0 && <b>{unread > 99 ? "99+" : unread}</b>}</NavLink>
   </div>;
 }

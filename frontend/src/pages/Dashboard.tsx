@@ -46,7 +46,7 @@ function SummaryView({ summary, queue }: { summary: Summary; queue: Load<Forecas
     <div className="context-line"><span>Срез на {fmtDate(summary.demo_today)}</span><SourceBadge source={summary.source} /></div>
     <div className="metric-grid">
       <Metric icon="forecast" tone="violet" value={open} label="Открытых прогнозов" detail="Требуют внимания" />
-      <Metric icon="shield" tone="blue" value={fmtPercent(meanCoverage)} label="Средний охват" detail="Объектов в расчёте" />
+      <Metric icon="shield" tone="blue" value={fmtPercent(meanCoverage)} label="Охват расчёта" detail="Доля каналов, среднее по сценариям" />
       <Metric icon="wrench" tone="mint" value={activeOrders} label="Активных заявок" detail="Превентивные работы" />
       <Metric icon="events" tone="amber" value={summary.alarms_24h} label="Тревог за 24 часа" detail={`${summary.planned_like_alarms_24h} похожи на плановые`} />
     </div>
@@ -60,8 +60,8 @@ function SummaryView({ summary, queue }: { summary: Summary; queue: Load<Forecas
           })}
         </div>
         <div className="chart-grid">
-          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Нагрузка</span><h3>Прогнозы по дням</h3></div><span className="legend"><i />Выдано</span></header><TrendChart data={summary.series_forecasts_per_day} limit={20} /></article>
-          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Данные</span><h3>Охват мониторинга</h3></div><span className="legend legend--blue"><i />Доля объектов</span></header><TrendChart data={summary.series_coverage_per_day} percent color="var(--blue)" /></article>
+          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Нагрузка</span><h3>Прогнозы по дням</h3></div><span className="legend"><i />Выдано</span></header><TrendChart data={summary.series_forecasts_per_day} /></article>
+          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Данные</span><h3>Охват мониторинга</h3></div><span className="legend legend--blue"><i />Доля каналов</span></header><TrendChart data={summary.series_coverage_per_day} percent color="var(--blue)" /></article>
         </div>
       </div>
       <aside className="panel priority-panel"><header><div><span className="panel__eyebrow">Приоритет</span><h3>Очередь диспетчера</h3></div><Link to="/forecasts">Все</Link></header><div className="priority-panel__body"><Loaded load={queue}>{(items) => items.length === 0 ? <StateView state="empty" detail="Прогнозов без решения сейчас нет." /> : <ol className="priority-list">{items.map((item) => <li key={item.id}><span className="rank">{item.rank}</span><div><Link to={`/forecasts/${encodeURIComponent(item.id)}`}>{placeText(item)}</Link><small>{item.scenario_title} · {scoreText(item)}</small></div><Icon name="arrow" /></li>)}</ol>}</Loaded></div><div className="queue-footer"><Icon name="activity" /><span>Очередь обновляется после нового расчёта или по кнопке «Обновить»</span></div></aside>

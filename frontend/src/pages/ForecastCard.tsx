@@ -250,12 +250,13 @@ function toAction(value: string): Action | "" {
   return ACTIONS.find((a) => a.code === value)?.code ?? "";
 }
 
-const OUTCOMES: { code: Outcome; title: string; hint: string }[] = [
-  { code: "confirmed_event", title: "Событие подтверждено", hint: "Риск реализовался" },
-  { code: "sensor_fault", title: "Неисправность датчика", hint: "Проблема в средстве контроля" },
-  { code: "normal_activation", title: "Штатная сработка", hint: "Оборудование исправно" },
-  { code: "no_event", title: "События не было", hint: "Прогноз не подтвердился" },
-  { code: "unknown", title: "Не удалось проверить", hint: "Недостаточно данных" },
+// Подписи — из vocabularies.json (C3), здесь только подсказки к ним.
+const OUTCOMES: { code: Outcome; hint: string }[] = [
+  { code: "confirmed_event", hint: "Риск реализовался" },
+  { code: "sensor_fault", hint: "Проблема в средстве контроля" },
+  { code: "normal_activation", hint: "Оборудование исправно" },
+  { code: "no_event", hint: "Прогноз не подтвердился" },
+  { code: "unknown", hint: "Недостаточно данных" },
 ];
 
 function OutcomeForm({ forecastId, channel, current, onSaved }: { forecastId: string; channel?: number; current?: Outcome | null; onSaved: () => void }) {
@@ -273,5 +274,5 @@ function OutcomeForm({ forecastId, channel, current, onSaved }: { forecastId: st
     } catch { setMessage({ ok: false, text: errorText(null, undefined) }); }
     finally { setBusy(false); }
   }
-  return <form className="outcome-form panel" onSubmit={(event) => void submit(event)}><div className="outcome-form__head"><div><span className="panel__eyebrow">Контур обратной связи</span><h2>Результат проверки</h2><p>Подтверждённый исход попадёт в оценку качества модели.</p></div><Icon name="shield" /></div><div className="outcome-options">{OUTCOMES.map((item) => <label key={item.code} className={outcome === item.code ? "active" : ""}><input type="radio" name="outcome" value={item.code} checked={outcome === item.code} onChange={() => setOutcome(item.code)} /><span><strong>{item.title}</strong><small>{item.hint}</small></span></label>)}</div><div className="outcome-fields"><label className="field"><span>Время события, если известно</span><input type="datetime-local" value={eventAt} onChange={(event) => setEventAt(event.target.value)} /></label><label className="field"><span>Комментарий специалиста</span><input value={comment} onChange={(event) => setComment(event.target.value)} maxLength={2000} placeholder="Что обнаружено при проверке" /></label><button className="button button--primary" disabled={busy || !outcome}>{busy ? "Сохранение…" : "Сохранить результат"}</button></div>{message && <p className={message.ok ? "form-ok" : "form-error"} role="status">{message.text}</p>}</form>;
+  return <form className="outcome-form panel" onSubmit={(event) => void submit(event)}><div className="outcome-form__head"><div><span className="panel__eyebrow">Контур обратной связи</span><h2>Результат проверки</h2><p>Итог проверки сохраняется в карточке и в журнале прогнозов.</p></div><Icon name="shield" /></div><div className="outcome-options">{OUTCOMES.map((item) => <label key={item.code} className={outcome === item.code ? "active" : ""}><input type="radio" name="outcome" value={item.code} checked={outcome === item.code} onChange={() => setOutcome(item.code)} /><span><strong>{title("outcome_manual", item.code)}</strong><small>{item.hint}</small></span></label>)}</div><div className="outcome-fields"><label className="field"><span>Время события, если известно</span><input type="datetime-local" value={eventAt} onChange={(event) => setEventAt(event.target.value)} /></label><label className="field"><span>Комментарий специалиста</span><input value={comment} onChange={(event) => setComment(event.target.value)} maxLength={2000} placeholder="Что обнаружено при проверке" /></label><button className="button button--primary" disabled={busy || !outcome}>{busy ? "Сохранение…" : "Сохранить результат"}</button></div>{message && <p className={message.ok ? "form-ok" : "form-error"} role="status">{message.text}</p>}</form>;
 }

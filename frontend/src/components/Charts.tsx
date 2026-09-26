@@ -9,7 +9,7 @@ function pointsOf(data: ChartPoint[], width: number, height: number, max: number
   return data.map((point, index) => `${index * dx},${height - (point.value / max) * height}`).join(" ");
 }
 
-export function TrendChart({ data, limit, percent = false, color = "var(--accent)" }: { data: ChartPoint[]; limit?: number; percent?: boolean; color?: string }) {
+export function TrendChart({ data, limit, limitLabel = "лимит", percent = false, color = "var(--accent)" }: { data: ChartPoint[]; limit?: number; limitLabel?: string; percent?: boolean; color?: string }) {
   if (data.length === 0) return <div className="chart-empty">Нет данных для графика</div>;
   const width = 640;
   const height = 180;
@@ -28,7 +28,7 @@ export function TrendChart({ data, limit, percent = false, color = "var(--accent
         {[0, height / 2, height].map((y) => <line key={y} x1="0" x2={width} y1={y} y2={y} className="chart-guide" />)}
         <defs><linearGradient id={`area-${percent ? "percent" : "count"}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={color} stopOpacity=".28"/><stop offset="1" stopColor={color} stopOpacity="0"/></linearGradient></defs>
         <polygon points={area} fill={`url(#area-${percent ? "percent" : "count"})`} />
-        {limitY !== null && <><line x1="0" x2={width} y1={limitY} y2={limitY} className="chart-limit"/><text x={width - 4} y={limitY - 6} textAnchor="end" className="chart-label">лимит {limit}</text></>}
+        {limitY !== null && <><line x1="0" x2={width} y1={limitY} y2={limitY} className="chart-limit"/><text x={width - 4} y={limitY - 6} textAnchor="end" className="chart-label">{limitLabel} {percent ? `${Math.round((limit ?? 0) * 100)}%` : limit}</text></>}
         <polyline points={line} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         {data.map((point, index) => {
           const x = data.length === 1 ? 0 : index * width / (data.length - 1);
