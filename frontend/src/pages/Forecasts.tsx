@@ -33,6 +33,7 @@ export function Forecasts() {
   const decision = oneOf(params.get("decision"), ["none", "any", "dispatch_crew", "remote_check", "defer", "reject"] as const);
   const outcome = oneOf(params.get("outcome"), ["hit", "miss", "unknown"] as const);
   const groupBy = oneOf(params.get("group_by"), ["obj", "case_key"] as const);
+  const unsupportedFiltersActive = Boolean(from || to || decision || outcome || obj || groupBy);
   const load = useLoad(() => api.GET("/api/v1/forecasts", { params: { query: { scenario, from, to, decision, outcome, obj, group_by: groupBy, page, page_size: PAGE_SIZE } } }), [scenario, from, to, decision, outcome, obj, groupBy, page]);
 
   function update(key: string, value?: string | number) { const next = new URLSearchParams(params); if (value === undefined || value === "" || (key === "page" && value === 1)) next.delete(key); else next.set(key, String(value)); if (key !== "page") next.delete("page"); setParams(next); }
@@ -44,11 +45,8 @@ export function Forecasts() {
     try { const { data, error, response } = await api.POST("/api/v1/work-orders", { body: { forecast_ids: selected.map((item) => item.id) } }); if (data) { setCreatedOrder(data.id); setSelected([]); load.reload(); } else setCreateError(errorText(error, response)); }
     catch { setCreateError(errorText(null, undefined)); } finally { setCreating(false); }
   }
-  const exportQuery = new URLSearchParams(); if (from) exportQuery.set("from", from); if (to) exportQuery.set("to", to);
-  const exportHref = `/api/v1/export/forecasts.xlsx${exportQuery.size ? `?${exportQuery}` : ""}`;
-
   return <section>
-    <PageHeader eyebrow="Предиктивная аналитика" title="Журнал прогнозов" description="Единая очередь рисков с решениями диспетчера и результатами проверки" actions={<>{can("export") && <a className="button" href={exportHref} download><Icon name="download" /> Экспорт Excel</a>}<button className="button" type="button" onClick={load.reload}>Обновить</button></>} />
+    <PageHeader eyebrow="Предиктивная аналитика" title="Журнал прогнозов" description="Единая очередь рисков с решениями диспетчера и результатами проверки" actions={<>{can("export") && <button className="button" type="button" disabled title="Экспорт пока содержит только заголовки — ожидается реализация сервера"><Icon name="download" /> Экспорт Excel — готовится</button>}<button className="button" type="button" onClick={load.reload}>Обновить</button></>} />
     <div className="filter-panel">
       <label className="field"><span>Сценарий</span><select value={scenario ?? ""} onChange={(e) => update("scenario", e.target.value)}><option value="">Все сценарии</option>{SCENARIOS.map((s) => <option key={s.code} value={s.code}>{s.title}</option>)}</select></label>
       <label className="field"><span>Дата от</span><input type="date" value={from ?? ""} onChange={(e) => update("from", e.target.value)} /></label>
@@ -59,6 +57,7 @@ export function Forecasts() {
       <label className="field"><span>Группировка</span><select value={groupBy ?? ""} onChange={(e) => update("group_by", e.target.value)}><option value="">Без группировки</option><option value="obj">По объекту</option><option value="case_key">По случаю</option></select></label>
       <button type="button" className="button filter-reset" onClick={reset}><Icon name="filter" /> Сбросить</button>
     </div>
+    {unsupportedFiltersActive && <p className="filter-notice" role="status">В текущем API работает только фильтр сценария. Дата, решение, факт, объект и группировка пока не применяются: журнал ниже показан без этих ограничений.</p>}
     <Loaded load={load}>{(data) => <>
       <div className="section-summary"><span className="summary-pill">Найдено <strong>{data.total}</strong></span><span className="summary-pill">Попаданий на странице <strong>{data.items.filter((i) => i.outcome_auto === "hit").length}</strong></span><span className="summary-pill">Неизвестно <strong>{data.items.filter((i) => i.outcome_auto === "unknown" || i.outcome_auto == null).length}</strong></span></div>
       {createdOrder && <div className="action-success"><Icon name="orders" /><span>Черновик <strong>{createdOrder}</strong> сформирован</span><Link to={`/work-orders?open=${encodeURIComponent(createdOrder)}`}>Открыть заявку</Link></div>}
