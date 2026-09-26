@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "base_commit": "f67f5d4c9d8c6c2472af104580644ca8f9d8425d",
+  "status": "blocked_missing_data",
+  "inputs": [
+    {
+      "path": "interim/daily_channel.parquet",
+      "exists": false
+    },
+    {
+      "path": "interim/episodes.parquet",
+      "exists": false
+    },
+    {
+      "path": "interim/channels.parquet",
+      "exists": false
+    },
+    {
+      "path": "features/sensor.parquet",
+      "exists": false
+    }
+  ],
+  "historical_metrics": null,
+  "inherited_evidence": {
+    "source": "checked_in_reports_not_rerun",
+    "heads": {
+      "D": {
+        "alerts": 623,
+        "hits": 473,
+        "unknown_alerts": 0,
+        "candidates": 90682,
+        "unknown_candidates": 0,
+        "reported_precision": 0.7592295345104334,
+        "source_sha256": "0b93f77bd4450c924cdd864ffafa5d5462c4ab346455c12d65057b4eb5e82600"
+      },
+      "A_link": {
+        "alerts": 7741,
+        "hits": 5024,
+        "unknown_alerts": 131,
+        "candidates": 780539,
+        "unknown_candidates": 8764,
+        "reported_precision": 0.6490117555871334,
+        "source_sha256": "8ae42b599fd1bbbb45f79a8cf549ca2f17786ab5439d48a22f5b8a8382fd8648"
+      }
+    },
+    "infeasible_baseline_emissions": [
+      {
+        "head": "A_link",
+        "test_start": "2025-04-06",
+        "policy": "min_precision_0.70",
+        "alerts": 27
+      }
+    ],
+    "link_episode_overcount": [
+      {
+        "test_start": "2025-04-06",
+        "hits": 991,
+        "episodes_caught": 1163
+      },
+      {
+        "test_start": "2025-07-05",
+        "hits": 1015,
+        "episodes_caught": 1171
+      },
+      {
+        "test_start": "2025-10-03",
+        "hits": 1101,
+        "episodes_caught": 1265
+      },
+      {
+        "test_start": "2026-01-01",
+        "hits": 954,
+        "episodes_caught": 1102
+      },
+      {
+        "test_start": "2026-04-01",
+        "hits": 963,
+        "episodes_caught": 1114
+      }
+    ]
+  },
+  "code_commit": "910604d2467003bc6ec12238d7ad57a326171302",
+  "code_files_sha256": {
+    "scripts/audit_second_ml.py": "008a0663d144ae6d9da838c5583b17f90c8a62875ab38400215876b087d7074e",
+    "src/mkl/second_ml_audit.py": "a011478e8e5be00c011a559d8a1e61acb0539a5a19f7db8d08993ad61efe8fc7",
+    "configs/heads.yaml": "d3ec285fc1c6243a609f3faa9dd730b71fdb0bf701e063cc51fd6c0df9218cb6"
+  }
+}
