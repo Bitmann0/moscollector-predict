@@ -142,6 +142,12 @@ def main() -> None:
                 [h for h, cfg in configs.items()
                  if cfg.get("product_status") == "pilot"]))
     for head in selected:
+        if configs[head].get("serving_rule"):
+            # Голова-правило обученной модели не имеет: порог выбирается при
+            # расчёте (src/mkl/rule_head.py, reports/RULE_VS_MODEL_RESULT.md).
+            print(f"{head}: правило {configs[head]['serving_rule']}, модель не обучается",
+                  flush=True)
+            continue
         result = refresh(head, configs[head], backend=args.backend)
         results.append(result)
         print(json.dumps(result, ensure_ascii=False, allow_nan=False), flush=True)
