@@ -116,24 +116,27 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
     schedule, mapping, schedule_error = (_load_maintenance_snapshot()
                                          if head == "A_link" else (None, None, None))
 
-    factors: list[list[dict]] = []
-    if with_factors:
+    factors_by_rank: dict[int, list[dict]] = {}
+    if with_factors and df["alert"].any():
         # Порядок строк матрицы обязан совпадать с порядком алертов. Сортировка
         # признаков по сущности и алертов по риску — разные порядки, и вклады
         # тогда приклеиваются к чужим строкам: числа выглядят осмысленно, а
         # относятся не к тому алерту. Поэтому не сортировка, а join В ПОРЯДКЕ df.
         keys = [c for c in ("ch", "obj", "seg", "day")
                 if c in df.columns and c in feats.columns]
-        aligned = (df.select(keys).join(feats, on=keys, how="left")
-                   if keys else feats)
-        if aligned.height != df.height:
+        issued = df.with_row_index("_row").filter(pl.col("alert"))
+        aligned = (issued.select(["_row", *keys]).join(feats, on=keys, how="left")
+                   .sort("_row") if keys else feats)
+        if aligned.height != issued.height:
             raise ValueError(
                 f"{head}: признаки не сошлись с алертами построчно "
-                f"({aligned.height} против {df.height}) — вклады признаков "
+                f"({aligned.height} против {issued.height}) — вклады признаков "
                 f"были бы приклеены к чужим строкам")
         X = train._matrix(aligned, art["features"])
-        factors = explain.contributions(art["model"], X, art["features"],
-                                        top=TOP_FACTORS)
+        contributions = explain.contributions(
+            art["model"], X, art["features"], top=TOP_FACTORS)
+        factors_by_rank = dict(zip(aligned["_row"].to_list(), contributions,
+                                   strict=True))
 
     rows = df.to_dicts()
     out: list[Alert] = []
@@ -173,7 +176,7 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
             address=addr,
             model_version=art.get("saved_at"),
             feature_signature=art.get("feature_signature"),
-            factors=factors[rank - 1] if rank - 1 < len(factors) else [],
+            factors=factors_by_rank.get(rank - 1, []),
             maintenance_context=context,
         ))
     return out
