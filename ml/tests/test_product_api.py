@@ -243,12 +243,12 @@ def test_real_mode_is_501(monkeypatch):
         ("get", "/ready", {"params": {"asof": "2026-06-15"}}, "ML1-03"),
         ("get", "/api/v1/directions", {}, "ML1-03"),
         ("get", "/api/v1/guard-weekly-inspections", {"params": {"asof": "2026-06-15"}}, "ML1-04"),
-        ("post", "/api/v1/outcomes", {"json": []}, "ML1-07"),
     ]
     for method, path, kw, task in cases:
         resp = getattr(real, method)(path, **kw)
         assert resp.status_code == 501, (path, resp.text)
         assert task in resp.json()["detail"], path
+    assert real.post("/api/v1/outcomes", json=[]).json() == []
 
 
 def test_unknown_mode_fails_fast():
