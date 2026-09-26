@@ -5,8 +5,7 @@
 Режим задаёт ML_MODE:
 - stub (по умолчанию) — ответы строит mkl.product_stub из синтетического
   справочника; данные, модели и тяжёлые модули mkl не нужны;
-- real — каждый эндпоинт, кроме /health, вызывает _real_<имя>(). Пока это
-  заглушки с NotImplementedError и ID задачи, эндпоинт отвечает 501.
+- real — пилотные модели и недельная очередь читаются из бандла.
 
 Тяжёлые модули (mkl.service, serve, train, polars) импортируются только
 внутри _real_*, поэтому образ в режиме stub стартует без бандла.
@@ -15,70 +14,234 @@
 последовательно, а замок защищает от параллельных запросов снаружи (ML1-04).
 """
 import datetime as dt
+import logging
 import os
+import pickle
 import threading
 from collections.abc import Callable
+from functools import lru_cache
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
 
 from . import product_stub
 from .product_contract import (
     SCHEMA_VERSION,
+    AlertOut,
+    CoverageOut,
+    DirectionHead,
     DirectionItem,
     Health,
+    HeadStatus,
     OutcomeQuery,
     OutcomeResult,
     ReadyResponse,
     ScoreRequest,
     ScoreResponse,
     WeeklyResponse,
+    WorkOrderOut,
 )
 
 API_PREFIX = "/api/v1"
 MODES = ("stub", "real")
+log = logging.getLogger(__name__)
+
+
+PILOT_HEADS = ("A_link", "D")
+
+
+def _last_feature_day() -> dt.date | None:
+    """Projection pushdown keeps readiness cheap even for the full feature store."""
+    import polars as pl
+    from .config import PATHS
+
+    path = PATHS.features / "sensor.parquet"
+    if not path.exists():
+        return None
+    return pl.scan_parquet(path).select(pl.col("day").max()).collect().item()
+
+
+def _has_feature_day(day: dt.date) -> bool:
+    import polars as pl
+    from .config import PATHS
+
+    path = PATHS.features / "sensor.parquet"
+    return path.exists() and pl.scan_parquet(path).filter(
+        pl.col("day") == day).select(pl.len()).collect().item() > 0
+
+
+@lru_cache(maxsize=12)
+def _artifact_info(path: Path, mtime_ns: int) -> dict:
+    """Metadata cache invalidates when atomic retraining replaces the artifact."""
+    with path.open("rb") as stream:
+        art = pickle.load(stream)
+    return {key: art.get(key) for key in ("metadata", "threshold", "saved_at")}
+
+
+def _pilot_artifact(head: str, day: dt.date) -> dict:
+    from . import serve
+
+    path = serve.model_path(head)
+    art = _artifact_info(path, path.stat().st_mtime_ns)
+    serve.validate_pilot_artifact(
+        head, art, day,
+        max_lag_days=int(serve.load_heads()[head].get("max_model_lag_days", 14)))
+    return art
 
 
 def _real_ready(asof: dt.date | None) -> ReadyResponse:
-    """ЗАГЛУШКА — владелец ML1-03 (C1).
-    Заменить: готовность данных бандла и артефактов A_link и D на asof;
-    mkl.guard_weekly.readiness() даёт часть недельной очереди. Импорт mkl — здесь.
-    Контракт: ReadyResponse с source="live"; тест tests/test_product_api.py должен
-    остаться зелёным.
-    """
-    raise NotImplementedError("ML1-03: /ready в real-режиме не реализован")
+    """Check the requested historical day, rather than claiming stale data is live."""
+    from .config import PATHS
+
+    last_day = None
+    try:
+        last_day = _last_feature_day()
+        if last_day is None or not (PATHS.interim / "channels.parquet").exists():
+            return ReadyResponse(status="missing_data", asof=asof,
+                                 data_last_day=last_day, source="live",
+                                 detail="нет признаков каналов или справочника")
+        day = asof or last_day
+        if day > last_day:
+            return ReadyResponse(status="missing_data", asof=asof,
+                                 data_last_day=last_day, source="live",
+                                 detail=f"данные заканчиваются {last_day}")
+        if not _has_feature_day(day):
+            return ReadyResponse(status="missing_data", asof=asof,
+                                 data_last_day=last_day, source="live",
+                                 detail=f"нет признаков за {day}")
+        if asof is None and (dt.date.today() - last_day).days > 2:
+            return ReadyResponse(status="stale_source", asof=None,
+                                 data_last_day=last_day, source="live",
+                                 detail="новые данные не поступали более двух суток")
+        for head in PILOT_HEADS:
+            _pilot_artifact(head, day)
+        return ReadyResponse(status="ready", asof=asof,
+                             data_last_day=last_day, source="live")
+    except FileNotFoundError as exc:
+        return ReadyResponse(status="missing_data", asof=asof,
+                             data_last_day=last_day, source="live", detail=str(exc))
+    except ValueError as exc:
+        return ReadyResponse(status="stale", asof=asof,
+                             data_last_day=last_day, source="live", detail=str(exc))
+    except Exception as exc:
+        log.exception("ML readiness failed")
+        return ReadyResponse(status="error", asof=asof,
+                             data_last_day=None, source="live", detail=str(exc))
 
 
 def _real_directions() -> list[DirectionItem]:
-    """ЗАГЛУШКА — владелец ML1-03 (C1).
-    Заменить: пилотные головы из serve.load_heads() (product_status: pilot) и
-    недельная очередь, как product_stub.directions().
-    Контракт: list[DirectionItem]; тест tests/test_product_api.py должен остаться зелёным.
-    """
-    raise NotImplementedError("ML1-03: /api/v1/directions в real-режиме не реализован")
+    from . import contract, serve
+
+    items = []
+    for head, cfg in serve.load_heads().items():
+        if cfg.get("product_status") == "pilot":
+            items.append(DirectionItem(
+                direction=cfg["direction"],
+                title=contract.DIRECTIONS[cfg["direction"]],
+                heads=[DirectionHead(head=head, title=cfg["title"],
+                                     horizon_hours=int(cfg["horizon_days"]) * 24,
+                                     budget_per_day=int(cfg["budget_per_day"]))]))
+    items.append(DirectionItem(
+        direction="unauthorised_access",
+        title=contract.DIRECTIONS["unauthorised_access"],
+        heads=[DirectionHead(head="guard_weekly",
+                             title="Недельная очередь осмотра охранного контура",
+                             horizon_hours=168)]))
+    return items
 
 
 def _real_score(req: ScoreRequest) -> ScoreResponse:
-    """ЗАГЛУШКА — владелец ML1-03 (C1); устойчивость — ML1-04; артефакт по asof — ML1-05b.
-    Заменить: каждая голова — отдельный вызов mkl.service.alerts_for_head в своём
-    try (ошибка A_link не гасит D), статус головы, threshold_end, model_lag_days,
-    threshold_feasible; coverage пилотных голов (у D — знаменатель по оборудованию);
-    workorders.build с obj_name и obj_parent_name. Импорт mkl.service — здесь.
-    Контракт: ScoreRequest → ScoreResponse с source="live"; тест
-    tests/test_product_api.py должен остаться зелёным.
-    """
-    raise NotImplementedError(
-        "ML1-03: /api/v1/score в real-режиме не реализован (ML1-04, ML1-05b)")
+    """Score each head independently; a failed head never produces fake alerts."""
+    from . import service, serve, workorders
+    from .config import EQUIPMENT_STYPES, PATHS
+
+    statuses: dict[str, HeadStatus] = {}
+    alerts = []
+    coverage = []
+    last_day = _last_feature_day()
+    has_day = bool(last_day and req.asof <= last_day and
+                   _has_feature_day(req.asof))
+    catalog = None
+    for head in dict.fromkeys(req.heads):
+        cfg = serve.load_heads()[head]
+        total = 0
+        if (PATHS.interim / "channels.parquet").exists():
+            if catalog is None:
+                import polars as pl
+                catalog = pl.read_parquet(PATHS.interim / "channels.parquet")
+            population = (catalog.filter(pl.col("stype").is_in(EQUIPMENT_STYPES))
+                          if head == "D" else catalog)
+            total = population["ch"].n_unique()
+        reason = ("только каналы оборудования" if head == "D" else None)
+        try:
+            if not has_day:
+                raise ValueError(f"no feature rows for requested day {req.asof}")
+            art = _pilot_artifact(head, req.asof)
+            history = req.issued_histories.get(head)
+            issued = ([(e.channel if e.channel is not None else e.obj, e.sent_day)
+                       for e in history] if history is not None else None)
+            got = service.alerts_for_head(
+                head, req.asof, with_factors=req.with_factors,
+                issued_history=issued,
+                history_complete_from=req.history_complete_from)
+            alerts.extend(got)
+            statuses[head] = HeadStatus(
+                result_status="ok" if any(a.in_budget for a in got) else "empty_valid",
+                model_version=art.get("saved_at"),
+                threshold_end=dt.date.fromisoformat(art["metadata"]["threshold_end"]),
+                model_lag_days=(req.asof - dt.date.fromisoformat(
+                    art["metadata"]["threshold_end"])).days,
+                threshold_feasible=art.get("threshold") is not None)
+            scored = len({a.address.channel for a in got if a.address.channel is not None})
+        except Exception as exc:
+            detail = str(exc)
+            status = ("no_data" if "no feature rows" in detail or
+                      "sensor.parquet" in detail else
+                      "stale" if "pilot lag" in detail or
+                      "threshold window" in detail or
+                      "pilot target changed" in detail else "error")
+            if status == "error":
+                log.exception("ML head %s failed on %s", head, req.asof)
+            statuses[head] = HeadStatus(result_status=status, detail=detail)
+            scored = 0
+        coverage.append(CoverageOut(
+            head=head, direction=cfg["direction"], entities_total=total,
+            entities_scored=scored, reason=reason,
+            fraction=round(scored / total, 4) if total else 0.0))
+
+    alerts.sort(key=lambda a: (-a.risk, a.head, a.rank))
+    orders = workorders.build(alerts)
+    names = {a.address.obj: a.address for a in alerts if a.address.obj}
+    return ScoreResponse(
+        asof=req.asof, source="live", heads=statuses,
+        data_snapshot={"data_last_day": last_day.isoformat() if last_day else None},
+        alerts=[AlertOut.model_validate(a.to_dict()) for a in alerts],
+        coverage=coverage,
+        work_orders=[WorkOrderOut.model_validate({
+            **order.to_dict(),
+            "obj_name": names[order.obj].obj_name if order.obj in names else None,
+            "obj_parent_name": (names[order.obj].obj_parent_name
+                                if order.obj in names else None),
+        }) for order in orders])
 
 
 def _real_weekly(asof: dt.date) -> WeeklyResponse:
-    """ЗАГЛУШКА — владелец ML1-04 (C1).
-    Заменить: mkl.guard_weekly.weekly_inspections(asof); день без данных → 200
-    no_data вместо 409. Импорт mkl.guard_weekly — здесь.
-    Контракт: WeeklyResponse с source="live"; тест tests/test_product_api.py должен
-    остаться зелёным.
-    """
-    raise NotImplementedError(
-        "ML1-04: /api/v1/guard-weekly-inspections в real-режиме не реализован")
+    """Return a valid empty state when the historical cache has no data."""
+    from . import guard_weekly
+
+    if asof.weekday() != 0:
+        raise ValueError("недельная очередь считается по понедельникам")
+    try:
+        result = guard_weekly.weekly_inspections(asof)
+    except (FileNotFoundError, ValueError) as exc:
+        return WeeklyResponse(
+            asof=asof, valid_from=asof + dt.timedelta(days=2),
+            valid_to=asof + dt.timedelta(days=9),
+            next_run=asof + dt.timedelta(days=7),
+            result_status=("stale" if "stale" in str(exc) else "no_data"),
+            data_snapshot={"detail": str(exc)},
+            source="live")
+    return WeeklyResponse.model_validate({**result, "source": "live"})
 
 
 def _real_outcomes(items: list[OutcomeQuery]) -> list[OutcomeResult]:
