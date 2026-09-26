@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import { AuthProvider } from "./auth/AuthContext";
 import "./styles.css";
+import "./theme.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("В index.html нет элемента #root");
