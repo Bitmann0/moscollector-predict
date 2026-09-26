@@ -16,7 +16,7 @@ const SEVERITY_TEXT: Record<Severity, string> = { info: "Информация", 
 function linkOf(kind: Notification["kind"], payload: Record<string, unknown> | undefined): string | null {
   const id = payload?.id;
   if (kind === "alert.new" && typeof id === "string") return `/forecasts/${encodeURIComponent(id)}`;
-  if (kind === "workorder.changed") return "/work-orders";
+  if (kind === "workorder.changed") return typeof id === "string" ? `/work-orders?open=${encodeURIComponent(id)}` : "/work-orders";
   if (kind === "event.alarm") return "/events";
   return null;
 }
