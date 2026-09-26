@@ -1,28 +1,43 @@
 import { Link } from "react-router-dom";
 
 import { api, type Schemas } from "../api/client";
-import { useLoad } from "../api/useLoad";
+import { useLoad, type Load } from "../api/useLoad";
 import { TrendChart, Donut } from "../components/Charts";
 import { Icon } from "../components/Icons";
 import { PageHeader } from "../components/PageHeader";
 import { SourceBadge } from "../components/common";
 import { Loaded, StateView, headState } from "../components/StateView";
 import { fmtDate, fmtPercent, placeText, scoreText } from "../format";
+import { useReloadOn } from "../stream/useStream";
 import { title } from "../vocab";
 
 type Summary = Schemas["DashboardSummary"];
 type Forecast = Schemas["ForecastItem"];
 
+async function loadDispatcherQueue(): Promise<{ data?: Forecast[]; error?: unknown; response: Response }> {
+  const queue: Forecast[] = [];
+  let page = 1;
+  while (true) {
+    const result = await api.GET("/api/v1/forecasts", { params: { query: { decision: "none", page, page_size: 100 } } });
+    if (!result.data || !result.response.ok) return { error: result.error, response: result.response };
+    queue.push(...result.data.items.filter((item) => !item.decision).slice(0, 6 - queue.length));
+    if (queue.length >= 6 || page * 100 >= result.data.total) return { data: queue, response: result.response };
+    page += 1;
+  }
+}
+
 export function Dashboard() {
   const summary = useLoad(() => api.GET("/api/v1/dashboard/summary"), []);
-  const queue = useLoad(() => api.GET("/api/v1/forecasts", { params: { query: { decision: "none", page: 1, page_size: 6 } } }), []);
+  const queue = useLoad(loadDispatcherQueue, []);
+  useReloadOn(["run.finished", "alert.new"], summary.reload);
+  useReloadOn(["run.finished", "alert.new"], queue.reload);
   return <section>
-    <PageHeader eyebrow="Оперативный контур" title="Центр управления" description="Риски инфраструктуры и действия диспетчерской службы в одном окне" actions={<Link className="button button--primary" to="/forecasts">Открыть очередь <Icon name="arrow" /></Link>} />
-    <Loaded load={summary}>{(data) => <SummaryView summary={data} queue={queue.data?.items ?? []} />}</Loaded>
+    <PageHeader eyebrow="Оперативный контур" title="Центр управления" description="Риски инфраструктуры и действия диспетчерской службы в одном окне" actions={<><button className="button" type="button" onClick={() => { summary.reload(); queue.reload(); }}>Обновить</button><Link className="button button--primary" to="/forecasts">Открыть очередь <Icon name="arrow" /></Link></>} />
+    <Loaded load={summary}>{(data) => <SummaryView summary={data} queue={queue} />}</Loaded>
   </section>;
 }
 
-function SummaryView({ summary, queue }: { summary: Summary; queue: Forecast[] }) {
+function SummaryView({ summary, queue }: { summary: Summary; queue: Load<Forecast[]> }) {
   const open = summary.scenarios.reduce((sum, item) => sum + item.open_forecasts, 0);
   const coverage = summary.scenarios.map((item) => item.coverage_fraction).filter((item): item is number => item !== null && item !== undefined);
   const meanCoverage = coverage.length ? coverage.reduce((sum, item) => sum + item, 0) / coverage.length : null;
@@ -49,7 +64,7 @@ function SummaryView({ summary, queue }: { summary: Summary; queue: Forecast[] }
           <article className="panel chart-card"><header><div><span className="panel__eyebrow">Данные</span><h3>Охват мониторинга</h3></div><span className="legend legend--blue"><i />Доля объектов</span></header><TrendChart data={summary.series_coverage_per_day} percent color="var(--blue)" /></article>
         </div>
       </div>
-      <aside className="panel priority-panel"><header><div><span className="panel__eyebrow">Приоритет</span><h3>Очередь диспетчера</h3></div><Link to="/forecasts">Все</Link></header>{queue.length === 0 ? <StateView state="empty" /> : <ol className="priority-list">{queue.map((item) => <li key={item.id}><span className="rank">{item.rank}</span><div><Link to={`/forecasts/${encodeURIComponent(item.id)}`}>{placeText(item)}</Link><small>{item.scenario_title} · {scoreText(item)}</small></div><Icon name="arrow" /></li>)}</ol>}<div className="queue-footer"><Icon name="activity" /><span>Очередь пересчитывается автоматически после поступления новых данных</span></div></aside>
+      <aside className="panel priority-panel"><header><div><span className="panel__eyebrow">Приоритет</span><h3>Очередь диспетчера</h3></div><Link to="/forecasts">Все</Link></header><div className="priority-panel__body"><Loaded load={queue}>{(items) => items.length === 0 ? <StateView state="empty" detail="Прогнозов без решения сейчас нет." /> : <ol className="priority-list">{items.map((item) => <li key={item.id}><span className="rank">{item.rank}</span><div><Link to={`/forecasts/${encodeURIComponent(item.id)}`}>{placeText(item)}</Link><small>{item.scenario_title} · {scoreText(item)}</small></div><Icon name="arrow" /></li>)}</ol>}</Loaded></div><div className="queue-footer"><Icon name="activity" /><span>Очередь обновляется после нового расчёта или по кнопке «Обновить»</span></div></aside>
     </div>
     <div className="panel system-strip"><div><span className="live-dot" /><strong>Сценарии под контролем</strong></div>{summary.heads.map((head) => { const state = headState(head); return <span key={head.head}>{title("scenario", head.scenario)} {state && <StateView state={state} compact />}</span>; })}</div>
     <div className="panel orders-overview"><div><Icon name="orders"/><span><strong>Заявки по статусам</strong><small>Операционная загрузка службы эксплуатации</small></span></div><div>{Object.entries(summary.work_orders_by_status).map(([status,count]) => <Link key={status} to={`/work-orders?status=${encodeURIComponent(status)}`}><strong>{count}</strong><span>{title("work_order_status", status)}</span></Link>)}</div><Link className="orders-overview__all" to="/work-orders">Открыть все <Icon name="arrow"/></Link></div>
