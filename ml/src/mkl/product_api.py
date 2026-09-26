@@ -82,13 +82,9 @@ def _real_weekly(asof: dt.date) -> WeeklyResponse:
 
 
 def _real_outcomes(items: list[OutcomeQuery]) -> list[OutcomeResult]:
-    """ЗАГЛУШКА — владелец ML1-07 (C1).
-    Заменить: факт по меткам бандла; outcome() из evaluate_guard_weekly_pilot.py
-    вынести на уровень модуля с параметром start. Ненаблюдаемый день → unknown.
-    Контракт: по одному OutcomeResult на запрос; тест tests/test_product_api.py
-    должен остаться зелёным.
-    """
-    raise NotImplementedError("ML1-07: /api/v1/outcomes в real-режиме не реализован")
+    from .outcomes import resolve
+
+    return resolve(items)
 
 
 def create_app(mode: str | None = None) -> FastAPI:
