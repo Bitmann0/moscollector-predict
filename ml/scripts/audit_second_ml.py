@@ -12,10 +12,14 @@ import hashlib
 import importlib.metadata
 import json
 import platform
-import resource
 import subprocess
 import time
 from pathlib import Path
+
+try:  # Unix only; on Windows peak RSS is reported as null
+    import resource
+except ImportError:
+    resource = None
 
 import duckdb
 import polars as pl
@@ -265,12 +269,14 @@ def historical(data_root, *, n_splits=5, test_days=90, threads=4, refresh_days=7
                            reference_ids=set(reference["ch"].to_list())))
     finally:
         con.close()
-    rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    rss = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+           if resource is not None else None)
     return {**status, "status": "historical_run_complete", "historical_metrics": results,
             "data_sha256": {name: sha256(data_root/name) for name in INPUTS},
             "runtime": {"cpu_seconds": time.process_time()-cpu,
                         "wall_seconds": time.perf_counter()-started,
-                        "peak_rss_bytes": rss if platform.system() == "Darwin" else rss*1024,
+                        "peak_rss_bytes": (None if rss is None else
+                                           rss if platform.system() == "Darwin" else rss*1024),
                         "platform": platform.platform(), "python": platform.python_version(),
                         "threads": threads,
                         "versions": {name: importlib.metadata.version(name) for name in
