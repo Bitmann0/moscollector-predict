@@ -250,7 +250,7 @@ def test_real_mode_uses_live_routes(monkeypatch):
                       params={"asof": "2026-06-15"})
     assert weekly.status_code == 200 and weekly.json()["source"] == "live"
     outcomes = real.post("/api/v1/outcomes", json=[])
-    assert outcomes.status_code == 501 and "ML1-07" in outcomes.json()["detail"]
+    assert outcomes.status_code == 200 and outcomes.json() == []
 
 
 def test_unknown_mode_fails_fast():
