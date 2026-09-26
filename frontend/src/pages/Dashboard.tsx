@@ -15,7 +15,7 @@ type Forecast = Schemas["ForecastItem"];
 
 export function Dashboard() {
   const summary = useLoad(() => api.GET("/api/v1/dashboard/summary"), []);
-  const queue = useLoad(() => api.GET("/api/v1/forecasts", { params: { query: { page: 1, page_size: 6 } } }), []);
+  const queue = useLoad(() => api.GET("/api/v1/forecasts", { params: { query: { decision: "none", page: 1, page_size: 6 } } }), []);
   return <section>
     <PageHeader eyebrow="Оперативный контур" title="Центр управления" description="Риски инфраструктуры и действия диспетчерской службы в одном окне" actions={<Link className="button button--primary" to="/forecasts">Открыть очередь <Icon name="arrow" /></Link>} />
     <Loaded load={summary}>{(data) => <SummaryView summary={data} queue={queue.data?.items ?? []} />}</Loaded>

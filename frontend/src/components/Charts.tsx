@@ -25,7 +25,7 @@ export function TrendChart({ data, limit, percent = false, color = "var(--accent
         {ticks.map((tick) => <span key={tick}>{percent ? `${Math.round(tick * 100)}%` : Math.round(tick)}</span>)}
       </div>
       <svg viewBox={`-4 -8 ${width + 8} ${height + 22}`} role="img" aria-label={`Динамика: ${data.length} точек`}>
-        {[0, height / 2, height].map((y) => <line key={y} x1="0" x2={width} y1={y} y2={y} className="chart-grid" />)}
+        {[0, height / 2, height].map((y) => <line key={y} x1="0" x2={width} y1={y} y2={y} className="chart-guide" />)}
         <defs><linearGradient id={`area-${percent ? "percent" : "count"}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={color} stopOpacity=".28"/><stop offset="1" stopColor={color} stopOpacity="0"/></linearGradient></defs>
         <polygon points={area} fill={`url(#area-${percent ? "percent" : "count"})`} />
         {limitY !== null && <><line x1="0" x2={width} y1={limitY} y2={limitY} className="chart-limit"/><text x={width - 4} y={limitY - 6} textAnchor="end" className="chart-label">лимит {limit}</text></>}
