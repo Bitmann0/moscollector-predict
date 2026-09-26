@@ -8,6 +8,7 @@ import { Loaded, StateView } from "../components/StateView";
 import { fmtDateTime, pageParam } from "../format";
 import { useReloadOn } from "../stream/useStream";
 import { usePersistentBoolean } from "../usePersistentState";
+import { title } from "../vocab";
 
 const PAGE_SIZE = 100;
 type EventClass = Schemas["EventItem"]["event_class"];
@@ -40,4 +41,4 @@ export function Events() {
   </section>;
 }
 
-function eventTitle(value: EventClass): string { return ({ normal: "Норма", warning: "Предупреждение", alarm: "Тревога", critical: "Критическое", fault: "Неисправность", service: "Сервисное" })[value]; }
+function eventTitle(value: EventClass): string { return title("event_class", value); }
