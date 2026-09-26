@@ -234,21 +234,23 @@ def test_directions_match_vocabulary(client):
     assert heads == expected
 
 
-def test_real_mode_is_501(monkeypatch):
+def test_real_mode_uses_live_routes(monkeypatch):
     monkeypatch.setenv("ML_MODE", "real")
     real = TestClient(create_app())
     assert real.get("/health").json()["mode"] == "real"
-    cases = [
-        ("post", "/api/v1/score", {"json": {"asof": "2026-06-15"}}, "ML1-03"),
-        ("get", "/ready", {"params": {"asof": "2026-06-15"}}, "ML1-03"),
-        ("get", "/api/v1/directions", {}, "ML1-03"),
-        ("get", "/api/v1/guard-weekly-inspections", {"params": {"asof": "2026-06-15"}}, "ML1-04"),
-    ]
-    for method, path, kw, task in cases:
-        resp = getattr(real, method)(path, **kw)
-        assert resp.status_code == 501, (path, resp.text)
-        assert task in resp.json()["detail"], path
-    assert real.post("/api/v1/outcomes", json=[]).json() == []
+    score = real.post("/api/v1/score", json={"asof": "2026-06-15"})
+    assert score.status_code == 200 and score.json()["source"] == "live"
+    ready = real.get("/ready", params={"asof": "2026-06-15"})
+    assert ready.status_code == 200 and ready.json()["source"] == "live"
+    directions = real.get("/api/v1/directions")
+    assert directions.status_code == 200
+    assert {h["head"] for item in directions.json() for h in item["heads"]} == {
+        "A_link", "D", "guard_weekly"}
+    weekly = real.get("/api/v1/guard-weekly-inspections",
+                      params={"asof": "2026-06-15"})
+    assert weekly.status_code == 200 and weekly.json()["source"] == "live"
+    outcomes = real.post("/api/v1/outcomes", json=[])
+    assert outcomes.status_code == 200 and outcomes.json() == []
 
 
 def test_unknown_mode_fails_fast():
