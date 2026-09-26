@@ -8,6 +8,7 @@ import { useReloadOn, useStream } from "../stream/useStream";
 import { title, type Permission } from "../vocab";
 import { Icon, type IconName } from "./Icons";
 import { StateView, headState } from "./StateView";
+import { ToastCenter } from "./ToastCenter";
 
 interface MenuItem { to: string; label: string; hint: string; icon: IconName; perm: Permission }
 const MENU: MenuItem[] = [
@@ -43,6 +44,8 @@ export function Layout() {
       <header className="mobile-top"><div className="brand-mark"><Icon name="activity" /></div><strong>Москоллектор</strong><NavLink to="/notifications" className="notification-button"><Icon name="bell" />{unread > 0 && <b>{unread > 99 ? "99+" : unread}</b>}</NavLink></header>
       <StatusBar status={status.data} failed={status.status === "error" && !status.data} unread={unread} />
       <main className="content"><Outlet /></main>
+      <nav className="mobile-nav" aria-label="Мобильная навигация">{MENU.filter((item) => can(item.perm)).map((item) => <NavLink key={item.to} to={item.to} end={item.to === "/"}><Icon name={item.icon} /><span>{item.label.replace("Центр управления", "Обзор").replace("Качество модели", "Качество")}</span></NavLink>)}<button type="button" onClick={() => void logout()}><Icon name="logout" /><span>Выйти</span></button></nav>
+      <ToastCenter />
     </div>
   </div>;
 }
