@@ -290,7 +290,8 @@ def test_historical_reads_parquet_inputs_and_fingerprints_them(tmp_path, monkeyp
     assert {row["head"] for row in result["historical_metrics"]} == {"D", "A_link"}
     assert set(result["data_sha256"]) == set(runner.INPUTS)
     assert result["runtime"]["cpu_seconds"] > 0
-    assert result["runtime"]["peak_rss_bytes"] > 0
+    rss = result["runtime"]["peak_rss_bytes"]
+    assert rss is None if runner.resource is None else rss > 0
     assert all(row["total"]["model_topk"]["reference_coverage"] == 1
                for row in result["historical_metrics"])
     json.dumps(result, allow_nan=False)
