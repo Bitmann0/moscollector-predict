@@ -102,7 +102,7 @@ def _real_ready(asof: dt.date | None) -> ReadyResponse:
                                  detail="нет признаков каналов или справочника")
         day = asof or last_day
         if day > last_day:
-            return ReadyResponse(status="missing_data", asof=asof,
+            return ReadyResponse(status="future_source", asof=asof,
                                  data_last_day=last_day, source="live",
                                  detail=f"данные заканчиваются {last_day}")
         if not _has_feature_day(day):
@@ -126,7 +126,7 @@ def _real_ready(asof: dt.date | None) -> ReadyResponse:
     except Exception as exc:
         log.exception("ML readiness failed")
         return ReadyResponse(status="error", asof=asof,
-                             data_last_day=None, source="live", detail=str(exc))
+                             data_last_day=last_day, source="live", detail=str(exc))
 
 
 def _real_directions() -> list[DirectionItem]:
@@ -191,7 +191,9 @@ def _real_score(req: ScoreRequest) -> ScoreResponse:
                 threshold_end=dt.date.fromisoformat(art["metadata"]["threshold_end"]),
                 model_lag_days=(req.asof - dt.date.fromisoformat(
                     art["metadata"]["threshold_end"])).days,
-                threshold_feasible=art.get("threshold") is not None)
+                # train_latest.py saves nextafter(1.0) when no threshold meets the
+                # precision gate: the head is silent by design, not merely empty.
+                threshold_feasible=art["threshold"] <= 1.0)
             scored = len({a.address.channel for a in got if a.address.channel is not None})
         except Exception as exc:
             detail = str(exc)
