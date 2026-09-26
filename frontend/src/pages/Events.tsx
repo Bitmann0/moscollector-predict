@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { api, type Schemas } from "../api/client";
@@ -8,6 +7,7 @@ import { Pager } from "../components/common";
 import { Loaded, StateView } from "../components/StateView";
 import { fmtDateTime, pageParam } from "../format";
 import { useReloadOn } from "../stream/useStream";
+import { usePersistentBoolean } from "../usePersistentState";
 
 const PAGE_SIZE = 100;
 type EventClass = Schemas["EventItem"]["event_class"];
@@ -19,8 +19,8 @@ export function Events() {
   const page = pageParam(params.get("page"));
   const from = params.get("from") || undefined, to = params.get("to") || undefined, obj = params.get("obj") || undefined, sensorType = params.get("sensor_type") || undefined, q = params.get("q") || undefined;
   const cls = eventClass(params.get("event_class"));
-  const [auto, setAuto] = useState(true);
-  const [hideNormalGas, setHideNormalGas] = useState(true);
+  const [auto, setAuto] = usePersistentBoolean("mkl.events.auto-refresh", true);
+  const [hideNormalGas, setHideNormalGas] = usePersistentBoolean("mkl.events.hide-normal-gas", true);
   const load = useLoad(() => api.GET("/api/v1/events", { params: { query: { from, to, obj, sensor_type: sensorType, event_class: cls, q, page: hideNormalGas ? 1 : page, page_size: hideNormalGas ? 1000 : PAGE_SIZE } } }), [from, to, obj, sensorType, cls, q, page, hideNormalGas]);
   useReloadOn(["alert.new", "event.alarm"], load.reload, { enabled: auto });
   function update(key: string, value?: string | number) { const next = new URLSearchParams(params); if (!value || (key === "page" && value === 1)) next.delete(key); else next.set(key, String(value)); if (key !== "page") next.delete("page"); setParams(next); }

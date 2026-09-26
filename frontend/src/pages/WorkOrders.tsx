@@ -22,15 +22,18 @@ function priorityOf(value: string | null): Priority | undefined { return PRIORIT
 
 export function WorkOrders() {
   const [params, setParams] = useSearchParams();
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(params.get("open"));
   const page = pageParam(params.get("page")), status = statusOf(params.get("status")), priority = priorityOf(params.get("priority")), scenario = SCENARIOS.find((s) => s.code === params.get("scenario"))?.code;
   const load = useLoad(() => api.GET("/api/v1/work-orders", { params: { query: { status, priority, scenario, page, page_size: PAGE_SIZE } } }), [status, priority, scenario, page]);
+  useEffect(() => { setSelected(params.get("open")); }, [params]);
   function update(key: string, value?: string | number) { const next = new URLSearchParams(params); if (!value || (key === "page" && value === 1)) next.delete(key); else next.set(key, String(value)); if (key !== "page") next.delete("page"); setParams(next); }
+  function openOrder(id: string) { const next = new URLSearchParams(params); next.set("open", id); setParams(next); }
+  function closeOrder() { const next = new URLSearchParams(params); next.delete("open"); setParams(next, { replace: true }); }
   return <section>
     <PageHeader eyebrow="Превентивное обслуживание" title="Заявки на работы" description="Путь от прогноза до подтверждённого выполнения работ" />
     <div className="filter-panel orders-filters"><label className="field"><span>Статус</span><select value={status ?? ""} onChange={(e) => update("status", e.target.value)}><option value="">Все статусы</option>{STATUSES.map((item) => <option key={item} value={item}>{title("work_order_status", item)}</option>)}</select></label><label className="field"><span>Приоритет</span><select value={priority ?? ""} onChange={(e) => update("priority", e.target.value)}><option value="">Все приоритеты</option>{PRIORITIES.map((item) => <option key={item} value={item}>{title("work_order_priority", item)}</option>)}</select></label><label className="field"><span>Сценарий</span><select value={scenario ?? ""} onChange={(e) => update("scenario", e.target.value)}><option value="">Все сценарии</option>{SCENARIOS.map((item) => <option key={item.code} value={item.code}>{item.title}</option>)}</select></label></div>
-    <Loaded load={load}>{(data) => <><div className="section-summary"><span className="summary-pill">Всего заявок <strong>{data.total}</strong></span><span className="summary-pill">На странице <strong>{data.items.length}</strong></span></div>{data.items.length === 0 ? <StateView state="empty" /> : <OrderTable items={data.items} onOpen={setSelected} />}<Pager page={data.page} pageSize={data.page_size} total={data.total} onPage={(value) => update("page", value)} /></>}</Loaded>
-    {selected && <OrderDrawer id={selected} onClose={() => setSelected(null)} onChanged={load.reload} />}
+    <Loaded load={load}>{(data) => <><div className="section-summary"><span className="summary-pill">Всего заявок <strong>{data.total}</strong></span><span className="summary-pill">На странице <strong>{data.items.length}</strong></span></div>{data.items.length === 0 ? <StateView state="empty" /> : <OrderTable items={data.items} onOpen={openOrder} />}<Pager page={data.page} pageSize={data.page_size} total={data.total} onPage={(value) => update("page", value)} /></>}</Loaded>
+    {selected && <OrderDrawer id={selected} onClose={closeOrder} onChanged={load.reload} />}
   </section>;
 }
 

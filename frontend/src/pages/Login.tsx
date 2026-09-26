@@ -17,6 +17,7 @@ export function Login() {
 
   const [loginName, setLoginName] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -38,8 +39,8 @@ export function Login() {
   return (
     <div className="login">
       <form className="login__form" onSubmit={(event) => void submit(event)}>
-        <h1>Москоллектор</h1>
-        <p className="muted">Рабочее место диспетчера: прогнозы отказов и заявки</p>
+        <div className="login__brand"><span>МК</span><div><h1>Москоллектор</h1><small>Predictive intelligence</small></div></div>
+        <p className="muted">Единое рабочее место предиктивной эксплуатации инженерной инфраструктуры</p>
         <label className="field">
           <span>Логин</span>
           <input
@@ -54,15 +55,7 @@ export function Login() {
         </label>
         <label className="field">
           <span>Пароль</span>
-          <input
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            maxLength={200}
-          />
+          <span className="password-input"><input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required maxLength={200} /><button type="button" onClick={() => setShowPassword((value) => !value)}>{showPassword ? "Скрыть" : "Показать"}</button></span>
         </label>
         {error && (
           <p className="form-error" role="alert">
@@ -72,6 +65,7 @@ export function Login() {
         <button type="submit" className="button button--primary" disabled={busy}>
           {busy ? "Вход…" : "Войти"}
         </button>
+        <p className="login__secure">Защищённый доступ · действия пользователей журналируются</p>
       </form>
     </div>
   );

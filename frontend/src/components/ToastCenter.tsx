@@ -8,7 +8,7 @@ import { Icon } from "./Icons";
 function linkOf(event: StreamEvent): string | null {
   const id = event.payload.id;
   if (event.kind === "alert.new" && typeof id === "string") return `/forecasts/${encodeURIComponent(id)}`;
-  if (event.kind === "workorder.changed" && typeof id === "string") return "/work-orders";
+  if (event.kind === "workorder.changed" && typeof id === "string") return `/work-orders?open=${encodeURIComponent(id)}`;
   if (event.kind === "event.alarm") return "/events";
   return null;
 }

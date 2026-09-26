@@ -16,7 +16,8 @@ export type IconName =
   | "wrench"
   | "search"
   | "calendar"
-  | "filter";
+  | "filter"
+  | "download";
 
 const paths: Record<IconName, ReactElement> = {
   dashboard: <><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="4" rx="2"/><rect x="14" y="11" width="7" height="10" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></>,
@@ -35,6 +36,7 @@ const paths: Record<IconName, ReactElement> = {
   search: <><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></>,
   calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></>,
   filter: <path d="M3 5h18l-7 8v6l-4 2v-8Z"/>,
+  download: <><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></>,
 };
 
 export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGElement>) {
