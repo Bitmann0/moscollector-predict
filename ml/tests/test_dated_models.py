@@ -384,3 +384,13 @@ def test_refresh_refuses_source_end_beyond_the_panel(sources, monkeypatch):
 
     with pytest.raises(ValueError, match="панель кончается 2026-06-12"):
         train_latest.refresh("A_link", LINK, source_end=dt.date(2026, 6, 20))
+
+
+def test_window_plan_skips_days_without_data():
+    """06-01 в журнале пустой: отсечка сдвигается на 05-31, июнь покрыт без дыр."""
+    missing = frozenset({dt.date(2026, 6, 1)})
+    plan = cv.window_plan(JUNE[0], JUNE[-1], 1, 31, 8, missing)
+    assert plan[0]["source_end"] == dt.date(2026, 5, 31)
+    assert not {p["source_end"] for p in plan} & missing
+    for day in JUNE:
+        assert any(p["valid_from"] <= day <= p["valid_to"] for p in plan), day
