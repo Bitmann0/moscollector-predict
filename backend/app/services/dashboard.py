@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from .. import models, vocab
 from ..schemas.dashboard import DashboardSummary, ScenarioKpi, SeriesPoint
 from . import semantics, settings_store
-from .helpers import msk_midnight, to_db
+from .helpers import msk_midnight, open_forecast_clauses, to_db
 from .system import head_states
 
 SERIES_DAYS = 14
@@ -23,12 +23,11 @@ def _coverage_by_head(db: Session) -> dict[str, float]:
 def summary(db: Session) -> DashboardSummary:
     today = settings_store.demo_today(db)
     coverage = _coverage_by_head(db)
-    decided = select(models.Decision.forecast_id)
+    is_open = open_forecast_clauses(today)
     scenarios = []
     for s in vocab.load()["scenario"]:
         open_count = db.scalar(select(func.count()).select_from(models.Forecast).where(
-            models.Forecast.scenario == s["code"], models.Forecast.in_budget.is_(True),
-            models.Forecast.id.not_in(decided), models.Forecast.valid_to >= to_db(msk_midnight(today)))) or 0
+            models.Forecast.scenario == s["code"], *is_open)) or 0
         scenarios.append(ScenarioKpi(scenario=s["code"], title=s["title"],
                                      open_forecasts=open_count,
                                      coverage_fraction=coverage.get(s["head"])))
