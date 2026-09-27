@@ -1,18 +1,4 @@
-"""Заявки: список, карточка, черновик из прогнозов, смена статуса.
-
-ЗАГЛУШКА — владелец BE-06 (C2, C3).
-Заменить: TODO BE-06 — в transition проверку графа статусов
-(vocabularies.json: work_order_transitions), права на целевой статус
-(work_order_transition_perm), 409 {detail, code} при expected_status ≠ текущему и
-публикацию workorder.changed; в create — приоритет и вид работ по сценарию вместо
-«плановая» и общего текста.
-Контракт: list_orders, get, create и transition не меняются; тест
-tests/test_endpoints_shape.py должен остаться зелёным.
-
-Сейчас: список и карточка читают БД с фильтрами status, priority, scenario; create
-делает черновик с id "WO-" + sha256 от отсортированных forecast_ids (повтор с теми же
-прогнозами возвращает ту же заявку); transition ставит любой статус и пишет историю.
-"""
+"""Заявки: фильтры, идемпотентный черновик, история и строгий граф статусов."""
 import hashlib
 
 from fastapi import HTTPException

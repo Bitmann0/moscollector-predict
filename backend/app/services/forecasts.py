@@ -1,23 +1,4 @@
-"""Журнал прогнозов и карточка прогноза. Живое, минимум.
-
-ЗАГЛУШКА части — владелец BE-05 (C2).
-Заменить: фильтры from, to, decision, outcome, obj и группировку group_by — сейчас они
-принимаются и не применяются, работают только scenario и пагинация; dynamics_30d —
-сейчас 30 синтетических точек, нужны тревоги и плохие состояния по дням из events;
-calendar.holiday — производственный календарь; поиск заявки по forecast_ids — сейчас
-перебор всех заявок в Python, нужен запрос по JSON или связующая таблица.
-Контракт: list_forecasts и get_card не меняются; тесты tests/test_endpoints_shape.py
-и tests/test_daily_run.py должны остаться зелёными.
-
-Живые части: строки из forecasts, объект и канал из address и справочников, последнее
-решение, исходы, номер заявки, версии и решения в карточке. Порядок журнала: asof по
-убыванию, rank по возрастанию.
-
-Журнал показывает только выданное (in_budget): ML возвращает и строки вне бюджета
-(заглушка — около 40 в день при 1–20 в бюджете), они хранятся в forecasts для анализа,
-но в ForecastItem нет поля in_budget, и в списке их нельзя было бы отличить от выданных.
-Карточка открывается для любой строки.
-"""
+"""Фильтруемый журнал прогнозов и карточка с историей, событиями и решениями."""
 from datetime import date, timedelta
 
 from sqlalchemy import Integer, func, select
@@ -39,6 +20,8 @@ from .helpers import Refs, count, from_db, page_of
 WEEKDAYS_RU = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота",
                "воскресенье"]
 DYNAMICS_DAYS = 30
+HOLIDAYS = {(1, day) for day in range(1, 9)} | {(2, 23), (3, 8), (5, 1), (5, 9),
+                                                (6, 12), (11, 4)}
 
 
 def decision_out(row: models.Decision) -> DecisionOut:
@@ -104,16 +87,31 @@ def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
         stmt = stmt.where(models.Forecast.asof <= date_to)
     if obj is not None:
         stmt = stmt.where(models.Forecast.obj_id == obj)
-    if decision is not None:
+    if decision == "none":
+        stmt = stmt.where(~models.Forecast.id.in_(select(models.Decision.forecast_id)))
+    elif decision == "any":
+        stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id)))
+    elif decision is not None:
         stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id)
                                                   .where(models.Decision.action == decision)))
     if outcome is not None:
         stmt = stmt.where(models.Forecast.id.in_(select(models.Outcome.forecast_id).where(
             (models.Outcome.outcome_auto == outcome) | (models.Outcome.outcome_manual == outcome))))
-    total = count(db, stmt)
-    rows = list(db.scalars(stmt.order_by(models.Forecast.asof.desc(), models.Forecast.rank,
-                                         models.Forecast.id)
-                           .offset((page - 1) * page_size).limit(page_size)))
+    ordered = stmt.order_by(models.Forecast.asof.desc(), models.Forecast.rank,
+                            models.Forecast.id)
+    if group_by:
+        grouped: list[models.Forecast] = []
+        seen: set[str | None] = set()
+        for row in db.scalars(ordered):
+            key = row.obj_id if group_by == "obj" else row.case_key
+            if key not in seen:
+                grouped.append(row)
+                seen.add(key)
+        total = len(grouped)
+        rows = grouped[(page - 1) * page_size:page * page_size]
+    else:
+        total = count(db, stmt)
+        rows = list(db.scalars(ordered.offset((page - 1) * page_size).limit(page_size)))
     return page_of(ForecastItem, _items(db, rows), total, page, page_size)
 
 
@@ -173,5 +171,7 @@ def get_card(db: Session, forecast_id: str) -> ForecastCard | None:
         dynamics_30d=_dynamics(db, row),
         # weekday по ISO: 1 — понедельник, 7 — воскресенье
         calendar=CalendarInfo(weekday=weekday + 1, weekday_title=WEEKDAYS_RU[weekday],
-                              holiday=None),
+                              holiday=("выходной" if weekday >= 5 else
+                                       "праздничный день" if (row.asof.month, row.asof.day)
+                                       in HOLIDAYS else None)),
     )

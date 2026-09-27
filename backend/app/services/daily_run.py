@@ -1,17 +1,8 @@
-"""Дневной цикл: /score и недельная очередь → прогнозы, версии, журнал выданного, заявки, SSE.
+"""Дневной цикл: ML → прогнозы, версии, факты, журнал выдачи, заявки и уведомления.
 
-Живое, минимум. Точки входа: POST /api/v1/admin/run-daily и
-`python -m app.services.daily_run --asof YYYY-MM-DD`.
+Точки входа: POST /api/v1/admin/run-daily,
+`python -m app.services.daily_run --asof YYYY-MM-DD` и scripts/preload_demo.py.
 
-ЗАГЛУШКА части — владелец PM-09 (C1, C2).
-Заменить: правило «замена дня» — повторный расчёт того же asof должен заменять записи
-issued_log за (голова, asof), сейчас он только дописывает недостающие; шаг «факт» —
-POST /outcomes для прогнозов с valid_to ≤ demo_now и запись outcomes.outcome_auto;
-прелоад окна (scripts/preload_demo.py).
-Контракт: run_daily(db, asof, ml) -> RunDailyOut не меняется; тест
-tests/test_daily_run.py должен остаться зелёным.
-
-Что делает сейчас:
 1. Запрос к ML: головы A_link и D, журнал выданного из issued_log за 7 дней до asof
    (день asof не входит), history_complete_from = asof − 7.
 2. ML недоступен или ответ нарушает C1 → прогон пишется со статусом головы error и
@@ -20,7 +11,9 @@ tests/test_daily_run.py должен остаться зелёным.
    forecast_versions на каждый прогон, issued_log для строк в бюджете, черновики
    work_orders по order_id.
 4. По понедельникам — недельная очередь guard_weekly тем же прогоном.
-5. После commit: alert.new на каждый новый прогноз в бюджете, run.finished на прогон.
+5. Созревшие прогнозы отправляются в ML `/outcomes`; автоматический факт хранится
+   отдельно от ручного исхода.
+6. После commit: alert.new на каждый новый прогноз в бюджете, run.finished на прогон.
 """
 import argparse
 import logging
@@ -28,7 +21,7 @@ import threading
 from datetime import date, timedelta
 
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from .. import models, vocab
@@ -37,6 +30,7 @@ from ..schemas.misc import HeadRunResult, RunDailyOut
 from ..schemas.ml import (
     AlertOut,
     IssuedEntry,
+    OutcomeQuery,
     ScoreRequest,
     ScoreResponse,
     WeeklyResponse,
@@ -171,9 +165,10 @@ class _Saver:
 
 
 def _log_issued(db: Session, asof: date, alerts: list[AlertOut]) -> None:
-    """Журнал выданного: все строки в бюджете. Уже записанное за (голова, asof) не трогаем."""
-    existing = {(r.head, r.entity_key) for r in db.scalars(
-        select(models.IssuedLog).where(models.IssuedLog.asof == asof))}
+    """Успешный повтор расчёта полностью заменяет выдачу пилотных голов за день."""
+    db.execute(delete(models.IssuedLog).where(models.IssuedLog.asof == asof,
+                                               models.IssuedLog.head.in_(PILOT_HEADS)))
+    existing: set[tuple[str, str]] = set()
     for alert in alerts:
         key = entity_key(alert.address.channel, alert.address.obj)
         if not alert.in_budget or key is None or (alert.head, key) in existing:
@@ -218,7 +213,7 @@ def _save_work_orders(db: Session, orders: list[WorkOrderOut], source: str) -> i
             db.add(models.WorkOrderHistory(order_id=order.order_id, from_status=None,
                                            to_status="draft", author="system",
                                            reason="черновик из дневного расчёта", at=now))
-        else:  # статус и автора не трогаем: заявку могли уже взять в работу
+        elif row.status == "draft":  # подтверждённую заявку расчёт менять не вправе
             for key, value in fields.items():
                 setattr(row, key, value)
         saved += 1
@@ -271,6 +266,34 @@ def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> 
     raw["weekly"] = resp.model_dump(mode="json", exclude={"priorities"})
 
 
+def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
+    """Запрашивает факт только для выданных прогнозов с полностью закрытым окном."""
+    cutoff = to_db(msk_midnight(asof + timedelta(days=1)))
+    forecasts = list(db.scalars(select(models.Forecast).where(
+        models.Forecast.in_budget.is_(True), models.Forecast.valid_to <= cutoff)))
+    if not forecasts:
+        return
+    queries = [OutcomeQuery(id=row.id, kind=row.kind, head=row.head, channel=row.channel_id,
+                            obj=row.obj_id, asof=row.asof) for row in forecasts]
+    try:
+        results = ml.outcomes(queries)
+    except ML_ERRORS as exc:
+        raw["outcomes_error"] = f"{type(exc).__name__}: {exc}"[:1000]
+        return
+    by_id = {item.id: item.outcome for item in results}
+    for forecast in forecasts:
+        if forecast.id not in by_id:
+            continue
+        outcome = db.get(models.Outcome, forecast.id)
+        if outcome is None:
+            outcome = models.Outcome(forecast_id=forecast.id, updated_at=now_utc(),
+                                     source=forecast.source)
+            db.add(outcome)
+        outcome.outcome_auto = by_id[forecast.id]
+        outcome.updated_at = now_utc()
+    raw["outcomes_refreshed"] = len(by_id)
+
+
 def _alert_new(db: Session, row: models.Forecast) -> None:
     scenario = vocab.scenario(row.scenario)
     obj = (row.address or {}).get("obj_name") or row.obj_id or "адрес неизвестен"
@@ -300,6 +323,7 @@ def _run_daily(db: Session, asof: date, ml: MlClient) -> RunDailyOut:
     saver = _Saver(db, run)
     heads: dict[str, dict] = {}
     raw: dict = {}
+    _refresh_outcomes(db, asof, ml, raw)
     orders = _score(db, saver, asof, ml, heads, raw)
     if asof.weekday() == 0:
         _weekly(saver, asof, ml, heads, raw)
