@@ -19,151 +19,151 @@
   "dynamics_30d": [
     {
       "alarms": 0,
-      "bad_states": 2,
+      "bad_states": 0,
       "day": "2026-05-17"
     },
     {
-      "alarms": 1,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-05-18"
     },
     {
-      "alarms": 5,
-      "bad_states": 1,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-19"
     },
     {
-      "alarms": 4,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-05-20"
     },
     {
-      "alarms": 1,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-21"
     },
     {
-      "alarms": 2,
-      "bad_states": 1,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-22"
     },
     {
-      "alarms": 3,
-      "bad_states": 1,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-23"
     },
     {
-      "alarms": 2,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-24"
     },
     {
-      "alarms": 3,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-25"
     },
     {
-      "alarms": 5,
-      "bad_states": 2,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-26"
     },
     {
-      "alarms": 4,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-05-27"
     },
     {
-      "alarms": 4,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-28"
     },
     {
-      "alarms": 5,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-29"
     },
     {
-      "alarms": 4,
-      "bad_states": 1,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-30"
     },
     {
-      "alarms": 1,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-05-31"
     },
     {
-      "alarms": 3,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-06-01"
     },
     {
-      "alarms": 5,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-06-02"
     },
     {
       "alarms": 0,
-      "bad_states": 2,
+      "bad_states": 0,
       "day": "2026-06-03"
     },
     {
-      "alarms": 3,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-06-04"
     },
     {
-      "alarms": 1,
-      "bad_states": 1,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-06-05"
     },
     {
-      "alarms": 5,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-06-06"
     },
     {
       "alarms": 0,
-      "bad_states": 1,
+      "bad_states": 0,
       "day": "2026-06-07"
     },
     {
-      "alarms": 4,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-06-08"
     },
     {
-      "alarms": 5,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-06-09"
     },
     {
       "alarms": 0,
-      "bad_states": 2,
+      "bad_states": 0,
       "day": "2026-06-10"
     },
     {
-      "alarms": 2,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-06-11"
     },
     {
-      "alarms": 5,
-      "bad_states": 3,
+      "alarms": 0,
+      "bad_states": 0,
       "day": "2026-06-12"
     },
     {
       "alarms": 0,
-      "bad_states": 2,
+      "bad_states": 0,
       "day": "2026-06-13"
     },
     {
-      "alarms": 4,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-06-14"
     },
     {
-      "alarms": 4,
+      "alarms": 0,
       "bad_states": 0,
       "day": "2026-06-15"
     }

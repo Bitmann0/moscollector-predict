@@ -1,18 +1,4 @@
-"""Заявки: список, карточка, черновик из прогнозов, смена статуса.
-
-ЗАГЛУШКА — владелец BE-06 (C2, C3).
-Заменить: TODO BE-06 — в transition проверку графа статусов
-(vocabularies.json: work_order_transitions), права на целевой статус
-(work_order_transition_perm), 409 {detail, code} при expected_status ≠ текущему и
-публикацию workorder.changed; в create — приоритет и вид работ по сценарию вместо
-«плановая» и общего текста.
-Контракт: list_orders, get, create и transition не меняются; тест
-tests/test_endpoints_shape.py должен остаться зелёным.
-
-Сейчас: список и карточка читают БД с фильтрами status, priority, scenario; create
-делает черновик с id "WO-" + sha256 от отсортированных forecast_ids (повтор с теми же
-прогнозами возвращает ту же заявку); transition ставит любой статус и пишет историю.
-"""
+"""Заявки: фильтры, идемпотентный черновик, история и строгий граф статусов."""
 import hashlib
 
 from fastapi import HTTPException
@@ -30,6 +16,7 @@ from ..schemas.work_orders import (
 )
 from ..security import CurrentUser
 from .helpers import Refs, count, from_db, now_utc, page_of, to_db
+from .notifications import publish_safe
 
 MANUAL_PRIORITY = "planned"
 
@@ -86,6 +73,8 @@ def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCa
         if row is None:
             raise HTTPException(status_code=404, detail="forecast_not_found")
         forecasts.append(row)
+    if len({f.scenario for f in forecasts}) != 1 or len({f.obj_id for f in forecasts}) != 1:
+        raise HTTPException(status_code=422, detail="work_order_requires_one_scenario_and_object")
     order_id = order_id_for(body.forecast_ids)
     if db.get(models.WorkOrder, order_id) is None:
         first = forecasts[0]
@@ -112,9 +101,20 @@ def transition(db: Session, order_id: str, body: WorkOrderTransition,
     row = db.get(models.WorkOrder, order_id)
     if row is None:
         raise HTTPException(status_code=404, detail="work_order_not_found")
+    if row.status != body.expected_status:
+        raise HTTPException(status_code=409, detail={"code": "status_conflict",
+                                                     "current_status": row.status})
+    allowed = vocab.load()["work_order_transitions"].get(row.status, [])
+    if body.status not in allowed:
+        raise HTTPException(status_code=422, detail="work_order_transition_not_allowed")
+    permission = vocab.load()["work_order_transition_perm"].get(body.status)
+    if permission and permission not in user.perms:
+        raise HTTPException(status_code=403, detail="forbidden")
     db.add(models.WorkOrderHistory(order_id=order_id, from_status=row.status,
                                    to_status=body.status, author=user.login,
                                    reason=body.reason, at=now_utc()))
     row.status = body.status
     db.commit()
+    publish_safe("workorder.changed", {"id": row.id, "from_status": body.expected_status,
+                                        "to_status": body.status}, title=f"Заявка {row.id}", db=db)
     return get(db, order_id)

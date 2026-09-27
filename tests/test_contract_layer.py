@@ -85,6 +85,19 @@ def test_openapi_builds_and_has_all_sections():
         assert path in paths
 
 
+def test_openapi_documents_cookie_and_integration_auth():
+    schema = create_app().openapi()
+    schemes = schema["components"]["securitySchemes"]
+    assert schemes["cookieAuth"] == {
+        "type": "apiKey", "in": "cookie", "name": "mk_session",
+        "description": "Устанавливается POST /api/v1/auth/login",
+    }
+    assert schemes["apiKeyAuth"]["name"] == "X-API-Key"
+    assert schema["paths"]["/api/v1/forecasts"]["get"]["security"] == [
+        {"cookieAuth": []}, {"apiKeyAuth": []}]
+    assert "security" not in schema["paths"]["/api/v1/auth/login"]["post"]
+
+
 def test_ml_fixtures_validate_against_mirror():
     """Фикстуры ML (пишет scripts/export_contracts.py) читаются зеркалом backend без ошибок."""
     fixtures = ROOT / "contracts" / "fixtures"

@@ -5,6 +5,7 @@ node корневого Dockerfile) отдаётся с корня: любой �
 index.html, и маршрутизацию берёт на себя React Router.
 """
 from fastapi import FastAPI, HTTPException
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse
 
 from .audit import AuditMiddleware
@@ -39,15 +40,56 @@ def create_app() -> FastAPI:
         title="Москоллектор — сервис диспетчера",
         version="0.2.0",
         description=(
-            "Контракт C2 плана команды: backend → frontend. "
-            "Прогнозы считает ML-сервис (C1); интерфейс читает только этот API."
+            "## Интерактивная документация\n\n"
+            "В Swagger UI можно выполнить любой запрос через **Try it out**. Для браузерной "
+            "сессии сначала вызовите `POST /api/v1/auth/login`: защищённые запросы далее используют "
+            "HttpOnly cookie автоматически. Интеграции вместо cookie передают `X-API-Key`.\n\n"
+            "## Правила данных\n\n"
+            "Все даты без зоны трактуются как Europe/Moscow, в БД время хранится в UTC. "
+            "`unknown` — отсутствие достаточных наблюдений, а не отрицательный исход. "
+            "Прогнозы являются ручными рекомендациями и не создают подтверждённую заявку автоматически."
         ),
+        openapi_tags=[
+            {"name": "auth", "description": "Вход, выход и определение роли текущей сессии."},
+            {"name": "system", "description": "Готовность API и ML-контура."},
+            {"name": "forecast", "description": "Журнал, карточки, решения и исходы рекомендаций."},
+            {"name": "ingest", "description": "Идемпотентная загрузка СМВУ и журнала ОДС."},
+            {"name": "reference", "description": "Справочники объектов, каналов и причин решений."},
+        ],
     )
     app.add_middleware(AuditMiddleware)
     # Добавлен последним — значит, самый внешний: лишнее тело отсекается до разбора и аудита.
     app.add_middleware(BodyLimitMiddleware)
     for module in ROUTERS:
         app.include_router(module.router, prefix=API_PREFIX)
+
+    def custom_openapi() -> dict:
+        if app.openapi_schema:
+            return app.openapi_schema
+        schema = get_openapi(title=app.title, version=app.version,
+                             description=app.description, routes=app.routes,
+                             tags=app.openapi_tags)
+        schemes = schema.setdefault("components", {}).setdefault("securitySchemes", {})
+        schemes["cookieAuth"] = {"type": "apiKey", "in": "cookie", "name": "mk_session",
+                                 "description": "Устанавливается POST /api/v1/auth/login"}
+        schemes["apiKeyAuth"] = {"type": "apiKey", "in": "header", "name": "X-API-Key",
+                                 "description": "Ключ машинной интеграции"}
+        public = {f"{API_PREFIX}/health", f"{API_PREFIX}/auth/login",
+                  f"{API_PREFIX}/auth/logout"}
+        for path, operations in schema["paths"].items():
+            if path in public:
+                continue
+            for method, operation in operations.items():
+                if method.lower() in {"get", "post", "put", "patch", "delete"}:
+                    operation["security"] = [{"cookieAuth": []}, {"apiKeyAuth": []}]
+                    operation.setdefault("responses", {}).setdefault(
+                        "401", {"description": "Сессия отсутствует, истекла или недействительна"})
+                    operation["responses"].setdefault(
+                        "403", {"description": "У роли нет требуемого права"})
+        app.openapi_schema = schema
+        return schema
+
+    app.openapi = custom_openapi
 
     @app.get(f"{API_PREFIX}/health", tags=["system"])
     def health() -> dict:

@@ -1,15 +1,4 @@
-"""Решение диспетчера по прогнозу и итог проверки.
-
-ЗАГЛУШКА — владелец BE-06 (C2, C3).
-Заменить: TODO BE-06 — проверка, что reason_code допустим для action
-(vocabularies.json: reason_code[].actions), ответ 422 при нарушении; публикация
-workorder.changed, если решение создаёт заявку; эмулированные решения прелоада
-(source="emulated") пишет PM-09.
-Контракт: create и set_outcome не меняются, 404 forecast_not_found для чужого id;
-тесты tests/test_endpoints_shape.py и tests/test_audit.py должны остаться зелёными.
-
-Сейчас решение и итог сохраняются как пришли, с source="live".
-"""
+"""История решений диспетчера и текущий итог проверки прогноза."""
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -29,6 +18,9 @@ def _forecast_or_404(db: Session, forecast_id: str) -> models.Forecast:
 
 def create(db: Session, forecast_id: str, body: DecisionIn, user: CurrentUser) -> DecisionOut:
     _forecast_or_404(db, forecast_id)
+    reason = db.get(models.ReasonCode, body.reason_code)
+    if reason is None or body.action not in (reason.actions or []):
+        raise HTTPException(status_code=422, detail="reason_code_not_allowed_for_action")
     row = models.Decision(forecast_id=forecast_id, action=body.action,
                           reason_code=body.reason_code, comment=body.comment,
                           author=user.login, created_at=now_utc(), source="live")
