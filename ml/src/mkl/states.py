@@ -53,13 +53,21 @@ def build_group_outages(con: duckdb.DuckDBPyConnection) -> None:
     «одиночный отказ» теряла 78% настоящих отказов (15 747 из 71 725), и именно
     это загнало базу головы A в 0.002 и заставило подмешивать к ней молчание.
     """
-    con.execute(f"""
-    CREATE OR REPLACE TABLE group_outages AS
+    con.execute(f"CREATE OR REPLACE TABLE group_outages AS {group_outages_sql()}")
+
+
+def group_outages_sql(episodes: str = "episodes") -> str:
+    """Запрос групповых отказов по таблице эпизодов `episodes`.
+
+    Вынесен отдельно, чтобы db.attach_label_sources пересобирал групповые
+    отказы по эпизодам, обрезанным датой, тем же запросом, что и стадия states.
+    """
+    return f"""
     WITH bucketed AS (
       SELECT obj,
              CAST(epoch(t_start) AS BIGINT) // ({GROUP_OUTAGE_WINDOW_MIN} * 60) AS bucket,
              ch, t_start
-      FROM episodes
+      FROM {episodes}
       WHERE obj IS NOT NULL AND dur_s >= {MIN_FAILURE_DURATION_S}
     )
     SELECT obj, bucket,
@@ -68,21 +76,26 @@ def build_group_outages(con: duckdb.DuckDBPyConnection) -> None:
     FROM bucketed
     GROUP BY obj, bucket
     HAVING count(DISTINCT ch) >= {GROUP_OUTAGE_MIN_CHANNELS}
-    """)
+    """
 
 
-def mark_group_episodes(con: duckdb.DuckDBPyConnection) -> None:
-    con.execute(f"""
-    CREATE OR REPLACE TABLE episodes AS
+def marked_episodes_sql(episodes: str = "episodes",
+                        outages: str = "group_outages") -> str:
+    """Эпизоды `episodes` с флагом is_group по групповым отказам `outages`."""
+    return f"""
     SELECT e.* REPLACE (
       EXISTS (
-        SELECT 1 FROM group_outages o
+        SELECT 1 FROM {outages} o
         WHERE o.obj = e.obj
           AND CAST(epoch(e.t_start) AS BIGINT) // ({GROUP_OUTAGE_WINDOW_MIN} * 60) = o.bucket
       ) AS is_group
     )
-    FROM episodes e
-    """)
+    FROM {episodes} e
+    """
+
+
+def mark_group_episodes(con: duckdb.DuckDBPyConnection) -> None:
+    con.execute(f"CREATE OR REPLACE TABLE episodes AS {marked_episodes_sql()}")
 
 
 def build_all(con: duckdb.DuckDBPyConnection, source: str = "ev") -> None:

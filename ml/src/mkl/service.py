@@ -93,7 +93,7 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
         if asof is None and (dt.date.today() - day).days > 2:
             raise ValueError(f"{head}: latest feature day {day} is stale for live pilot")
         serve.validate_pilot_artifact(
-            head, art, day, max_lag_days=int(cfg.get("max_model_lag_days", 14)))
+            head, art, day, max_lag_days=serve.max_lag_days(cfg))
         cooldown = int(cfg.get("cooldown_days", 0))
         if cooldown:
             # Durable history belongs to the backend. An absent or incomplete
@@ -253,7 +253,7 @@ def coverage(asof: dt.date | None = None) -> list[Coverage]:
     ref = _reference_counts()
     out: list[Coverage] = []
     for head, cfg in serve.load_heads().items():
-        if not serve.model_path(head).exists():
+        if not serve.has_model(head):
             continue
         ent = "obj" if cfg["entity"][0] in ("obj", "seg") else "ch"
         total = ref[ent]
