@@ -1,6 +1,6 @@
 # ЗАГЛУШКА — владелец PM-10 (стенд, решения D9 и D13).
-# Заменить: домен и TLS для реальной ВМ, бэкап pg_dump (ML1-13), replay.py как сервис,
-# лимиты ресурсов, журналы.
+# Заменить: домен и TLS для реальной ВМ, бэкап pg_dump (ML1-13), лимиты ресурсов, журналы.
+# Уже живое: сервис replay (ML2-03).
 # Контракт: api снаружи доступен только через Caddy (80/443), демо-настройки закрыты;
 # scripts/smoke_compose.py --base-url https://$STAND_DOMAIN должен остаться зелёным.
 #
@@ -25,6 +25,32 @@ services:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Поток событий 30.06 (ML2-03, раздел 3 плана: «Поток 30.06»). Образ ml — ради duckdb
+  # для parquet бандла; скрипт и события бандла смонтированы только для чтения.
+  # Журнал задержки для ML2-04 — ./state/replay/latency.csv на хосте.
+  replay:
+    build:
+      context: .
+      dockerfile: ml/Dockerfile
+    command: ["python", "/srv/scripts/replay.py", "--base-url", "http://api:8000",
+              "--loop", "--align-to-clock", "--latency-log", "/srv/state/latency.csv"]
+    environment:
+      INTEGRATION_API_KEY: ${INTEGRATION_API_KEY:?задайте INTEGRATION_API_KEY в .env}
+      TZ: Europe/Moscow
+    volumes:
+      - ./scripts:/srv/scripts:ro
+      # replay.py по умолчанию читает <корень>/bundle/data/interim/events_year=2026.parquet;
+      # корень скрипта в контейнере — /srv.
+      - ${BUNDLE_DIR:-./bundle}/data/interim:/srv/bundle/data/interim:ro
+      - ./state/replay:/srv/state
+    # HEALTHCHECK образа ml опрашивает :8001, а здесь сервера нет.
+    healthcheck:
+      disable: true
     depends_on:
       api:
         condition: service_healthy
