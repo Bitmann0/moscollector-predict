@@ -41,9 +41,23 @@ def output_path(out: Path | None, head: str, threshold_end: dt.date,
     return out / serve.model_path(head, threshold_end).name
 
 
+def _missing_panel_days(first: dt.date, last: dt.date) -> frozenset[dt.date]:
+    """Дни first..last без строк в daily_channel: на них отсечку не обучить."""
+    path = PATHS.interim / "daily_channel.parquet"
+    if not path.is_file():
+        return frozenset()
+    seen = set(pl.scan_parquet(path).filter(pl.col("day").is_between(first, last))
+               .select(pl.col("day").unique()).collect()["day"].to_list())
+    days = (first + dt.timedelta(days=i) for i in range((last - first).days + 1))
+    return frozenset(d for d in days if d not in seen)
+
+
 def window_plan(head: str, cfg: dict, first: dt.date, last: dt.date) -> list[dict]:
+    lag = serve.max_lag_days(cfg)
+    missing = _missing_panel_days(first - dt.timedelta(days=lag + int(cfg["horizon_days"])),
+                                  last)
     return cv.window_plan(first, last, int(cfg["horizon_days"]),
-                          int(cfg["embargo_days"]), serve.max_lag_days(cfg))
+                          int(cfg["embargo_days"]), lag, missing)
 
 
 def refresh(head: str, cfg: dict, backend: str = "lgbm",
