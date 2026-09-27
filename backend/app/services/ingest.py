@@ -1,17 +1,4 @@
-"""Приём журнала СМВУ и журнала ОДС, сброс дня, история загрузок.
-
-ЗАГЛУШКА — владелец ML2-03 (C2, C5); ingest_ods — владелец BE-06.
-Заменить: разбор строк (t/f, дата + время в МСК, число из значения), запись в events
-с дедупликацией по row_hash и классификацией semantics.classify, подсчёт duplicates,
-rejected и outside_demo_window, SSE event.alarm для классов alarm и critical; запись
-ods_journal; удаление событий дня в reset_day.
-Контракт: сигнатуры и IngestBatchOut не меняются; тест tests/test_endpoints_shape.py
-должен остаться зелёным.
-
-Сейчас строки не пишутся: партия получает accepted = rows_total и статус accepted, но
-сама строка ingest_batches записывается, чтобы batch_id был настоящим. Файл только
-считается по строкам: XLSX — через openpyxl, иначе CSV в UTF-8.
-"""
+"""Идемпотентный приём СМВУ и ОДС, сброс дня и история загрузок."""
 import csv
 import hashlib
 import io
@@ -30,6 +17,7 @@ from ..schemas.events import EventRowIn, IngestBatchOut, OdsRowIn, ResetDayOut
 from ..security import CurrentUser
 from . import semantics, settings_store
 from .helpers import assume_msk, count, from_db, now_utc, page_of, to_db
+from .notifications import broker
 
 # Тот же лимит, что в routers/ingest.py: роутер читает на байт больше, чтобы сервис
 # отличил файл ровно в лимит от файла больше лимита.
@@ -80,9 +68,12 @@ def _event_from_row(row: EventRowIn, batch_id: int) -> models.Event:
                         row_hash=hashlib.sha256(identity.encode()).hexdigest())
 
 
-def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser) -> IngestBatchOut:
-    batch = _new_batch(db, "smvu", len(rows))
+def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
+               *, rejected: int = 0) -> IngestBatchOut:
+    batch = _new_batch(db, "smvu", len(rows) + rejected)
+    batch.rejected = rejected
     demo_today = settings_store.demo_today(db)
+    published: list[tuple[dict, str]] = []
     for item in rows:
         try:
             event = _event_from_row(item, batch.id)
@@ -95,10 +86,24 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser) -> Ingest
         if db.scalar(select(models.Event.id).where(models.Event.row_hash == event.row_hash)):
             batch.duplicates += 1
             continue
+        channel = db.get(models.RefChannel, event.channel_id)
+        event.event_class, event.hint = semantics.classify(
+            channel.sensor_type if channel else None, event.val_raw, event.val_num, event.alarm)
         db.add(event)
         batch.accepted += 1
+        if event.event_class in {"alarm", "critical"}:
+            notification = models.Notification(ts=event.ts, kind="event.alarm",
+                severity="critical" if event.event_class == "critical" else "warning",
+                title="Тревожное событие СМВУ",
+                payload={"event_id": event.event_id, "channel_id": event.channel_id,
+                         "event_class": event.event_class}, read_by=[])
+            db.add(notification)
+            published.append((notification.payload, notification.severity))
     batch.status = "accepted" if not batch.rejected else ("partial" if batch.accepted else "rejected")
     db.commit()
+    for payload, severity in published:
+        broker.publish("event.alarm", payload, severity=severity,
+                       title="Тревожное событие СМВУ")
     return _out(batch)
 
 
@@ -142,14 +147,20 @@ def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser) -
             records = [dict(zip(header, values)) for values in data if any(v is not None for v in values)]
         else:
             records = list(csv.DictReader(io.StringIO(content.decode("utf-8-sig"))))
-        rows = [EventRowIn.model_validate(record) for record in records]
+        rows = []
+        rejected = 0
+        for record in records:
+            try:
+                rows.append(EventRowIn.model_validate(record))
+            except (ValueError, TypeError):
+                rejected += 1
     except (IndexError, ValueError, TypeError):
         batch = _new_batch(db, "smvu", rows_total)
         batch.rejected = rows_total
         batch.status = "rejected"
         db.commit()
         return _out(batch)
-    return _save_rows(db, rows, user)
+    return _save_rows(db, rows, user, rejected=rejected)
 
 
 def reset_day(db: Session, day: date, user: CurrentUser) -> ResetDayOut:

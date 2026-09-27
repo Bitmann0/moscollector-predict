@@ -1,15 +1,4 @@
-"""Решение диспетчера по прогнозу и итог проверки.
-
-ЗАГЛУШКА — владелец BE-06 (C2, C3).
-Заменить: TODO BE-06 — проверка, что reason_code допустим для action
-(vocabularies.json: reason_code[].actions), ответ 422 при нарушении; публикация
-workorder.changed, если решение создаёт заявку; эмулированные решения прелоада
-(source="emulated") пишет PM-09.
-Контракт: create и set_outcome не меняются, 404 forecast_not_found для чужого id;
-тесты tests/test_endpoints_shape.py и tests/test_audit.py должны остаться зелёными.
-
-Сейчас решение и итог сохраняются как пришли, с source="live".
-"""
+"""История решений диспетчера и текущий итог проверки прогноза."""
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 

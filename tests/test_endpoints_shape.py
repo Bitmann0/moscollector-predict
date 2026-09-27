@@ -150,6 +150,38 @@ def test_upload_counts_rows_and_batch_is_listed(admin):
     assert listed[0]["batch_id"] == batch["batch_id"]
 
 
+def test_upload_rejects_only_bad_rows_and_deduplicates(admin):
+    body = ("ид_события,ид_канала_данных,дата,время,тревожное,значение_датчика\n"
+            "11,9000001,2026-06-30,10:00:00,t,1\n"
+            "bad,9000002,2026-06-30,10:01:00,f,0\n")
+    first = admin.post(f"{API}/ingest/events/upload",
+                       files={"file": ("events.csv", body.encode(), "text/csv")}).json()
+    assert (first["accepted"], first["rejected"], first["duplicates"]) == (1, 1, 0)
+    second = admin.post(f"{API}/ingest/events/upload",
+                        files={"file": ("events.csv", body.encode(), "text/csv")}).json()
+    assert (second["accepted"], second["rejected"], second["duplicates"]) == (0, 1, 1)
+
+
+def test_forecast_decision_filters_and_grouping(admin, ran):
+    page = admin.get(f"{API}/forecasts").json()
+    fid = page["items"][0]["id"]
+    assert admin.post(f"{API}/forecasts/{fid}/decisions",
+                      json={"action": "defer", "reason_code": "await_data"}).status_code == 201
+    assert admin.get(f"{API}/forecasts", params={"decision": "any"}).json()["total"] == 1
+    assert admin.get(f"{API}/forecasts", params={"decision": "none"}).json()["total"] == (
+        page["total"] - 1)
+    grouped = admin.get(f"{API}/forecasts", params={"group_by": "obj"}).json()
+    assert grouped["total"] == len({item["object"]["id"] for item in page["items"]})
+
+
+def test_quality_counts_unmatured_forecasts_as_unknown(admin, ran):
+    result = admin.get(f"{API}/quality", params={"scenario": "sensor_link"}).json()
+    week = next(item for item in result["weeks"] if item["week_start"] == "2026-06-15")
+    assert week["issued"] == 2
+    assert week["unknown"] == 2
+    assert week["precision"] is None
+
+
 def test_notifications_read_flag(seeded, admin):
     seeded.add(models.Notification(ts=now_utc(), kind="alert.new", severity="warning",
                                    title="проверка", payload={}, read_by=[]))

@@ -1,16 +1,4 @@
-"""Сводка для главного экрана.
-
-ЗАГЛУШКА — владелец BE-05 (C2).
-Заменить: ряды series_forecasts_per_day и series_coverage_per_day — сейчас синтетика за
-14 дней до demo_today, нужны агрегаты по forecasts и forecast_runs; «открытый прогноз» —
-сейчас «в бюджете и без решения», нужно правило BE-05 с учётом окна valid_to;
-planned_like_alarms_24h — сейчас тревоги с непустой подсказкой, нужна классификация C5.
-Контракт: summary(db) -> DashboardSummary не меняется; тест
-tests/test_endpoints_shape.py должен остаться зелёным.
-
-Живые части: счётчики прогнозов, заявок и событий из БД, охват из последнего прогона,
-статус голов (services/system.head_states).
-"""
+"""Сводка по прогнозам, заявкам, событиям и покрытию ML."""
 from datetime import timedelta
 
 from sqlalchemy import func, select

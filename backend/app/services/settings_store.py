@@ -1,15 +1,4 @@
-"""Демо-настройки: demo_today, режим, скорость воспроизведения.
-
-ЗАГЛУШКА — владелец BE-05 (C2).
-Заменить: проверку, что demo_today лежит в окне данных (июнь 2026), и переключение
-режима replay вместе с replay.py (ML2-03).
-Контракт: get/put и SettingsOut не меняются, при DEMO_SETTINGS_LOCKED=1 put отвечает
-403 settings_locked; тесты tests/test_auth.py и tests/test_endpoints_shape.py должны
-остаться зелёными.
-
-Значение лежит в таблице settings как {"value": ...}: колонка JSON объявлена словарём.
-Строки создаёт seed; пока строки нет, действует значение по умолчанию.
-"""
+"""Демо-дата, архивный/replay-режим и скорость воспроизведения."""
 from datetime import date
 
 from fastapi import HTTPException
@@ -19,6 +8,9 @@ from .. import models
 from ..config import get_settings
 from ..schemas.misc import SettingsIn, SettingsOut
 from ..security import CurrentUser
+
+DEMO_START = date(2026, 6, 1)
+DEMO_END = date(2026, 6, 30)
 
 
 def defaults() -> dict:
@@ -44,6 +36,8 @@ def demo_today(db: Session) -> date:
 def put(db: Session, body: SettingsIn, user: CurrentUser) -> SettingsOut:
     if get_settings().demo_settings_locked:
         raise HTTPException(status_code=403, detail="settings_locked")
+    if body.demo_today is not None and not DEMO_START <= body.demo_today <= DEMO_END:
+        raise HTTPException(status_code=422, detail="demo_today_outside_available_window")
     changes = body.model_dump(mode="json", exclude_none=True)
     for key, value in changes.items():
         row = db.get(models.Setting, key)

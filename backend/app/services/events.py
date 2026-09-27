@@ -1,13 +1,4 @@
-"""Журнал событий СМВУ (форма Приложения 2 ТЗ).
-
-ЗАГЛУШКА — владелец ML2-03 (C2, C5).
-Заменить: выборку из таблицы events с фильтрами from, to, obj, sensor_type,
-event_class и поиском q — сейчас фильтры принимаются и не применяются, а страница
-собирается из 500 синтетических событий по contracts/synthetic_reference.json
-(каждое седьмое — тревога, шаг 7 минут назад от конца demo_today).
-Контракт: list_events и EventItem не меняются; тест tests/test_endpoints_shape.py
-должен остаться зелёным.
-"""
+"""Журнал событий СМВУ с фильтрами формы Приложения 2 ТЗ."""
 from datetime import date, datetime, timedelta
 
 from sqlalchemy import select
