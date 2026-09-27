@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     session_hours: int = 12
     contracts_dir: Path = ROOT / "contracts"
+    raw_data_dir: Path = ROOT / "data" / "raw"
     static_dir: Path = APP_DIR / "static"
 
 

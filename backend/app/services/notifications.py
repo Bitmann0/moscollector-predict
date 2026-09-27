@@ -1,12 +1,4 @@
-"""Уведомления и SSE-брокер.
-
-Брокер — живое: in-process рассылка событий подписчикам /api/v1/stream.
-Публиковать можно из любого потока (дневной цикл работает в threadpool).
-Хранение уведомлений и их список — ЗАГЛУШКА, владелец BE-08 (C2).
-Заменить: запись в таблицу notifications при publish(), выборку и отметку «прочитано».
-Сейчас список читает таблицу notifications, но в неё никто не пишет: лента пуста.
-Контракт: сигнатуры не меняются; tests/test_endpoints_shape.py должен остаться зелёным.
-"""
+"""Долговечные уведомления и in-process SSE-рассылка подписчикам."""
 import asyncio
 import logging
 import threading
@@ -59,12 +51,19 @@ def _put_nowait(queue: asyncio.Queue, event: dict) -> None:
 broker = Broker()
 
 
-def publish_safe(kind: str, payload: dict, *, severity: str = "info", title: str = "") -> None:
+def publish_safe(kind: str, payload: dict, *, severity: str = "info", title: str = "",
+                 db: Session | None = None) -> None:
     """publish() для фоновых путей: сбой рассылки не должен откатывать уже записанное.
 
     Подписчик, чей цикл событий закрыт (оборванный поток SSE), даёт RuntimeError в
     call_soon_threadsafe — прогноз уже в БД, поэтому ошибку только пишем в лог.
     """
+    if db is not None:
+        row = models.Notification(ts=datetime.now(UTC), kind=kind, severity=severity,
+                                  title=title, payload=payload, read_by=[])
+        db.add(row)
+        db.commit()
+        payload = {**payload, "notification_id": row.id}
     try:
         broker.publish(kind, payload, severity=severity, title=title)
     except RuntimeError:

@@ -1,19 +1,12 @@
-"""Справочники: причины решений, дерево объектов, синхронизация.
+"""Причины решений, дерево объектов и синхронизация CSV-справочников."""
+import csv
+import re
 
-reason_codes — живое: таблица reason_codes, её наполняет seed из vocabularies.json.
-
-ЗАГЛУШКА — владелец BE-03 (tree) и BE-14 (sync) (C2).
-Заменить: tree — сейчас дерево собирается из ref_objects/ref_channels, куда seed кладёт
-синтетический справочник; BE-03 грузит туда реальный справочник, и функция остаётся
-как есть, если не нужны новые поля. sync — сейчас отчёт с текущими числами объектов и
-каналов и нулями изменений, нужна сверка с источником справочника.
-Контракт: reason_codes, tree и sync не меняются; тест tests/test_endpoints_shape.py
-должен остаться зелёным.
-"""
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .. import models, vocab
+from ..config import get_settings
 from ..schemas.reference import ReasonCodeOut, SyncReport, TreeNode
 from ..security import CurrentUser
 
@@ -62,6 +55,63 @@ def tree(db: Session) -> list[TreeNode]:
 
 
 def sync(db: Session, user: CurrentUser) -> SyncReport:
-    objects = db.scalar(select(func.count()).select_from(models.RefObject)) or 0
-    channels = db.scalar(select(func.count()).select_from(models.RefChannel)) or 0
-    return SyncReport(objects=objects, channels=channels, added=0, changed=0, removed=0)
+    root = get_settings().raw_data_dir
+    object_file = root / "справочник_объектов_диспетчер.csv"
+    channel_file = root / "справочник_каналов_датчиков.csv"
+    if not object_file.is_file() or not channel_file.is_file():
+        objects = db.scalar(select(func.count()).select_from(models.RefObject)) or 0
+        channels = db.scalar(select(func.count()).select_from(models.RefChannel)) or 0
+        return SyncReport(objects=objects, channels=channels, added=0, changed=0, removed=0)
+    with object_file.open(encoding="utf-8-sig", newline="") as stream:
+        objects = list(csv.DictReader(stream))
+    with channel_file.open(encoding="utf-8-sig", newline="") as stream:
+        channels = list(csv.DictReader(stream))
+    current_objects = {row.id: row for row in db.scalars(select(models.RefObject))}
+    current_channels = {row.id: row for row in db.scalars(select(models.RefChannel))}
+    incoming_object_ids: set[str] = set()
+    incoming_channel_ids: set[int] = set()
+    added = changed = removed = 0
+    for item in objects:
+        fields = {"level": int(item["иерархия_уровень"]),
+                  "parent_id": (item.get("родитель") or "").strip() or None,
+                  "kind": (item.get("вид_объекта") or "unknown").strip(),
+                  "name": (item.get("диспетчерское_название_объекта") or "").strip()}
+        object_id = item["ид_объект"].strip()
+        incoming_object_ids.add(object_id)
+        row = current_objects.get(object_id)
+        if row is None:
+            db.add(models.RefObject(id=object_id, **fields))
+            added += 1
+        elif any(getattr(row, key) != value for key, value in fields.items()):
+            for key, value in fields.items():
+                setattr(row, key, value)
+            changed += 1
+    def picket(row: dict) -> float | None:
+        match = re.search(r"ПК\s*(\d+(?:[.,]\d+)?)", row.get("название_датчика") or "", re.IGNORECASE)
+        return float(match.group(1).replace(",", ".")) if match else None
+    for item in channels:
+        channel_id = int(item["ид_канала_данных"])
+        incoming_channel_ids.add(channel_id)
+        fields = {"obj_id": item["ид_объект"].strip(),
+                  "system": (item.get("тип_инж_системы") or "").strip() or None,
+                  "sensor_type": (item.get("тип_датчика") or "").strip() or None,
+                  "tag": (item.get("тег_инженерной_системы") or "").strip() or None,
+                  "name": (item.get("название_датчика") or "").strip() or None,
+                  "picket": picket(item)}
+        row = current_channels.get(channel_id)
+        if row is None:
+            db.add(models.RefChannel(id=channel_id, **fields))
+            added += 1
+        elif any(getattr(row, key) != value for key, value in fields.items()):
+            for key, value in fields.items():
+                setattr(row, key, value)
+            changed += 1
+    for channel_id in current_channels.keys() - incoming_channel_ids:
+        db.delete(current_channels[channel_id])
+        removed += 1
+    for object_id in current_objects.keys() - incoming_object_ids:
+        db.delete(current_objects[object_id])
+        removed += 1
+    db.commit()
+    return SyncReport(objects=len(objects), channels=len(channels), added=added,
+                      changed=changed, removed=removed)

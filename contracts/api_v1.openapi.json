@@ -2813,10 +2813,24 @@
         "title": "WorkOrderTransition",
         "type": "object"
       }
+    },
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "description": "Ключ машинной интеграции",
+        "in": "header",
+        "name": "X-API-Key",
+        "type": "apiKey"
+      },
+      "cookieAuth": {
+        "description": "Устанавливается POST /api/v1/auth/login",
+        "in": "cookie",
+        "name": "mk_session",
+        "type": "apiKey"
+      }
     }
   },
   "info": {
-    "description": "Контракт C2 плана команды: backend → frontend. Прогнозы считает ML-сервис (C1); интерфейс читает только этот API.",
+    "description": "## Интерактивная документация\n\nВ Swagger UI можно выполнить любой запрос через **Try it out**. Для браузерной сессии сначала вызовите `POST /api/v1/auth/login`: защищённые запросы далее используют HttpOnly cookie автоматически. Интеграции вместо cookie передают `X-API-Key`.\n\n## Правила данных\n\nВсе даты без зоны трактуются как Europe/Moscow, в БД время хранится в UTC. `unknown` — отсутствие достаточных наблюдений, а не отрицательный исход. Прогнозы являются ручными рекомендациями и не создают подтверждённую заявку автоматически.",
     "title": "Москоллектор — сервис диспетчера",
     "version": "0.2.0"
   },
@@ -2846,6 +2860,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -2857,6 +2877,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Run Daily",
         "tags": [
           "admin"
@@ -2952,6 +2980,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -2963,6 +2997,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "List Audit",
         "tags": [
           "audit"
@@ -3037,8 +3079,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Summary",
         "tags": [
           "dashboard"
@@ -3190,6 +3246,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3201,6 +3263,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "List Events",
         "tags": [
           "events"
@@ -3253,6 +3323,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3264,6 +3340,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Forecasts Xlsx",
         "tags": [
           "export"
@@ -3445,6 +3529,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3456,6 +3546,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "List Forecasts",
         "tags": [
           "forecasts"
@@ -3487,6 +3585,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3498,6 +3602,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Get Card",
         "tags": [
           "forecasts"
@@ -3539,6 +3651,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3550,6 +3668,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Create Decision",
         "tags": [
           "forecasts"
@@ -3591,6 +3717,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3602,6 +3734,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Set Outcome",
         "tags": [
           "forecasts"
@@ -3670,6 +3810,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3681,6 +3827,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "List Batches",
         "tags": [
           "ingest"
@@ -3713,6 +3867,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3724,6 +3884,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Reset Day",
         "tags": [
           "ingest"
@@ -3760,6 +3928,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3771,6 +3945,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Ingest Rows",
         "tags": [
           "ingest"
@@ -3802,6 +3984,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3813,6 +4001,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Ingest File",
         "tags": [
           "ingest"
@@ -3848,6 +4044,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3859,6 +4061,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Ingest Ods",
         "tags": [
           "ingest"
@@ -3878,8 +4088,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Me",
         "tags": [
           "auth"
@@ -3925,6 +4149,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3936,6 +4166,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "List Notifications",
         "tags": [
           "notifications"
@@ -3960,6 +4198,12 @@
           "204": {
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3971,6 +4215,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Mark Read",
         "tags": [
           "notifications"
@@ -4007,6 +4259,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4018,6 +4276,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Weekly",
         "tags": [
           "quality"
@@ -4041,8 +4307,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Reason Codes",
         "tags": [
           "reference"
@@ -4062,8 +4342,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Sync",
         "tags": [
           "reference"
@@ -4087,8 +4381,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Tree",
         "tags": [
           "reference"
@@ -4127,6 +4435,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4138,6 +4452,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Schema Geojson",
         "tags": [
           "schema"
@@ -4176,6 +4498,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4187,6 +4515,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Schema Wkt",
         "tags": [
           "schema"
@@ -4206,8 +4542,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Get Settings",
         "tags": [
           "settings"
@@ -4236,6 +4586,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4247,6 +4603,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Put Settings",
         "tags": [
           "settings"
@@ -4259,8 +4623,22 @@
         "responses": {
           "200": {
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Stream",
         "tags": [
           "stream"
@@ -4280,8 +4658,22 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Status",
         "tags": [
           "system"
@@ -4392,6 +4784,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4403,6 +4801,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "List Orders",
         "tags": [
           "work-orders"
@@ -4431,6 +4837,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4442,6 +4854,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Create Order",
         "tags": [
           "work-orders"
@@ -4473,6 +4893,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4484,6 +4910,14 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Get Order",
         "tags": [
           "work-orders"
@@ -4523,6 +4957,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -4534,11 +4974,41 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
         "summary": "Transition",
         "tags": [
           "work-orders"
         ]
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "description": "Вход, выход и определение роли текущей сессии.",
+      "name": "auth"
+    },
+    {
+      "description": "Готовность API и ML-контура.",
+      "name": "system"
+    },
+    {
+      "description": "Журнал, карточки, решения и исходы рекомендаций.",
+      "name": "forecast"
+    },
+    {
+      "description": "Идемпотентная загрузка СМВУ и журнала ОДС.",
+      "name": "ingest"
+    },
+    {
+      "description": "Справочники объектов, каналов и причин решений.",
+      "name": "reference"
+    }
+  ]
 }
