@@ -30,6 +30,7 @@ from ..schemas.work_orders import (
 )
 from ..security import CurrentUser
 from .helpers import Refs, count, from_db, now_utc, page_of, to_db
+from .notifications import publish_safe
 
 MANUAL_PRIORITY = "planned"
 
@@ -128,4 +129,6 @@ def transition(db: Session, order_id: str, body: WorkOrderTransition,
                                    reason=body.reason, at=now_utc()))
     row.status = body.status
     db.commit()
+    publish_safe("workorder.changed", {"id": row.id, "from_status": body.expected_status,
+                                        "to_status": body.status}, title=f"Заявка {row.id}", db=db)
     return get(db, order_id)
