@@ -16,7 +16,6 @@
 import datetime as dt
 import logging
 import os
-import pickle
 import threading
 from collections.abc import Callable
 from functools import lru_cache
@@ -72,9 +71,11 @@ def _has_feature_day(day: dt.date) -> bool:
 
 @lru_cache(maxsize=12)
 def _artifact_info(path: Path, mtime_ns: int) -> dict:
-    """Metadata cache invalidates when atomic retraining replaces the artifact."""
-    with path.open("rb") as stream:
-        art = pickle.load(stream)
+    """Metadata cache keyed by the chosen file: each dated artifact has its own
+    entry, and atomic retraining of any of them changes mtime_ns."""
+    from . import serve
+
+    art = serve.load_artifact(path)
     return {key: art.get(key) for key in ("metadata", "threshold", "saved_at")}
 
 
@@ -85,11 +86,11 @@ def _pilot_artifact(head: str, day: dt.date) -> dict:
     if rule_head.is_rule(cfg):
         art = rule_head.artifact(head, cfg, day)
     else:
-        path = serve.model_path(head)
+        # Same choice as serve.score, so threshold_end and model_version in the
+        # response describe the file that produced the risk.
+        path = serve.artifact_path(head, day, cfg)
         art = _artifact_info(path, path.stat().st_mtime_ns)
-    serve.validate_pilot_artifact(
-        head, art, day,
-        max_lag_days=int(serve.load_heads()[head].get("max_model_lag_days", 14)))
+    serve.validate_pilot_artifact(head, art, day, max_lag_days=serve.max_lag_days(cfg))
     return art
 
 
