@@ -1,0 +1,431 @@
+{
+  "source_sha256": {
+    "справочник_каналов_датчиков.csv": "87b3230e93ae00e3f03d915336acde6b3990c8b58d7378175cf02c000f67a45f",
+    "справочник_объектов_диспетчер.csv": "219b4dbe34a78581640d839837649d3ef481c62c089fef18db1b364cff007084",
+    "справочник_состояний.csv": "b968f3652ed33fd6e0d2dccee334275436dada67f4549763cfb4b2072108b5cc",
+    "global_values.json": "a622d21a369e2b20a81a8a24b86d07b9d85b9a941b052542e1014ade95da9149",
+    "old_channels_sha256": "fa550d4c23c23c2ea29f47bd7dceca78f52d96bd12667a6f8c5f0e515784c5a5"
+  },
+  "channels": {
+    "old_rows": 11485,
+    "new_rows": 11485,
+    "old_unique_ids": 11485,
+    "new_unique_ids": 11485,
+    "removed_ids": 0,
+    "added_ids": 0,
+    "changed_existing_fields": {
+      "ид_канала_данных": 0,
+      "тип_инж_системы": 0,
+      "тип_датчика": 0,
+      "тег_инженерной_системы": 0,
+      "название_датчика": 364
+    },
+    "object_ids_used": 78,
+    "empty_object_id_channels": 0,
+    "channels_with_unknown_object_id": 0,
+    "object_catalog_rows": 95,
+    "object_catalog_unique_ids": 95,
+    "object_levels": {
+      "3": 78,
+      "1": 1,
+      "2": 16
+    },
+    "objects_with_missing_parent": [
+      "5773"
+    ],
+    "used_objects_with_missing_parent": [],
+    "channel_types_without_state_entries": {
+      "Переключатель": 801,
+      "Состояние УИР-Р": 762,
+      "Тепловой датчик": 472,
+      "Ручной извещатель": 130,
+      "ИБП": 80,
+      "Состояние охраны": 47,
+      "Стекло": 29,
+      "Датчик затопления": 25,
+      "9-секционный люк": 9
+    }
+  },
+  "states": {
+    "rows": 62,
+    "unique_exact_rows": 59,
+    "exact_duplicate_rows": 3,
+    "sensor_types": 10,
+    "state_sets": 17,
+    "sets_per_sensor_type": {
+      "Газовый датчик": [
+        "12",
+        "13"
+      ],
+      "Датчик движения": [
+        "8",
+        "9"
+      ],
+      "Датчик дыма": [
+        "10",
+        "11"
+      ],
+      "Датчик температуры": [
+        "7"
+      ],
+      "КД АВ": [
+        "5",
+        "6"
+      ],
+      "КД Дверь": [
+        "1",
+        "2"
+      ],
+      "КД Люк": [
+        "3",
+        "4"
+      ],
+      "Состояние вентилятора": [
+        "16",
+        "17"
+      ],
+      "Состояние насоса": [
+        "14"
+      ],
+      "Состояние фазы": [
+        "18"
+      ]
+    },
+    "type_value_pairs": 54,
+    "conflicting_alarm_flags": [
+      {
+        "sensor_type": "Газовый датчик",
+        "value": "Температура ниже 3ºC1"
+      }
+    ],
+    "has_numeric_threshold_column": false
+  },
+  "journal_value_coverage": {
+    "journal_rows": 313546017,
+    "text_rows": 79971748,
+    "unmatched_text_rows": 76803237,
+    "numeric_rows": 224134414,
+    "matched_text_rows": 3168511,
+    "alarm_disagreement_rows": 415,
+    "unknown_type_rows": 9439855,
+    "per_type": {
+      "9-секционный люк": {
+        "journal_rows": 502,
+        "text_rows": 502,
+        "unmatched_text_rows": 502
+      },
+      "<unknown channel type>": {
+        "journal_rows": 9439855,
+        "unknown_type_rows": 9439855
+      },
+      "Газовый датчик": {
+        "journal_rows": 224012118,
+        "numeric_rows": 223065444,
+        "text_rows": 946674,
+        "matched_text_rows": 469929,
+        "unmatched_text_rows": 476745
+      },
+      "Датчик движения": {
+        "journal_rows": 51473736,
+        "text_rows": 51473731,
+        "unmatched_text_rows": 51473030,
+        "matched_text_rows": 701,
+        "alarm_disagreement_rows": 2,
+        "numeric_rows": 5
+      },
+      "Датчик дыма": {
+        "journal_rows": 3961622,
+        "text_rows": 3961622,
+        "unmatched_text_rows": 3961619,
+        "matched_text_rows": 3
+      },
+      "Датчик затопления": {
+        "journal_rows": 12424,
+        "text_rows": 12424,
+        "unmatched_text_rows": 12424
+      },
+      "Датчик температуры": {
+        "journal_rows": 1409472,
+        "text_rows": 345238,
+        "matched_text_rows": 152266,
+        "unmatched_text_rows": 192972,
+        "numeric_rows": 1064234
+      },
+      "ИБП": {
+        "journal_rows": 125930,
+        "text_rows": 121209,
+        "unmatched_text_rows": 121209,
+        "numeric_rows": 4721
+      },
+      "КД АВ": {
+        "journal_rows": 620739,
+        "text_rows": 620738,
+        "unmatched_text_rows": 620728,
+        "matched_text_rows": 10,
+        "numeric_rows": 1
+      },
+      "КД Дверь": {
+        "journal_rows": 4986555,
+        "text_rows": 4986550,
+        "matched_text_rows": 2523852,
+        "unmatched_text_rows": 2462698,
+        "alarm_disagreement_rows": 408,
+        "numeric_rows": 5
+      },
+      "КД Люк": {
+        "journal_rows": 36059,
+        "text_rows": 36059,
+        "matched_text_rows": 21750,
+        "unmatched_text_rows": 14309,
+        "alarm_disagreement_rows": 5
+      },
+      "Переключатель": {
+        "journal_rows": 3118061,
+        "text_rows": 3118061,
+        "unmatched_text_rows": 3118061
+      },
+      "Ручной извещатель": {
+        "journal_rows": 46070,
+        "text_rows": 46070,
+        "unmatched_text_rows": 46070
+      },
+      "Состояние УИР-Р": {
+        "journal_rows": 5684500,
+        "text_rows": 5684500,
+        "unmatched_text_rows": 5684500
+      },
+      "Состояние вентилятора": {
+        "journal_rows": 1987797,
+        "text_rows": 1987797,
+        "unmatched_text_rows": 1987797
+      },
+      "Состояние насоса": {
+        "journal_rows": 1976744,
+        "text_rows": 1976744,
+        "unmatched_text_rows": 1976744
+      },
+      "Состояние охраны": {
+        "journal_rows": 315661,
+        "text_rows": 315661,
+        "unmatched_text_rows": 315661
+      },
+      "Состояние фазы": {
+        "journal_rows": 3805421,
+        "text_rows": 3805417,
+        "unmatched_text_rows": 3805417,
+        "numeric_rows": 4
+      },
+      "Стекло": {
+        "journal_rows": 31687,
+        "text_rows": 31687,
+        "unmatched_text_rows": 31687
+      },
+      "Тепловой датчик": {
+        "journal_rows": 501064,
+        "text_rows": 501064,
+        "unmatched_text_rows": 501064
+      }
+    },
+    "top_unmatched_text_values": [
+      {
+        "key": [
+          "Датчик движения",
+          "Движения нет",
+          false
+        ],
+        "rows": 25501142
+      },
+      {
+        "key": [
+          "Датчик движения",
+          "Обнаружено движение",
+          false
+        ],
+        "rows": 25297913
+      },
+      {
+        "key": [
+          "Состояние УИР-Р",
+          "Норма",
+          false
+        ],
+        "rows": 2753658
+      },
+      {
+        "key": [
+          "Состояние УИР-Р",
+          "Неопределен",
+          false
+        ],
+        "rows": 2643079
+      },
+      {
+        "key": [
+          "КД Дверь",
+          "Не замкнут",
+          false
+        ],
+        "rows": 2176692
+      },
+      {
+        "key": [
+          "Датчик дыма",
+          "Норма",
+          false
+        ],
+        "rows": 1808800
+      },
+      {
+        "key": [
+          "Датчик дыма",
+          "Неисправен",
+          true
+        ],
+        "rows": 1124758
+      },
+      {
+        "key": [
+          "Состояние фазы",
+          "Обесточен",
+          false
+        ],
+        "rows": 1064438
+      },
+      {
+        "key": [
+          "Состояние фазы",
+          "Есть питание",
+          false
+        ],
+        "rows": 1064405
+      },
+      {
+        "key": [
+          "Переключатель",
+          "Выключен",
+          false
+        ],
+        "rows": 933685
+      },
+      {
+        "key": [
+          "Переключатель",
+          "Включен",
+          false
+        ],
+        "rows": 925045
+      },
+      {
+        "key": [
+          "Состояние фазы",
+          "Норма",
+          false
+        ],
+        "rows": 836611
+      },
+      {
+        "key": [
+          "Состояние фазы",
+          "Неопределен",
+          false
+        ],
+        "rows": 811628
+      },
+      {
+        "key": [
+          "Датчик дыма",
+          "Неопределен",
+          false
+        ],
+        "rows": 645664
+      },
+      {
+        "key": [
+          "Состояние вентилятора",
+          "Выключен",
+          false
+        ],
+        "rows": 632600
+      },
+      {
+        "key": [
+          "Переключатель",
+          "Норма",
+          false
+        ],
+        "rows": 629717
+      },
+      {
+        "key": [
+          "Переключатель",
+          "Неопределен",
+          false
+        ],
+        "rows": 629135
+      },
+      {
+        "key": [
+          "Состояние насоса",
+          "Выключен",
+          false
+        ],
+        "rows": 613838
+      },
+      {
+        "key": [
+          "Состояние вентилятора",
+          "Включен",
+          false
+        ],
+        "rows": 552880
+      },
+      {
+        "key": [
+          "Состояние насоса",
+          "Включен",
+          false
+        ],
+        "rows": 506623
+      }
+    ],
+    "top_alarm_disagreements": [
+      {
+        "key": [
+          "КД Дверь",
+          "Неисправен",
+          false,
+          true
+        ],
+        "rows": 294
+      },
+      {
+        "key": [
+          "КД Дверь",
+          "Отключено устройство",
+          false,
+          true
+        ],
+        "rows": 114
+      },
+      {
+        "key": [
+          "КД Люк",
+          "Не замкнут",
+          false,
+          true
+        ],
+        "rows": 5
+      },
+      {
+        "key": [
+          "Датчик движения",
+          "Обесточен",
+          false,
+          true
+        ],
+        "rows": 2
+      }
+    ],
+    "top_ambiguous_values": []
+  }
+}
