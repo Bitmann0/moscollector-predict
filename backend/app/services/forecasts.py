@@ -18,10 +18,9 @@ calendar.holiday — производственный календарь; пои
 но в ForecastItem нет поля in_budget, и в списке их нельзя было бы отличить от выданных.
 Карточка открывается для любой строки.
 """
-import hashlib
 from datetime import date, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import Integer, func, select
 from sqlalchemy.orm import Session
 
 from .. import models, vocab
@@ -48,13 +47,15 @@ def decision_out(row: models.Decision) -> DecisionOut:
                        created_at=from_db(row.created_at), source=row.source)
 
 
-def _work_order_ids(db: Session) -> dict[str, str]:
+def _work_order_ids(db: Session, forecast_ids: set[str] | None = None) -> dict[str, str]:
     """forecast_id → id заявки. Заявок в демо десятки, поэтому читаем все."""
     out: dict[str, str] = {}
-    for order_id, forecast_ids in db.execute(
+    for order_id, stored_ids in db.execute(
             select(models.WorkOrder.id, models.WorkOrder.forecast_ids)
             .order_by(models.WorkOrder.created_at)):
-        for forecast_id in forecast_ids or []:
+        for forecast_id in stored_ids or []:
+            if forecast_ids is not None and forecast_id not in forecast_ids:
+                continue
             out.setdefault(forecast_id, order_id)
     return out
 
@@ -68,7 +69,7 @@ def _items(db: Session, rows: list[models.Forecast]) -> list[ForecastItem]:
         last_decision[d.forecast_id] = d
     outcomes = {o.forecast_id: o for o in db.scalars(
         select(models.Outcome).where(models.Outcome.forecast_id.in_(ids)))}
-    orders = _work_order_ids(db)
+    orders = _work_order_ids(db, set(ids))
     items = []
     for r in rows:
         outcome = outcomes.get(r.id)
@@ -97,6 +98,18 @@ def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
     stmt = select(models.Forecast).where(models.Forecast.in_budget.is_(True))
     if scenario is not None:
         stmt = stmt.where(models.Forecast.scenario == scenario)
+    if date_from is not None:
+        stmt = stmt.where(models.Forecast.asof >= date_from)
+    if date_to is not None:
+        stmt = stmt.where(models.Forecast.asof <= date_to)
+    if obj is not None:
+        stmt = stmt.where(models.Forecast.obj_id == obj)
+    if decision is not None:
+        stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id)
+                                                  .where(models.Decision.action == decision)))
+    if outcome is not None:
+        stmt = stmt.where(models.Forecast.id.in_(select(models.Outcome.forecast_id).where(
+            (models.Outcome.outcome_auto == outcome) | (models.Outcome.outcome_manual == outcome))))
     total = count(db, stmt)
     rows = list(db.scalars(stmt.order_by(models.Forecast.asof.desc(), models.Forecast.rank,
                                          models.Forecast.id)
@@ -104,13 +117,22 @@ def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
     return page_of(ForecastItem, _items(db, rows), total, page, page_size)
 
 
-def _dynamics(row: models.Forecast) -> list[DynamicsPoint]:
-    points = []
-    for i in range(DYNAMICS_DAYS - 1, -1, -1):
-        day = row.asof - timedelta(days=i)
-        digest = hashlib.sha256(f"{row.id}|{day.isoformat()}".encode()).digest()
-        points.append(DynamicsPoint(day=day, alarms=digest[0] % 6, bad_states=digest[1] % 4))
-    return points
+def _dynamics(db: Session, row: models.Forecast) -> list[DynamicsPoint]:
+    """Наблюдаемые события канала за 30 суток, без синтетического заполнения."""
+    start = row.asof - timedelta(days=DYNAMICS_DAYS - 1)
+    result: dict[date, tuple[int, int]] = {}
+    if row.channel_id is not None:
+        grouped = db.execute(select(func.date(models.Event.ts),
+                                    func.sum(models.Event.alarm.cast(Integer)),
+                                    func.sum((models.Event.event_class == "fault").cast(Integer)))
+                             .where(models.Event.channel_id == row.channel_id,
+                                    models.Event.ts >= start)
+                             .group_by(func.date(models.Event.ts)))
+        result = {date.fromisoformat(str(day)): (int(alarms or 0), int(bad or 0))
+                  for day, alarms, bad in grouped}
+    return [DynamicsPoint(day=day, alarms=result.get(day, (0, 0))[0],
+                          bad_states=result.get(day, (0, 0))[1])
+            for day in (start + timedelta(days=i) for i in range(DYNAMICS_DAYS))]
 
 
 def _coverage_note(db: Session, row: models.Forecast) -> str | None:
@@ -148,7 +170,7 @@ def get_card(db: Session, forecast_id: str) -> ForecastCard | None:
         versions=[VersionItem(run_id=v.run_id, risk=v.risk, rank=v.rank,
                               recorded_at=from_db(v.recorded_at)) for v in versions],
         decisions=[decision_out(d) for d in decisions],
-        dynamics_30d=_dynamics(row),
+        dynamics_30d=_dynamics(db, row),
         # weekday по ISO: 1 — понедельник, 7 — воскресенье
         calendar=CalendarInfo(weekday=weekday + 1, weekday_title=WEEKDAYS_RU[weekday],
                               holiday=None),
