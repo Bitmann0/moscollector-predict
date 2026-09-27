@@ -56,7 +56,7 @@ function SummaryView({ summary, queue }: { summary: Summary; queue: Load<Forecas
           {summary.scenarios.map((item) => {
             const head = summary.heads.find((value) => value.scenario === item.scenario);
             const state = head ? headState(head) : null;
-            return <article className={`panel scenario-card scenario-card--${item.scenario}`} key={item.scenario}><h3 title={item.title}>{item.title}</h3><div className="scenario-card__body"><div><p><b>{item.open_forecasts}</b> {plural(item.open_forecasts, "прогноз", "прогноза", "прогнозов")} в очереди</p>{state && <StateView state={state} detail={head?.detail} compact />}</div><Donut value={item.coverage_fraction ?? null} label="охват" /></div></article>;
+            return <article className={`panel scenario-card scenario-card--${item.scenario}`} key={item.scenario}><h3 title={item.title}><Link to={`/scenarios/${item.scenario}`}>{item.title}</Link></h3><div className="scenario-card__body"><div><p><b>{item.open_forecasts}</b> {plural(item.open_forecasts, "прогноз", "прогноза", "прогнозов")} в очереди</p>{state && <StateView state={state} detail={head?.detail} compact />}</div><Donut value={item.coverage_fraction ?? null} label="охват" /></div></article>;
           })}
         </div>
         <div className="chart-grid">
