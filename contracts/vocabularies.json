@@ -5,7 +5,7 @@
     {"code": "sensor_link", "head": "A_link", "direction": "sensor_failure",
      "title": "Отказ датчика: риск потери связи", "score_type": "probability", "horizon_hours": 24},
     {"code": "equipment_diag", "head": "D", "direction": "infrastructure_wear",
-     "title": "Износ: плановая диагностика оборудования", "score_type": "probability", "horizon_hours": 168},
+     "title": "Износ: плановая диагностика оборудования", "score_type": "relative_priority", "horizon_hours": 168},
     {"code": "guard_weekly", "head": "guard_weekly", "direction": "unauthorised_access",
      "title": "НСД: проверка объектов с хроническими охранными тревогами", "score_type": "relative_priority", "horizon_hours": 168}
   ],

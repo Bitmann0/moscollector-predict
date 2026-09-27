@@ -68,6 +68,10 @@ def test_forecast_fields_follow_contract(admin, fake_ml):
     assert first["object"]["complex_id"] == "9100"
     assert first["channel"]["id"] == 9000001 and first["channel"]["picket_label"] == "ПК 0"
     assert first["work_order_id"] is not None
+    # D — голова-правило: оценка не вероятность, а приоритет (словарь C3).
+    wear = next(i for i in page["items"] if i["scenario"] == "equipment_diag")
+    assert wear["score_type"] == "relative_priority"
+    assert wear["risk"] is None and wear["priority_score"] is not None
     outside = alert_id("A_link", 9000011, TUESDAY)
     assert outside not in {i["id"] for i in page["items"]}
     assert admin.get(f"{API}/forecasts/{outside}").status_code == 200  # карточка — для любой

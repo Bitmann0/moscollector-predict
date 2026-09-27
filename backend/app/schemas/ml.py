@@ -109,7 +109,7 @@ class AlertOut(BaseModel):
     valid_from: dt.datetime  # без таймзоны: Europe/Moscow
     valid_to: dt.datetime
     horizon_hours: int
-    risk: float
+    risk: float  # вероятность у модели; у головы-правила (D) — значение признака
     rank: int
     in_budget: bool
     above_threshold: bool | None = None

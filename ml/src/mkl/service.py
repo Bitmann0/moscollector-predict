@@ -132,9 +132,16 @@ def alerts_for_head(head: str, asof: dt.date | None = None,
                 f"{head}: признаки не сошлись с алертами построчно "
                 f"({aligned.height} против {issued.height}) — вклады признаков "
                 f"были бы приклеены к чужим строкам")
-        X = train._matrix(aligned, art["features"])
-        contributions = explain.contributions(
-            art["model"], X, art["features"], top=TOP_FACTORS)
+        if art.get("rule"):
+            # У правила объяснение одно: значение признака, по которому ранжировали.
+            rule = art["rule"]
+            contributions = [[{"feature": rule, "label": explain.label(rule),
+                               "contribution": float(value or 0.0)}]
+                             for value in aligned[rule].to_list()]
+        else:
+            X = train._matrix(aligned, art["features"])
+            contributions = explain.contributions(
+                art["model"], X, art["features"], top=TOP_FACTORS)
         factors_by_rank = dict(zip(aligned["_row"].to_list(), contributions,
                                    strict=True))
 
