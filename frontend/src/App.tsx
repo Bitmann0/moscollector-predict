@@ -17,6 +17,7 @@ import { Login } from "./pages/Login";
 import { Notifications } from "./pages/Notifications";
 import { Quality } from "./pages/Quality";
 import { Schema } from "./pages/Schema";
+import { ScenarioStatus } from "./pages/ScenarioStatus";
 import { WorkOrders } from "./pages/WorkOrders";
 
 export function App() {
@@ -36,6 +37,7 @@ export function App() {
         <Route path="work-orders" element={<WorkOrders />} />
         <Route path="events" element={<Events />} />
         <Route path="schema" element={<Schema />} />
+        <Route path="scenarios/:scenario" element={<ScenarioStatus />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="quality" element={<Quality />} />
         <Route path="*" element={<NotFound />} />
