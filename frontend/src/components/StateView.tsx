@@ -1,6 +1,5 @@
 /**
- * Единый показ состояний экрана и сценария. Живое; FE-10 дорабатывает вид
- * (отдельные экраны по сценарию, проверка в браузерах), не меняя коды.
+ * Единый показ состояний экрана и сценария. Отдельные экраны сценариев — FE-10.
  *
  * Коды результата расчёта (ok, empty_valid, no_data, stale, error) и их заголовки —
  * из vocabularies.json → result_status. threshold_infeasible — голова, у которой
@@ -16,6 +15,7 @@ import { title, type ResultStatus } from "../vocab";
 export type ViewState =
   | ResultStatus
   | "threshold_infeasible"
+  | "not_run"
   | "loading"
   | "unavailable"
   | "forbidden"
@@ -36,19 +36,19 @@ function textOf(state: ViewState): StateText {
     case "empty_valid":
       return {
         title: title("result_status", "empty_valid"),
-        hint: "Расчёт прошёл штатно: объектов с риском выше порога на этот день нет.",
+        hint: "Расчёт прошёл штатно: подходящих кандидатов на этот день нет.",
         tone: "info",
       };
     case "no_data":
       return {
         title: title("result_status", "no_data"),
-        hint: "Журнал СМВУ за расчётный день не поступил, поэтому прогноз не строился.",
+        hint: "Для расчёта не хватило наблюдений за нужный период, поэтому прогноз не строился.",
         tone: "warn",
       };
     case "stale":
       return {
         title: title("result_status", "stale"),
-        hint: "Последние данные старше расчётного дня. Прогноз может не отражать текущее состояние.",
+        hint: "Данные или модель устарели относительно расчётной даты. Прогноз может не отражать нужный период.",
         tone: "warn",
       };
     case "error":
@@ -63,6 +63,12 @@ function textOf(state: ViewState): StateText {
         hint:
           "На истории не нашлось порога, при котором прогнозы достаточно точны, " +
           "поэтому сценарий их не выдаёт. Это не сбой.",
+        tone: "muted",
+      };
+    case "not_run":
+      return {
+        title: "Расчёт ещё не запускался",
+        hint: "Для этого сценария пока нет результата. Отсутствие прогноза не означает отсутствие риска.",
         tone: "muted",
       };
     case "loading":
@@ -117,6 +123,10 @@ export function headState(head: {
   result_status?: ResultStatus | null;
   threshold_feasible?: boolean | null;
 }): ViewState | null {
+  // Сбой или нехватка данных важнее сведений о пороге: иначе можно скрыть ошибку.
+  if (head.result_status === "error" || head.result_status === "no_data" || head.result_status === "stale") {
+    return head.result_status;
+  }
   if (head.threshold_feasible === false) return "threshold_infeasible";
   return head.result_status ?? null;
 }
