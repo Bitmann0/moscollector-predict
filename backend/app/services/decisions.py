@@ -29,6 +29,9 @@ def _forecast_or_404(db: Session, forecast_id: str) -> models.Forecast:
 
 def create(db: Session, forecast_id: str, body: DecisionIn, user: CurrentUser) -> DecisionOut:
     _forecast_or_404(db, forecast_id)
+    reason = db.get(models.ReasonCode, body.reason_code)
+    if reason is None or body.action not in (reason.actions or []):
+        raise HTTPException(status_code=422, detail="reason_code_not_allowed_for_action")
     row = models.Decision(forecast_id=forecast_id, action=body.action,
                           reason_code=body.reason_code, comment=body.comment,
                           author=user.login, created_at=now_utc(), source="live")

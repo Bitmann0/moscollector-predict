@@ -86,6 +86,8 @@ def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCa
         if row is None:
             raise HTTPException(status_code=404, detail="forecast_not_found")
         forecasts.append(row)
+    if len({f.scenario for f in forecasts}) != 1 or len({f.obj_id for f in forecasts}) != 1:
+        raise HTTPException(status_code=422, detail="work_order_requires_one_scenario_and_object")
     order_id = order_id_for(body.forecast_ids)
     if db.get(models.WorkOrder, order_id) is None:
         first = forecasts[0]
@@ -112,6 +114,15 @@ def transition(db: Session, order_id: str, body: WorkOrderTransition,
     row = db.get(models.WorkOrder, order_id)
     if row is None:
         raise HTTPException(status_code=404, detail="work_order_not_found")
+    if row.status != body.expected_status:
+        raise HTTPException(status_code=409, detail={"code": "status_conflict",
+                                                     "current_status": row.status})
+    allowed = vocab.load()["work_order_transitions"].get(row.status, [])
+    if body.status not in allowed:
+        raise HTTPException(status_code=422, detail="work_order_transition_not_allowed")
+    permission = vocab.load()["work_order_transition_perm"].get(body.status)
+    if permission and permission not in user.perms:
+        raise HTTPException(status_code=403, detail="forbidden")
     db.add(models.WorkOrderHistory(order_id=order_id, from_status=row.status,
                                    to_status=body.status, author=user.login,
                                    reason=body.reason, at=now_utc()))
