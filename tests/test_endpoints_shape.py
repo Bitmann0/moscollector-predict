@@ -117,6 +117,10 @@ def _mutations(ids: dict) -> list[tuple[str, str, str, dict]]:
         ("POST", "/reference/sync", "/reference/sync", {}),
         ("PUT", "/settings", "/settings", {"json": {"replay_speed": 120}}),
         ("POST", "/admin/run-daily", "/admin/run-daily", {"json": {"asof": "2026-06-16"}}),
+        ("DELETE", "/admin/issued-log", "/admin/issued-log",
+         {"params": {"from": "2026-06-16", "to": "2026-06-16"}}),
+        ("POST", "/admin/emulate-decisions", "/admin/emulate-decisions",
+         {"json": {"date_from": "2026-06-01", "date_to": "2026-06-29"}}),
         ("POST", "/notifications/{notification_id}/read", "/notifications/1/read", {}),
         ("POST", "/auth/logout", "/auth/logout", {}),
     ]

@@ -374,6 +374,72 @@
         "title": "DynamicsPoint",
         "type": "object"
       },
+      "EmulateDecisionsIn": {
+        "description": "Окно по asof прогноза, границы включены. share — доля прогнозов с фактом, которым\nдостаётся эмулированное решение; остальные остаются нерешёнными.",
+        "properties": {
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "share": {
+            "default": 0.7,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to"
+        ],
+        "title": "EmulateDecisionsIn",
+        "type": "object"
+      },
+      "EmulateDecisionsOut": {
+        "properties": {
+          "created": {
+            "title": "Created",
+            "type": "integer"
+          },
+          "decisions": {
+            "title": "Decisions",
+            "type": "integer"
+          },
+          "outcomes": {
+            "title": "Outcomes",
+            "type": "integer"
+          },
+          "removed": {
+            "title": "Removed",
+            "type": "integer"
+          },
+          "skipped_live": {
+            "title": "Skipped Live",
+            "type": "integer"
+          },
+          "with_fact": {
+            "title": "With Fact",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "with_fact",
+          "decisions",
+          "outcomes",
+          "created",
+          "removed",
+          "skipped_live"
+        ],
+        "title": "EmulateDecisionsOut",
+        "type": "object"
+      },
       "EventItem": {
         "description": "Строка журнала событий (форма Приложения 2 ТЗ).",
         "properties": {
@@ -1297,6 +1363,31 @@
         "title": "IngestBatchOut",
         "type": "object"
       },
+      "IssuedLogClearOut": {
+        "properties": {
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "deleted": {
+            "title": "Deleted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "deleted"
+        ],
+        "title": "IssuedLogClearOut",
+        "type": "object"
+      },
       "LastRun": {
         "properties": {
           "asof": {
@@ -2105,6 +2196,11 @@
             "format": "date",
             "title": "Asof",
             "type": "string"
+          },
+          "weekly_only": {
+            "default": false,
+            "title": "Weekly Only",
+            "type": "boolean"
           }
         },
         "required": [
@@ -2836,6 +2932,130 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/emulate-decisions": {
+      "post": {
+        "description": "Эмулированные решения и итоги проверки (source=emulated) по факту прогнозов окна.",
+        "operationId": "emulate_decisions_api_v1_admin_emulate_decisions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmulateDecisionsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmulateDecisionsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Emulate Decisions",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/issued-log": {
+      "delete": {
+        "description": "Журнал выданного за asof из [from, to]: прелоад чистит окно перед прогоном.",
+        "operationId": "clear_issued_log_api_v1_admin_issued_log_delete",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "From",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "To",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuedLogClearOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Clear Issued Log",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/v1/admin/run-daily": {
       "post": {
         "operationId": "run_daily_api_v1_admin_run_daily_post",
