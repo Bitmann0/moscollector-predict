@@ -61,6 +61,37 @@ def test_closed_sse_subscriber_does_not_fail_ingest(admin, monkeypatch, db):
     assert db.scalar(select(func.count()).select_from(models.Notification)) == 1
 
 
+def _alarm_side_effects(db, published) -> tuple[str | None, int, int]:
+    db.expire_all()
+    return (db.scalar(select(models.Event.event_class)),
+            db.scalar(select(func.count()).select_from(models.Notification)), len(published))
+
+
+def test_history_batch_with_notify_false_stores_alarm_silently(integration, monkeypatch, db):
+    published = []
+    monkeypatch.setattr(notifications.broker, "publish", lambda *a, **k: published.append(a))
+    resp = integration.post(f"{API}/ingest/events", params={"notify": "false"}, json=[ROW])
+    assert resp.json()["accepted"] == 1
+    assert _alarm_side_effects(db, published) == ("alarm", 0, 0)
+
+
+def test_live_batch_notifies_by_default(integration, monkeypatch, db):
+    published = []
+    monkeypatch.setattr(notifications.broker, "publish", lambda *a, **k: published.append(a))
+    integration.post(f"{API}/ingest/events", json=[ROW])
+    assert _alarm_side_effects(db, published) == ("alarm", 1, 1)
+
+
+def test_history_file_with_notify_false_stores_alarm_silently(admin, monkeypatch, db):
+    published = []
+    monkeypatch.setattr(notifications.broker, "publish", lambda *a, **k: published.append(a))
+    content = ",".join(ROW) + "\n" + ",".join(str(v) for v in ROW.values()) + "\n"
+    resp = admin.post(f"{API}/ingest/events/upload", params={"notify": "false"},
+                      files={"file": ("e.csv", content.encode(), "text/csv")})
+    assert resp.json()["accepted"] == 1
+    assert _alarm_side_effects(db, published) == ("alarm", 0, 0)
+
+
 def test_sensor_faults_follow_c5():
     assert semantics.classify(GAS, "-0.4", -0.4, False)[0] == "fault"
     assert semantics.classify(GAS, "327,68", 327.68, True)[0] == "fault"

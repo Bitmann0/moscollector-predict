@@ -30,15 +30,20 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Поток событий 30.06 (ML2-03, раздел 3 плана: «Поток 30.06»). Образ ml — ради duckdb
+  # Поток событий 30.06 (ML2-03, раздел 3 плана: «Поток 30.06»): на старте догружает
+  # события 00:00…сейчас без уведомлений, дальше идёт по часам МСК. Образ ml — ради duckdb
   # для parquet бандла; скрипт и события бандла смонтированы только для чтения.
   # Журнал задержки для ML2-04 — ./state/replay/latency.csv на хосте.
+  # История мая–июня для журнала и динамики карточек — разовой командой (README):
+  #   docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml \
+  #     run --rm replay python /srv/scripts/replay.py --base-url http://api:8000 --bulk
   replay:
     build:
       context: .
       dockerfile: ml/Dockerfile
     command: ["python", "/srv/scripts/replay.py", "--base-url", "http://api:8000",
-              "--loop", "--align-to-clock", "--latency-log", "/srv/state/latency.csv"]
+              "--catch-up", "--align-to-clock", "--loop",
+              "--latency-log", "/srv/state/latency.csv"]
     environment:
       INTEGRATION_API_KEY: ${INTEGRATION_API_KEY:?задайте INTEGRATION_API_KEY в .env}
       TZ: Europe/Moscow

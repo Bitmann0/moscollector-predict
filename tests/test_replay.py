@@ -1,4 +1,5 @@
-"""scripts/replay.py (ML2-03): темп, пачки, выравнивание по МСК, сброс дня, журнал задержки.
+"""scripts/replay.py (ML2-03): темп, пачки, выравнивание по МСК, сброс дня, журнал задержки,
+догрузка дня и загрузка истории без уведомлений.
 
 Без сети и без настоящего сна: часы и sleep подменяются, api — фейк или TestClient.
 """
@@ -60,9 +61,10 @@ class FakeApi:
         return [body for _, method, _, body in self.calls if method == "POST"]
 
 
-def event(offset: int, event_id: int = 1, channel: int = 9000001) -> replay.Event:
-    ts = datetime.combine(DAY, time()) + timedelta(seconds=offset)
-    return replay.parquet_event(event_id, channel, ts, False, "1.0")
+def event(offset: int, event_id: int = 1, channel: int = 9000001, *, day: date = DAY,
+          alarm: bool = False, value: str = "1.0") -> replay.Event:
+    ts = datetime.combine(day, time()) + timedelta(seconds=offset)
+    return replay.parquet_event(event_id, channel, ts, alarm, value)
 
 
 def replayer(clock: FakeClock, api: FakeApi, **kwargs) -> replay.Replayer:
@@ -204,6 +206,65 @@ def test_parquet_row_maps_to_event_row():
                         "значение_датчика": None}
 
 
+def test_catch_up_sends_past_events_silently_then_paces_the_rest():
+    clock = FakeClock(at(14))
+    api = FakeApi(clock)
+    events = [event(10 * 3600, 1), event(13 * 3600 + 3599, 2), event(14 * 3600, 3),
+              event(14 * 3600 + 10, 4)]
+    stats = replayer(clock, api, interval=1).run(events, DAY, align=True, catch_up=True)
+    sent = [(t - at(14), path, [row["время"] for row in body]) for t, _, path, body in api.calls]
+    assert sent == [(0, replay.HISTORY_PATH, ["10:00:00", "13:59:59"]),
+                    (0, replay.LIVE_PATH, ["14:00:00"]),
+                    (10, replay.LIVE_PATH, ["14:00:10"])]
+    assert stats.rows == 4
+
+
+def test_catch_up_needs_align_to_clock():
+    with pytest.raises(SystemExit):
+        replay.main(["--catch-up", "--dry-run"])
+    with pytest.raises(SystemExit):
+        replay.main(["--bulk", "--loop", "--dry-run"])
+
+
+def test_bulk_sends_days_without_pacing_or_notifications():
+    clock = FakeClock(at(12))
+    api = FakeApi(clock, latency=0.5)
+    lines = []
+    may = date(2026, 5, 2)
+    days = [(may, [event(n, n, day=may) for n in range(7_001)], 0),
+            (date(2026, 5, 3), [], 0),
+            (date(2026, 5, 4), [event(86_399, 1, day=date(2026, 5, 4))], 3)]
+    stats = replay.Replayer(api, clock=clock, sleep=clock.sleep, out=lines.append).bulk(days)
+    assert [(path, len(body)) for _, _, path, body in api.calls] == [
+        (replay.HISTORY_PATH, 5000), (replay.HISTORY_PATH, 2001), (replay.HISTORY_PATH, 1)]
+    assert clock.sleeps == []
+    assert (stats.rows, stats.accepted, stats.duplicates) == (7002, 6999, 3)
+    assert lines[0].startswith("2026-05-02: строк 7001, принято 6999, дублей 2")
+    assert lines[0].endswith("1.0 с, 7001 строк/с")
+    assert "нечитаемых строк CSV 3" in lines[2]
+
+
+def test_csv_days_are_read_in_one_pass(tmp_path):
+    path = tmp_path / "journal.csv"
+    lines = ["ид_события,ид_канала_данных,дата,время,тревожное,значение_датчика",
+             "1,9000001,2026-05-02,10:00:00,f,1",
+             "2,9000001,2026-05-03,09:00:00,f,1",
+             "3,9000001,2026-05-04,09:00:00,f,1"]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    days = replay.days_between(date(2026, 5, 2), date(2026, 5, 3))
+    got = [(day, [e.row["ид_события"] for e in events], bad)
+           for day, events, bad in replay.load_days(path, days)]
+    assert got == [(date(2026, 5, 2), [1], 0), (date(2026, 5, 3), [2], 0)]
+
+
+def test_history_window_covers_dynamics_of_first_forecast():
+    from app.services.forecasts import DYNAMICS_DAYS
+
+    first_asof = date(2026, 6, 1)
+    assert replay.HISTORY_FROM <= first_asof - timedelta(days=DYNAMICS_DAYS - 1)
+    assert replay.HISTORY_TO == DAY - timedelta(days=1)
+
+
 class ClientApi:
     """Те же вызовы, что шлёт scripts/_api.Api, но в приложение в памяти."""
 
@@ -228,3 +289,19 @@ def test_rows_are_accepted_by_ingest_and_reset_by_loop(integration, admin):
     listed = admin.get("/api/v1/events", params={"from": "2026-06-30", "to": "2026-06-30"})
     assert listed.status_code == 200
     assert listed.json()["total"] == 6
+
+
+def test_history_is_silent_and_live_notifies(integration, db):
+    from app import models
+    from sqlalchemy import func, select
+
+    clock = FakeClock(at(0))
+    runner = replay.Replayer(ClientApi(integration), clock=clock, sleep=clock.sleep,
+                             out=lambda _: None)
+    alarm = {"alarm": True, "value": "Обнаружен газ"}
+    may = date(2026, 5, 20)
+    runner.bulk([(may, [event(36_000, 1, 9000004, day=may, **alarm)], 0)])
+    runner.run([event(36_000, 2, 9000004, **alarm)], DAY)
+    classes = db.scalars(select(models.Event.event_class)).all()
+    notified = db.scalar(select(func.count()).select_from(models.Notification))
+    assert (classes, notified) == (["alarm", "alarm"], 1)
