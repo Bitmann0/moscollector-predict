@@ -271,7 +271,7 @@ def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> 
     raw["weekly"] = resp.model_dump(mode="json", exclude={"priorities"})
 
 
-def _alert_new(row: models.Forecast) -> None:
+def _alert_new(db: Session, row: models.Forecast) -> None:
     scenario = vocab.scenario(row.scenario)
     obj = (row.address or {}).get("obj_name") or row.obj_id or "адрес неизвестен"
     publish_safe("alert.new", {
@@ -279,7 +279,7 @@ def _alert_new(row: models.Forecast) -> None:
         "asof": row.asof.isoformat(), "rank": row.rank, "risk": row.risk,
         "priority_score": row.priority_score, "obj_id": row.obj_id, "obj_name": obj,
         "channel_id": row.channel_id, "source": row.source,
-    }, severity="warning", title=f"{scenario['title']}: {obj}")
+    }, severity="warning", title=f"{scenario['title']}: {obj}", db=db)
 
 
 _RUN_LOCK = threading.Lock()
@@ -308,12 +308,12 @@ def _run_daily(db: Session, asof: date, ml: MlClient) -> RunDailyOut:
     run.finished_at = now_utc()
     db.commit()
     for row in saver.new:
-        _alert_new(row)
+        _alert_new(db, row)
     failed = [h for h, s in heads.items() if s["result_status"] == "error"]
     publish_safe("run.finished", {"run_id": run.id, "asof": asof.isoformat(),
                                   "heads": {h: s["result_status"] for h, s in heads.items()}},
                  severity="warning" if failed else "info",
-                 title=f"Расчёт за {asof:%d.%m.%Y}" + (" с ошибкой" if failed else ""))
+                 title=f"Расчёт за {asof:%d.%m.%Y}" + (" с ошибкой" if failed else ""), db=db)
     return RunDailyOut(
         run_id=run.id, asof=asof,
         heads={h: HeadRunResult(result_status=s["result_status"],

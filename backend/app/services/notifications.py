@@ -59,12 +59,19 @@ def _put_nowait(queue: asyncio.Queue, event: dict) -> None:
 broker = Broker()
 
 
-def publish_safe(kind: str, payload: dict, *, severity: str = "info", title: str = "") -> None:
+def publish_safe(kind: str, payload: dict, *, severity: str = "info", title: str = "",
+                 db: Session | None = None) -> None:
     """publish() для фоновых путей: сбой рассылки не должен откатывать уже записанное.
 
     Подписчик, чей цикл событий закрыт (оборванный поток SSE), даёт RuntimeError в
     call_soon_threadsafe — прогноз уже в БД, поэтому ошибку только пишем в лог.
     """
+    if db is not None:
+        row = models.Notification(ts=datetime.now(UTC), kind=kind, severity=severity,
+                                  title=title, payload=payload, read_by=[])
+        db.add(row)
+        db.commit()
+        payload = {**payload, "notification_id": row.id}
     try:
         broker.publish(kind, payload, severity=severity, title=title)
     except RuntimeError:
