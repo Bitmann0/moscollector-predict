@@ -14,25 +14,30 @@ router = APIRouter(tags=["ingest"])
 from ..limits import UPLOAD_MAX_BYTES as MAX_UPLOAD_BYTES  # лимит файла (ML2-07 — в документацию)
 
 MAX_BATCH_ROWS = 5000  # C5: JSON-пачка журнала — до 5 000 строк
+NOTIFY_HELP = ("false — загрузка истории: события сохраняются и классифицируются, но "
+               "уведомления event.alarm и SSE по ним не создаются")
 
 
 @router.post("/ingest/events", response_model=IngestBatchOut, status_code=201)
 def ingest_rows(rows: list[EventRowIn] = Body(max_length=MAX_BATCH_ROWS),
+                notify: bool = Query(True, description=NOTIFY_HELP),
                 db: Session = Depends(get_db),
                 user: CurrentUser = Depends(require_perm("ingest"))) -> IngestBatchOut:
     """Пачка журнала СМВУ в JSON (до 5 000 строк) — так шлёт replay.py."""
-    return ingest.ingest_rows(db, rows, user)
+    return ingest.ingest_rows(db, rows, user, notify=notify)
 
 
 @router.post("/ingest/events/upload", response_model=IngestBatchOut, status_code=201)
-def ingest_file(file: UploadFile = File(...), db: Session = Depends(get_db),
+def ingest_file(file: UploadFile = File(...),
+                notify: bool = Query(True, description=NOTIFY_HELP),
+                db: Session = Depends(get_db),
                 user: CurrentUser = Depends(require_perm("ingest"))) -> IngestBatchOut:
     """Файл журнала СМВУ: CSV как журнал_событий_пример.csv или XLSX (ТЗ §7).
 
     Синхронная функция намеренно: FastAPI выполняет её в пуле потоков. Разбор файла
     в async-обработчике остановил бы цикл событий — и весь API, включая SSE и health."""
     content = file.file.read(MAX_UPLOAD_BYTES + 1)
-    return ingest.ingest_file(db, file.filename or "upload", content, user)
+    return ingest.ingest_file(db, file.filename or "upload", content, user, notify=notify)
 
 
 @router.delete("/ingest/day/{day}", response_model=ResetDayOut)

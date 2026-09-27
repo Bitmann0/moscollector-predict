@@ -4122,6 +4122,20 @@
       "post": {
         "description": "Пачка журнала СМВУ в JSON (до 5 000 строк) — так шлёт replay.py.",
         "operationId": "ingest_rows_api_v1_ingest_events_post",
+        "parameters": [
+          {
+            "description": "false — загрузка истории: события сохраняются и классифицируются, но уведомления event.alarm и SSE по ним не создаются",
+            "in": "query",
+            "name": "notify",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "false — загрузка истории: события сохраняются и классифицируются, но уведомления event.alarm и SSE по ним не создаются",
+              "title": "Notify",
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4183,6 +4197,20 @@
       "post": {
         "description": "Файл журнала СМВУ: CSV как журнал_событий_пример.csv или XLSX (ТЗ §7).\n\nСинхронная функция намеренно: FastAPI выполняет её в пуле потоков. Разбор файла\nв async-обработчике остановил бы цикл событий — и весь API, включая SSE и health.",
         "operationId": "ingest_file_api_v1_ingest_events_upload_post",
+        "parameters": [
+          {
+            "description": "false — загрузка истории: события сохраняются и классифицируются, но уведомления event.alarm и SSE по ним не создаются",
+            "in": "query",
+            "name": "notify",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "false — загрузка истории: события сохраняются и классифицируются, но уведомления event.alarm и SSE по ним не создаются",
+              "title": "Notify",
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {

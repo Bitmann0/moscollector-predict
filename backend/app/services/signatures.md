@@ -18,8 +18,8 @@
 | `work_orders.py` | `create(db, body: WorkOrderCreate, user) -> WorkOrderCard` | живое | BE-06 |
 | `work_orders.py` | `transition(db, order_id, body: WorkOrderTransition, user) -> WorkOrderCard` | живое | BE-06 |
 | `events.py` | `list_events(db, *, date_from, date_to, obj, sensor_type, event_class, q, page, page_size) -> Page[EventItem]` | живое | ML2-03 |
-| `ingest.py` | `ingest_rows(db, rows: list[EventRowIn], user) -> IngestBatchOut` | живое | ML2-03 |
-| `ingest.py` | `ingest_file(db, filename: str, content: bytes, user) -> IngestBatchOut` | живое | ML2-03 |
+| `ingest.py` | `ingest_rows(db, rows: list[EventRowIn], user, *, notify: bool = True) -> IngestBatchOut` | живое | ML2-03 |
+| `ingest.py` | `ingest_file(db, filename: str, content: bytes, user, *, notify: bool = True) -> IngestBatchOut` | живое | ML2-03 |
 | `ingest.py` | `reset_day(db, day: date, user) -> ResetDayOut` | живое | ML2-03 |
 | `ingest.py` | `ingest_ods(db, rows: list[OdsRowIn], user) -> IngestBatchOut` | живое | BE-06 |
 | `ingest.py` | `list_batches(db, page, page_size) -> Page[IngestBatchOut]` | живое | ML2-03 |

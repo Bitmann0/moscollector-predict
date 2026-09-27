@@ -1,27 +1,39 @@
-"""Проигрыватель событий дня в API (ML2-03, C5). Живое.
+"""Проигрыватель событий в API (ML2-03, C5): поток дня и загрузка истории. Живое.
 
-Источник — события одного дня из бандла C4 (data/interim/events_year=2026.parquet, читается
-через duckdb: он есть в образе ml) или CSV в формате журнал_событий_пример.csv (только
-stdlib). Строки уходят в POST /api/v1/ingest/events пачками EventRowIn с X-API-Key роли
-integration.
+Источник — бандл C4 (data/interim/events_year=2026.parquet, читается через duckdb: он есть
+в образе ml) или CSV в формате журнал_событий_пример.csv (только stdlib). Строки уходят
+в POST /api/v1/ingest/events пачками EventRowIn с X-API-Key роли integration.
 
-Темп задают времена событий: событие 00:10:00 приходит через 10 мин после начала дня при
---speed 1 и через 1 с при --speed 600. Пришедшее отправляется раз в --interval секунд или
-сразу, как наберётся --batch-size строк. --align-to-clock начинает с текущего времени суток
-МСК, более ранние события пропускаются. --loop в конце дня (при --speed 1 и
---align-to-clock — в полночь МСК) удаляет события дня через DELETE /api/v1/ingest/day/{day}
-и начинает с 00:00:00.
+Поток дня. Темп задают времена событий: событие 00:10:00 приходит через 10 мин после начала
+дня при --speed 1 и через 1 с при --speed 600. Пришедшее отправляется раз в --interval
+секунд или сразу, как наберётся --batch-size строк. --align-to-clock начинает с текущего
+времени суток МСК; более ранние события пропускаются, а с --catch-up уходят сразу, одной
+серией пачек без уведомлений. --loop в конце дня (при --speed 1 и --align-to-clock —
+в полночь МСК) удаляет события дня через DELETE /api/v1/ingest/day/{day} и начинает
+с 00:00:00.
+
+История (--bulk --from --to). Дни идут по порядку без темпа, пачками по 5 000 строк, так
+быстро, как принимает api; после каждого дня — строка со счётчиками и скоростью. Нужна
+журналу событий июня (решение D6) и динамике карточки прогноза: forecasts._dynamics берёт
+события канала за 30 суток до asof. Прерванную загрузку можно запустить заново или с
+другого --from: уже принятые строки api посчитает дублями.
+
+История и догрузка идут с ?notify=false: api сохраняет и классифицирует события, но не
+создаёт уведомлений — иначе прошлые тревоги пришли бы диспетчеру как новые. Поток — с
+уведомлениями.
 
 Пачку, не принятую из-за сети, 429 или 5xx, скрипт повторяет с паузами 1…30 с, после
 восьмой попытки пропускает и идёт дальше. Повтор безопасен: api снимает дубли по полному
 кортежу строки. Остальные 4xx не повторяются: та же пачка получит тот же ответ.
 
---latency-log пишет строку на пачку (CSV, при суффиксе .jsonl — JSONL): времена первого и
-последнего события, моменты отправки и ответа, счётчики партии и задержку «событие → БД»
-для ML2-04. Задержка считается от момента, когда событие пришло по темпу, до ответа api:
-api отвечает после коммита.
+--latency-log пишет строку на пачку (CSV, при суффиксе .jsonl — JSONL): режим, времена
+первого и последнего события, моменты отправки и ответа, счётчики партии и для потока —
+задержку «событие → БД» для ML2-04. Задержка считается от момента, когда событие пришло
+по темпу, до ответа api: api отвечает после коммита.
 
-    python scripts/replay.py --day 2026-06-30 --loop --align-to-clock
+    python scripts/replay.py --day 2026-06-30 --loop --align-to-clock --catch-up
+    python scripts/replay.py --bulk                      # 2026-05-02…2026-06-29
+    python scripts/replay.py --bulk --from 2026-06-10    # продолжить прерванную загрузку
     python scripts/replay.py --speed 600      # сутки за 2,4 мин — только для видео
     python scripts/replay.py --source Materials/журнал_событий_пример.csv --day 2026-08-01 \\
         --speed 3600 --latency-log state/replay_latency.csv
@@ -38,14 +50,22 @@ import json
 import signal
 import sys
 import time as systime
-from dataclasses import dataclass
+from collections.abc import Iterable, Iterator
+from dataclasses import dataclass, fields, replace
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 
 from _api import DEFAULT_BASE_URL, ROOT, Api, ApiError, env_value, safe_console
 
 DEFAULT_DAY = date(2026, 6, 30)  # «сегодня» демо-стенда (решение D6)
+# Окно истории: forecasts._dynamics для прогноза за 06-01 начинает с 05-03 (30 суток
+# с asof включительно); 05-02 — запас в сутки. 30.06 проигрывается потоком.
+HISTORY_FROM = date(2026, 5, 2)
+HISTORY_TO = date(2026, 6, 29)
 BATCH_LIMIT = 5000               # предел JSON-пачки по C5
+LIVE_BATCH = 500                 # пачка потока по умолчанию; история идёт по BATCH_LIMIT
+LIVE_PATH = "/ingest/events"
+HISTORY_PATH = "/ingest/events?notify=false"
 EVENTS_FILE = "data/interim/events_year=2026.parquet"
 CSV_COLUMNS = ("ид_события", "ид_канала_данных", "дата", "время", "тревожное",
                "значение_датчика")
@@ -57,8 +77,8 @@ PROGRESS_EVERY_S = 60
 # Ошибки одного вызова: HTTP-код, сеть и таймаут (OSError), оборванный ответ
 # (HTTPException), не-JSON в ответе (ValueError).
 CALL_ERRORS = (ApiError, OSError, ValueError, http.client.HTTPException)
-# Столбцы журнала задержки (ML2-04).
-LATENCY_FIELDS = ("pass", "rows", "event_first", "event_last", "sent_at", "done_at",
+# Столбцы журнала задержки (ML2-04). mode: live — поток, catch-up — догрузка, bulk — история.
+LATENCY_FIELDS = ("mode", "pass", "rows", "event_first", "event_last", "sent_at", "done_at",
                   "latency_min_s", "latency_max_s", "request_s", "attempts", "status",
                   "accepted", "duplicates", "rejected", "outside_demo_window", "error")
 # events_year=*.parquet пишет ml/src/mkl/ingest.py: build_events. ts = дата + время,
@@ -92,6 +112,10 @@ class Stats:
     outside: int = 0    # outside_demo_window
     resets: int = 0
 
+    def minus(self, other: "Stats") -> "Stats":
+        return Stats(**{f.name: getattr(self, f.name) - getattr(other, f.name)
+                        for f in fields(self)})
+
 
 # --- Источник ---
 
@@ -122,24 +146,27 @@ def csv_event(record: dict) -> Event | None:
                           "значение_датчика": record.get("значение_датчика")})
 
 
-def load_csv(path: Path, day: date) -> tuple[list[Event], int]:
-    """События дня из CSV и число нечитаемых строк этого дня."""
-    events, bad = [], 0
+def load_csv(path: Path, days: Iterable[date]) -> dict[date, tuple[list[Event], int]]:
+    """События дней из CSV за один проход файла: день → (события, нечитаемых строк)."""
+    wanted = {day.isoformat(): day for day in days}
+    events: dict[date, list[Event]] = {day: [] for day in wanted.values()}
+    bad = dict.fromkeys(wanted.values(), 0)
     with path.open(encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
         missing = sorted(set(CSV_COLUMNS) - set(reader.fieldnames or ()))
         if missing:
             raise SourceError(f"{path}: нет колонок {', '.join(missing)}")
         for record in reader:
-            if (record.get("дата") or "").strip() != day.isoformat():
+            day = wanted.get((record.get("дата") or "").strip())
+            if day is None:
                 continue
             event = csv_event(record)
             if event is None:
-                bad += 1
+                bad[day] += 1
             else:
-                events.append(event)
-    events.sort(key=lambda e: e.offset)
-    return events, bad
+                events[day].append(event)
+    return {day: (sorted(items, key=lambda e: e.offset), bad[day])
+            for day, items in events.items()}
 
 
 def parquet_event(event_id: int, channel: int, ts: datetime, alarm: bool | None,
@@ -168,18 +195,33 @@ def load_parquet(path: Path, day: date) -> list[Event]:
     return [parquet_event(*row) for row in rows]
 
 
-def load_events(path: Path, day: date) -> tuple[list[Event], int]:
-    """События дня по возрастанию времени и число нечитаемых строк CSV."""
+def load_days(path: Path, days: list[date]) -> Iterator[tuple[date, list[Event], int]]:
+    """(день, события по возрастанию времени, нечитаемых строк CSV) по порядку days.
+    Parquet читается запросом на день: в памяти одни сутки, а не вся история."""
     if not path.is_file():
         raise SourceError(f"нет файла {path}: бандл C4 раскладывает scripts/fetch_bundle.sh")
     if path.suffix.lower() == ".csv":
-        return load_csv(path, day)
-    return load_parquet(path, day), 0
+        by_day = load_csv(path, days)
+        for day in days:
+            yield day, *by_day[day]
+    else:
+        for day in days:
+            yield day, load_parquet(path, day), 0
+
+
+def load_events(path: Path, day: date) -> tuple[list[Event], int]:
+    """События одного дня и число нечитаемых строк CSV."""
+    _, events, bad = next(load_days(path, [day]))
+    return events, bad
 
 
 def default_source() -> Path:
     """Бандл в BUNDLE_DIR из окружения или .env (как в compose.real.yaml), иначе ./bundle."""
     return ROOT / (env_value("BUNDLE_DIR") or "bundle") / EVENTS_FILE
+
+
+def days_between(start: date, end: date) -> list[date]:
+    return [start + timedelta(n) for n in range((end - start).days + 1)]
 
 
 # --- Темп и пачки: чистые функции, часы передаются явно ---
@@ -198,9 +240,10 @@ def stamp(ts: float) -> str:
     return datetime.fromtimestamp(ts, MSK).isoformat(timespec="milliseconds")
 
 
-def skip_before(events: list[Event], start: float) -> list[Event]:
-    """События не раньше start секунд от полуночи; events отсортированы по offset."""
-    return events[bisect.bisect_left(events, start, key=lambda e: e.offset):]
+def split_at(events: list[Event], start: float) -> tuple[list[Event], list[Event]]:
+    """(раньше start, не раньше start) — секунды от полуночи; events отсортированы."""
+    cut = bisect.bisect_left(events, start, key=lambda e: e.offset)
+    return events[:cut], events[cut:]
 
 
 def due_times(events: list[Event], anchor: float, start: float, speed: float) -> list[float]:
@@ -273,18 +316,21 @@ class LatencyLog:
 # --- Проигрыватель ---
 
 class Replayer:
-    """Проходы дня с отправкой в api. Часы (clock → время Unix) и sleep подменяются в тестах.
+    """Проходы дня и загрузка истории. Часы (clock → время Unix) и sleep подменяются
+    в тестах.
 
     Часы — time.time, а не monotonic: по ним выравнивается время суток МСК, и полночь
     второго прохода совпадает с полночью на часах стенда."""
 
     def __init__(self, api, *, speed: float = 1.0, interval: float = 5.0,
-                 batch_size: int = 500, clock=systime.time, sleep=systime.sleep,
-                 log: LatencyLog | None = None, out=print) -> None:
+                 batch_size: int = LIVE_BATCH, history_size: int = BATCH_LIMIT,
+                 clock=systime.time, sleep=systime.sleep, log: LatencyLog | None = None,
+                 out=print) -> None:
         self.api = api
         self.speed = speed
         self.interval = interval
         self.batch_size = batch_size
+        self.history_size = history_size
         self.clock = clock
         self.sleep = sleep
         self.log = log
@@ -301,19 +347,21 @@ class Replayer:
             now = self.clock()
         return max(now, moment)
 
-    def send(self, events: list[Event], dues: list[float], lo: int, hi: int,
-             pass_no: int) -> None:
+    def send(self, events: list[Event], lo: int, hi: int, *, mode: str = "live",
+             pass_no: int = 0, dues: list[float] | None = None) -> None:
+        """Пачка events[lo:hi]. Поток (dues задан) — с уведомлениями и задержкой в журнале,
+        история и догрузка — с notify=false."""
         rows = [e.row for e in events[lo:hi]]
+        path = LIVE_PATH if mode == "live" else HISTORY_PATH
         sent = self.clock()
-        out, attempts, error = call_with_retry(self.api, "POST", "/ingest/events", rows,
-                                               self.sleep)
+        out, attempts, error = call_with_retry(self.api, "POST", path, rows, self.sleep)
         done = self.clock()
         out = out if isinstance(out, dict) else {}
         s = self.stats
         s.batches += 1
         s.rows += len(rows)
         first, last = rows[0], rows[-1]
-        record = {"pass": pass_no, "rows": len(rows),
+        record = {"mode": mode, "pass": pass_no, "rows": len(rows),
                   "event_first": f"{first['дата']}T{first['время']}",
                   "event_last": f"{last['дата']}T{last['время']}",
                   "sent_at": stamp(sent), "done_at": stamp(done),
@@ -326,18 +374,25 @@ class Replayer:
             self.out(f"{stamp(done)}  пачка {len(rows)} строк {record['event_first']}…"
                      f"{record['event_last']} не принята за {attempts} попыток: {error}")
         else:
-            latency = max(0.0, done - dues[lo])
-            self._window_latency = max(self._window_latency, latency)
-            record.update(latency_min_s=round(max(0.0, done - dues[hi - 1]), 3),
-                          latency_max_s=round(latency, 3), status=out.get("status", ""),
+            record.update(status=out.get("status", ""),
                           **{key: out.get(key, 0) for key in
                              ("accepted", "duplicates", "rejected", "outside_demo_window")})
             s.accepted += record["accepted"]
             s.duplicates += record["duplicates"]
             s.rejected += record["rejected"]
             s.outside += record["outside_demo_window"]
+            if dues is not None:
+                latency = max(0.0, done - dues[lo])
+                self._window_latency = max(self._window_latency, latency)
+                record.update(latency_min_s=round(max(0.0, done - dues[hi - 1]), 3),
+                              latency_max_s=round(latency, 3))
         if self.log is not None:
             self.log.write(record)
+
+    def history(self, events: list[Event], mode: str, pass_no: int = 0) -> None:
+        """Без темпа, пачками по history_size, без уведомлений."""
+        for lo, hi in chunks(0, len(events), self.history_size):
+            self.send(events, lo, hi, mode=mode, pass_no=pass_no)
 
     def progress(self, event: Event | None, force: bool = False) -> None:
         now = self.clock()
@@ -358,7 +413,7 @@ class Replayer:
             now = self.wait_until(next_flush(dues, i, last, self.interval, self.batch_size))
             j = bisect.bisect_right(dues, now)
             for lo, hi in chunks(i, j, self.batch_size):
-                self.send(events, dues, lo, hi, pass_no)
+                self.send(events, lo, hi, pass_no=pass_no, dues=dues)
             i, last = j, now
             self.progress(events[j - 1])
         self.progress(events[-1] if events else None, force=True)
@@ -376,13 +431,21 @@ class Replayer:
             self.out(f"{now}  DELETE /ingest/day/{day}: удалено событий {deleted}")
 
     def run(self, events: list[Event], day: date, *, align: bool = False, loop: bool = False,
-            max_passes: int | None = None) -> Stats:
-        """Проходы дня; при loop — бесконечно, max_passes ограничивает их в тестах."""
+            catch_up: bool = False, max_passes: int | None = None) -> Stats:
+        """Проходы дня; при loop — бесконечно, max_passes ограничивает их в тестах.
+        catch_up — перед первым выровненным проходом отправить события 00:00…сейчас."""
         anchor = self.clock()
         start = time_of_day(anchor) if align else 0.0
         while True:
             self.stats.passes += 1
-            todo = skip_before(events, start)
+            past, todo = split_at(events, start)
+            if catch_up and past:
+                t0 = self.clock()
+                self.out(f"догрузка {day} 00:00:00…{hhmmss(start)}: {len(past)} строк "
+                         f"без уведомлений")
+                self.history(past, "catch-up", self.stats.passes)
+                self.out(f"догрузка закончена за {self.clock() - t0:.0f} с")
+                catch_up = False
             self.out(f"проход {self.stats.passes}: {day} с {hhmmss(start)}, событий "
                      f"{len(todo)} из {len(events)}, темп x{self.speed:g}")
             self.play(todo, anchor, start, self.stats.passes)
@@ -393,17 +456,43 @@ class Replayer:
             self.reset_day(day)
             anchor, start = midnight, 0.0
 
+    def bulk(self, days: Iterable[tuple[date, list[Event], int]]) -> Stats:
+        """История по дням без темпа; после каждого дня — строка со счётчиками и скоростью."""
+        for day, events, bad in days:
+            before, t0 = replace(self.stats), self.clock()
+            self.history(events, "bulk")
+            d, spent = self.stats.minus(before), self.clock() - t0
+            self.out(f"{day}: строк {d.rows}, принято {d.accepted}, дублей {d.duplicates}, "
+                     f"отклонено {d.rejected}, пачек с ошибкой {d.failed}"
+                     + (f", нечитаемых строк CSV {bad}" if bad else "")
+                     + f"; {spent:.1f} с, {rate(d.rows, spent)} строк/с")
+        return self.stats
+
+
+def rate(rows: int, seconds: float) -> str:
+    return f"{rows / seconds:.0f}" if seconds > 0 else "—"
+
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Проигрыватель событий дня в API (ML2-03).")
+    parser = argparse.ArgumentParser(description="Проигрыватель событий в API (ML2-03).")
     parser.add_argument("--day", type=date.fromisoformat, default=DEFAULT_DAY,
-                        help=f"день журнала (по умолчанию {DEFAULT_DAY})")
+                        help=f"день потока (по умолчанию {DEFAULT_DAY})")
     parser.add_argument("--speed", type=float, default=1.0,
                         help="множитель времени: 1 — реальный темп, 600 — сутки за 2,4 мин")
     parser.add_argument("--loop", action="store_true",
                         help="после конца дня удалить его события и начать заново")
     parser.add_argument("--align-to-clock", action="store_true",
                         help="начать с текущего времени суток МСК")
+    parser.add_argument("--catch-up", action="store_true",
+                        help="с --align-to-clock: сначала отправить события дня 00:00…сейчас, "
+                             "без уведомлений")
+    parser.add_argument("--bulk", action="store_true",
+                        help="загрузить историю --from…--to без темпа и без уведомлений")
+    parser.add_argument("--from", dest="date_from", type=date.fromisoformat,
+                        default=HISTORY_FROM, help=f"первый день истории (по умолчанию "
+                                                   f"{HISTORY_FROM})")
+    parser.add_argument("--to", dest="date_to", type=date.fromisoformat, default=HISTORY_TO,
+                        help=f"последний день истории (по умолчанию {HISTORY_TO})")
     parser.add_argument("--base-url", "--api", dest="base_url", default=DEFAULT_BASE_URL,
                         help=f"адрес api (по умолчанию {DEFAULT_BASE_URL})")
     parser.add_argument("--api-key",
@@ -412,8 +501,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--source", type=Path,
                         help=f"parquet бандла C4 или CSV как журнал_событий_пример.csv "
                              f"(по умолчанию <BUNDLE_DIR или bundle>/{EVENTS_FILE})")
-    parser.add_argument("--batch-size", type=int, default=500,
-                        help=f"строк в пачке, не больше {BATCH_LIMIT}")
+    parser.add_argument("--batch-size", type=int,
+                        help=f"строк в пачке, не больше {BATCH_LIMIT}; по умолчанию "
+                             f"{LIVE_BATCH} в потоке и {BATCH_LIMIT} в истории и догрузке")
     parser.add_argument("--interval", type=float, default=5.0,
                         help="период отправки пришедших событий, с; полная пачка уходит сразу")
     parser.add_argument("--latency-log", type=Path,
@@ -423,33 +513,55 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def check_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    if args.batch_size is not None and not 1 <= args.batch_size <= BATCH_LIMIT:
+        parser.error(f"--batch-size от 1 до {BATCH_LIMIT}")
+    if args.speed <= 0 or args.interval <= 0:
+        parser.error("--speed и --interval должны быть больше нуля")
+    if args.catch_up and not args.align_to_clock:
+        parser.error("--catch-up работает только с --align-to-clock")
+    if args.bulk and (args.loop or args.align_to_clock or args.catch_up):
+        parser.error("--bulk не сочетается с --loop, --align-to-clock и --catch-up")
+    if args.bulk and args.date_from > args.date_to:
+        parser.error("--from позже --to")
+
+
 def main(argv: list[str] | None = None) -> int:
     safe_console()
     parser = build_parser()
     args = parser.parse_args(argv)
-    if not 1 <= args.batch_size <= BATCH_LIMIT:
-        parser.error(f"--batch-size от 1 до {BATCH_LIMIT}")
-    if args.speed <= 0 or args.interval <= 0:
-        parser.error("--speed и --interval должны быть больше нуля")
-
+    check_args(parser, args)
     source = args.source or default_source()
-    try:
-        events, bad = load_events(source, args.day)
-    except SourceError as exc:
-        print(exc, file=sys.stderr)
-        return 1
-    print(f"источник {source}: событий за {args.day} — {len(events)}"
-          + (f", нечитаемых строк пропущено {bad}" if bad else ""))
-    if not events:
-        print(f"за {args.day} в источнике нет событий", file=sys.stderr)
-        return 1
-    print(f"события {hhmmss(events[0].offset)}…{hhmmss(events[-1].offset)}; POST "
-          f"{args.base_url}/api/v1/ingest/events: пачки до {args.batch_size} строк раз в "
-          f"{args.interval:g} с, темп x{args.speed:g}"
-          + (", старт с текущего времени МСК" if args.align_to_clock else "")
-          + (", по кругу со сбросом дня" if args.loop else ""))
-    if args.dry_run:
-        return 0
+    history_size = args.batch_size or BATCH_LIMIT
+
+    if args.bulk:
+        days = days_between(args.date_from, args.date_to)
+        print(f"история {args.date_from}…{args.date_to} ({len(days)} дн.) из {source}: POST "
+              f"{args.base_url}/api/v1{HISTORY_PATH} пачками до {history_size} строк")
+        if not source.is_file():
+            print(f"нет файла {source}", file=sys.stderr)
+            return 1
+        if args.dry_run:
+            return 0
+    else:
+        try:
+            events, bad = load_events(source, args.day)
+        except SourceError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+        print(f"источник {source}: событий за {args.day} — {len(events)}"
+              + (f", нечитаемых строк пропущено {bad}" if bad else ""))
+        if not events:
+            print(f"за {args.day} в источнике нет событий", file=sys.stderr)
+            return 1
+        print(f"события {hhmmss(events[0].offset)}…{hhmmss(events[-1].offset)}; POST "
+              f"{args.base_url}/api/v1{LIVE_PATH}: пачки до {args.batch_size or LIVE_BATCH} "
+              f"строк раз в {args.interval:g} с, темп x{args.speed:g}"
+              + (", старт с текущего времени МСК" if args.align_to_clock else "")
+              + (", сначала догрузка 00:00…сейчас" if args.catch_up else "")
+              + (", по кругу со сбросом дня" if args.loop else ""))
+        if args.dry_run:
+            return 0
 
     api_key = args.api_key or env_value("INTEGRATION_API_KEY")
     if not api_key:
@@ -458,22 +570,32 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     log = LatencyLog(args.latency_log) if args.latency_log else None
     replayer = Replayer(Api(args.base_url, api_key=api_key), speed=args.speed,
-                        interval=args.interval, batch_size=args.batch_size, log=log,
+                        interval=args.interval, batch_size=args.batch_size or LIVE_BATCH,
+                        history_size=history_size, log=log,
                         out=lambda text: print(text, flush=True))
     # docker stop шлёт SIGTERM: печатаем итог, как при Ctrl+C.
     signal.signal(signal.SIGTERM, signal.default_int_handler)
+    started, code = systime.time(), 0
     try:
-        replayer.run(events, args.day, align=args.align_to_clock, loop=args.loop)
+        if args.bulk:
+            replayer.bulk(load_days(source, days))
+        else:
+            replayer.run(events, args.day, align=args.align_to_clock, loop=args.loop,
+                         catch_up=args.catch_up)
     except KeyboardInterrupt:
         print("остановлено", flush=True)
+    except SourceError as exc:
+        print(exc, file=sys.stderr)
+        code = 1
     finally:
         if log is not None:
             log.close()
-    s = replayer.stats
-    print(f"итого: проходов {s.passes}, пачек {s.batches} (с ошибкой {s.failed}), строк "
-          f"{s.rows}: принято {s.accepted}, дублей {s.duplicates}, отклонено {s.rejected}, "
-          f"вне окна {s.outside}; сбросов дня {s.resets}")
-    return 1 if s.failed else 0
+    s, spent = replayer.stats, systime.time() - started
+    print(f"итого за {spent:.0f} с ({rate(s.rows, spent)} строк/с): проходов {s.passes}, "
+          f"пачек {s.batches} (с ошибкой {s.failed}), строк {s.rows}: принято {s.accepted}, "
+          f"дублей {s.duplicates}, отклонено {s.rejected}, вне окна {s.outside}; "
+          f"сбросов дня {s.resets}")
+    return 1 if s.failed else code
 
 
 if __name__ == "__main__":
