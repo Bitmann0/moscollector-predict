@@ -120,6 +120,36 @@ Real-режим требует совместимый бандл моделей 
 Время полной сборки шагов 1–5 из исходного 7z-архива датасета: **не замерено** (ML2-12,
 прогон на отдельной Linux-ВМ).
 
+## Эмуляция внешних систем и нагрузка
+
+Журнала ОДС и учётной системы заявок в демо нет, их роль играют два скрипта на stdlib.
+Пишут они с ключом `INTEGRATION_API_KEY`, читают под демо-пользователем с паролем
+`DEMO_PASSWORD`: у роли integration нет права view. Их записи помечены «эмуляция ОДС»
+и «эмуляция help desk».
+
+```bash
+python scripts/emulate_ods.py --day 2026-06-30 --count 20   # журнал ОДС за день; повтор не дублирует
+python scripts/emulate_helpdesk.py --once                    # подтверждённые заявки — на шаг вперёд
+python scripts/emulate_helpdesk.py --speed 60 --interval 5   # с задержками: час за минуту
+```
+
+Help desk переводит заявки только confirmed → in_progress → completed: подтвердить
+черновик и отменить заявку может лишь диспетчер или руководитель.
+
+Нагрузочный тест (ТЗ §11: 20 пользователей) — `scripts/load_test/locustfile.py`. locust
+ставится отдельно, в зависимости проекта он не входит:
+
+```bash
+pip install locust
+mkdir -p data/load_test
+DEMO_PASSWORD=... locust -f scripts/load_test/locustfile.py --host http://127.0.0.1:8000 \
+    --users 20 --spawn-rate 2 --run-time 10m --headless --csv data/load_test/run
+```
+
+p50 и p95 каждого запроса — колонки «50%» и «95%» в `data/load_test/run_stats.csv`,
+число ошибок — «Failure Count» там же, тексты ошибок — в `run_failures.csv`. Прогон
+только читает; `LOAD_MUTATIONS=1` добавляет решения диспетчера.
+
 ## Режим разработки
 
 Python 3.12, Node 22. Для запуска без Docker добавьте в `.env` две строки — compose их
