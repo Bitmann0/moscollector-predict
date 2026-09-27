@@ -56,21 +56,27 @@ function SummaryView({ summary, queue }: { summary: Summary; queue: Load<Forecas
           {summary.scenarios.map((item) => {
             const head = summary.heads.find((value) => value.scenario === item.scenario);
             const state = head ? headState(head) : null;
-            return <article className="panel scenario-card" key={item.scenario}><div><span className="panel__eyebrow">Сценарий</span><h3>{item.title}</h3><p><b>{item.open_forecasts}</b> прогнозов в очереди</p>{state && <StateView state={state} detail={head?.detail} compact />}</div><Donut value={item.coverage_fraction ?? null} label="охват" /></article>;
+            return <article className={`panel scenario-card scenario-card--${item.scenario}`} key={item.scenario}><h3 title={item.title}>{item.title}</h3><div className="scenario-card__body"><div><p><b>{item.open_forecasts}</b> {plural(item.open_forecasts, "прогноз", "прогноза", "прогнозов")} в очереди</p>{state && <StateView state={state} detail={head?.detail} compact />}</div><Donut value={item.coverage_fraction ?? null} label="охват" /></div></article>;
           })}
         </div>
         <div className="chart-grid">
-          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Нагрузка</span><h3>Прогнозы по дням</h3></div><span className="legend"><i />Выдано</span></header><TrendChart data={summary.series_forecasts_per_day} /></article>
-          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Данные</span><h3>Охват мониторинга</h3></div><span className="legend legend--blue"><i />Доля каналов</span></header><TrendChart data={summary.series_coverage_per_day} percent color="var(--data)" /></article>
+          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Нагрузка</span><h3>Прогнозы по дням</h3></div><span className="legend"><i />Выдано</span></header><TrendChart data={summary.series_forecasts_per_day} label="Прогнозы по дням" seriesLabel="Выдано" /></article>
+          <article className="panel chart-card"><header><div><span className="panel__eyebrow">Данные</span><h3>Охват мониторинга</h3></div><span className="legend legend--blue"><i />Доля каналов</span></header><TrendChart data={summary.series_coverage_per_day} percent label="Охват мониторинга" seriesLabel="Доля каналов" /></article>
         </div>
       </div>
       <aside className="panel priority-panel"><header><div><span className="panel__eyebrow">Приоритет</span><h3>Очередь диспетчера</h3></div><Link to="/forecasts">Все</Link></header><div className="priority-panel__body"><Loaded load={queue}>{(items) => items.length === 0 ? <StateView state="empty" detail="Прогнозов без решения сейчас нет." /> : <ol className="priority-list">{items.map((item) => <li key={item.id}><span className="rank">{item.rank}</span><div><Link to={`/forecasts/${encodeURIComponent(item.id)}`}>{placeText(item)}</Link><small>{item.scenario_title} · {scoreText(item)}</small></div><Icon name="arrow" /></li>)}</ol>}</Loaded></div><div className="queue-footer"><Icon name="activity" /><span>Очередь обновляется после нового расчёта или по кнопке «Обновить»</span></div></aside>
     </div>
-    <div className="panel system-strip"><div><span className="live-dot" /><strong>Сценарии под контролем</strong></div>{summary.heads.map((head) => { const state = headState(head); return <span key={head.head}>{title("scenario", head.scenario)} {state && <StateView state={state} compact />}</span>; })}</div>
     <div className="panel orders-overview"><div><Icon name="orders"/><span><strong>Заявки по статусам</strong><small>Операционная загрузка службы эксплуатации</small></span></div><div>{Object.entries(summary.work_orders_by_status).map(([status,count]) => <Link key={status} to={`/work-orders?status=${encodeURIComponent(status)}`}><strong>{count}</strong><span>{title("work_order_status", status)}</span></Link>)}</div><Link className="orders-overview__all" to="/work-orders">Открыть все <Icon name="arrow"/></Link></div>
   </>;
 }
 
 function Metric({ icon, tone, value, label, detail }: { icon: Parameters<typeof Icon>[0]["name"]; tone: string; value: string | number; label: string; detail: string }) {
   return <article className={`metric-card metric-card--${tone}`}><div className="metric-card__icon"><Icon name={icon} /></div><div><strong>{value}</strong><span>{label}</span><small>{detail}</small></div></article>;
+}
+
+function plural(count: number, one: string, few: string, many: string): string {
+  const mod10 = count % 10, mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
 }
