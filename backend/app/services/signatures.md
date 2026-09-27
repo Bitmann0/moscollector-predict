@@ -33,4 +33,6 @@
 | `audit_query.py` | `list_audit(db, *, user_login, date_from, date_to, page, page_size) -> Page[AuditItem]` | живое | BE-09 |
 | `settings_store.py` | `get(db) -> SettingsOut` | живое | BE-05 |
 | `settings_store.py` | `put(db, body: SettingsIn, user) -> SettingsOut` | живое; 403 `settings_locked` при `DEMO_SETTINGS_LOCKED=1` | BE-05 |
-| `daily_run.py` | `run_daily(db, asof: date, ml: MlClient) -> RunDailyOut` | живое | PM-09 |
+| `daily_run.py` | `run_daily(db, asof: date, ml: MlClient, *, weekly_only: bool = False) -> RunDailyOut` | живое | PM-09 |
+| `daily_run.py` | `clear_issued_log(db, date_from: date, date_to: date) -> int` | живое | PM-09 |
+| `emulation.py` | `emulate(db, body: EmulateDecisionsIn) -> EmulateDecisionsOut` | живое | PM-09 |

@@ -112,7 +112,7 @@
     "cancelled": 0,
     "completed": 0,
     "confirmed": 0,
-    "draft": 8,
+    "draft": 9,
     "in_progress": 0
   }
 }

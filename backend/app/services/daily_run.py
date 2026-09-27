@@ -10,15 +10,21 @@
 3. Upsert forecasts по alert_id (по recommendation_id у недельной очереди), строка
    forecast_versions на каждый прогон, issued_log для строк в бюджете, черновики
    work_orders по order_id.
-4. По понедельникам — недельная очередь guard_weekly тем же прогоном.
+4. По понедельникам — недельная очередь guard_weekly тем же прогоном и черновик
+   «Проверка охранной сигнализации объекта» на каждую рекомендацию, срок — valid_to.
 5. Созревшие прогнозы отправляются в ML `/outcomes`; автоматический факт хранится
    отдельно от ручного исхода.
 6. После commit: alert.new на каждый новый прогноз в бюджете, run.finished на прогон.
+
+weekly_only=True не вызывает /score: прогон kind=weekly_guard пишет только недельную
+очередь и её черновики, журнал выданного не меняется. Так прелоад проходит понедельники
+января–мая, не считая на них A_link и D.
 """
 import argparse
+import hashlib
 import logging
 import threading
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 
 from pydantic import ValidationError
 from sqlalchemy import delete, select
@@ -46,6 +52,8 @@ PILOT_HEADS = ["A_link", "D"]
 WEEKLY_HEAD = "guard_weekly"
 HISTORY_DAYS = 7
 WEEKLY_HORIZON_HOURS = 168
+WEEKLY_WORK_TYPE = "Проверка охранной сигнализации объекта"
+WEEKLY_PRIORITY = "плановая"  # план обхода, не срочный выезд; в C3 это planned
 ML_ERRORS = (MlUnavailable, ValidationError)
 
 
@@ -184,6 +192,41 @@ def _log_issued(db: Session, asof: date, alerts: list[AlertOut], scored: set[str
                                 forecast_id=alert.alert_id))
 
 
+def clear_issued_log(db: Session, date_from: date, date_to: date) -> int:
+    """Стирает журнал выданного за asof из [date_from, date_to]. Прелоад зовёт это перед
+    прогоном окна: иначе остаётся выдача головы, упавшей в прошлом прогоне."""
+    deleted = db.execute(delete(models.IssuedLog).where(
+        models.IssuedLog.asof >= date_from, models.IssuedLog.asof <= date_to)).rowcount
+    db.commit()
+    return deleted or 0
+
+
+def _order_id(day: date, direction: str, obj: str | None) -> str:
+    """Формула mkl.workorders._order_id: повтор расчёта дня обновляет тот же черновик."""
+    key = f"{day.isoformat()}|{direction}|{obj}"
+    return "WO-" + hashlib.sha256(key.encode()).hexdigest()[:12].upper()
+
+
+def _weekly_orders(resp: WeeklyResponse) -> list[WorkOrderOut]:
+    """Черновик на каждую рекомендацию недельной очереди.
+
+    Ответ C1 недельной очереди заявок не несёт, в отличие от /score, поэтому черновик
+    собирает backend. Срок — valid_to рекомендации: D+9, 00:00 МСК, граница окна.
+    """
+    scenario = vocab.scenario(WEEKLY_HEAD)
+    due = datetime.combine(resp.valid_to, time(0))  # без таймзоны: МСК (C1)
+    return [WorkOrderOut(
+        order_id=_order_id(resp.asof, scenario["direction"], p.obj), created_for=resp.asof,
+        due_by=due, priority=WEEKLY_PRIORITY, work_type=WEEKLY_WORK_TYPE,
+        direction=scenario["direction"], direction_title=scenario["title"], obj=p.obj,
+        obj_name=p.obj_name, obj_parent_name=p.obj_parent_name,
+        alert_ids=[p.recommendation_id], case_keys=[p.case_key], n_alerts=1,
+        max_risk=p.priority_score,
+        rationale=[f"охранная тревога в {p.recent_alarm_days_7} из 7 последних суток",
+                   f"суток с охранной тревогой за 30: {p.recent_alarm_days_30}"],
+    ) for p in resp.priorities]
+
+
 def _scenario_of_order(db: Session, order: WorkOrderOut) -> str | None:
     by_direction = next((s["code"] for s in vocab.load()["scenario"]
                          if s["direction"] == order.direction), None)
@@ -259,18 +302,19 @@ def _score(db: Session, saver: _Saver, asof: date, ml: MlClient,
     return orders
 
 
-def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> None:
+def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> int:
     try:
         resp = ml.weekly(asof)
     except ML_ERRORS as exc:
         detail = f"{type(exc).__name__}: {exc}"[:1000]
         heads[WEEKLY_HEAD] = _error_state(detail)
         raw["weekly_error"] = detail
-        return
+        return 0
     n = saver.weekly(resp)
     heads[WEEKLY_HEAD] = {"result_status": resp.result_status, "detail": None,
                           "alerts_in_budget": n}
     raw["weekly"] = resp.model_dump(mode="json", exclude={"priorities"})
+    return _save_work_orders(saver.db, _weekly_orders(resp), _source(resp.source))
 
 
 def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
@@ -322,25 +366,29 @@ def _alert_new(db: Session, row: models.Forecast) -> None:
 _RUN_LOCK = threading.Lock()
 
 
-def run_daily(db: Session, asof: date, ml: MlClient) -> RunDailyOut:
+def run_daily(db: Session, asof: date, ml: MlClient, *,
+              weekly_only: bool = False) -> RunDailyOut:
     """Дневной цикл. Прогоны сериализуются: два параллельных run-daily на один asof
     иначе вставляют одинаковые прогнозы и второй падает на уникальном ключе.
     Замок процесса достаточен: api запускается одним процессом uvicorn."""
+    if weekly_only and asof.weekday() != 0:
+        raise ValueError(f"weekly_only: {asof.isoformat()} — не понедельник")
     with _RUN_LOCK:
-        return _run_daily(db, asof, ml)
+        return _run_daily(db, asof, ml, weekly_only)
 
 
-def _run_daily(db: Session, asof: date, ml: MlClient) -> RunDailyOut:
-    run = models.ForecastRun(asof=asof, kind="daily", started_at=now_utc(), heads={}, raw={})
+def _run_daily(db: Session, asof: date, ml: MlClient, weekly_only: bool) -> RunDailyOut:
+    run = models.ForecastRun(asof=asof, kind="weekly_guard" if weekly_only else "daily",
+                             started_at=now_utc(), heads={}, raw={})
     db.add(run)
     db.flush()
     saver = _Saver(db, run)
     heads: dict[str, dict] = {}
     raw: dict = {}
     _refresh_outcomes(db, asof, ml, raw)
-    orders = _score(db, saver, asof, ml, heads, raw)
+    orders = 0 if weekly_only else _score(db, saver, asof, ml, heads, raw)
     if asof.weekday() == 0:
-        _weekly(saver, asof, ml, heads, raw)
+        orders += _weekly(saver, asof, ml, heads, raw)
     run.heads = heads
     run.raw = raw
     run.finished_at = now_utc()
@@ -365,9 +413,11 @@ def main(argv: list[str] | None = None) -> int:
                                      description="Дневной расчёт: ML /score → прогнозы в БД")
     parser.add_argument("--asof", required=True, type=date.fromisoformat,
                         help="день расчёта YYYY-MM-DD")
+    parser.add_argument("--weekly-only", action="store_true",
+                        help="только недельная очередь; asof — понедельник")
     args = parser.parse_args(argv)
     with session_factory()() as db:
-        out = run_daily(db, args.asof, get_ml_client())
+        out = run_daily(db, args.asof, get_ml_client(), weekly_only=args.weekly_only)
     print(out.model_dump_json(indent=2))
     return 0
 
