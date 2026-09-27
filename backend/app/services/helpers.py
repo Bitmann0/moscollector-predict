@@ -58,6 +58,16 @@ def count(db: Session, stmt) -> int:
     return db.scalar(select(func.count()).select_from(stmt.order_by(None).subquery())) or 0
 
 
+def open_forecast_clauses(today: date) -> tuple:
+    """Открытый прогноз: в бюджете, без решения, окно не кончилось к полуночи demo_today.
+
+    Одно правило на дашборд и схему сети, чтобы число открытых на двух экранах совпадало.
+    """
+    return (models.Forecast.in_budget.is_(True),
+            models.Forecast.id.not_in(select(models.Decision.forecast_id)),
+            models.Forecast.valid_to >= to_db(msk_midnight(today)))
+
+
 @lru_cache
 def synthetic_reference() -> dict:
     """contracts/synthetic_reference.json: 1 район → 2 комплекса → 6 объектов → 30 каналов."""
