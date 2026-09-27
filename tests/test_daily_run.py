@@ -221,7 +221,8 @@ def test_run_on_ml_stub_fixture(seeded, published):
     score, weekly = _fixture("ml_score_2026-06-15.json"), _fixture("ml_guard_weekly_2026-06-15.json")
     out = daily_run.run_daily(seeded, MONDAY, FixtureMl())
     assert out.forecasts_upserted == len(score["alerts"]) + len(weekly["priorities"])
-    assert out.work_orders_upserted == len(score["work_orders"])
+    # недельная очередь заявок не несёт: черновик на рекомендацию собирает backend
+    assert out.work_orders_upserted == len(score["work_orders"]) + len(weekly["priorities"])
     assert _count(seeded, models.IssuedLog) == sum(a["in_budget"] for a in score["alerts"])
     assert {h: s.result_status for h, s in out.heads.items()} == {
         **{h: s["result_status"] for h, s in score["heads"].items()},

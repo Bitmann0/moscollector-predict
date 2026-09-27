@@ -4,6 +4,46 @@
  */
 
 export interface paths {
+    "/api/v1/admin/emulate-decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emulate Decisions
+         * @description Эмулированные решения и итоги проверки (source=emulated) по факту прогнозов окна.
+         */
+        post: operations["emulate_decisions_api_v1_admin_emulate_decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/issued-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Clear Issued Log
+         * @description Журнал выданного за asof из [from, to]: прелоад чистит окно перед прогоном.
+         */
+        delete: operations["clear_issued_log_api_v1_admin_issued_log_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/run-daily": {
         parameters: {
             query?: never;
@@ -680,6 +720,43 @@ export interface components {
             day: string;
         };
         /**
+         * EmulateDecisionsIn
+         * @description Окно по asof прогноза, границы включены. share — доля прогнозов с фактом, которым
+         *     достаётся эмулированное решение; остальные остаются нерешёнными.
+         */
+        EmulateDecisionsIn: {
+            /**
+             * Date From
+             * Format: date
+             */
+            date_from: string;
+            /**
+             * Date To
+             * Format: date
+             */
+            date_to: string;
+            /**
+             * Share
+             * @default 0.7
+             */
+            share: number;
+        };
+        /** EmulateDecisionsOut */
+        EmulateDecisionsOut: {
+            /** Created */
+            created: number;
+            /** Decisions */
+            decisions: number;
+            /** Outcomes */
+            outcomes: number;
+            /** Removed */
+            removed: number;
+            /** Skipped Live */
+            skipped_live: number;
+            /** With Fact */
+            with_fact: number;
+        };
+        /**
          * EventItem
          * @description Строка журнала событий (форма Приложения 2 ТЗ).
          */
@@ -1009,6 +1086,21 @@ export interface components {
              */
             status: "accepted" | "partial" | "rejected";
         };
+        /** IssuedLogClearOut */
+        IssuedLogClearOut: {
+            /**
+             * Date From
+             * Format: date
+             */
+            date_from: string;
+            /**
+             * Date To
+             * Format: date
+             */
+            date_to: string;
+            /** Deleted */
+            deleted: number;
+        };
         /** LastRun */
         LastRun: {
             /**
@@ -1279,6 +1371,11 @@ export interface components {
              * Format: date
              */
             asof: string;
+            /**
+             * Weekly Only
+             * @default false
+             */
+            weekly_only: boolean;
         };
         /** RunDailyOut */
         RunDailyOut: {
@@ -1564,6 +1661,99 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    emulate_decisions_api_v1_admin_emulate_decisions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmulateDecisionsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmulateDecisionsOut"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description У роли нет требуемого права */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_issued_log_api_v1_admin_issued_log_delete: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssuedLogClearOut"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description У роли нет требуемого права */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     run_daily_api_v1_admin_run_daily_post: {
         parameters: {
             query?: never;
