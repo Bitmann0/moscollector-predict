@@ -53,13 +53,36 @@ docker compose up --build
 
 ## Запуск с реальными моделями
 
-Нужен бандл C4 (раздел 4 плана): модели, фичестор, метки, v2-кэш охранной очереди,
-`configs/features.yaml`, `reports/intrusion_eventtime_v2_build.json`. Как его получить,
-печатает `scripts/fetch_bundle.sh` (или `.ps1`). Распакуйте бандл в `./bundle` или задайте
-каталог в `BUNDLE_DIR` в `.env`.
+Нужен бандл C4 (раздел 4 плана): 11 файлов, которые читают ML-сервис в режиме `real`,
+дообучение и `scripts/replay.py`. Это модель A_link, фичестор `sensor` и `object`, v2-кэш
+охранной очереди, справочник каналов, метки для `/outcomes`, события 2026 года,
+`configs/features.yaml` и `reports/intrusion_eventtime_v2_build.json`. Список с местом
+чтения каждого файла — словарь `REQUIRED` в `ml/scripts/build_bundle.py`. Бандл
+распространяется архивом `bundle-YYYYMMDD-N.7z` под паролем датасета организаторов
+(решение D10), ссылка — в поле «Доп. материалы» формы сдачи.
+
+**1. Получить и проверить бандл.**
 
 ```bash
-docker compose -f compose.yaml -f compose.real.yaml up --build
+sh scripts/fetch_bundle.sh ~/Downloads/bundle-20260928-1.7z ./bundle
+```
+
+```powershell
+powershell -File scripts\fetch_bundle.ps1 -Version $HOME\Downloads\bundle-20260928-1.7z -Dest .\bundle
+```
+
+Вместо пути к `.7z` можно передать URL, распакованный каталог (скрипт его только проверит)
+или версию `bundle-YYYYMMDD-N`: тогда скрипт ищет `./<версия>.7z`, а если его нет, скачивает
+`$BUNDLE_URL/<версия>.7z`. Нужен 7z (`7z`, `7za` или `7zz`); пароль он спросит сам, без
+терминала возьмёт из `BUNDLE_PASSWORD`. Скрипт распаковывает в `<каталог>.partial`,
+сверяет `MANIFEST.sha256` (в sh — `sha256sum -c`) и раскладку томов
+`compose.real.yaml`, переносит результат в `<каталог>` и печатает строку `BUNDLE_DIR=…`.
+Впишите её в `.env`; без неё compose берёт `./bundle`.
+
+**2. Запустить.**
+
+```bash
+docker compose -f compose.yaml -f compose.real.yaml up -d --build
 ```
 
 Real-режим требует совместимый бандл моделей и признаков; без него используйте
@@ -69,6 +92,33 @@ Real-режим требует совместимый бандл моделей 
 Стенд (PM-10) добавляет третий файл, `compose.stand.yaml`: Caddy с TLS на портах 80 и 443
 для домена из `STAND_DOMAIN`, порт 8000 наружу закрыт, `DEMO_SETTINGS_LOCKED=1`,
 `COOKIE_SECURE=1`. Для `!reset` в этом файле нужен Compose v2.24 или новее.
+
+### Сборка бандла из датасета
+
+Нужны датасет организаторов и ML-окружение (`make install-ml` или строка «Установка ML» в
+разделе «Режим разработки»). Команды шагов 2–5 выполняются из `ml/`; `python` в них —
+интерпретатор `.venv/bin/python` (Windows: `.venv\Scripts\python`).
+
+1. Журналы `ext-journal-YYYY.csv` положить в `ml/data/raw/`, справочники
+   `справочник_каналов_датчиков.csv` и `справочник_объектов_диспетчер.csv` — в
+   `ml/Materials/`.
+2. `python -m mkl.cli run` — приём, эпизоды, суточная панель, погода, фичестор, обучение
+   A_link. Стадии перечислены в `ml/src/mkl/pipeline.py`; погода качается из сети,
+   без сети её колонки остаются пустыми.
+3. `python scripts/build_intrusion_eventtime_labels.py` — v2-кэш охранной очереди.
+4. Необязательно: `python scripts/normalize_maintenance_schedules.py --ppr <ППР.xlsx>
+   --to <ТО.xlsx> --available-from YYYY-MM-DD` — графики ППР и ТО для контекста алертов
+   A_link. Без них алерты идут со статусом контекста `schedule_not_loaded`.
+5. `python scripts/build_bundle.py --out ../dist --version bundle-YYYYMMDD-N --archive`
+   копирует нужные файлы в `dist/<версия>/`, пишет `MANIFEST.sha256` и упаковывает всё
+   в `dist/<версия>.7z` с шифрованием имён файлов. Пароль 7z спросит сам или возьмёт из
+   `BUNDLE_PASSWORD`. Если обязательного файла нет, скрипт перечисляет все недостающие и
+   ничего не копирует. `--dry-run` только проверяет состав и печатает размеры.
+6. Из корня репозитория проверить архив тем же путём, что пройдёт эксперт:
+   `sh scripts/fetch_bundle.sh dist/<версия>.7z ./bundle`.
+
+Время полной сборки шагов 1–5 из исходного 7z-архива датасета: **не замерено** (ML2-12,
+прогон на отдельной Linux-ВМ).
 
 ## Режим разработки
 

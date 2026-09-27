@@ -42,7 +42,9 @@ catboost_info/
 # Фронтенд
 frontend/node_modules/
 frontend/dist/
-# Бандл данных C4 и локальное состояние сервиса
+# Бандл данных C4 (распакованный и собранный build_bundle.py) и локальное состояние сервиса
 /bundle/
+/bundle.partial/
+/dist/
 /state/
 backend/state/
