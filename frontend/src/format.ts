@@ -69,3 +69,17 @@ export function placeText(item: Pick<Forecast, "object" | "channel">): string {
   ];
   return parts.filter(Boolean).join(" · ") || "—";
 }
+
+const SHORT_DT = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow",
+});
+
+/** Окно прогноза коротко: «01.07, 00:00 — 02.07, 00:00». */
+export function fmtWindow(from: string | null | undefined, to: string | null | undefined): string {
+  if (!from || !to) return "—";
+  const a = SHORT_DT.format(new Date(from)), b = SHORT_DT.format(new Date(to));
+  // Суточные окна начинаются и кончаются в полночь — время тогда ничего не добавляет.
+  const midnight = /,?\s00:00$/;
+  if (midnight.test(a) && midnight.test(b)) return `${a.replace(midnight, "")} — ${b.replace(midnight, "")}`;
+  return `${a} — ${b}`;
+}

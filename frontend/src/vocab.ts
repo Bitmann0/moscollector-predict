@@ -69,3 +69,8 @@ export function title(dict: DictName, code: string | null | undefined): string {
 // приведение типа здесь безопасно.
 export const SCENARIOS = vocab.scenario.map((s) => ({ code: s.code as Scenario, title: s.title }));
 export const ACTIONS = vocab.action.map((a) => ({ code: a.code as Action, title: a.title }));
+
+/** Короткие имена сценариев для плотных мест: шапка, таблицы, метки. */
+export const SCENARIO_SHORT: Record<string, string> = {
+  sensor_link: "Датчики", equipment_diag: "Износ", guard_weekly: "НСД",
+};
