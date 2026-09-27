@@ -5,6 +5,7 @@ import { api, errorText, type Schemas } from "../api/client";
 import { useLoad } from "../api/useLoad";
 import { useAuth } from "../auth/AuthContext";
 import { SourceBadge } from "../components/common";
+import { LineChart } from "../components/Charts";
 import { Icon } from "../components/Icons";
 import { PageHeader } from "../components/PageHeader";
 import { Loaded, StateView } from "../components/StateView";
@@ -32,12 +33,14 @@ export function ForecastCard() {
             {can("work_order_manage") && !data.work_order_id && (
               <DraftOrderButton forecastId={data.id} onCreated={card.reload} />
             )}
-            {can("decide") ? (
-              <DecisionForm forecastId={data.id} onSaved={card.reload} />
-            ) : (
-              <p className="muted">Решение по прогнозу принимает диспетчер.</p>
-            )}
-            {can("outcome") && <OutcomeForm forecastId={data.id} channel={data.channel?.id} current={data.outcome_manual} onSaved={card.reload} />}
+            <div className="forecast-actions">
+              {can("decide") ? (
+                <DecisionForm forecastId={data.id} onSaved={card.reload} />
+              ) : (
+                <p className="muted">Решение по прогнозу принимает диспетчер.</p>
+              )}
+              {can("outcome") && <OutcomeForm forecastId={data.id} channel={data.channel?.id} current={data.outcome_manual} onSaved={card.reload} />}
+            </div>
           </>
         )}
       </Loaded>
@@ -73,9 +76,9 @@ function CardView({ card }: { card: Card }) {
     <>
       <PageHeader eyebrow="Карточка прогноза" title={card.scenario_title} description={`${placeText(card)} · прогноз от ${fmtDate(card.asof)}`} actions={<Link className="button" to="/forecasts">← К журналу</Link>} />
       {card.data_status !== "ok" && <StateView state={card.data_status} />}
-      <div className="forecast-hero panel"><div className="forecast-score"><span>{title("score_type", card.score_type)}</span><strong>{score}</strong><small>{card.score_type === "probability" ? "вероятность события" : "не является вероятностью"}</small></div><div className="forecast-window"><Icon name="calendar" /><div><span>Окно прогноза · {card.horizon_hours} ч</span><strong>{fmtDateTime(card.valid_from)} — {fmtDateTime(card.valid_to)}</strong><small>{card.calendar ? `${card.calendar.weekday_title}${card.calendar.holiday ? ` · ${card.calendar.holiday}` : ""}` : "Календарный контекст не передан"}</small></div></div><div className="forecast-rank"><span>Приоритет</span><strong>№ {card.rank}</strong><SourceBadge source={card.source} /></div></div>
+      <div className="forecast-hero panel"><div className="forecast-score"><span>{title("score_type", card.score_type)}</span><strong>{score}</strong><small>{card.score_type === "probability" ? "вероятность события в окне" : "ранжирует объекты, в процентах не читается"}</small></div><div className="forecast-window"><Icon name="calendar" /><div><span>Окно прогноза · {card.horizon_hours} ч</span><strong>{fmtDateTime(card.valid_from)} — {fmtDateTime(card.valid_to)}</strong><small>{card.calendar ? `${card.calendar.weekday_title}${card.calendar.holiday ? ` · ${card.calendar.holiday}` : ""}` : "Календарный контекст не передан"}</small></div></div><div className="forecast-rank"><span>Приоритет</span><strong>№ {card.rank}</strong><SourceBadge source={card.source} /></div></div>
       <div className="forecast-layout"><div className="forecast-main">
-      {card.kind === "weekly_recommendation" && <div className="weekly-evidence panel"><div><span className="panel__eyebrow">Основание рекомендации</span><h3>{card.evidence ?? "Повторяющиеся тревожные состояния"}</h3><p>{card.coverage_note}</p></div><div className="alarm-stat"><strong>{card.recent_alarm_days_7 ?? "—"}</strong><span>дней с тревогами<br/>за 7 суток</span></div><div className="alarm-stat"><strong>{card.recent_alarm_days_30 ?? "—"}</strong><span>дней с тревогами<br/>за 30 суток</span></div></div>}
+      {card.kind === "weekly_recommendation" && <div className="weekly-evidence panel"><div><span className="panel__eyebrow">Основание рекомендации</span><h3>{evidenceText(card.evidence)}</h3>{card.coverage_note && <p>{card.coverage_note}</p>}</div><div className="alarm-stat"><strong>{card.recent_alarm_days_7 ?? "—"}</strong><span>дней с тревогами<br/>за 7 суток</span></div><div className="alarm-stat"><strong>{card.recent_alarm_days_30 ?? "—"}</strong><span>дней с тревогами<br/>за 30 суток</span></div></div>}
       {dynamics.length > 0 && <article className="panel dynamics-card"><header><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div><div className="dynamics-legend"><span><i/>Тревоги</span><span><i/>Плохие состояния</span></div></header><DynamicsChart points={dynamics} /></article>}
       {card.kind !== "weekly_recommendation" && <><h2 className="section-title">Почему модель подняла риск</h2>
       {factors.length === 0 ? (
@@ -126,15 +129,16 @@ function CardView({ card }: { card: Card }) {
           </table>
         </article>
       )}</div></div>
-      <aside className="forecast-side panel"><span className="panel__eyebrow">Паспорт риска</span><h3>{card.object.name ?? card.object.id ?? "Объект"}</h3><dl><Field label="Комплекс">{card.object.complex_name ?? card.object.complex_id ?? "—"}</Field><Field label="Тип объекта">{card.object.kind_ru ?? "—"}</Field>{channel && <Field label="Датчик">{channel.sensor_type ?? channel.name ?? "—"}</Field>}<Field label="Вид прогноза">{title("kind", card.kind)}</Field><Field label="Факт по данным">{title("outcome_auto", card.outcome_auto)}</Field><Field label="Итог проверки">{title("outcome_manual", card.outcome_manual)}</Field><Field label="Охват">{card.coverage_note ?? "—"}</Field><Field label="Case key"><code>{card.case_key}</code></Field></dl>{card.work_order_id && <Link className="linked-order" to={`/work-orders?open=${encodeURIComponent(card.work_order_id)}`}><Icon name="wrench"/><span><small>Связанная заявка</small><strong>{card.work_order_id}</strong></span><Icon name="arrow"/></Link>}</aside></div>
+      <aside className="forecast-side panel"><span className="panel__eyebrow">Паспорт риска</span><h3>{card.object.name ?? card.object.id ?? "Объект"}</h3><dl><Field label="Комплекс">{card.object.complex_name ?? card.object.complex_id ?? "—"}</Field>{card.object.kind_ru && <Field label="Тип объекта">{card.object.kind_ru}</Field>}{channel && <Field label="Датчик">{channel.sensor_type ?? channel.name ?? "—"}</Field>}<Field label="Вид прогноза">{title("kind", card.kind)}</Field><Field label="Факт по данным">{title("outcome_auto", card.outcome_auto)}</Field><Field label="Итог проверки">{title("outcome_manual", card.outcome_manual)}</Field>{card.coverage_note && <Field label="Охват">{card.coverage_note}</Field>}<Field label="Код случая"><code className="case-key">{card.case_key}</code></Field></dl>{card.work_order_id && <Link className="linked-order" to={`/work-orders?open=${encodeURIComponent(card.work_order_id)}`}><Icon name="wrench"/><span><small>Связанная заявка</small><strong>{card.work_order_id}</strong></span><Icon name="arrow"/></Link>}</aside></div>
     </>
   );
 }
 
 function DynamicsChart({ points }: { points: NonNullable<Card["dynamics_30d"]> }) {
-  const width = 760, height = 180, max = Math.max(...points.flatMap((point) => [point.alarms, point.bad_states]), 1);
-  const line = (key: "alarms" | "bad_states") => points.map((point, index) => `${points.length === 1 ? width / 2 : index * width / (points.length - 1)},${height - point[key] / max * height}`).join(" ");
-  return <div className="dynamics-chart"><div className="dynamics-axis"><span>{max}</span><span>{Math.round(max / 2)}</span><span>0</span></div><svg viewBox={`0 -8 ${width} ${height + 16}`} role="img" aria-label="Тревоги и плохие состояния за 30 суток">{[0,height/2,height].map((y) => <line key={y} x1="0" x2={width} y1={y} y2={y} className="chart-guide"/>)}<polyline points={line("alarms")} className="dynamics-line dynamics-line--alarm"/><polyline points={line("bad_states")} className="dynamics-line dynamics-line--bad"/>{points.map((point,index) => <circle key={point.day} cx={points.length === 1 ? width/2 : index*width/(points.length-1)} cy={height-point.alarms/max*height} r="3" className="dynamics-point"><title>{fmtDate(point.day)}: {point.alarms} тревог, {point.bad_states} плохих состояний</title></circle>)}</svg><div><span>{fmtDate(points[0]?.day)}</span><span>{fmtDate(points[points.length - 1]?.day)}</span></div></div>;
+  return <LineChart days={points.map((p) => p.day)} label="Тревоги и плохие состояния за 30 суток" series={[
+    { key: "alarms", label: "Тревоги", color: "var(--alarm)", values: points.map((p) => p.alarms) },
+    { key: "bad", label: "Плохие состояния", color: "var(--data)", values: points.map((p) => p.bad_states), dashed: true },
+  ]} />;
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -275,4 +279,14 @@ function OutcomeForm({ forecastId, channel, current, onSaved }: { forecastId: st
     finally { setBusy(false); }
   }
   return <form className="outcome-form panel" onSubmit={(event) => void submit(event)}><div className="outcome-form__head"><div><span className="panel__eyebrow">Контур обратной связи</span><h2>Результат проверки</h2><p>Итог проверки сохраняется в карточке и в журнале прогнозов.</p></div><Icon name="shield" /></div><div className="outcome-options">{OUTCOMES.map((item) => <label key={item.code} className={outcome === item.code ? "active" : ""}><input type="radio" name="outcome" value={item.code} checked={outcome === item.code} onChange={() => setOutcome(item.code)} /><span><strong>{title("outcome_manual", item.code)}</strong><small>{item.hint}</small></span></label>)}</div><div className="outcome-fields"><label className="field"><span>Время события, если известно</span><input type="datetime-local" value={eventAt} onChange={(event) => setEventAt(event.target.value)} /></label><label className="field"><span>Комментарий специалиста</span><input value={comment} onChange={(event) => setComment(event.target.value)} maxLength={2000} placeholder="Что обнаружено при проверке" /></label><button className="button button--primary" disabled={busy || !outcome}>{busy ? "Сохранение…" : "Сохранить результат"}</button></div>{message && <p className={message.ok ? "form-ok" : "form-error"} role="status">{message.text}</p>}</form>;
+}
+
+/** Основание недельной рекомендации — код правила из guard_weekly.py словами. */
+const EVIDENCE: Record<string, string> = {
+  alarm_on_at_least_4_of_previous_7_days: "Охранная тревога не меньше чем в 4 из 7 предыдущих дней",
+};
+
+function evidenceText(code: string | null | undefined): string {
+  if (!code) return "Повторяющиеся охранные тревоги";
+  return EVIDENCE[code] ?? code;
 }
