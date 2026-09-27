@@ -12,6 +12,8 @@ Materials/
 models/
 analysis/
 bundle/
+bundle.partial/
+dist/
 docs/
 tests/
 state/
