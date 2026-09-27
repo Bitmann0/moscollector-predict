@@ -10,6 +10,7 @@ import { title, type Permission } from "../vocab";
 import { Icon, type IconName } from "./Icons";
 import { StateView, headState } from "./StateView";
 import { ToastCenter } from "./ToastCenter";
+import { THEME_TITLE, useThemeMode } from "../themeMode";
 
 interface MenuItem { to: string; label: string; hint: string; icon: IconName; perm: Permission }
 const MENU: MenuItem[] = [
@@ -32,7 +33,7 @@ export function Layout() {
   useReloadOn(["run.finished", "alert.new"], status.reload);
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand-lockup"><div className="brand-mark"><Icon name="activity" /></div><div><strong>МОСКОЛЛЕКТОР</strong><span>Predictive intelligence</span></div></div>
+      <div className="brand-lockup"><div className="brand-mark"><Icon name="activity" /></div><div><strong>Москоллектор</strong><span>Рабочее место диспетчера</span></div></div>
       <nav className="side-nav" aria-label="Основные разделы">
         <span className="side-nav__caption">Рабочее пространство</span>
         {MENU.filter((item) => can(item.perm)).map((item) => <NavLink key={item.to} to={item.to} end={item.to === "/"} className="side-nav__link">
@@ -45,7 +46,7 @@ export function Layout() {
       </div>
     </aside>
     <div className="workspace">
-      <header className="mobile-top"><div className="brand-mark"><Icon name="activity" /></div><strong>Москоллектор</strong><NavLink to="/notifications" className="notification-button" aria-label={`Уведомления: ${unread}`} onClick={() => { if (mobileMore.current) mobileMore.current.open = false; }}><Icon name="bell" />{unread > 0 && <b>{unread > 99 ? "99+" : unread}</b>}</NavLink><button className="mobile-logout" type="button" onClick={() => void logout()} aria-label="Выйти"><Icon name="logout" /></button></header>
+      <header className="mobile-top"><div className="brand-mark"><Icon name="activity" /></div><strong>Москоллектор</strong><NavLink to="/notifications" className="notification-button" aria-label={`Уведомления: ${unread}`} onClick={() => { if (mobileMore.current) mobileMore.current.open = false; }}><Icon name="bell" />{unread > 0 && <b>{unread > 99 ? "99+" : unread}</b>}</NavLink><ThemeToggle className="mobile-theme" /><button className="mobile-logout" type="button" onClick={() => void logout()} aria-label="Выйти"><Icon name="logout" /></button></header>
       <StatusBar status={status.data} failed={status.status === "error" && !status.data} unread={unread} />
       <main className="content"><Outlet /></main>
       <nav className="mobile-nav" aria-label="Мобильная навигация">
@@ -67,6 +68,14 @@ function StatusBar({ status, failed, unread }: { status?: Schemas["SystemStatus"
   return <div className="statusbar">
     <div className="statusbar__main"><span className="live-dot" />{status ? <><strong>Демо-контур</strong><span>{fmtDate(status.demo_today)}</span><span className="statusbar__divider" /><span>Историческое воспроизведение</span></> : <span>{failed ? "Статус системы недоступен" : "Получаем состояние системы…"}</span>}</div>
     {status && <div className="statusbar__heads"><span className={status.ml.reachable ? "status-ok" : "status-bad"}>ML {status.ml.reachable ? (status.ml.mode === "stub" ? "на связи · заглушка" : "на связи") : "недоступна"}</span>{status.heads.map((head) => { const state = headState(head); return <span key={head.head} title={[title("scenario", head.scenario), head.detail].filter(Boolean).join(": ")}>{SHORT_SCENARIO[head.scenario] ?? head.scenario} · {state ? <StateView state={state} compact /> : "ожидание"}</span>; })}</div>}
+    <ThemeToggle />
     <NavLink to="/notifications" className="notification-button desktop-only" aria-label={`Уведомления: ${unread}`}><Icon name="bell" />{unread > 0 && <b>{unread > 99 ? "99+" : unread}</b>}</NavLink>
   </div>;
+}
+
+const THEME_ICON = { system: "contrast", light: "sun", dark: "moon" } as const;
+
+function ThemeToggle({ className = "desktop-only" }: { className?: string }) {
+  const { mode, next } = useThemeMode();
+  return <button type="button" className={`theme-toggle ${className}`} onClick={next} title={`${THEME_TITLE[mode]} — нажмите, чтобы сменить`} aria-label={`${THEME_TITLE[mode]}. Сменить тему`}><Icon name={THEME_ICON[mode]} /></button>;
 }

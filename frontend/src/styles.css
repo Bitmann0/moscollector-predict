@@ -1,34 +1,7 @@
-/* Оформление каркаса: один файл, CSS-переменные, системный шрифт, без UI-библиотек.
+/* Оформление каркаса: CSS-переменные из tokens.css, без UI-библиотек.
    Экраны FE-02…FE-10 добавляют свои правила сюда или в свои файлы рядом со страницей. */
 
-:root {
-  --bg: #f4f5f7;
-  --surface: #ffffff;
-  --text: #1c2430;
-  --muted: #5d6878;
-  --border: #d8dde4;
-  --accent: #1f5fa8;
-  --accent-text: #ffffff;
-  --topbar: #16324f;
-  --topbar-text: #e8eef5;
-
-  --ok-bg: #e3f3e8;
-  --ok-text: #1d6b37;
-  --info-bg: #e4eefa;
-  --info-text: #1f4f8a;
-  --warn-bg: #fdf1d8;
-  --warn-text: #7a5200;
-  --bad-bg: #fbe4e2;
-  --bad-text: #a2261c;
-  --muted-bg: #eceef1;
-  --muted-text: #4c5563;
-
-  --radius: 6px;
-  --gap: 16px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-  color-scheme: light;
-}
+/* Цвета, шрифт и радиусы — в tokens.css. */
 
 * {
   box-sizing: border-box;
@@ -129,7 +102,7 @@ a {
   min-width: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #d9352b;
+  background: var(--crit);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -440,7 +413,7 @@ a {
 }
 
 .table tbody tr:hover {
-  background: #f8f9fb;
+  background: var(--surface-sunken);
 }
 
 .table .num {

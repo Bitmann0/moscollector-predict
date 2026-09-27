@@ -9,7 +9,7 @@ function pointsOf(data: ChartPoint[], width: number, height: number, max: number
   return data.map((point, index) => `${index * dx},${height - (point.value / max) * height}`).join(" ");
 }
 
-export function TrendChart({ data, limit, limitLabel = "лимит", percent = false, color = "var(--accent)" }: { data: ChartPoint[]; limit?: number; limitLabel?: string; percent?: boolean; color?: string }) {
+export function TrendChart({ data, limit, limitLabel = "лимит", percent = false, color = "var(--data)" }: { data: ChartPoint[]; limit?: number; limitLabel?: string; percent?: boolean; color?: string }) {
   if (data.length === 0) return <div className="chart-empty">Нет данных для графика</div>;
   const width = 640;
   const height = 180;

@@ -1,0 +1,120 @@
+/* Токены оформления: единственное место, где живут цвета, шрифт и радиусы.
+ *
+ * Основа — рекомендации High Performance HMI (ISA-101): нормальное состояние
+ * рисуется нейтральным серым, цвет зарезервирован за отклонениями и тревогами,
+ * чтобы красное было видно боковым зрением. Приоритеты тревог — как в ISA-18.2:
+ * критическое красное, тревога оранжевая, предупреждение жёлтое. Цвет статуса
+ * никогда не несёт смысл один — рядом всегда подпись или значок.
+ *
+ * Цвета сценариев проверены валидатором палитры (dataviz): светлая тема —
+ * различимость при нарушениях цветового зрения ΔE 9,3, тёмная — 7,1, поэтому
+ * серии на графиках всегда подписаны. Шрифт — Golos Text (Paratype, OFL),
+ * заказан для государственных и социальных сервисов; подключён из сборки.
+ */
+
+:root {
+  color-scheme: light;
+
+  --font: "Golos Text Variable", "Golos Text", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --gap: 20px;
+
+  /* Нейтральная основа: холодный серый бетон */
+  --bg: #e6eaee;
+  --surface: #f6f7f9;
+  --surface-raised: #ffffff;
+  --surface-sunken: #edf0f3;
+  --text: #15202b;
+  --text-2: #45525e;
+  --muted: #5f6c78;
+  --border: #d3dae0;
+  --border-strong: #9aa6b1;
+  --shadow: 0 1px 2px rgb(21 32 43 / 0.06);
+  --shadow-float: 0 12px 32px rgb(21 32 43 / 0.16);
+  --overlay: rgb(15 21 27 / 0.45);
+
+  /* Навигация */
+  --nav-bg: #18222c;
+  --nav-text: #c9d2da;
+  --nav-muted: #8c99a6;
+  --nav-hover: #222f3b;
+  --nav-active: #2a3a4a;
+  --nav-line: #2e3c49;
+  --nav-marker: #7fb2e0;
+  --nav-badge: #ff8a82;
+
+  /* Действие и выбор — не статус */
+  --accent: #1f3a52;
+  --accent-hover: #2a4c6a;
+  --accent-text: #ffffff;
+  --accent-tint: #e1e8ef;
+  --link: #1f5a8c;
+  --focus: #2f7bd6;
+
+  /* Данные на графиках одной серии */
+  --data: #2b5f8e;
+  --data-tint: #d6e2ee;
+  --grid: #d9dfe4;
+  --axis: #9aa6b1;
+
+  /* Сценарии — только цвет идентичности, не оценка */
+  --s-link: #1d5b9c;
+  --s-wear: #1b9b74;
+  --s-guard: #b85cc4;
+
+  /* Статусы: заливка / текст / подложка */
+  --crit: #c4261d;  --crit-ink: #a11f17;  --crit-tint: #f7e1df;
+  --alarm: #e0700a; --alarm-ink: #a84f00; --alarm-tint: #fbe9d8;
+  --warn: #f2c230;  --warn-ink: #7a5e00;  --warn-tint: #faf0cc;
+  --fault: #6e3fc4; --fault-ink: #5b34a3; --fault-tint: #ece5f8;
+  --service: #7d8b98; --service-ink: #45525e; --service-tint: #e6eaee;
+  --positive: #2e7d4f; --positive-ink: #256841; --positive-tint: #e2f0e7;
+
+  /* Старые имена каркаса: держат совместимость styles.css */
+  --ok-bg: var(--surface-sunken);  --ok-text: var(--text-2);
+  --info-bg: var(--accent-tint);   --info-text: var(--link);
+  --warn-bg: var(--warn-tint);     --warn-text: var(--warn-ink);
+  --bad-bg: var(--crit-tint);      --bad-text: var(--crit-ink);
+  --muted-bg: var(--surface-sunken); --muted-text: var(--text-2);
+  --topbar: var(--nav-bg);         --topbar-text: var(--nav-text);
+  --blue: var(--data);             --mint: var(--positive);
+}
+
+/* Тёмная тема: своя ступень тех же тонов, а не инверсия. Действует по системной
+   настройке, если пользователь не выбрал светлую, и по явному выбору. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f151b; --surface: #172029; --surface-raised: #1d2833; --surface-sunken: #131b23;
+    --text: #e4e9ee; --text-2: #b5c0ca; --muted: #8e9ba7; --border: #2b3742; --border-strong: #445361;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4); --shadow-float: 0 16px 40px rgb(0 0 0 / 0.5); --overlay: rgb(0 0 0 / 0.6);
+    --nav-bg: #0b1117; --nav-text: #c9d2da; --nav-muted: #8c99a6; --nav-hover: #16202a; --nav-active: #1f2c39; --nav-line: #1f2a35; --nav-marker: #7fb2e0; --nav-badge: #ff8a82;
+    --accent: #2f5f87; --accent-hover: #3a6f9c; --accent-text: #ffffff; --accent-tint: #1f3346; --link: #7fb2e0; --focus: #5aa2f0;
+    --data: #6fa4d6; --data-tint: #1f3346; --grid: #26313c; --axis: #5b6874;
+    --s-link: #2f6fb8; --s-wear: #1e9c76; --s-guard: #bf72cc;
+    --crit: #e5534b;  --crit-ink: #ff8a82;  --crit-tint: #3a1c1b;
+    --alarm: #f08a2e; --alarm-ink: #ffb067; --alarm-tint: #3a2616;
+    --warn: #e8c040;  --warn-ink: #f2d373;  --warn-tint: #352d12;
+    --fault: #9c7be0; --fault-ink: #c3aaf2; --fault-tint: #2a2140;
+    --service: #8c99a6; --service-ink: #b5c0ca; --service-tint: #22303b;
+    --positive: #4caf73; --positive-ink: #7fd19e; --positive-tint: #1a3324;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f151b; --surface: #172029; --surface-raised: #1d2833; --surface-sunken: #131b23;
+  --text: #e4e9ee; --text-2: #b5c0ca; --muted: #8e9ba7; --border: #2b3742; --border-strong: #445361;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4); --shadow-float: 0 16px 40px rgb(0 0 0 / 0.5); --overlay: rgb(0 0 0 / 0.6);
+  --nav-bg: #0b1117; --nav-text: #c9d2da; --nav-muted: #8c99a6; --nav-hover: #16202a; --nav-active: #1f2c39; --nav-line: #1f2a35; --nav-marker: #7fb2e0; --nav-badge: #ff8a82;
+  --accent: #2f5f87; --accent-hover: #3a6f9c; --accent-text: #ffffff; --accent-tint: #1f3346; --link: #7fb2e0; --focus: #5aa2f0;
+  --data: #6fa4d6; --data-tint: #1f3346; --grid: #26313c; --axis: #5b6874;
+  --s-link: #2f6fb8; --s-wear: #1e9c76; --s-guard: #bf72cc;
+  --crit: #e5534b;  --crit-ink: #ff8a82;  --crit-tint: #3a1c1b;
+  --alarm: #f08a2e; --alarm-ink: #ffb067; --alarm-tint: #3a2616;
+  --warn: #e8c040;  --warn-ink: #f2d373;  --warn-tint: #352d12;
+  --fault: #9c7be0; --fault-ink: #c3aaf2; --fault-tint: #2a2140;
+  --service: #8c99a6; --service-ink: #b5c0ca; --service-tint: #22303b;
+  --positive: #4caf73; --positive-ink: #7fd19e; --positive-tint: #1a3324;
+}

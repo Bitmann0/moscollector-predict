@@ -39,7 +39,7 @@ export function Login() {
   return (
     <div className="login">
       <form className="login__form" onSubmit={(event) => void submit(event)}>
-        <div className="login__brand"><span>МК</span><div><h1>Москоллектор</h1><small>Predictive intelligence</small></div></div>
+        <div className="login__brand"><span>МК</span><div><h1>Москоллектор</h1><small>Рабочее место диспетчера</small></div></div>
         <p className="muted">Единое рабочее место предиктивной эксплуатации инженерной инфраструктуры</p>
         <label className="field">
           <span>Логин</span>
