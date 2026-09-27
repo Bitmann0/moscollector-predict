@@ -164,14 +164,20 @@ class _Saver:
         return len(resp.priorities)
 
 
-def _log_issued(db: Session, asof: date, alerts: list[AlertOut]) -> None:
-    """Успешный повтор расчёта полностью заменяет выдачу пилотных голов за день."""
+def _log_issued(db: Session, asof: date, alerts: list[AlertOut], scored: set[str]) -> None:
+    """Повтор расчёта заменяет выдачу за день только у голов, которые посчитались.
+
+    Голова с result_status=error алертов не вернула: если стереть её прежнюю выдачу,
+    пропадёт пауза в 7 дней, и завтра она выдаст те же каналы повторно.
+    """
+    heads = [h for h in PILOT_HEADS if h in scored]
     db.execute(delete(models.IssuedLog).where(models.IssuedLog.asof == asof,
-                                               models.IssuedLog.head.in_(PILOT_HEADS)))
+                                               models.IssuedLog.head.in_(heads)))
     existing: set[tuple[str, str]] = set()
     for alert in alerts:
         key = entity_key(alert.address.channel, alert.address.obj)
-        if not alert.in_budget or key is None or (alert.head, key) in existing:
+        if (not alert.in_budget or alert.head not in scored or key is None
+                or (alert.head, key) in existing):
             continue
         existing.add((alert.head, key))
         db.add(models.IssuedLog(head=alert.head, asof=asof, entity_key=key,
@@ -244,7 +250,8 @@ def _score(db: Session, saver: _Saver, asof: date, ml: MlClient,
     for alert in resp.alerts:
         if saver.alert(alert, source) is not None and alert.in_budget:
             in_budget[alert.head] = in_budget.get(alert.head, 0) + 1
-    _log_issued(db, asof, resp.alerts)
+    scored = {h for h, status in resp.heads.items() if status.result_status != "error"}
+    _log_issued(db, asof, resp.alerts, scored)
     orders = _save_work_orders(db, resp.work_orders, source)
     for head, status in resp.heads.items():
         heads[head] = _head_state(status, in_budget.get(head, 0))
@@ -267,10 +274,17 @@ def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> 
 
 
 def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
-    """Запрашивает факт только для выданных прогнозов с полностью закрытым окном."""
+    """Запрашивает факт для выданных прогнозов с закрытым окном, у которых его ещё нет.
+
+    Факт считается по меткам бандла и после закрытия окна не меняется. Без отсева уже
+    размеченных прелоад за 29 дней отправлял бы в ML всё накопленное каждый день.
+    """
     cutoff = to_db(msk_midnight(asof + timedelta(days=1)))
-    forecasts = list(db.scalars(select(models.Forecast).where(
-        models.Forecast.in_budget.is_(True), models.Forecast.valid_to <= cutoff)))
+    forecasts = list(db.scalars(
+        select(models.Forecast)
+        .outerjoin(models.Outcome, models.Outcome.forecast_id == models.Forecast.id)
+        .where(models.Forecast.in_budget.is_(True), models.Forecast.valid_to <= cutoff,
+               models.Outcome.outcome_auto.is_(None))))
     if not forecasts:
         return
     queries = [OutcomeQuery(id=row.id, kind=row.kind, head=row.head, channel=row.channel_id,

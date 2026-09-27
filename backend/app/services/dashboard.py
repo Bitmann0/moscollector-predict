@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from .. import models, vocab
 from ..schemas.dashboard import DashboardSummary, ScenarioKpi, SeriesPoint
-from . import settings_store
+from . import semantics, settings_store
 from .helpers import msk_midnight, to_db
 from .system import head_states
 
@@ -56,9 +56,12 @@ def summary(db: Session) -> DashboardSummary:
         scenarios=scenarios,
         work_orders_by_status=by_status,
         alarms_24h=db.scalar(alarms) or 0,
-        planned_like_alarms_24h=db.scalar(alarms.where(models.Event.hint.is_not(None))) or 0,
+        planned_like_alarms_24h=db.scalar(alarms.where(
+            models.Event.hint == semantics.PLANNED_CHECK_HINT)) or 0,
         heads=head_states(db),
         series_forecasts_per_day=[SeriesPoint(day=d, value=forecasts_by_day.get(d, 0)) for d in days],
-        series_coverage_per_day=[SeriesPoint(day=d, value=coverage_by_day.get(d, 0)) for d in days],
+        # День без прогона пропускаем: ноль на графике читался бы как замеренный провал.
+        series_coverage_per_day=[SeriesPoint(day=d, value=coverage_by_day[d])
+                                 for d in days if d in coverage_by_day],
         source="live",
     )
