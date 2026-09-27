@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException, Query
 
 from . import contract, guard_queue, guard_weekly, maintenance, service, workorders
 from .config import PATHS
-from .serve import load_heads
+from .serve import HEADS_CONFIG, has_model, load_heads
 
 API_PREFIX = "/api/v1"
 
@@ -35,14 +35,25 @@ _cache_version: Any = None
 
 
 def _cache_generation() -> tuple:
-    """A new day, feature snapshot, catalog or model invalidates old alerts."""
+    """A new day, feature snapshot, catalog or model invalidates old alerts.
+
+    Every model file counts, dated ones included: serve.artifact_path picks
+    the artifact by asof, so within one generation the cache key (asof, ...)
+    maps to exactly one file, and adding, removing or retraining any of them
+    starts a new generation. The rule head D has no file; its threshold comes
+    from the panel and episodes, which are listed for that reason.
+    """
     schedule_path, mapping_path = maintenance.snapshot_paths(PATHS.root, PATHS.interim)
     paths = [PATHS.features / "sensor.parquet",
              PATHS.interim / "channels.parquet",
-             schedule_path, mapping_path,
-             PATHS.models / "D.pkl", PATHS.models / "A_link.pkl"]
+             PATHS.interim / "daily_channel.parquet",
+             PATHS.interim / "episodes.parquet",
+             schedule_path, mapping_path, HEADS_CONFIG]
+    models = tuple((path.name, path.stat().st_mtime_ns)
+                   for path in sorted(PATHS.models.glob("*.pkl")))
     return (dt.date.today(), str(schedule_path), str(mapping_path), tuple(
-        path.stat().st_mtime_ns if path.exists() else None for path in paths))
+        path.stat().st_mtime_ns if path.exists() else None for path in paths),
+        models)
 
 
 def _alerts(asof: dt.date | None, only_in_budget: bool) -> list:
@@ -72,8 +83,7 @@ def reset_cache() -> None:
 def health() -> dict:
     """Готовность сервиса и какие головы обучены."""
     heads = load_heads()
-    from .serve import model_path
-    trained = [h for h in heads if model_path(h).exists()]
+    trained = [h for h in heads if has_model(h)]
     return {
         "status": "ok" if trained else "no_models",
         "schema_version": contract.SCHEMA_VERSION,

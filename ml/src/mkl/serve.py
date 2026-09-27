@@ -2,6 +2,7 @@ import datetime as dt
 import hashlib
 import os
 import pickle
+import re
 import tempfile
 from pathlib import Path
 
@@ -18,8 +19,76 @@ def load_heads() -> dict:
     return yaml.safe_load(HEADS_CONFIG.read_text(encoding="utf-8"))
 
 
-def model_path(head: str) -> Path:
-    return PATHS.models / f"{head}.pkl"
+def model_path(head: str, threshold_end: dt.date | None = None) -> Path:
+    """`{head}.pkl` или датированный `{head}@{threshold_end}.pkl`.
+
+    Датированный артефакт обучен на данных, обрезанных до более ранней даты
+    (train_latest.py --source-end), и нужен, чтобы исторический день расчёта
+    прошёл проверку задержки validate_pilot_artifact.
+    """
+    name = head if threshold_end is None else f"{head}@{threshold_end.isoformat()}"
+    return PATHS.models / f"{name}.pkl"
+
+
+_DATED = re.compile(r"(?P<head>.+)@(?P<end>\d{4}-\d{2}-\d{2})\.pkl")
+
+
+def _dated_end(name: str) -> tuple[str, dt.date] | None:
+    match = _DATED.fullmatch(name)
+    if match is None:
+        return None
+    return match["head"], dt.date.fromisoformat(match["end"])
+
+
+def dated_model_paths(head: str) -> dict[dt.date, Path]:
+    """Датированные артефакты головы по концу окна порога из имени файла."""
+    out = {}
+    for path in PATHS.models.glob(f"{head}@*.pkl"):
+        parsed = _dated_end(path.name)
+        if parsed and parsed[0] == head:
+            out[parsed[1]] = path
+    return out
+
+
+def max_lag_days(cfg: dict) -> int:
+    return int(cfg.get("max_model_lag_days", 14))
+
+
+def artifact_path(head: str, day: dt.date | None, cfg: dict | None = None) -> Path:
+    """Артефакт для дня расчёта `day`.
+
+    Из датированных берётся тот, у которого конец окна порога самый поздний и
+    раньше `day`, а задержка не больше max_model_lag_days головы. Если такого
+    нет, берётся `{head}.pkl`, и его дальше проверяет validate_pilot_artifact.
+    """
+    if day is not None:
+        lag = max_lag_days(cfg if cfg is not None else load_heads()[head])
+        dated = dated_model_paths(head)
+        fit = [end for end in dated if 0 < (day - end).days <= lag]
+        if fit:
+            return dated[max(fit)]
+    return model_path(head)
+
+
+def has_model(head: str) -> bool:
+    return model_path(head).exists() or bool(dated_model_paths(head))
+
+
+def load_artifact(path: Path) -> dict:
+    """Прочитать артефакт; у датированного дата в имени обязана совпасть с метаданными.
+
+    Переименованный руками файл иначе выдавался бы за модель другого окна.
+    """
+    with path.open("rb") as f:
+        art = pickle.load(f)
+    parsed = _dated_end(getattr(path, "name", ""))
+    if parsed is not None:
+        meta = art.get("metadata") or {}
+        if meta.get("threshold_end") != parsed[1].isoformat():
+            raise ValueError(
+                f"{path.name}: в метаданных конец окна порога "
+                f"{meta.get('threshold_end')}, а в имени {parsed[1]}")
+    return art
 
 
 def feature_signature(name: str) -> str:
@@ -37,11 +106,12 @@ def feature_signature(name: str) -> str:
 
 def save(head: str, model, iso, feature_names: list[str],
          threshold: float | None = None,
-         metadata: dict | None = None) -> Path:
-    PATHS.models.mkdir(parents=True, exist_ok=True)
+         metadata: dict | None = None, path: Path | None = None) -> Path:
+    """Записать артефакт в `path`, по умолчанию в model_path(head)."""
+    dst = Path(path) if path is not None else model_path(head)
+    dst.parent.mkdir(parents=True, exist_ok=True)
     registry = store.load_registry()
     cfg = load_heads()[head]
-    dst = model_path(head)
     artifact = {
         "model": model,
         "iso": iso,
@@ -58,8 +128,8 @@ def save(head: str, model, iso, feature_names: list[str],
     }
     # В живом сервисе старый артефакт должен оставаться читаемым до завершения
     # нового обучения: прерванная запись прямо в .pkl оставляла битую модель.
-    fd, temp_name = tempfile.mkstemp(prefix=f".{head}.", suffix=".tmp",
-                                      dir=PATHS.models)
+    fd, temp_name = tempfile.mkstemp(prefix=f".{dst.stem}.", suffix=".tmp",
+                                      dir=dst.parent)
     try:
         with os.fdopen(fd, "wb") as f:
             pickle.dump(artifact, f)
@@ -136,8 +206,9 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
         day = asof or feats["day"].max()
         art = rule_head.artifact(head, cfg, day)
     else:
-        with model_path(head).open("rb") as f:
-            art = pickle.load(f)
+        # Тот же выбор, что в product_api._pilot_artifact: метаданные ответа и
+        # модель, по которой считан риск, обязаны быть из одного файла.
+        art = load_artifact(artifact_path(head, asof or feats["day"].max(), cfg))
     if head == "D":
         # The wear target is defined only for equipment sensor types. Scoring
         # every channel and then taking top-3 lets out-of-scope sensors consume
@@ -223,7 +294,7 @@ def score_with_internals(head: str, asof: dt.date | None = None):
 
 
 def score_all(asof: dt.date | None = None) -> dict[str, pl.DataFrame]:
-    return {h: score(h, asof) for h in load_heads() if model_path(h).exists()}
+    return {h: score(h, asof) for h in load_heads() if has_model(h)}
 
 
 def validate_pilot_artifact(head: str, artifact: dict, day: dt.date,
