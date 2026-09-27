@@ -24,8 +24,8 @@
 | `ingest.py` | `ingest_ods(db, rows: list[OdsRowIn], user) -> IngestBatchOut` | живое | BE-06 |
 | `ingest.py` | `list_batches(db, page, page_size) -> Page[IngestBatchOut]` | живое | ML2-03 |
 | `semantics.py` | `classify(sensor_type, val_raw, val_num, alarm, *, ts=None) -> tuple[str, str \| None]` — (event_class, hint); `ts` нужен для подсказки о плановой проверке | живое | ML2-01 |
-| `geo.py` | `schema_geojson(db, complex_id) -> FeatureCollection` | заглушка | ML1-11 |
-| `geo.py` | `schema_wkt(db, complex_id) -> str` | заглушка | ML1-11 |
+| `geo.py` | `schema_geojson(db, complex_id) -> FeatureCollection` | живое | ML1-11 |
+| `geo.py` | `schema_wkt(db, complex_id) -> str` | живое | ML1-11 |
 | `quality.py` | `weekly(db, scenario) -> QualityOut` | живое | BE-05 |
 | `notifications.py` | `list_notifications(db, user, page, page_size) -> Page[NotificationItem]` | живое | BE-08 |
 | `notifications.py` | `mark_read(db, notification_id, user) -> None` | живое | BE-08 |
