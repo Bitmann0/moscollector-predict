@@ -1,6 +1,6 @@
-"""Форматированная выгрузка журнала прогнозов в XLSX (ТЗ §8)."""
+"""Форматированная выгрузка журнала прогнозов в XLSX (ТЗ §8). Время — МСК."""
 import io
-from datetime import date
+from datetime import date, datetime
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import models
+from .forecasts import work_order_ids
 from .helpers import from_db
 
 SHEET = "Прогнозы"
@@ -17,6 +18,12 @@ COLUMNS = [
     "Тип датчика", "Пикет", "Данные", "Решение", "Причина", "Итог по СМВУ",
     "Итог проверки", "Заявка", "Источник",
 ]
+
+
+def _msk(value: datetime | None) -> datetime | None:
+    """Excel не хранит часовой пояс, и openpyxl отказывается писать время с ним."""
+    local = from_db(value)
+    return local.replace(tzinfo=None) if local else None
 
 
 def forecasts_xlsx(db: Session, date_from: date | None, date_to: date | None) -> bytes:
@@ -35,17 +42,19 @@ def forecasts_xlsx(db: Session, date_from: date | None, date_to: date | None) ->
     decisions = {d.forecast_id: d for d in db.scalars(select(models.Decision).order_by(
         models.Decision.created_at, models.Decision.id))}
     outcomes = {o.forecast_id: o for o in db.scalars(select(models.Outcome))}
+    orders = work_order_ids(db)
     for forecast in db.scalars(stmt.order_by(models.Forecast.asof.desc(), models.Forecast.rank)):
         address = forecast.address or {}
         decision, outcome = decisions.get(forecast.id), outcomes.get(forecast.id)
-        sheet.append([forecast.id, forecast.scenario, forecast.asof, from_db(forecast.valid_from),
-                      from_db(forecast.valid_to), forecast.horizon_hours, forecast.score_type,
+        sheet.append([forecast.id, forecast.scenario, forecast.asof, _msk(forecast.valid_from),
+                      _msk(forecast.valid_to), forecast.horizon_hours, forecast.score_type,
                       forecast.risk, forecast.priority_score, forecast.rank,
-                      address.get("obj_name"), address.get("parent_name"), forecast.channel_id,
+                      address.get("obj_name"), address.get("obj_parent_name"), forecast.channel_id,
                       address.get("sensor_type"), address.get("picket"), forecast.data_status,
                       decision.action if decision else None, decision.reason_code if decision else None,
                       outcome.outcome_auto if outcome else None,
-                      outcome.outcome_manual if outcome else None, None, forecast.source])
+                      outcome.outcome_manual if outcome else None, orders.get(forecast.id),
+                      forecast.source])
     for column in sheet.columns:
         letter = column[0].column_letter
         sheet.column_dimensions[letter].width = min(max(len(str(c.value or "")) for c in column) + 2, 45)

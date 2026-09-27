@@ -1,7 +1,7 @@
 """Фильтруемый журнал прогнозов и карточка с историей, событиями и решениями."""
 from datetime import date, timedelta
 
-from sqlalchemy import Integer, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .. import models, vocab
@@ -15,7 +15,7 @@ from ..schemas.forecasts import (
     ForecastItem,
     VersionItem,
 )
-from .helpers import Refs, count, from_db, page_of
+from .helpers import Refs, count, from_db, msk_midnight, page_of, to_db
 
 WEEKDAYS_RU = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота",
                "воскресенье"]
@@ -30,7 +30,7 @@ def decision_out(row: models.Decision) -> DecisionOut:
                        created_at=from_db(row.created_at), source=row.source)
 
 
-def _work_order_ids(db: Session, forecast_ids: set[str] | None = None) -> dict[str, str]:
+def work_order_ids(db: Session, forecast_ids: set[str] | None = None) -> dict[str, str]:
     """forecast_id → id заявки. Заявок в демо десятки, поэтому читаем все."""
     out: dict[str, str] = {}
     for order_id, stored_ids in db.execute(
@@ -52,7 +52,7 @@ def _items(db: Session, rows: list[models.Forecast]) -> list[ForecastItem]:
         last_decision[d.forecast_id] = d
     outcomes = {o.forecast_id: o for o in db.scalars(
         select(models.Outcome).where(models.Outcome.forecast_id.in_(ids)))}
-    orders = _work_order_ids(db, set(ids))
+    orders = work_order_ids(db, set(ids))
     items = []
     for r in rows:
         outcome = outcomes.get(r.id)
@@ -92,8 +92,11 @@ def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
     elif decision == "any":
         stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id)))
     elif decision is not None:
-        stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id)
-                                                  .where(models.Decision.action == decision)))
+        # Фильтр по последнему решению — тому, что строка журнала показывает в колонке.
+        # Решения пишутся по порядку, поэтому последнее — с наибольшим id.
+        latest = select(func.max(models.Decision.id)).group_by(models.Decision.forecast_id)
+        stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id).where(
+            models.Decision.id.in_(latest), models.Decision.action == decision)))
     if outcome is not None:
         stmt = stmt.where(models.Forecast.id.in_(select(models.Outcome.forecast_id).where(
             (models.Outcome.outcome_auto == outcome) | (models.Outcome.outcome_manual == outcome))))
@@ -116,21 +119,26 @@ def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
 
 
 def _dynamics(db: Session, row: models.Forecast) -> list[DynamicsPoint]:
-    """Наблюдаемые события канала за 30 суток, без синтетического заполнения."""
+    """Наблюдаемые события канала за 30 суток по МСК, без синтетического заполнения.
+
+    События хранятся в UTC, поэтому сутки режем по полуночи МСК и раскладываем в Python:
+    date() в SQL дал бы сутки UTC, и событие в 01:30 МСК ушло бы в предыдущий день.
+    """
     start = row.asof - timedelta(days=DYNAMICS_DAYS - 1)
-    result: dict[date, tuple[int, int]] = {}
+    counts = {start + timedelta(days=i): [0, 0] for i in range(DYNAMICS_DAYS)}
     if row.channel_id is not None:
-        grouped = db.execute(select(func.date(models.Event.ts),
-                                    func.sum(models.Event.alarm.cast(Integer)),
-                                    func.sum((models.Event.event_class == "fault").cast(Integer)))
-                             .where(models.Event.channel_id == row.channel_id,
-                                    models.Event.ts >= start)
-                             .group_by(func.date(models.Event.ts)))
-        result = {date.fromisoformat(str(day)): (int(alarms or 0), int(bad or 0))
-                  for day, alarms, bad in grouped}
-    return [DynamicsPoint(day=day, alarms=result.get(day, (0, 0))[0],
-                          bad_states=result.get(day, (0, 0))[1])
-            for day in (start + timedelta(days=i) for i in range(DYNAMICS_DAYS))]
+        events = db.execute(select(models.Event.ts, models.Event.alarm, models.Event.event_class)
+                            .where(models.Event.channel_id == row.channel_id,
+                                   models.Event.ts >= to_db(msk_midnight(start)),
+                                   models.Event.ts < to_db(msk_midnight(
+                                       row.asof + timedelta(days=1)))))
+        for ts, alarm, event_class in events:
+            day = counts.get(from_db(ts).date())
+            if day is not None:
+                day[0] += int(bool(alarm))
+                day[1] += int(event_class == "fault")
+    return [DynamicsPoint(day=day, alarms=alarms, bad_states=bad)
+            for day, (alarms, bad) in counts.items()]
 
 
 def _coverage_note(db: Session, row: models.Forecast) -> str | None:

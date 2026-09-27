@@ -3,7 +3,7 @@ import csv
 import hashlib
 import io
 import zipfile
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 import openpyxl
 from fastapi import HTTPException
@@ -17,11 +17,14 @@ from ..schemas.events import EventRowIn, IngestBatchOut, OdsRowIn, ResetDayOut
 from ..security import CurrentUser
 from . import semantics, settings_store
 from .helpers import assume_msk, count, from_db, now_utc, page_of, to_db
-from .notifications import broker
+from .notifications import publish_safe
 
 # Тот же лимит, что в routers/ingest.py: роутер читает на байт больше, чтобы сервис
 # отличил файл ровно в лимит от файла больше лимита.
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
+# Размер пачки для IN (...): SQLite до 3.32 принимает не больше 999 параметров.
+LOOKUP_CHUNK = 500
+ALARM_TITLE = "Тревожное событие СМВУ"
 
 
 def _out(row: models.IngestBatch) -> IngestBatchOut:
@@ -40,6 +43,10 @@ def _new_batch(db: Session, kind: str, rows_total: int) -> models.IngestBatch:
     return row
 
 
+def _chunks(values: list) -> list[list]:
+    return [values[i:i + LOOKUP_CHUNK] for i in range(0, len(values), LOOKUP_CHUNK)]
+
+
 def _parse_alarm(value: str | bool) -> bool:
     if isinstance(value, bool):
         return value
@@ -51,7 +58,8 @@ def _parse_alarm(value: str | bool) -> bool:
     raise ValueError("invalid_alarm")
 
 
-def _event_from_row(row: EventRowIn, batch_id: int) -> models.Event:
+def _event_from_row(row: EventRowIn) -> models.Event:
+    """Событие без класса: класс ставит _save_rows, когда известен тип датчика канала."""
     alarm = _parse_alarm(row.alarm)
     ts = assume_msk(datetime.fromisoformat(f"{row.day.strip()}T{row.time.strip()}"))
     raw = row.value.strip() if row.value else None
@@ -59,13 +67,26 @@ def _event_from_row(row: EventRowIn, batch_id: int) -> models.Event:
         value_num = float(raw.replace(",", ".")) if raw else None
     except ValueError:
         value_num = None
-    sensor = None
-    event_class, hint = semantics.classify(sensor, raw, value_num, alarm)
     identity = f"{row.event_id}|{row.channel_id}|{ts.isoformat()}|{alarm}|{raw or ''}"
     return models.Event(event_id=row.event_id, channel_id=row.channel_id, ts=to_db(ts),
-                        alarm=alarm, val_raw=raw, val_num=value_num, event_class=event_class,
-                        hint=hint, batch_id=batch_id,
+                        alarm=alarm, val_raw=raw, val_num=value_num,
                         row_hash=hashlib.sha256(identity.encode()).hexdigest())
+
+
+def _existing_hashes(db: Session, hashes: list[str]) -> set[str]:
+    found: set[str] = set()
+    for chunk in _chunks(hashes):
+        found.update(db.scalars(select(models.Event.row_hash)
+                                .where(models.Event.row_hash.in_(chunk))))
+    return found
+
+
+def _sensor_types(db: Session, channel_ids: list[int]) -> dict[int, str | None]:
+    types: dict[int, str | None] = {}
+    for chunk in _chunks(channel_ids):
+        types.update(db.execute(select(models.RefChannel.id, models.RefChannel.sensor_type)
+                                .where(models.RefChannel.id.in_(chunk))).all())
+    return types
 
 
 def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
@@ -73,37 +94,48 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
     batch = _new_batch(db, "smvu", len(rows) + rejected)
     batch.rejected = rejected
     demo_today = settings_store.demo_today(db)
-    published: list[tuple[dict, str]] = []
+    parsed: list[models.Event] = []
     for item in rows:
         try:
-            event = _event_from_row(item, batch.id)
+            event = _event_from_row(item)
         except (TypeError, ValueError):
             batch.rejected += 1
             continue
         if from_db(event.ts).date() > demo_today:
             batch.outside_demo_window += 1
             continue
-        if db.scalar(select(models.Event.id).where(models.Event.row_hash == event.row_hash)):
+        parsed.append(event)
+    # Дубли ищем одним запросом на пачку хешей, а не запросом на строку: файл до 200 МБ —
+    # это миллионы строк. seen ловит повтор строки внутри той же партии.
+    seen = _existing_hashes(db, list({e.row_hash for e in parsed}))
+    sensor_types = _sensor_types(db, list({e.channel_id for e in parsed}))
+    alarms: list[models.Notification] = []
+    for event in parsed:
+        if event.row_hash in seen:
             batch.duplicates += 1
             continue
-        channel = db.get(models.RefChannel, event.channel_id)
+        seen.add(event.row_hash)
         event.event_class, event.hint = semantics.classify(
-            channel.sensor_type if channel else None, event.val_raw, event.val_num, event.alarm)
+            sensor_types.get(event.channel_id), event.val_raw, event.val_num, event.alarm,
+            ts=from_db(event.ts))
+        event.batch_id = batch.id
         db.add(event)
         batch.accepted += 1
         if event.event_class in {"alarm", "critical"}:
-            notification = models.Notification(ts=event.ts, kind="event.alarm",
+            notification = models.Notification(
+                ts=event.ts, kind="event.alarm",
                 severity="critical" if event.event_class == "critical" else "warning",
-                title="Тревожное событие СМВУ",
+                title=ALARM_TITLE, read_by=[],
                 payload={"event_id": event.event_id, "channel_id": event.channel_id,
-                         "event_class": event.event_class}, read_by=[])
+                         "event_class": event.event_class})
             db.add(notification)
-            published.append((notification.payload, notification.severity))
+            alarms.append(notification)
     batch.status = "accepted" if not batch.rejected else ("partial" if batch.accepted else "rejected")
     db.commit()
-    for payload, severity in published:
-        broker.publish("event.alarm", payload, severity=severity,
-                       title="Тревожное событие СМВУ")
+    # Строки уже в БД: оборванный поток SSE не должен превращать приём в 500.
+    for notification in alarms:
+        publish_safe("event.alarm", {**notification.payload, "notification_id": notification.id},
+                     severity=notification.severity, title=ALARM_TITLE)
     return _out(batch)
 
 
@@ -120,6 +152,25 @@ def _count_rows(filename: str, content: bytes) -> int:
         text = content.decode("utf-8-sig")
         rows = sum(1 for r in csv.reader(io.StringIO(text)) if any(cell.strip() for cell in r))
     return max(rows - 1, 0)  # первая строка — заголовок
+
+
+def _cell_text(header: str | None, value):
+    """Ячейка XLSX → значение для EventRowIn.
+
+    Excel хранит дату, время и числа как типы, а EventRowIn принимает строки, как в CSV.
+    Целые числа пишутся без «.0», чтобы хеш строки совпал с той же строкой из CSV.
+    """
+    if value is None or isinstance(value, (bool, str)):
+        return value
+    if isinstance(value, datetime):
+        return value.strftime("%H:%M:%S") if header == "время" else value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, time):
+        return value.strftime("%H:%M:%S")
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value)
 
 
 def ingest_rows(db: Session, rows: list[EventRowIn], user: CurrentUser) -> IngestBatchOut:
@@ -144,7 +195,8 @@ def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser) -
             finally:
                 book.close()
             header, data = values[0], values[1:]
-            records = [dict(zip(header, values)) for values in data if any(v is not None for v in values)]
+            records = [{name: _cell_text(name, cell) for name, cell in zip(header, cells)}
+                       for cells in data if any(v is not None for v in cells)]
         else:
             records = list(csv.DictReader(io.StringIO(content.decode("utf-8-sig"))))
         rows = []
@@ -173,12 +225,28 @@ def reset_day(db: Session, day: date, user: CurrentUser) -> ResetDayOut:
     return ResetDayOut(day=day, deleted_events=result.rowcount or 0)
 
 
+def _same(column, value):
+    return column.is_(None) if value is None else column == value
+
+
 def ingest_ods(db: Session, rows: list[OdsRowIn], user: CurrentUser) -> IngestBatchOut:
+    """Повтор той же записи (эмулятор после таймаута) считается дублем, а не новой записью."""
     batch = _new_batch(db, "ods", len(rows))
+    seen: set[tuple] = set()
     for row in rows:
-        db.add(models.OdsRecord(ts=to_db(assume_msk(row.ts)), obj_id=row.obj_id,
-                                record_type=row.record_type, decision=row.decision,
-                                reason=row.reason, batch_id=batch.id))
+        ts = to_db(assume_msk(row.ts))
+        key = (ts, row.obj_id, row.record_type, row.decision, row.reason)
+        stored = db.scalar(select(models.OdsRecord.id).where(
+            models.OdsRecord.ts == ts, _same(models.OdsRecord.obj_id, row.obj_id),
+            models.OdsRecord.record_type == row.record_type,
+            _same(models.OdsRecord.decision, row.decision),
+            _same(models.OdsRecord.reason, row.reason)).limit(1))
+        if key in seen or stored is not None:
+            batch.duplicates += 1
+            continue
+        seen.add(key)
+        db.add(models.OdsRecord(ts=ts, obj_id=row.obj_id, record_type=row.record_type,
+                                decision=row.decision, reason=row.reason, batch_id=batch.id))
         batch.accepted += 1
     db.commit()
     return _out(batch)

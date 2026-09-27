@@ -1,0 +1,154 @@
+"""Сквозные свойства сервисов backend: выгрузка, приём журналов, классы событий, прогон.
+
+Каждый тест повторяет сценарий подтверждённой находки ревью PR #20.
+"""
+import io
+from datetime import date, datetime
+
+import openpyxl
+from app import models
+from app.schemas.ml import HeadStatus
+from app.services import notifications, semantics
+from app.services.helpers import MSK, to_db
+from conftest import build_score
+from sqlalchemy import func, select
+
+API = "/api/v1"
+GAS = "Газовый датчик"
+ROW = {"ид_события": 1, "ид_канала_данных": 9000004, "дата": "2026-06-30",
+       "время": "10:00:00", "тревожное": "t", "значение_датчика": "Обнаружен газ"}
+
+
+def _sheet(resp) -> list[dict]:
+    rows = list(openpyxl.load_workbook(io.BytesIO(resp.content)).active.values)
+    return [dict(zip(rows[0], row)) for row in rows[1:]]
+
+
+def test_export_writes_forecast_rows(admin, ran):
+    resp = admin.get(f"{API}/export/forecasts.xlsx")
+    assert resp.status_code == 200
+    rows = _sheet(resp)
+    alerts = [row for row in rows if row["Сценарий"] in ("sensor_link", "equipment_diag")]
+    assert alerts and all(row["Комплекс"] for row in alerts)
+    assert rows[0]["Окно с"].tzinfo is None  # МСК без пояса: Excel поясов не хранит
+    orders = {i["id"] for i in admin.get(f"{API}/work-orders").json()["items"]}
+    assert any(row["Заявка"] in orders for row in rows)
+
+
+def test_xlsx_with_native_cells_is_accepted(admin):
+    book = openpyxl.Workbook()
+    book.active.append(list(ROW))
+    book.active.append([2, 9000004, date(2026, 6, 29), "10:00:00", "t", 1.5])
+    buf = io.BytesIO()
+    book.save(buf)
+    resp = admin.post(f"{API}/ingest/events/upload",
+                      files={"file": ("e.xlsx", buf.getvalue(), "application/octet-stream")})
+    assert (resp.json()["accepted"], resp.json()["rejected"]) == (1, 0)
+
+
+def test_repeated_row_in_one_batch_is_duplicate(admin):
+    resp = admin.post(f"{API}/ingest/events", json=[ROW, ROW])
+    assert (resp.json()["accepted"], resp.json()["duplicates"]) == (1, 1)
+
+
+def test_closed_sse_subscriber_does_not_fail_ingest(admin, monkeypatch, db):
+    def closed_loop(*args, **kwargs):
+        raise RuntimeError("Event loop is closed")
+
+    monkeypatch.setattr(notifications.broker, "publish", closed_loop)
+    resp = admin.post(f"{API}/ingest/events", json=[ROW])
+    assert resp.status_code == 201
+    assert db.scalar(select(func.count()).select_from(models.Notification)) == 1
+
+
+def test_sensor_faults_follow_c5():
+    assert semantics.classify(GAS, "-0.4", -0.4, False)[0] == "fault"
+    assert semantics.classify(GAS, "327,68", 327.68, True)[0] == "fault"
+    assert semantics.classify("Датчик температуры", "999", 999.0, False)[0] == "fault"
+    assert semantics.classify(None, "01.01.1970 03:00:05", None, False)[0] == "fault"
+    assert semantics.classify(GAS, "2", 2.0, False) == ("alarm", None)
+    assert semantics.classify(GAS, "6", 6.0, True) == ("critical", None)
+
+
+def test_planned_check_hint_only_in_weekday_window():
+    weekday = datetime(2026, 6, 29, 10, 0, tzinfo=MSK)    # понедельник
+    evening = datetime(2026, 6, 29, 15, 0, tzinfo=MSK)
+    saturday = datetime(2026, 6, 27, 10, 0, tzinfo=MSK)
+    hint = semantics.PLANNED_CHECK_HINT
+    assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=weekday) == ("alarm", hint)
+    assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=evening)[1] is None
+    assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=saturday)[1] is None
+
+
+def test_planned_like_kpi_counts_only_planned_hint(admin):
+    planned = dict(ROW, время="10:00:00")                       # вторник 30.06, 10:00
+    methane = dict(ROW, ид_события=2, время="10:05:00", значение_датчика="2")
+    admin.post(f"{API}/ingest/events", json=[planned, methane])
+    summary = admin.get(f"{API}/dashboard/summary").json()
+    assert (summary["alarms_24h"], summary["planned_like_alarms_24h"]) == (2, 1)
+
+
+def test_rerun_with_failed_head_keeps_its_issued_log(admin, ran, fake_ml, db):
+    def a_link_count() -> int:
+        db.expire_all()
+        return db.scalar(select(func.count()).select_from(models.IssuedLog)
+                         .where(models.IssuedLog.head == "A_link"))
+
+    before = a_link_count()
+
+    def a_link_failed(request):
+        resp = build_score(request)
+        resp.alerts = [a for a in resp.alerts if a.head != "A_link"]
+        resp.heads["A_link"] = HeadStatus(result_status="error", detail="тест")
+        return resp
+
+    fake_ml.score = a_link_failed
+    assert admin.post(f"{API}/admin/run-daily", json={"asof": "2026-06-15"}).status_code == 200
+    assert before > 0 and a_link_count() == before
+
+
+def test_outcomes_are_not_requested_twice(admin, ran, fake_ml):
+    for _ in range(2):  # повтор дня: факт по прогнозам 15.06 уже записан
+        admin.post(f"{API}/admin/run-daily", json={"asof": "2026-06-23"})
+    sizes = [len(items) for kind, items in fake_ml.calls if kind == "outcomes"]
+    assert len(sizes) == 1 and sizes[0] > 0
+
+
+def test_ods_retry_is_duplicate(integration, db):
+    rows = [{"ts": "2026-06-29T10:00:00", "obj_id": "9101", "record_type": "осмотр"}]
+    integration.post(f"{API}/ingest/ods-journal", json=rows)
+    second = integration.post(f"{API}/ingest/ods-journal", json=rows).json()
+    assert (second["accepted"], second["duplicates"]) == (0, 1)
+    assert db.scalar(select(func.count()).select_from(models.OdsRecord)) == 1
+
+
+def test_card_dynamics_uses_moscow_days(admin, ran, db):
+    forecast = db.scalars(select(models.Forecast).where(
+        models.Forecast.in_budget.is_(True), models.Forecast.channel_id.is_not(None))).first()
+    ts = datetime(2026, 6, 15, 1, 30, tzinfo=MSK)  # 22:30 UTC 14.06
+    db.add(models.Event(event_id=77, channel_id=forecast.channel_id, ts=to_db(ts), alarm=True,
+                        val_raw="Тревога", event_class="alarm", row_hash="dyn-msk"))
+    db.commit()
+    card = admin.get(f"{API}/forecasts/{forecast.id}").json()
+    by_day = {p["day"]: p["alarms"] for p in card["dynamics_30d"]}
+    assert (by_day["2026-06-15"], by_day["2026-06-14"]) == (1, 0)
+
+
+def test_decision_filter_uses_latest_decision(admin, ran):
+    fid = admin.get(f"{API}/forecasts").json()["items"][0]["id"]
+    for action, reason in (("defer", "await_data"), ("reject", "false_alarm")):
+        resp = admin.post(f"{API}/forecasts/{fid}/decisions",
+                          json={"action": action, "reason_code": reason})
+        assert resp.status_code == 201, resp.text
+
+    def ids(action: str) -> set[str]:
+        page = admin.get(f"{API}/forecasts", params={"decision": action}).json()
+        return {i["id"] for i in page["items"]}
+
+    assert fid in ids("reject") and fid not in ids("defer")
+
+
+def test_coverage_series_skips_days_without_run(admin):
+    assert admin.post(f"{API}/admin/run-daily", json={"asof": "2026-06-29"}).status_code == 200
+    series = admin.get(f"{API}/dashboard/summary").json()["series_coverage_per_day"]
+    assert [p["day"] for p in series] == ["2026-06-29"]
