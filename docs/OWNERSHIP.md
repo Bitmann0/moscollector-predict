@@ -100,7 +100,7 @@ BE, ML-2 и FE план называет предположительно, по�
 | `smoke_compose.py`, `_api.py` | PM | PM-06 | C2 |
 | `preload_demo.py` | PM | PM-09 | C1, C2 |
 | `replay.py` | ML-2 | ML2-03 | C5 |
-| `emulate_ods.py`, `emulate_helpdesk.py` | ML-2 | ML2-11 | C2, C3 |
+| `emulate_ods.py`, `emulate_helpdesk.py`, `_emulation.py` | ML-2 | ML2-11 | C2, C3 |
 | `fetch_bundle.sh`, `fetch_bundle.ps1` | ML-2 | ML2-02 | C4 |
 | `load_test/locustfile.py` | ML-1 | ML1-13 | C2 |
 
