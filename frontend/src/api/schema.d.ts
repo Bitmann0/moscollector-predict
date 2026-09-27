@@ -2344,7 +2344,10 @@ export interface operations {
     };
     ingest_rows_api_v1_ingest_events_post: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description false — загрузка истории: события сохраняются и классифицируются, но уведомления event.alarm и SSE по ним не создаются */
+                notify?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2391,7 +2394,10 @@ export interface operations {
     };
     ingest_file_api_v1_ingest_events_upload_post: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description false — загрузка истории: события сохраняются и классифицируются, но уведомления event.alarm и SSE по ним не создаются */
+                notify?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;

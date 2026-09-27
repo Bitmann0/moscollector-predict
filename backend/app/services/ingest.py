@@ -90,7 +90,9 @@ def _sensor_types(db: Session, channel_ids: list[int]) -> dict[int, str | None]:
 
 
 def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
-               *, rejected: int = 0) -> IngestBatchOut:
+               *, rejected: int = 0, notify: bool = True) -> IngestBatchOut:
+    """notify=False — загрузка истории (replay.py --bulk, --catch-up): события получают
+    класс, но уведомлений и SSE нет — иначе прошлые тревоги пришли бы диспетчеру как новые."""
     batch = _new_batch(db, "smvu", len(rows) + rejected)
     batch.rejected = rejected
     demo_today = settings_store.demo_today(db)
@@ -121,7 +123,7 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
         event.batch_id = batch.id
         db.add(event)
         batch.accepted += 1
-        if event.event_class in {"alarm", "critical"}:
+        if notify and event.event_class in {"alarm", "critical"}:
             notification = models.Notification(
                 ts=event.ts, kind="event.alarm",
                 severity="critical" if event.event_class == "critical" else "warning",
@@ -173,11 +175,13 @@ def _cell_text(header: str | None, value):
     return str(value)
 
 
-def ingest_rows(db: Session, rows: list[EventRowIn], user: CurrentUser) -> IngestBatchOut:
-    return _save_rows(db, rows, user)
+def ingest_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
+                *, notify: bool = True) -> IngestBatchOut:
+    return _save_rows(db, rows, user, notify=notify)
 
 
-def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser) -> IngestBatchOut:
+def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser,
+                *, notify: bool = True) -> IngestBatchOut:
     if len(content) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="file_too_large")
     try:
@@ -212,7 +216,7 @@ def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser) -
         batch.status = "rejected"
         db.commit()
         return _out(batch)
-    return _save_rows(db, rows, user, rejected=rejected)
+    return _save_rows(db, rows, user, rejected=rejected, notify=notify)
 
 
 def reset_day(db: Session, day: date, user: CurrentUser) -> ResetDayOut:
