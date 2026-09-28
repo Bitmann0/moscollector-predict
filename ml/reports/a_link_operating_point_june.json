@@ -1,0 +1,43 @@
+{
+  "days": [
+    "2026-06-02",
+    "2026-06-29"
+  ],
+  "budget_per_day": 20,
+  "cooldown_days": 7,
+  "positives_in_period": 5832,
+  "policies": {
+    "min_precision_0.50": {
+      "thresholds": {
+        "A_link@2026-05-30.pkl": 0.40930232558139534,
+        "A_link@2026-06-07.pkl": 0.4085986215950115,
+        "A_link@2026-06-15.pkl": 0.37537537537537535,
+        "A_link@2026-06-23.pkl": 0.4355108877721943
+      },
+      "alerts": 481,
+      "hits": 258,
+      "unknown": 86,
+      "precision_lower_bound": 0.5364,
+      "precision_known_only": 0.6532,
+      "recall_known": 0.0442,
+      "alerts_per_day_mean": 17.18,
+      "days_without_alerts": 0
+    },
+    "min_precision_0.70": {
+      "thresholds": {
+        "A_link@2026-05-30.pkl": 0.8571428571428571,
+        "A_link@2026-06-07.pkl": 0.6545454545454545,
+        "A_link@2026-06-15.pkl": 0.6435786435786436,
+        "A_link@2026-06-23.pkl": 0.7083333333333334
+      },
+      "alerts": 137,
+      "hits": 93,
+      "unknown": 29,
+      "precision_lower_bound": 0.6788,
+      "precision_known_only": 0.8611,
+      "recall_known": 0.0159,
+      "alerts_per_day_mean": 4.89,
+      "days_without_alerts": 15
+    }
+  }
+}
