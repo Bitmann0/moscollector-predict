@@ -1,4 +1,4 @@
--- Отчёт руководству в PDF (GET /api/v1/export/report.pdf, ветка feat/report-pdf), 28.09.2026 21:20 МСК.
+-- Отчёт руководству в PDF (GET /api/v1/export/report.pdf, PR #55, ветка feat/report-pdf), 28.09.2026 21:20 МСК.
 -- Данные — копия БД стенда mkinteg: pg_dump -Fc из mkinteg-db-1 в 21:06 МСК, pg_restore во временный
 -- контейнер postgres:16-alpine (shared_buffers 128MB, work_mem 4MB), ANALYZE после загрузки. Стенд не
 -- менялся: порт его БД не опубликован, поэтому отчёт строится на копии. Машина разработчика:
