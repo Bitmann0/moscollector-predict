@@ -18,4 +18,4 @@ def test_regular_pipeline_trains_latest_and_benchmark_is_separate():
     assert stage.command[-1].endswith("train_latest.py")
     assert len(stage.outputs) >= 1
     assert all(path.suffix == ".pkl" for path in stage.outputs)
-    assert {path.stem for path in stage.outputs} == {"D", "A_link"}
+    assert {path.stem for path in stage.outputs} == {"D", "A_link", "B", "E"}

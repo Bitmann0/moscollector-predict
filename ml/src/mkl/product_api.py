@@ -198,7 +198,8 @@ def _real_score(req: ScoreRequest) -> ScoreResponse:
             if cfg.get("population") == "pump_objects":
                 total = len(serve.pump_objects())
             elif by_object:
-                total = catalog["obj"].drop_nulls().n_unique()
+                total = (catalog["obj"].drop_nulls().n_unique()
+                         if "obj" in catalog.columns else 0)
             else:
                 population = (catalog.filter(pl.col("stype").is_in(EQUIPMENT_STYPES))
                               if head == "D" else catalog)
@@ -336,6 +337,9 @@ def _real_warmup(lock: threading.Lock) -> tuple[dict[str, float], list[str]]:
     heads = serve.load_heads()
     day = _last_feature_day()
     for head in PILOT_HEADS:
+        if head not in heads:
+            # Конфиг без головы — её /score упадёт отдельно; прогревать нечего.
+            continue
         cfg = heads[head]
         if rule_head.is_rule(cfg):
             if day is not None:
