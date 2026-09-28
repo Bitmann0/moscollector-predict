@@ -70,6 +70,7 @@ def _items(db: Session, rows: list[models.Forecast]) -> list[ForecastItem]:
             priority_score=r.priority_score, rank=r.rank,
             object=refs.object_ref(r.obj_id, r.address),
             channel=refs.channel_ref(r.channel_id, r.address),
+            segment_label=(r.address or {}).get("segment_label"),
             data_status=r.data_status,
             decision=decision_out(decision) if decision else None,
             outcome_auto=outcome.outcome_auto if outcome else None,
@@ -174,7 +175,8 @@ def _dynamics(db: Session, row: models.Forecast) -> list[DynamicsPoint]:
     и есть симптом, так что alarms=0 в такие сутки не значит «тревог не было». В БД
     попадают только события, принятые через /ingest/events и /ingest/events/upload (туда
     же пишет replay.py), поэтому events=0 значит «нет в журнале сервиса», а не «датчик
-    молчал». У прогноза без канала (недельная рекомендация по объекту) все events=0.
+    молчал». У прогноза без канала (недельная рекомендация, пожарный риск участка,
+    подтопление объекта) все events=0.
 
     События хранятся в UTC, поэтому сутки режем по полуночи МСК и раскладываем в Python:
     date() в SQL дал бы сутки UTC, и событие в 01:30 МСК ушло бы в предыдущий день.

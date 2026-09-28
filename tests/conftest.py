@@ -54,9 +54,12 @@ ALERT_PLAN = [
     ("A_link", 9000011, "9103", "9100", 80.0, False),
     ("D", 9000016, "9201", "9200", 0.0, True),
 ]
-HORIZON = {"A_link": 24, "D": 168}
+HORIZON = {"A_link": 24, "D": 168, "B": 24, "E": 24}
+# B и E в плане алертов FakeMl нет: их считает настоящая заглушка ML (test_fire_flood.py).
 DIRECTION = {"A_link": ("sensor_failure", "Отказ датчика"),
-             "D": ("infrastructure_wear", "Износ оборудования")}
+             "D": ("infrastructure_wear", "Износ оборудования"),
+             "B": ("fire_risk", "Пожарный риск"),
+             "E": ("flood_risk", "Риск подтопления")}
 
 
 def _hash(*parts) -> str:
@@ -99,7 +102,8 @@ def build_score(request: ScoreRequest) -> ScoreResponse:
     ]
     return ScoreResponse(
         asof=asof, source="stub",
-        heads={h: HeadStatus(result_status="ok", model_version="stub", model_lag_days=7,
+        heads={h: HeadStatus(result_status="ok" if any(p[0] == h for p in ALERT_PLAN)
+                             else "empty_valid", model_version="stub", model_lag_days=7,
                              threshold_feasible=True) for h in request.heads},
         alerts=alerts,
         coverage=[CoverageOut(head=h, direction=DIRECTION[h][0], entities_total=30,

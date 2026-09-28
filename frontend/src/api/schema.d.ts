@@ -1067,7 +1067,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /** Scenario Title */
             scenario_title: string;
             /**
@@ -1075,6 +1075,11 @@ export interface components {
              * @enum {string}
              */
             score_type: "probability" | "relative_priority";
+            /**
+             * Segment Label
+             * @description Участок объекта из адреса ML (address.segment_label): «ПК 10–20» или «каналы без пикета». Приходит у пожарного риска (голова B), у которого канала нет; у прогноза по объекту целиком — null
+             */
+            segment_label?: string | null;
             /**
              * Source
              * @enum {string}
@@ -1137,7 +1142,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /** Scenario Title */
             scenario_title: string;
             /**
@@ -1145,6 +1150,11 @@ export interface components {
              * @enum {string}
              */
             score_type: "probability" | "relative_priority";
+            /**
+             * Segment Label
+             * @description Участок объекта из адреса ML (address.segment_label): «ПК 10–20» или «каналы без пикета». Приходит у пожарного риска (голова B), у которого канала нет; у прогноза по объекту целиком — null
+             */
+            segment_label?: string | null;
             /**
              * Source
              * @enum {string}
@@ -1263,7 +1273,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /** Threshold Feasible */
             threshold_feasible?: boolean | null;
         };
@@ -1355,6 +1365,18 @@ export interface components {
              * @description В сутки; проверено 3
              */
             equipment_diag: number;
+            /**
+             * Fire Risk
+             * @description Участков объектов в сутки; проверено 10
+             * @default 10
+             */
+            fire_risk: number;
+            /**
+             * Flood Risk
+             * @description Объектов в сутки; проверено 5
+             * @default 5
+             */
+            flood_risk: number;
             /**
              * Guard Weekly
              * @description В неделю; проверено 4
@@ -1639,7 +1661,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /**
              * Source
              * @enum {string}
@@ -1770,7 +1792,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /** Title */
             title: string;
         };
@@ -1983,7 +2005,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /**
              * Source
              * @enum {string}
@@ -2030,7 +2052,7 @@ export interface components {
              * Scenario
              * @enum {string}
              */
-            scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+            scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             /**
              * Source
              * @enum {string}
@@ -2581,7 +2603,7 @@ export interface operations {
     list_forecasts_api_v1_forecasts_get: {
         parameters: {
             query?: {
-                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly") | null;
+                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk") | null;
                 from?: string | null;
                 to?: string | null;
                 decision?: ("none" | "any" | "dispatch_crew" | "remote_check" | "defer" | "reject") | null;
@@ -2635,7 +2657,7 @@ export interface operations {
     summary_api_v1_forecasts_summary_get: {
         parameters: {
             query?: {
-                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly") | null;
+                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk") | null;
                 from?: string | null;
                 to?: string | null;
                 decision?: ("none" | "any" | "dispatch_crew" | "remote_check" | "defer" | "reject") | null;
@@ -3218,7 +3240,7 @@ export interface operations {
     weekly_api_v1_quality_get: {
         parameters: {
             query: {
-                scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
+                scenario: "sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk";
             };
             header?: never;
             path?: never;
@@ -3694,7 +3716,7 @@ export interface operations {
             query?: {
                 status?: ("draft" | "confirmed" | "in_progress" | "completed" | "cancelled") | null;
                 priority?: ("urgent" | "planned" | "watch") | null;
-                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly") | null;
+                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly" | "fire_risk" | "flood_risk") | null;
                 page?: number;
                 page_size?: number;
             };

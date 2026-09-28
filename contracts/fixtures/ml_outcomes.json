@@ -6,7 +6,8 @@
       "head": "A_link",
       "id": "4ec915ed398ac359",
       "kind": "alert",
-      "obj": "9203"
+      "obj": "9203",
+      "segment": null
     },
     {
       "asof": "2026-06-15",
@@ -14,7 +15,8 @@
       "head": "A_link",
       "id": "38fcdf03cb27553f",
       "kind": "alert",
-      "obj": "9101"
+      "obj": "9101",
+      "segment": null
     },
     {
       "asof": "2026-06-15",
@@ -22,7 +24,8 @@
       "head": "A_link",
       "id": "57e0059f536fdceb",
       "kind": "alert",
-      "obj": "9201"
+      "obj": "9201",
+      "segment": null
     },
     {
       "asof": "2026-06-15",
@@ -30,7 +33,8 @@
       "head": "A_link",
       "id": "feca4118442daf0d",
       "kind": "alert",
-      "obj": "9103"
+      "obj": "9103",
+      "segment": null
     },
     {
       "asof": "2026-06-15",
@@ -38,7 +42,8 @@
       "head": "A_link",
       "id": "efde88f867fa5c33",
       "kind": "alert",
-      "obj": "9202"
+      "obj": "9202",
+      "segment": null
     },
     {
       "asof": "2026-06-15",
@@ -46,7 +51,35 @@
       "head": "A_link",
       "id": "c5e57a72bfa68946",
       "kind": "alert",
-      "obj": "9101"
+      "obj": "9101",
+      "segment": null
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": 9000018,
+      "head": "D",
+      "id": "c818bec5b7a23c1f",
+      "kind": "alert",
+      "obj": "9201",
+      "segment": null
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": null,
+      "head": "B",
+      "id": "06d946f8b60e2574",
+      "kind": "alert",
+      "obj": "9201",
+      "segment": 1
+    },
+    {
+      "asof": "2026-06-15",
+      "channel": null,
+      "head": "E",
+      "id": "32c95a19ada7ce68",
+      "kind": "alert",
+      "obj": "9101",
+      "segment": null
     },
     {
       "asof": "2026-06-15",
@@ -54,7 +87,8 @@
       "head": "guard_weekly",
       "id": "530a003a8ca7711f",
       "kind": "weekly_recommendation",
-      "obj": "9201"
+      "obj": "9201",
+      "segment": null
     }
   ],
   "response": [
@@ -80,6 +114,18 @@
     },
     {
       "id": "c5e57a72bfa68946",
+      "outcome": "miss"
+    },
+    {
+      "id": "c818bec5b7a23c1f",
+      "outcome": "miss"
+    },
+    {
+      "id": "06d946f8b60e2574",
+      "outcome": "miss"
+    },
+    {
+      "id": "32c95a19ada7ce68",
       "outcome": "miss"
     },
     {

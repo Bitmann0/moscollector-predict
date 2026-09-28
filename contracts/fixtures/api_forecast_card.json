@@ -5,15 +5,9 @@
     "weekday": 2,
     "weekday_title": "вторник"
   },
-  "case_key": "c73e177c62152dca",
-  "channel": {
-    "id": 9000026,
-    "name": "ИБП ПК80 (заглушка)",
-    "name_decoded": null,
-    "picket_label": "ПК 80",
-    "sensor_type": "ИБП"
-  },
-  "coverage_note": "Оценено 28 из 30 (93%)",
+  "case_key": "bd7355341b2a8c6b",
+  "channel": null,
+  "coverage_note": "Оценено 6 из 6 (100%): объекты по участкам 10 пикетов",
   "data_status": "ok",
   "decision": null,
   "decisions": [],
@@ -202,26 +196,31 @@
   "evidence": null,
   "factors": [
     {
-      "contribution": 1.224,
-      "feature": "gap_vs_own_rhythm",
-      "label": "разрыв против обычного ритма"
+      "contribution": 1.316,
+      "feature": "n_alarms_w30",
+      "label": "тревоги за месяц"
     },
     {
-      "contribution": 1.189,
-      "feature": "n_active_days_w7",
-      "label": "активных суток за неделю"
+      "contribution": 0.871,
+      "feature": "n_alarms_w7",
+      "label": "тревоги за неделю"
+    },
+    {
+      "contribution": 0.624,
+      "feature": "n_alarms",
+      "label": "число тревог за сутки"
     }
   ],
-  "head": "A_link",
+  "head": "B",
   "horizon_hours": 24,
-  "id": "4ec915ed398ac359",
+  "id": "06d946f8b60e2574",
   "kind": "alert",
   "object": {
     "complex_id": "9200",
     "complex_name": "Комплекс-заглушка 2",
-    "id": "9203",
+    "id": "9201",
     "kind_ru": "охранная зона",
-    "name": "Объект-заглушка 6"
+    "name": "Объект-заглушка 4"
   },
   "outcome_auto": null,
   "outcome_manual": null,
@@ -229,10 +228,11 @@
   "rank": 1,
   "recent_alarm_days_30": null,
   "recent_alarm_days_7": null,
-  "risk": 0.9133,
-  "scenario": "sensor_link",
-  "scenario_title": "Отказ датчика: риск потери связи",
+  "risk": 0.1983,
+  "scenario": "fire_risk",
+  "scenario_title": "Пожар: риск пожарной или газовой тревоги на участке",
   "score_type": "probability",
+  "segment_label": "ПК 10–20",
   "source": "stub",
   "valid_from": "2026-06-16T00:00:00+03:00",
   "valid_to": "2026-06-17T00:00:00+03:00",
@@ -240,9 +240,9 @@
     {
       "rank": 1,
       "recorded_at": "2026-06-16T00:00:00+03:00",
-      "risk": 0.9133,
+      "risk": 0.1983,
       "run_id": 1
     }
   ],
-  "work_order_id": "WO-1C10F62E5297"
+  "work_order_id": "WO-6E0E69A31BFF"
 }

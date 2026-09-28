@@ -5,8 +5,9 @@
     docker restart <контейнер ml>     # дождаться healthy
     docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < scripts/measure_ml_first_score.py
 
-Запрос такой же, как в scripts/measure_ml.py: A_link и D с факторами, пустой журнал
-выданного, history_complete_from — за 7 суток до дня расчёта. ASOF задаёт день
+Запрос такой же, как в scripts/measure_ml.py: головы из HEADS (по умолчанию A_link, D, B,
+E; замеры до 29.09 — HEADS=A_link,D) с факторами, пустой журнал выданного,
+history_complete_from — за 7 суток до дня расчёта. ASOF задаёт день
 (по умолчанию 2026-06-29). WAIT_READY=1 — сначала опрашивать /ready, пока в detail
 написано «идёт прогрев», и только потом слать /score.
 """
@@ -19,6 +20,7 @@ from datetime import date, timedelta
 ML = os.environ.get("ML_URL", "http://ml:8001").rstrip("/")
 ASOF = date.fromisoformat(os.environ.get("ASOF", "2026-06-29"))
 WAIT_READY = os.environ.get("WAIT_READY") == "1"
+HEADS = os.environ.get("HEADS", "A_link,D,B,E").split(",")
 
 
 def call(method: str, path: str, body: dict | None = None,
@@ -44,8 +46,8 @@ if WAIT_READY:
         time.sleep(1)
     print(json.dumps({"waited_ready_s": round(time.perf_counter() - t0, 1)}), flush=True)
 
-body = {"asof": ASOF.isoformat(), "heads": ["A_link", "D"],
-        "issued_histories": {"A_link": [], "D": []},
+body = {"asof": ASOF.isoformat(), "heads": HEADS,
+        "issued_histories": {h: [] for h in HEADS},
         "history_complete_from": (ASOF - timedelta(days=7)).isoformat(),
         "with_factors": True}
 for n in (1, 2, 3):

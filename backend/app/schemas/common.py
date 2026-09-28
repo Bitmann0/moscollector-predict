@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-Scenario = Literal["sensor_link", "equipment_diag", "guard_weekly"]
+Scenario = Literal["sensor_link", "equipment_diag", "guard_weekly", "fire_risk", "flood_risk"]
 Kind = Literal["alert", "weekly_recommendation"]
 ScoreType = Literal["probability", "relative_priority"]
 Source = Literal["live", "emulated", "stub"]

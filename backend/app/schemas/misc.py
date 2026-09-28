@@ -76,8 +76,8 @@ class SettingsIn(BaseModel):
 
 class RunDailyIn(BaseModel):
     asof: date
-    # Только недельная очередь guard_weekly, без голов A_link и D: так прелоад проходит
-    # понедельники полугодия до окна дневных расчётов. asof — понедельник.
+    # Только недельная очередь guard_weekly, без дневных голов A_link, D, B и E: так прелоад
+    # проходит понедельники полугодия до окна дневных расчётов. asof — понедельник.
     weekly_only: bool = False
 
     @model_validator(mode="after")
