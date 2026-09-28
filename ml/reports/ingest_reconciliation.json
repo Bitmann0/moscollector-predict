@@ -1,0 +1,250 @@
+{
+  "ok": true,
+  "require_all": true,
+  "years": {
+    "2019": {
+      "source_rows": 20993328,
+      "embedded_headers": 0,
+      "exact_duplicates": 1491,
+      "expected_events": 20991837,
+      "source_alarm_true": 134199,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 20859129
+        },
+        {
+          "alarm_raw": "t",
+          "n": 134199
+        }
+      ],
+      "events": 20991837,
+      "alarms": 134132,
+      "missing_events": 0,
+      "alarms_bounds": [
+        132708,
+        134199
+      ],
+      "daily_n_events": 20991837,
+      "daily_n_alarms": 134132
+    },
+    "2020": {
+      "source_rows": 28172398,
+      "embedded_headers": 0,
+      "exact_duplicates": 0,
+      "expected_events": 28172398,
+      "source_alarm_true": 325662,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 27846736
+        },
+        {
+          "alarm_raw": "t",
+          "n": 325662
+        }
+      ],
+      "events": 28172398,
+      "alarms": 325662,
+      "missing_events": 0,
+      "alarms_bounds": [
+        325662,
+        325662
+      ],
+      "daily_n_events": 28172398,
+      "daily_n_alarms": 325662
+    },
+    "2021": {
+      "source_rows": 53698948,
+      "embedded_headers": 0,
+      "exact_duplicates": 0,
+      "expected_events": 53698948,
+      "source_alarm_true": 1199639,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 52499309
+        },
+        {
+          "alarm_raw": "t",
+          "n": 1199639
+        }
+      ],
+      "events": 53698948,
+      "alarms": 1199639,
+      "missing_events": 0,
+      "alarms_bounds": [
+        1199639,
+        1199639
+      ],
+      "daily_n_events": 53698948,
+      "daily_n_alarms": 1199639
+    },
+    "2022": {
+      "source_rows": 43483149,
+      "embedded_headers": 0,
+      "exact_duplicates": 0,
+      "expected_events": 43483149,
+      "source_alarm_true": 133504,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 43349645
+        },
+        {
+          "alarm_raw": "t",
+          "n": 133504
+        }
+      ],
+      "events": 43483149,
+      "alarms": 133504,
+      "missing_events": 0,
+      "alarms_bounds": [
+        133504,
+        133504
+      ],
+      "daily_n_events": 43483149,
+      "daily_n_alarms": 133504
+    },
+    "2023": {
+      "source_rows": 31937125,
+      "embedded_headers": 0,
+      "exact_duplicates": 562449,
+      "expected_events": 31374676,
+      "source_alarm_true": 107712,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 31829413
+        },
+        {
+          "alarm_raw": "t",
+          "n": 107712
+        }
+      ],
+      "events": 31374676,
+      "alarms": 106945,
+      "missing_events": 0,
+      "alarms_bounds": [
+        -454737,
+        107712
+      ],
+      "daily_n_events": 31374676,
+      "daily_n_alarms": 106945
+    },
+    "2024": {
+      "source_rows": 49023883,
+      "embedded_headers": 0,
+      "exact_duplicates": 0,
+      "expected_events": 49023883,
+      "source_alarm_true": 115203,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 48908680
+        },
+        {
+          "alarm_raw": "t",
+          "n": 115203
+        }
+      ],
+      "events": 49023883,
+      "alarms": 115203,
+      "missing_events": 0,
+      "alarms_bounds": [
+        115203,
+        115203
+      ],
+      "daily_n_events": 49023883,
+      "daily_n_alarms": 115203
+    },
+    "2025": {
+      "source_rows": 55541797,
+      "embedded_headers": 1,
+      "exact_duplicates": 0,
+      "expected_events": 55541796,
+      "source_alarm_true": 256471,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 55285325
+        },
+        {
+          "alarm_raw": "t",
+          "n": 256471
+        },
+        {
+          "alarm_raw": "тревожное",
+          "n": 1
+        }
+      ],
+      "events": 55541796,
+      "alarms": 256471,
+      "missing_events": 0,
+      "alarms_bounds": [
+        256471,
+        256471
+      ],
+      "daily_n_events": 55541796,
+      "daily_n_alarms": 256471
+    },
+    "2026": {
+      "source_rows": 30695389,
+      "embedded_headers": 0,
+      "exact_duplicates": 0,
+      "expected_events": 30695389,
+      "source_alarm_true": 195422,
+      "alarm_values": [
+        {
+          "alarm_raw": "f",
+          "n": 30499967
+        },
+        {
+          "alarm_raw": "t",
+          "n": 195422
+        }
+      ],
+      "events": 30695389,
+      "alarms": 195422,
+      "missing_events": 0,
+      "alarms_bounds": [
+        195422,
+        195422
+      ],
+      "daily_n_events": 30695389,
+      "daily_n_alarms": 195422
+    }
+  },
+  "not_present": [],
+  "not_audited": [],
+  "totals": {
+    "source_rows": 313546017,
+    "embedded_headers": 1,
+    "exact_duplicates": 563940,
+    "expected_events": 312982076,
+    "events": 312982076,
+    "alarms": 2466978
+  },
+  "errors": [],
+  "daily_channel": {
+    "rows": 4273083,
+    "channels": 12627,
+    "n_events": 312982076,
+    "n_alarms": 2466978
+  },
+  "inputs": {
+    "profiles": "annual_profiles.json",
+    "audit": "deep_audit.json",
+    "events": [
+      "events_year=2019.parquet",
+      "events_year=2020.parquet",
+      "events_year=2021.parquet",
+      "events_year=2022.parquet",
+      "events_year=2023.parquet",
+      "events_year=2024.parquet",
+      "events_year=2025.parquet",
+      "events_year=2026.parquet"
+    ],
+    "daily_channel": "daily_channel.parquet"
+  }
+}
