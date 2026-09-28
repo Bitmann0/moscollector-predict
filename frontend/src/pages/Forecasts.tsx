@@ -14,6 +14,7 @@ import { ACTIONS, SCENARIOS, SCENARIO_SHORT, title, type Scenario } from "../voc
 const PAGE_SIZE = 50;
 const FILTER_KEYS = ["scenario", "from", "to", "decision", "outcome", "obj", "group_by"] as const;
 type Forecast = Schemas["ForecastItem"];
+type Week = Schemas["ForecastWeek"];
 interface ObjectOption { id: string; name: string }
 
 // Вероятность всегда с двумя знаками: «0,90» и «1,00» стоят в столбце ровно, рядом с «0,93».
@@ -30,6 +31,22 @@ function oneOf<T extends string>(value: string | null, values: readonly T[]): T 
 function objectKey(item: Forecast): string { return item.object.id ?? item.object.name ?? `unknown:${item.id}`; }
 function decisionLabel(code: string): string { return DECISION_LABEL[code] ?? title("action", code); }
 function scoreValue(item: Forecast): string { if (item.score_type !== "probability") return fmtNumber(item.priority_score); return item.risk === null || item.risk === undefined ? "—" : PROBABILITY.format(item.risk); }
+
+/** Понедельник недели строки, как его считает backend. Дата без часового пояса браузера: asof — день по МСК. */
+function weekStart(asof: string): string {
+  const [y, m, d] = asof.split("-").map(Number);
+  const day = new Date(Date.UTC(y, m - 1, d));
+  day.setUTCDate(d - (day.getUTCDay() + 6) % 7);
+  return day.toISOString().slice(0, 10);
+}
+
+/** «22.06–28.06»: неделя с понедельника по воскресенье. */
+function weekRange(start: string): string {
+  const [y, m, d] = start.split("-").map(Number);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const end = new Date(Date.UTC(y, m - 1, d + 6));
+  return `${pad(d)}.${pad(m)}–${pad(end.getUTCDate())}.${pad(end.getUTCMonth() + 1)}`;
+}
 
 /** Выгрузка журнала за период фильтра: GET под той же cookie, файл отдаёт сервер. */
 function exportHref(from?: string, to?: string): string {
@@ -72,6 +89,9 @@ export function Forecasts() {
   const groupBy = oneOf(params.get("group_by"), ["obj", "case_key"] as const);
   const activeFilters = FILTER_KEYS.filter((key) => params.get(key)).length;
   const load = useLoad(() => api.GET("/api/v1/forecasts", { params: { query: { scenario, from, to, decision, outcome, obj, group_by: groupBy, page, page_size: PAGE_SIZE } } }), [scenario, from, to, decision, outcome, obj, groupBy, page]);
+  // Итог не зависит от страницы: те же фильтры, все строки. Листание его не перезапрашивает.
+  const summary = useLoad(() => api.GET("/api/v1/forecasts/summary", { params: { query: { scenario, from, to, decision, outcome, obj, group_by: groupBy } } }), [scenario, from, to, decision, outcome, obj, groupBy]);
+  function reload() { load.reload(); summary.reload(); }
   // Подсказки поля «Объект»: по одному последнему прогнозу на объект — это ровно объекты журнала.
   const objects = useLoad(() => api.GET("/api/v1/forecasts", { params: { query: { group_by: "obj", page_size: 500 } } }), []);
   const objectOptions = useMemo<ObjectOption[]>(() => (objects.data?.items ?? []).flatMap((i) => i.object.id ? [{ id: i.object.id, name: i.object.name ?? i.object.id }] : []).sort((a, b) => a.name.localeCompare(b.name, "ru")), [objects.data]);
@@ -86,13 +106,13 @@ export function Forecasts() {
   function compatible(item: Forecast): boolean { const first = selected[0]; return !first || (first.scenario === item.scenario && objectKey(first) === objectKey(item)); }
   async function createOrder() {
     if (!selected.length) return; setCreating(true); setCreateError(null);
-    try { const { data, error, response } = await api.POST("/api/v1/work-orders", { body: { forecast_ids: selected.map((item) => item.id) } }); if (data) { setCreatedOrder(data.id); setSelected([]); load.reload(); } else setCreateError(errorText(error, response)); }
+    try { const { data, error, response } = await api.POST("/api/v1/work-orders", { body: { forecast_ids: selected.map((item) => item.id) } }); if (data) { setCreatedOrder(data.id); setSelected([]); reload(); } else setCreateError(errorText(error, response)); }
     catch { setCreateError(errorText(null, undefined)); } finally { setCreating(false); }
   }
   const countLabel = groupBy === "obj" ? "Объектов" : groupBy === "case_key" ? "Случаев" : "Найдено";
   const emptyDetail = obj && objects.data && !objName ? (objMatches.length > 1 ? `«${obj}» подходит к нескольким объектам: ${objMatches.slice(0, 5).map((o) => o.name).join(", ")}${objMatches.length > 5 ? " и другим" : ""}. Выберите один в подсказках поля «Объект».` : `Объекта «${obj}» нет в журнале. Выберите название из подсказок поля «Объект».`) : activeFilters ? "Под выбранные условия прогнозов нет. Измените фильтры или нажмите «Сбросить»." : undefined;
   return <section>
-    <PageHeader eyebrow="Предиктивная аналитика" title="Журнал прогнозов" description="Единая очередь рисков с решениями диспетчера и результатами проверки" actions={<>{can("export") && <a className="button" href={exportHref(from, to)} download title="Весь журнал за период из полей «Дата от» и «Дата до»; остальные фильтры в файл не переносятся"><Icon name="download" /> Экспорт Excel</a>}<button className="button" type="button" onClick={load.reload}>Обновить</button></>} />
+    <PageHeader eyebrow="Предиктивная аналитика" title="Журнал прогнозов" description="Единая очередь рисков с решениями диспетчера и результатами проверки" actions={<>{can("export") && <a className="button" href={exportHref(from, to)} download title="Весь журнал за период из полей «Дата от» и «Дата до»; остальные фильтры в файл не переносятся"><Icon name="download" /> Экспорт Excel</a>}<button className="button" type="button" onClick={reload}>Обновить</button></>} />
     {/* На телефоне семь полей занимают экран целиком, поэтому там они свёрнуты за кнопкой. */}
     <button type="button" className="button filter-toggle" aria-expanded={filtersOpen} aria-controls="forecast-filters" onClick={() => setFiltersOpen((open) => !open)}><Icon name="filter" /> Фильтры{activeFilters ? <b>{activeFilters}</b> : null}</button>
     <div id="forecast-filters" className={`filter-panel forecast-filters${filtersOpen ? " forecast-filters--open" : ""}`}>
@@ -106,14 +126,26 @@ export function Forecasts() {
       <button type="button" className="button filter-reset" disabled={!activeFilters && page === 1} onClick={reset}><Icon name="filter" /> Сбросить</button>
     </div>
     <Loaded load={load}>{(data) => <>
-      {data.total > 0 && <div className="section-summary forecast-summary"><span className="summary-pill">{countLabel} <strong>{data.total}</strong></span><span className="summary-pill">Попаданий на странице <strong>{data.items.filter((i) => i.outcome_auto === "hit").length}</strong></span><span className="summary-pill">Неизвестно на странице <strong>{data.items.filter((i) => i.outcome_auto === "unknown").length}</strong></span>{groupBy && <span className="summary-note">по каждому {groupBy === "obj" ? "объекту" : "случаю"} показан последний прогноз</span>}</div>}
+      {data.total > 0 && <div className="section-summary forecast-summary"><span className="summary-pill">{countLabel} <strong>{data.total}</strong></span>{groupBy && <span className="summary-note">по каждому {groupBy === "obj" ? "объекту" : "случаю"} показан последний прогноз</span>}</div>}
       {createdOrder && <div className="action-success"><Icon name="orders" /><span>Черновик <strong>{createdOrder}</strong> сформирован</span><Link to={`/work-orders?open=${encodeURIComponent(createdOrder)}`}>Открыть заявку</Link></div>}
       {createError && <div className="state state--bad">{createError}</div>}
       {can("work_order_manage") && selected.length > 0 && <div className="bulk-bar"><div><strong>Выбрано: {selected.length}</strong><span>{selected[0].object.name ?? selected[0].object.id} · {selected[0].scenario_title}</span></div><button className="button" type="button" onClick={() => setSelected([])}>Отменить</button><button className="button button--primary" type="button" disabled={creating} onClick={() => void createOrder()}>{creating ? "Формирование…" : "Создать общую заявку"}</button></div>}
       {data.items.length === 0 ? <StateView state="empty" detail={emptyDetail} /> : <ForecastTable items={data.items} selectable={can("work_order_manage")} selected={selected} compatible={compatible} onToggle={toggle} />}
+      <WeekTotals items={data.items} weeks={summary.data?.weeks} />
       <Pager page={data.page} pageSize={data.page_size} total={data.total} onPage={(value) => update("page", value)} />
     </>}</Loaded>
   </section>;
+}
+
+// Итог — по неделям, чьи строки видны на странице, но посчитан сервером по всему фильтру: листаемая неделя сверяется со своим полным итогом.
+function WeekTotals({ items, weeks }: { items: Forecast[]; weeks?: Week[] }) {
+  const byStart = new Map((weeks ?? []).map((week) => [week.week_start, week]));
+  const shown = [...new Set(items.map((item) => weekStart(item.asof)))].flatMap((start) => byStart.get(start) ?? []);
+  if (!shown.length) return null;
+  return <div className="week-totals" aria-label="Итог по неделям этой страницы">
+    {shown.map((week) => <div key={week.week_start} className="week-total"><strong>Неделя {weekRange(week.week_start)}</strong><span>выдано <b>{fmtNumber(week.issued)}</b></span><span className="outcome outcome--hit">попало <b>{fmtNumber(week.hit)}</b></span><span className="outcome outcome--miss">промахов <b>{fmtNumber(week.miss)}</b></span><span className="outcome outcome--unknown">неизвестно <b>{fmtNumber(week.unknown)}</b></span><span title="Прогнозы, по которым диспетчер принял решение">решено <b>{fmtNumber(week.decided)}</b></span></div>)}
+    <p className="week-totals__note">По всем строкам журнала за неделю при выбранных фильтрах, не только по этой странице. «Неизвестно» включает прогнозы с незакрытым окном — так же считает экран «Качество».</p>
+  </div>;
 }
 
 function ForecastTable({ items, selectable, selected, compatible, onToggle }: { items: Forecast[]; selectable: boolean; selected: Forecast[]; compatible: (item: Forecast) => boolean; onToggle: (item: Forecast) => void }) {

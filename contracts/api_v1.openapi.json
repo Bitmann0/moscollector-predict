@@ -1101,6 +1101,65 @@
         "title": "ForecastItem",
         "type": "object"
       },
+      "ForecastSummary": {
+        "properties": {
+          "weeks": {
+            "description": "Итог журнала по неделям при тех же фильтрах и группировке, что у GET /forecasts, по всем строкам, а не по странице. По возрастанию week_start; недели без строк не возвращаются",
+            "items": {
+              "$ref": "#/components/schemas/ForecastWeek"
+            },
+            "title": "Weeks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "weeks"
+        ],
+        "title": "ForecastSummary",
+        "type": "object"
+      },
+      "ForecastWeek": {
+        "properties": {
+          "decided": {
+            "description": "Прогнозы с принятым решением диспетчера",
+            "title": "Decided",
+            "type": "integer"
+          },
+          "hit": {
+            "title": "Hit",
+            "type": "integer"
+          },
+          "issued": {
+            "title": "Issued",
+            "type": "integer"
+          },
+          "miss": {
+            "title": "Miss",
+            "type": "integer"
+          },
+          "unknown": {
+            "description": "Исход unknown или ещё не определён (окно не закрыто) — как на экране «Качество»",
+            "title": "Unknown",
+            "type": "integer"
+          },
+          "week_start": {
+            "description": "Понедельник недели. Неделя — по asof, дате расчёта по МСК, с понедельника по воскресенье",
+            "format": "date",
+            "title": "Week Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "week_start",
+          "issued",
+          "hit",
+          "miss",
+          "unknown",
+          "decided"
+        ],
+        "title": "ForecastWeek",
+        "type": "object"
+      },
       "GeoFeature": {
         "properties": {
           "geometry": {
@@ -3837,6 +3896,189 @@
           }
         ],
         "summary": "List Forecasts",
+        "tags": [
+          "forecasts"
+        ]
+      }
+    },
+    "/api/v1/forecasts/summary": {
+      "get": {
+        "operationId": "summary_api_v1_forecasts_summary_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "scenario",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "sensor_link",
+                    "equipment_diag",
+                    "guard_weekly"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scenario"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "in": "query",
+            "name": "decision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "none",
+                    "any",
+                    "dispatch_crew",
+                    "remote_check",
+                    "defer",
+                    "reject"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Decision"
+            }
+          },
+          {
+            "in": "query",
+            "name": "outcome",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "hit",
+                    "miss",
+                    "unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outcome"
+            }
+          },
+          {
+            "in": "query",
+            "name": "obj",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Obj"
+            }
+          },
+          {
+            "in": "query",
+            "name": "group_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "obj",
+                    "case_key"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group By"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Summary",
         "tags": [
           "forecasts"
         ]

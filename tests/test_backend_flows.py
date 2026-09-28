@@ -9,7 +9,7 @@ import openpyxl
 from app import models
 from app.schemas.ml import HeadStatus
 from app.services import notifications, semantics
-from app.services.helpers import MSK, to_db
+from app.services.helpers import MSK, now_utc, to_db
 from conftest import build_score
 from sqlalchemy import func, select
 
@@ -207,6 +207,35 @@ def test_decision_filter_uses_latest_decision(admin, ran):
         return {i["id"] for i in page["items"]}
 
     assert fid in ids("reject") and fid not in ids("defer")
+
+
+def test_forecast_summary_counts_whole_filter_by_moscow_week(admin, ran, db):
+    """FE-03: итог журнала — по всем строкам фильтра, а не по странице; неделя с понедельника."""
+    assert admin.post(f"{API}/admin/run-daily", json={"asof": "2026-06-14"}).status_code == 200
+    sunday = admin.get(f"{API}/forecasts", params={"to": "2026-06-14"}).json()["items"]
+    for item, value in zip(sunday, ("hit", "miss"), strict=False):
+        db.add(models.Outcome(forecast_id=item["id"], outcome_auto=value,
+                              updated_at=now_utc(), source="stub"))
+    db.commit()
+    monday = admin.get(f"{API}/forecasts", params={"from": "2026-06-15"}).json()["items"]
+    assert admin.post(f"{API}/forecasts/{monday[0]['id']}/decisions",
+                      json={"action": "defer", "reason_code": "await_data"}).status_code == 201
+
+    def weeks(**params) -> dict[str, tuple]:
+        resp = admin.get(f"{API}/forecasts/summary", params=params)
+        assert resp.status_code == 200, resp.text
+        return {w["week_start"]: (w["issued"], w["hit"], w["miss"], w["unknown"], w["decided"])
+                for w in resp.json()["weeks"]}
+
+    page = admin.get(f"{API}/forecasts", params={"page_size": 2}).json()
+    assert page["total"] == len(sunday) + len(monday) > len(page["items"])
+    # Воскресенье 14.06 закрывает неделю с 08.06, понедельник 15.06 открывает следующую.
+    assert weeks() == {"2026-06-08": (len(sunday), 1, 1, len(sunday) - 2, 0),
+                       "2026-06-15": (len(monday), 0, 0, len(monday), 1)}
+    assert weeks(outcome="hit") == {"2026-06-08": (1, 1, 0, 0, 0)}
+    assert weeks(decision="any") == {"2026-06-15": (1, 0, 0, 1, 1)}
+    grouped = admin.get(f"{API}/forecasts", params={"group_by": "obj"}).json()["total"]
+    assert sum(w[0] for w in weeks(group_by="obj").values()) == grouped
 
 
 def test_coverage_series_skips_days_without_run(admin):

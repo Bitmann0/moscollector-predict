@@ -52,6 +52,24 @@ class ForecastItem(BaseModel):
     case_key: str
 
 
+class ForecastWeek(BaseModel):
+    week_start: date = Field(description="Понедельник недели. Неделя — по asof, дате расчёта "
+                                         "по МСК, с понедельника по воскресенье")
+    issued: int
+    hit: int
+    miss: int
+    unknown: int = Field(description="Исход unknown или ещё не определён (окно не закрыто) — "
+                                     "как на экране «Качество»")
+    decided: int = Field(description="Прогнозы с принятым решением диспетчера")
+
+
+class ForecastSummary(BaseModel):
+    weeks: list[ForecastWeek] = Field(
+        description="Итог журнала по неделям при тех же фильтрах и группировке, что у "
+                    "GET /forecasts, по всем строкам, а не по странице. По возрастанию "
+                    "week_start; недели без строк не возвращаются")
+
+
 class FactorItem(BaseModel):
     feature: str
     label: str
