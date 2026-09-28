@@ -4,7 +4,10 @@
 1. Неисправность датчика: метан меньше 0 или в насыщении 327,68, температура вне
    −60…150, «дата» 01.01.1970 03:00:0x вместо значения.
 2. Метан по доле объёма: от 1 % — alarm, от 5 % — critical.
-3. Текст состояния и исходный флаг «тревожное».
+3. Текст состояния и исходный флаг «тревожное». «Обнаружен дым», «Обнаружен газ» и
+   «Температура выше 40ºC» без флага — предупреждение, а не норма: так пришло 74,2 %
+   записей «Обнаружен дым» (121 701 из 164 128, ml/reports/sensor_semantics_audit.json),
+   и диспетчер видел дым с меткой «Норма». Уведомлений предупреждение не создаёт.
 
 Подсказка одна — «вероятно, плановая проверка»: «Обнаружен газ» в будни с 9:00 до
 14:59 МСК. На это окно приходится 88,6 % таких записей, заказчик подтвердил поверки
@@ -24,6 +27,8 @@ GAS_ALARM = 1.0
 GAS_CRITICAL = 5.0
 EPOCH_PREFIX = "01.01.1970 03:00:0"
 PLANNED_CHECK_HINT = "вероятно, плановая проверка"
+NO_ALARM_HINT = "в СМВУ без признака тревоги"
+HAZARD_TEXT = ("обнаружен дым", "обнаружен газ", "температура выше")
 
 
 def _planned_check(text: str, ts: datetime | None) -> bool:
@@ -59,4 +64,6 @@ def classify(sensor_type: str | None, val_raw: str | None, val_num: float | None
         return "critical", None
     if alarm:
         return "alarm", PLANNED_CHECK_HINT if _planned_check(lowered, ts) else None
+    if any(marker in lowered for marker in HAZARD_TEXT):
+        return "warning", PLANNED_CHECK_HINT if _planned_check(lowered, ts) else NO_ALARM_HINT
     return "normal", None
