@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .common import ChannelRef, EventClass, ObjectRef
+from .common import ChannelRef, EventClass, IncidentGroup, ObjectRef
 
 
 class EventItem(BaseModel):
@@ -15,7 +15,10 @@ class EventItem(BaseModel):
     sensor_event: str | None = None  # событие датчика: значение_датчика как есть
     event_class: EventClass        # тип события
     event_class_title: str
-    hint: str | None = None        # например «вероятно, плановая проверка»
+    # Группа аварии у тревожного сообщения класса critical (ответ 2 заказчика,
+    # analysis/qa_customer_2026-09-28.md); у остальных событий — null.
+    incident_group: IncidentGroup | None = None
+    hint: str | None = None        # «вероятно, ППР или ТО: серия из 12 извещателей за 10 минут»
     alarm: bool
 
 

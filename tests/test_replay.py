@@ -304,4 +304,4 @@ def test_history_is_silent_and_live_notifies(integration, db):
     runner.run([event(36_000, 2, 9000004, **alarm)], DAY)
     classes = db.scalars(select(models.Event.event_class)).all()
     notified = db.scalar(select(func.count()).select_from(models.Notification))
-    assert (classes, notified) == (["alarm", "alarm"], 1)
+    assert (classes, notified) == (["critical", "critical"], 1)  # газ — группа аварий

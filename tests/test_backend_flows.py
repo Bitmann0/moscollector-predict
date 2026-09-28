@@ -72,14 +72,14 @@ def test_history_batch_with_notify_false_stores_alarm_silently(integration, monk
     monkeypatch.setattr(notifications.broker, "publish", lambda *a, **k: published.append(a))
     resp = integration.post(f"{API}/ingest/events", params={"notify": "false"}, json=[ROW])
     assert resp.json()["accepted"] == 1
-    assert _alarm_side_effects(db, published) == ("alarm", 0, 0)
+    assert _alarm_side_effects(db, published) == ("critical", 0, 0)
 
 
 def test_live_batch_notifies_by_default(integration, monkeypatch, db):
     published = []
     monkeypatch.setattr(notifications.broker, "publish", lambda *a, **k: published.append(a))
     integration.post(f"{API}/ingest/events", json=[ROW])
-    assert _alarm_side_effects(db, published) == ("alarm", 1, 1)
+    assert _alarm_side_effects(db, published) == ("critical", 1, 1)
 
 
 def test_history_file_with_notify_false_stores_alarm_silently(admin, monkeypatch, db):
@@ -89,7 +89,7 @@ def test_history_file_with_notify_false_stores_alarm_silently(admin, monkeypatch
     resp = admin.post(f"{API}/ingest/events/upload", params={"notify": "false"},
                       files={"file": ("e.csv", content.encode(), "text/csv")})
     assert resp.json()["accepted"] == 1
-    assert _alarm_side_effects(db, published) == ("alarm", 0, 0)
+    assert _alarm_side_effects(db, published) == ("critical", 0, 0)
 
 
 def test_sensor_faults_follow_c5():
@@ -97,21 +97,22 @@ def test_sensor_faults_follow_c5():
     assert semantics.classify(GAS, "327,68", 327.68, True)[0] == "fault"
     assert semantics.classify("Датчик температуры", "999", 999.0, False)[0] == "fault"
     assert semantics.classify(None, "01.01.1970 03:00:05", None, False)[0] == "fault"
-    assert semantics.classify(GAS, "2", 2.0, False) == ("alarm", None)
-    assert semantics.classify(GAS, "6", 6.0, True) == ("critical", None)
+    assert semantics.classify(GAS, "2", 2.0, False) == ("alarm", None, None)
+    assert semantics.classify(GAS, "6", 6.0, True) == ("critical", None, None)
     # дым без флага тревоги — предупреждение с подсказкой, а не «Норма»
     assert semantics.classify("Датчик дыма", "Обнаружен дым", None, False) == (
-        "warning", semantics.NO_ALARM_HINT)
+        "warning", semantics.NO_ALARM_HINT, None)
     assert semantics.classify("Тепловой датчик", "Температура выше 40ºC", None, False)[0] == "warning"
-    assert semantics.classify("Датчик дыма", "Норма", None, False) == ("normal", None)
+    assert semantics.classify("Датчик дыма", "Норма", None, False) == ("normal", None, None)
 
 
-def test_planned_check_hint_only_in_weekday_window():
+def test_gas_ppr_hint_only_in_weekday_window():
     weekday = datetime(2026, 6, 29, 10, 0, tzinfo=MSK)    # понедельник
     evening = datetime(2026, 6, 29, 15, 0, tzinfo=MSK)
     saturday = datetime(2026, 6, 27, 10, 0, tzinfo=MSK)
-    hint = semantics.PLANNED_CHECK_HINT
-    assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=weekday) == ("alarm", hint)
+    hint = semantics.GAS_WINDOW_HINT
+    assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=weekday) == (
+        "critical", hint, "gas")
     assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=evening)[1] is None
     assert semantics.classify(GAS, "Обнаружен газ", None, True, ts=saturday)[1] is None
 
