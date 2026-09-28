@@ -129,6 +129,8 @@ def test_panel_must_sum_to_events():
     events = {2099: {"events": 3, "alarms": 1, "outside_year": 0}}
     report = vi.reconcile(_expected(), events, {2099: {"n_events": 2, "n_alarms": 1}})
     assert _codes(report) == ["daily_events_mismatch"]
+    report = vi.reconcile(_expected(), events, {2099: {"n_events": 3, "n_alarms": 0}})
+    assert _codes(report) == ["daily_alarms_mismatch"]
     assert "daily_channel_absent" in _codes(vi.reconcile(_expected(), events, None))
 
 
