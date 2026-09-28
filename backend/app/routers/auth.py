@@ -1,4 +1,10 @@
-"""Вход и текущий пользователь. Живое.
+"""Вход, выход и текущий пользователь. Живое.
+
+Вход и выход не проходят authenticate(), поэтому проверку межсайтового запроса
+(security._check_csrf) получают зависимостью маршрута. Вход с чужой страницы входит
+жертвой под чужой учётной записью. Выход с чужой страницы завершает сессию жертвы:
+cookie SameSite=Lax браузер шлёт и на запрос со страницы соседнего поддомена
+(same-site).
 
 Частота входа ограничена здесь, а не в Caddy: в сборке caddy:2-alpine нет модуля
 rate limit. Счётчик неудачных попыток живёт в процессе api (на стенде один процесс)
@@ -15,7 +21,16 @@ from .. import models, vocab
 from ..config import get_settings
 from ..db import get_db
 from ..schemas.auth import LoginIn, UserOut
-from ..security import COOKIE, CurrentUser, current_user, issue_session, verify_password
+from ..security import (
+    COOKIE,
+    CurrentUser,
+    _check_csrf,
+    current_user,
+    issue_session,
+    read_session,
+    revoke_session,
+    verify_password,
+)
 
 router = APIRouter(tags=["auth"])
 
@@ -60,9 +75,15 @@ def _out(user: CurrentUser) -> UserOut:
                    permissions=sorted(user.perms))
 
 
-@router.post("/auth/login", response_model=UserOut)
+def _user(row: models.User) -> CurrentUser:
+    return CurrentUser(row.login, row.name, row.role, vocab.permissions_of(row.role))
+
+
+@router.post("/auth/login", response_model=UserOut, dependencies=[Depends(_check_csrf)])
 def login(body: LoginIn, request: Request, response: Response,
           db: Session = Depends(get_db)) -> UserOut:
+    # Аудит неудачного входа: какую учётную запись пробовали. Пароль в state не кладём.
+    request.state.login_attempt = body.login
     # За Caddy адрес клиента берётся из X-Forwarded-For (uvicorn --proxy-headers).
     key = (request.client.host if request.client else "", body.login)
     if throttle.blocked(key):
@@ -73,15 +94,29 @@ def login(body: LoginIn, request: Request, response: Response,
         raise HTTPException(status_code=401, detail="bad_credentials")
     throttle.succeeded(key)
     settings = get_settings()
-    response.set_cookie(COOKIE, issue_session(row.login, row.password_hash), httponly=True, samesite="lax",
+    response.set_cookie(COOKIE, issue_session(row), httponly=True, samesite="lax",
                         secure=settings.cookie_secure, max_age=settings.session_hours * 3600)
-    user = CurrentUser(row.login, row.name, row.role, vocab.permissions_of(row.role))
+    user = _user(row)
     request.state.user = user
     return _out(user)
 
 
-@router.post("/auth/logout", status_code=204)
-def logout() -> Response:
+@router.post("/auth/logout", status_code=204, dependencies=[Depends(_check_csrf)])
+def logout(request: Request, db: Session = Depends(get_db)) -> Response:
+    """Завершает эту сессию на сервере и удаляет cookie. Другие сессии того же логина
+    остаются. Без действующей сессии тоже 204."""
+    # Сессию читаем до очистки cookie: без неё не узнать, какой jti отзывать и кого
+    # писать в аудит. Недействительную сессию отзывать не нужно.
+    token = request.cookies.get(COOKIE)
+    issued = None
+    if token:
+        try:
+            issued = read_session(token, db)
+        except HTTPException:
+            pass
+    if issued is not None:
+        request.state.user = _user(issued.user)
+        revoke_session(db, issued)
     response = Response(status_code=204)
     response.delete_cookie(COOKIE)
     return response

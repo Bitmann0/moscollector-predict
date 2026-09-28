@@ -1,4 +1,4 @@
-"""Миграция 0001_initial совпадает со схемой моделей: таблицы, колонки, типы, индексы.
+"""Миграции до head совпадают со схемой моделей: таблицы, колонки, типы, индексы.
 
 Идёт на временном SQLite; если задан TEST_DATABASE_URL — ещё и на нём (PostgreSQL в CI).
 """
@@ -16,6 +16,7 @@ from app.db import Base
 from sqlalchemy import create_engine, inspect, pool, text
 
 BACKEND = Path(__file__).resolve().parents[1] / "backend"
+PREVIOUS = "0002_event_incident_group"  # голова до 0003_revoked_sessions
 
 
 BACKENDS = ["sqlite", pytest.param("postgres", marks=pytest.mark.skipif(
@@ -72,3 +73,27 @@ def test_downgrade_base_drops_everything(migration_url):
     finally:
         engine.dispose()
     command.upgrade(cfg, "head")  # повторный подъём после отката проходит
+
+
+def test_revoked_sessions_on_filled_db(migration_url):
+    """0003 идёт на заполненной БД стенда: прежние строки остаются, таблица отзывов
+    принимает запись; откат на 0002 удаляет только её."""
+    cfg = _config()
+    command.upgrade(cfg, PREVIOUS)
+    engine = create_engine(migration_url, poolclass=pool.NullPool)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("INSERT INTO users (login, name, role, password_hash) "
+                              "VALUES ('old', 'Старая запись', 'analyst', 'x')"))
+        command.upgrade(cfg, "head")
+        with engine.begin() as conn:
+            conn.execute(text("INSERT INTO revoked_sessions (jti, expires_at) "
+                              "VALUES ('j1', '2026-09-29 00:00:00')"))
+            assert conn.execute(text("SELECT login FROM users")).scalars().all() == ["old"]
+            assert conn.execute(text("SELECT jti FROM revoked_sessions")).scalars().all() == ["j1"]
+        command.downgrade(cfg, PREVIOUS)
+        assert "revoked_sessions" not in inspect(engine).get_table_names()
+        with engine.connect() as conn:
+            assert conn.execute(text("SELECT login FROM users")).scalars().all() == ["old"]
+    finally:
+        engine.dispose()
