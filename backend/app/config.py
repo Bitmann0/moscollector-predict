@@ -26,6 +26,22 @@ class Settings(BaseSettings):
     contracts_dir: Path = ROOT / "contracts"
     raw_data_dir: Path = ROOT / "data" / "raw"
     static_dir: Path = APP_DIR / "static"
+    # Корпоративный каталог (backend/app/directory.py). Пустой ldap_url — только локальные
+    # учётные записи из users, как до подключения каталога.
+    ldap_url: str = ""
+    ldap_starttls: bool = False
+    ldap_tls_verify: bool = True
+    ldap_tls_ca_file: str = ""
+    ldap_timeout_s: float = 5.0
+    ldap_bind_dn: str = ""
+    ldap_bind_password: str = ""
+    ldap_user_dn_template: str = ""
+    ldap_user_base: str = ""
+    ldap_user_filter: str = "(uid={login})"
+    ldap_group_base: str = ""
+    ldap_group_filter: str = "(|(member={user_dn})(uniqueMember={user_dn})(memberUid={login}))"
+    ldap_role_groups: str = ""
+    ldap_allow_local: bool = True
 
 
 @lru_cache

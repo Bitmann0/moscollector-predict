@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse
 
-from . import xml_api
+from . import directory, xml_api
 from .audit import AuditMiddleware
 from .config import get_settings
 from .limits import BodyLimitMiddleware
@@ -37,6 +37,8 @@ ROUTERS = [auth, system, dashboard, forecasts, reference, work_orders, events, i
 
 
 def create_app() -> FastAPI:
+    # Неверная настройка LDAP останавливает старт api, а не отвечает 503 на каждый вход.
+    directory.check_config(get_settings())
     app = FastAPI(
         title="Москоллектор — сервис диспетчера",
         version="0.2.0",

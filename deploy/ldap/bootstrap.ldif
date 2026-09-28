@@ -1,0 +1,98 @@
+# Тестовый каталог для compose.ldap.yaml. ТОЛЬКО ДЛЯ ТЕСТА.
+# Образ osixia/openldap загружает файл при первом старте с пустым томом (переменная
+# LDAP_SEED_INTERNAL_LDIF_PATH в compose.ldap.yaml). Корень dc=moscollector,dc=test и служебную
+# запись cn=readonly,dc=moscollector,dc=test образ создаёт сам.
+#
+# По сотруднику на роль продукта и один без роли. Роль даёт группа mk-<роль>s
+# (LDAP_ROLE_GROUPS в compose.ldap.yaml); ldap-norole состоит только в mk-visitors,
+# которая роли не даёт. Группы groupOfUniqueNames: по ним оверлей memberof образа
+# заполняет memberOf у сотрудника.
+#
+# userPassword — хеши {SSHA} паролей из deploy/ldap/test-directory.env.example.
+# Сменили пароль там — замените хеш здесь: slappasswd -s <пароль> в контейнере ldap.
+
+dn: ou=people,dc=moscollector,dc=test
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=moscollector,dc=test
+objectClass: organizationalUnit
+ou: groups
+
+dn: uid=ldap-dispatcher,ou=people,dc=moscollector,dc=test
+objectClass: inetOrgPerson
+uid: ldap-dispatcher
+cn: ldap-dispatcher
+sn:: 0JTQuNGB0L/QtdGC0YfQtdGA
+displayName:: 0KLQtdGB0YLQvtCy0YvQuSDQtNC40YHQv9C10YLRh9C10YAgKNC60LDRgtCw0LvQvtCzKQ==
+userPassword: {SSHA}Hxfyqg72+gyvFeVF4MBiongFEzbBplj6YfnPBg==
+
+dn: uid=ldap-technician,ou=people,dc=moscollector,dc=test
+objectClass: inetOrgPerson
+uid: ldap-technician
+cn: ldap-technician
+sn:: 0KLQtdGF0L3QuNC6
+displayName:: 0KLQtdGB0YLQvtCy0YvQuSDRgtC10YXQvdC40LogKNC60LDRgtCw0LvQvtCzKQ==
+userPassword: {SSHA}Lm6pTMkPTVr7AIdIOYs8NyHwZdsZ/gAf7bDqXA==
+
+dn: uid=ldap-analyst,ou=people,dc=moscollector,dc=test
+objectClass: inetOrgPerson
+uid: ldap-analyst
+cn: ldap-analyst
+sn:: 0JDQvdCw0LvQuNGC0LjQug==
+displayName:: 0KLQtdGB0YLQvtCy0YvQuSDQsNC90LDQu9C40YLQuNC6ICjQutCw0YLQsNC70L7Qsyk=
+userPassword: {SSHA}BgeigOqfq3pZA5UugqehCxvwxBKtDAX9lXrsHg==
+
+dn: uid=ldap-manager,ou=people,dc=moscollector,dc=test
+objectClass: inetOrgPerson
+uid: ldap-manager
+cn: ldap-manager
+sn:: 0KDRg9C60L7QstC+0LTQuNGC0LXQu9GM
+displayName:: 0KLQtdGB0YLQvtCy0YvQuSDRgNGD0LrQvtCy0L7QtNC40YLQtdC70YwgKNC60LDRgtCw0LvQvtCzKQ==
+userPassword: {SSHA}QWh9plCb4rIHtVCsn9e7m8j2XYKDz+26bk7STg==
+
+dn: uid=ldap-admin,ou=people,dc=moscollector,dc=test
+objectClass: inetOrgPerson
+uid: ldap-admin
+cn: ldap-admin
+sn:: 0JDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=
+displayName:: 0KLQtdGB0YLQvtCy0YvQuSDQsNC00LzQuNC90LjRgdGC0YDQsNGC0L7RgCAo0LrQsNGC0LDQu9C+0LMp
+userPassword: {SSHA}NXWQLCqhmTMX4dCSqvEnqdf7TrNVTey5PXTfsg==
+
+dn: uid=ldap-norole,ou=people,dc=moscollector,dc=test
+objectClass: inetOrgPerson
+uid: ldap-norole
+cn: ldap-norole
+sn:: 0JHQtdC30YDQvtC70Lg=
+displayName:: 0KLQtdGB0YLQvtCy0YvQuSDRgdC+0YLRgNGD0LTQvdC40Log0LHQtdC3INGA0L7Qu9C4ICjQutCw0YLQsNC70L7Qsyk=
+userPassword: {SSHA}7JXzD5A3pihQ8d4+b3YgAiOHgd1v3EGptCUX7Q==
+
+dn: cn=mk-dispatchers,ou=groups,dc=moscollector,dc=test
+objectClass: groupOfUniqueNames
+cn: mk-dispatchers
+uniqueMember: uid=ldap-dispatcher,ou=people,dc=moscollector,dc=test
+
+dn: cn=mk-technicians,ou=groups,dc=moscollector,dc=test
+objectClass: groupOfUniqueNames
+cn: mk-technicians
+uniqueMember: uid=ldap-technician,ou=people,dc=moscollector,dc=test
+
+dn: cn=mk-analysts,ou=groups,dc=moscollector,dc=test
+objectClass: groupOfUniqueNames
+cn: mk-analysts
+uniqueMember: uid=ldap-analyst,ou=people,dc=moscollector,dc=test
+
+dn: cn=mk-managers,ou=groups,dc=moscollector,dc=test
+objectClass: groupOfUniqueNames
+cn: mk-managers
+uniqueMember: uid=ldap-manager,ou=people,dc=moscollector,dc=test
+
+dn: cn=mk-admins,ou=groups,dc=moscollector,dc=test
+objectClass: groupOfUniqueNames
+cn: mk-admins
+uniqueMember: uid=ldap-admin,ou=people,dc=moscollector,dc=test
+
+dn: cn=mk-visitors,ou=groups,dc=moscollector,dc=test
+objectClass: groupOfUniqueNames
+cn: mk-visitors
+uniqueMember: uid=ldap-norole,ou=people,dc=moscollector,dc=test

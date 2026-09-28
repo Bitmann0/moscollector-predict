@@ -36,7 +36,7 @@ Desktop, стек `compose.yaml` + `compose.real.yaml`, ML в режиме `real
 библиотеке и запускаются без venv. `scripts/replay.py` без duckdb читает только CSV.
 
 Сторонние образы: `postgres:16-alpine` (сервисы `db` и `backup`) и `caddy:2-alpine`
-(стенд). ТЗ §11 требует PostgreSQL 12 и выше; compose поднимает PostgreSQL 16 (решение D4),
+(стенд); `osixia/openldap:1.5.0` — только тестовый каталог `compose.ldap.yaml`. ТЗ §11 требует PostgreSQL 12 и выше; compose поднимает PostgreSQL 16 (решение D4),
 тесты backend в CI идут на `postgres:16` и на SQLite.
 
 ### Ресурсы
@@ -133,6 +133,7 @@ cp .env.example .env        # PowerShell: Copy-Item .env.example .env
 | `BUNDLE_DIR` | закомментирован; по умолчанию `./bundle` | каталог бандла для `compose.real.yaml`, `compose.stand.yaml` и `scripts/replay.py` |
 | `STAND_DOMAIN` | закомментирован | домен стенда; без него `compose.stand.yaml` не разбирается |
 | `DATABASE_URL`, `ML_URL` | закомментированы | только для запуска без Docker; в compose их задаёт `compose.yaml` |
+| `LDAP_URL` и остальные `LDAP_*` | закомментированы | вход через каталог LDAP/AD; пустой `LDAP_URL` его выключает (раздел «Вход через LDAP/AD») |
 
 Значения — латиница, цифры, «-» и «_»: compose подставляет `$VAR` внутри значений, а
 `POSTGRES_PASSWORD` попадает в `DATABASE_URL` без URL-кодирования (`.env.example`).
@@ -390,6 +391,101 @@ PR #30): `pg_dump -Fc` — 74 с, файл 521 МБ.
 сколько дали загрузка истории и тот прелоад (`docs/submission/perf/backup_restore_0928.txt`).
 ТЗ §11 ограничивает восстановление после сбоя 4 часами; восстановление стенда с
 пересозданием ВМ, бандла и образов не замерено.
+
+## Вход через LDAP/AD
+
+По умолчанию `LDAP_URL` пуст, и вход идёт только по локальным учётным записям. Каталог
+включается переменными `LDAP_*` в `.env` и перезапуском api той же командой
+`docker compose … up -d`, которой стек поднимался. Ошибку в этих переменных api находит
+при старте, пишет её текст в `docker compose logs api` и не стартует (`check_config` в
+`backend/app/directory.py`). Устройство входа, коды ответов и ограничения —
+`docs/submission/07-security.md`, раздел 5.
+
+| Переменная | По умолчанию | Назначение |
+|---|---|---|
+| `LDAP_URL` | пусто | `ldap://хост:389` или `ldaps://хост:636`; пусто — каталог выключен. Для TLS нужно имя хоста, а не IP-адрес: ldap3 сверяет с сертификатом только DNS-имена |
+| `LDAP_STARTTLS` | `0` | `1` — StartTLS поверх `ldap://`; вместе с `ldaps://` не задаётся |
+| `LDAP_TLS_CA_FILE` | пусто | путь к CA каталога в PEM внутри контейнера api; пусто — системные CA образа |
+| `LDAP_TLS_VERIFY` | `1` | `0` выключает проверку сертификата каталога; только для теста |
+| `LDAP_TIMEOUT_S` | `5` | секунд на соединение, на каждый ответ каталога (округляется вверх до целых) и на поиск |
+| `LDAP_USER_DN_TEMPLATE` | пусто | DN сотрудника с подстановкой `{login}`; при нём bind идёт сразу под сотрудником |
+| `LDAP_BIND_DN`, `LDAP_BIND_PASSWORD` | пусто | служебная учётная запись для поиска сотрудника и его групп; без неё поиск анонимный |
+| `LDAP_USER_BASE` | пусто | где искать сотрудника; нужен без шаблона DN и при шаблоне вида `{login}@домен` |
+| `LDAP_USER_FILTER` | `(uid={login})` | фильтр поиска сотрудника; в AD — `(sAMAccountName={login})` |
+| `LDAP_GROUP_BASE` | пусто | где искать группы сотрудника; пусто — роль только по `memberOf` |
+| `LDAP_GROUP_FILTER` | ниже | фильтр групп сотрудника; подставляются `{user_dn}` и `{login}` |
+| `LDAP_ROLE_GROUPS` | пусто; при заданном `LDAP_URL` обязателен | `роль=группа;роль=группа` или JSON `{"роль": ["группа", …]}`; группа — CN или DN. Роли — `dispatcher`, `technician`, `analyst`, `manager`, `admin` |
+| `LDAP_ALLOW_LOCAL` | `1` | `0` — вход только через каталог, локальные и демо-учётки не пускаются |
+
+`LDAP_GROUP_FILTER` по умолчанию —
+`(|(member={user_dn})(uniqueMember={user_dn})(memberUid={login}))`: он находит группы
+`groupOfNames`, `groupOfUniqueNames` и `posixGroup`. Значения с пробелами и JSON в `.env`
+берутся в одинарные кавычки; знак `$` в значениях недопустим, как и в остальных
+переменных `.env`.
+
+### Подключение к AD заказчика
+
+Набросок `.env` для Active Directory. Против AD он не запускался: каталога заказчика у
+команды нет (QA-8).
+
+```
+LDAP_URL=ldaps://dc01.corp.example:636
+LDAP_TLS_CA_FILE=/run/ldap-ca/corp-ca.pem
+LDAP_BIND_DN=CN=svc-moscollector,OU=Service,DC=corp,DC=example
+LDAP_BIND_PASSWORD=
+LDAP_USER_BASE=OU=Users,DC=corp,DC=example
+LDAP_USER_FILTER=(sAMAccountName={login})
+LDAP_ROLE_GROUPS=admin=MK-Admins;dispatcher=MK-Dispatchers;technician=MK-Technicians;analyst=MK-Analysts;manager=MK-Managers
+LDAP_ALLOW_LOCAL=0
+SEED_DEMO=0
+```
+
+- Файл CA попадает в контейнер api томом из override-файла площадки, например
+  `./deploy/corp-ca.pem:/run/ldap-ca/corp-ca.pem:ro`.
+- `memberOf` в AD перечисляет только прямые группы. Вложенные группы находит правило
+  `LDAP_MATCHING_RULE_IN_CHAIN`: `LDAP_GROUP_BASE=DC=corp,DC=example` и
+  `LDAP_GROUP_FILTER=(member:1.2.840.113556.1.4.1941:={user_dn})` (документация Microsoft,
+  «Search Filter Syntax»). Этот вариант тоже не проверялся.
+- Без служебной учётной записи подходит шаблон UPN: `LDAP_USER_DN_TEMPLATE={login}@corp.example`
+  вместе с `LDAP_USER_BASE` и тем же `LDAP_USER_FILTER`. Запись сотрудника и его группы
+  api тогда читает под самим сотрудником.
+- `SEED_DEMO=0` не создаёт демо-учётки, но строки прошлых запусков остаются в `users`. При
+  `LDAP_ALLOW_LOCAL=0` войти под ними нельзя.
+
+### Тестовый каталог: `compose.ldap.yaml`
+
+Override поднимает OpenLDAP `osixia/openldap:1.5.0` (373 МБ) и переключает api на вход
+через него:
+
+```bash
+docker compose -f compose.yaml -f compose.ldap.yaml up -d --build
+```
+
+| Что | Где |
+|---|---|
+| сотрудники `ldap-dispatcher`, `ldap-technician`, `ldap-analyst`, `ldap-manager`, `ldap-admin` в группах `mk-<роль>s` и `ldap-norole` в группе `mk-visitors`, которая роли не даёт | `deploy/ldap/bootstrap.ldif`; пароли в нём — хеши `{SSHA}` |
+| пароли сотрудников, администратора каталога и служебной учётной записи `cn=readonly` — только для теста | `deploy/ldap/test-directory.env.example`; этот файл читают сервисы `ldap` и `api` |
+| тестовый CA и сертификат сервера на имена `ldap` и `localhost` | выпускает `deploy/ldap/tls-init.sh` при первом старте, том `ldapcerts`. CA из образа истёк 15.01.2026, поэтому свой |
+| настройка api: поиск под `cn=readonly`, StartTLS с проверкой по этому CA, `LDAP_ALLOW_LOCAL=1` | `compose.ldap.yaml`, сервис `api` |
+| порты каталога 1389 (LDAP) и 1636 (LDAPS) | только на 127.0.0.1, для тестов с хоста |
+
+Каталог заполняется из LDIF при первом старте с пустым томом `ldapdata`; после правки
+LDIF нужен `docker compose -f compose.yaml -f compose.ldap.yaml down -v`. На стенд этот
+override не ставится.
+
+Тесты против тестового каталога в CI не входят:
+
+```bash
+docker compose -f compose.yaml -f compose.ldap.yaml up -d --wait ldap
+docker compose -f compose.yaml -f compose.ldap.yaml cp \
+    ldap:/container/service/slapd/assets/certs/ca.crt state/ldap-ca.crt
+LDAP_TEST_URL=ldap://localhost:1389 LDAP_TEST_TLS_URL=ldaps://localhost:1636 \
+    LDAP_TEST_CA_FILE=state/ldap-ca.crt python -m pytest -q tests/test_directory_live.py
+```
+
+Замер 28.09 на машине разработчика: 12 тестов из 12. Без `LDAP_TEST_URL` эти тесты
+пропускаются; остальные тесты входа через каталог (`tests/test_directory.py`, подменный
+каталог ldap3) идут в CI в общем `pytest -q`.
 
 ## Наполнение и проверка
 
