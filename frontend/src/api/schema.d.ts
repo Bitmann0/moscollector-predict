@@ -167,6 +167,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/export/report.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Management Report Pdf
+         * @description Отчёт руководству за период (ТЗ §8): сценарии, прогнозы по дням, заявки по статусам,
+         *     тревожные сообщения по группам аварий, топ-10 объектов. Выгрузка пишется в аудит.
+         *
+         *     422 `from_after_to` — from позже to; 422 `period_too_long` — период длиннее
+         *     366 суток (report.MAX_DAYS).
+         */
+        get: operations["management_report_pdf_api_v1_export_report_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/forecasts": {
         parameters: {
             query?: never;
@@ -2126,6 +2150,54 @@ export interface operations {
                 };
                 content: {
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": unknown;
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description У роли нет требуемого права */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    management_report_pdf_api_v1_export_report_pdf_get: {
+        parameters: {
+            query?: {
+                /** @description По умолчанию — семь суток до to включительно */
+                from?: string | null;
+                /** @description По умолчанию — демо-дата */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */

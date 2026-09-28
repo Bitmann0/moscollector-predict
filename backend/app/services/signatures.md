@@ -33,6 +33,8 @@
 | `notifications.py` | `list_notifications(db, user, page, page_size) -> Page[NotificationItem]` | живое | BE-08 |
 | `notifications.py` | `mark_read(db, notification_id, user) -> None` | живое | BE-08 |
 | `export.py` | `forecasts_xlsx(db, date_from, date_to) -> bytes` | живое | BE-11 |
+| `report.py` | `period(db, date_from, date_to) -> tuple[date, date]` — период отчёта по умолчанию и 422; `collect(db, date_from, date_to) -> ReportData` | живое | BE-11 |
+| `report_pdf.py` | `render(data: ReportData) -> bytes` | живое | BE-11 |
 | `audit_query.py` | `list_audit(db, *, user_login, date_from, date_to, page, page_size) -> Page[AuditItem]` | живое | BE-09 |
 | `settings_store.py` | `get(db) -> SettingsOut` | живое | BE-05 |
 | `settings_store.py` | `put(db, body: SettingsIn, user) -> SettingsOut` | живое; 403 `settings_locked` при `DEMO_SETTINGS_LOCKED=1` | BE-05 |
