@@ -1,7 +1,7 @@
 """Реестр метрик для сдачи: reports/SUBMISSION_METRICS.json из машинных отчётов.
 
-Числа не переписываются руками. Скрипт читает JSON и CSV из reports/, считает
-суммы по окнам и собирает один файл, где у каждого блока есть source (файл,
+Числа не переписываются руками. Скрипт читает JSON и CSV из reports/ и замер
+времени ML из ../docs/submission/perf/, считает суммы по окнам и собирает один файл, где у каждого блока есть source (файл,
 из которого взято число) и command (как пересчитать сам источник из ml/).
 Константы ниже — числа, которых нет в машинных отчётах репозитория; у каждой
 записано, откуда она и почему файла нет.
@@ -41,21 +41,13 @@ TITLES = {
 JUNE_LABELED_ROWS = 42_648
 JUNE_LABELS_SOURCE = ("выход шага labels scripts/eval_a_link_operating_point.py "
                       "(label_link за 02.06–29.06.2026); файл данных в git не кладётся")
-RUNTIME_SCORE = {
-    "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D",
-    "seconds": [1.5, 4.4],
-    "conditions": "машина разработчика, Docker, ML_MODE=real",
-    "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, "
-              "оформление замера — задача ML2-04",
-    "command": None,
-}
-TEMPERATURE = {
-    "precision": 0.354, "recall": 0.439,
-    "source": "ветка origin/feature/episode-hourly-backtest, "
-              "docs/experiments/temperature-episode-hourly/README.md:70; файла в main нет. "
-              "В main число пересказано в analysis/MULTI_HEAD_ML_STRATEGY.md:33 и "
-              "ml/docs/ML_BACKEND_HANDOFF.md:35",
-}
+# Замер ML2-04: сырой вывод scripts/measure_ml.py лежит вне ml/, в документации сдачи.
+RUNTIME_FILE = ROOT.parent / "docs" / "submission" / "perf" / "ml_score_june.jsonl"
+RUNTIME_CONDITIONS = ("28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, "
+                      "ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы "
+                      "по одному из контейнера api")
+RUNTIME_COMMAND = ("docker compose -f compose.yaml -f compose.real.yaml exec -T api "
+                   "python - < scripts/measure_ml.py")
 GAS_PLANNED = {
     "records_in_window": 19_307, "records_total": 21_784,
     "source": "план команды docs/superpowers/plans/2026-09-25-team-plan-to-submission.md, "
@@ -350,11 +342,44 @@ def guard_weekly() -> dict:
     }
 
 
+# --- время расчёта -------------------------------------------------------------
+
+def runtime() -> list[dict]:
+    """Время ответа ML за каждый день 01–30.06: итоговая строка вывода measure_ml.py."""
+    lines = RUNTIME_FILE.read_text(encoding="utf-8").splitlines()
+    summary = json.loads(lines[-1])["summary"]
+    what = {"score": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D, "
+                      "с факторами и пустым журналом выданного",
+            "guard_weekly": "GET /api/v1/guard-weekly-inspections, понедельники 01–29.06"}
+    return [{"what": what[kind], "calls": s["n"],
+             "seconds": {"min": s["min"], "median": s["median"], "max": s["max"]},
+             "conditions": RUNTIME_CONDITIONS,
+             "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+             "command": RUNTIME_COMMAND}
+            for kind, s in summary.items()]
+
+
 # --- отклонённые постановки и рычаги ----------------------------------------
 
 def _final_row(head: str) -> dict:
     with (REPORTS / "final_metrics.csv").open(encoding="utf-8") as fh:
         return next(r for r in csv.DictReader(fh) if r["head"] == head)
+
+
+def _temperature() -> dict:
+    """Среднее трёх полугодовых тестов, чистое окно 24 ч, все каналы.
+
+    JSON — копия отчёта PR #8 без изменений; перенесённый код на полном датасете не
+    перезапускался (reports/TEMPERATURE_EPISODE_HOURLY.md, «Происхождение чисел»).
+    """
+    protocol = _load("temperature_episode_24h.json")["protocols"]["temporal_all_channels"]
+    folds = protocol["folds"]
+    # В отчёте PR #8 правая граница теста не включается; в реестре периоды включительные.
+    last = dt.date.fromisoformat(folds[-1]["boundaries"]["test_end"]) - dt.timedelta(days=1)
+    return {"period": [folds[0]["boundaries"]["test_start"], last.isoformat()],
+            "tests": len(folds),
+            "precision": round(protocol["mean_test"]["precision"], 3),
+            "recall": round(protocol["mean_test"]["recall"], 3)}
 
 
 def rejected_setups() -> list[dict]:
@@ -365,6 +390,7 @@ def rejected_setups() -> list[dict]:
     rule_queue = _load("guard_review_queue_backtest.json")["pooled"]
     strict = _load("a_strict_top1.json")
     flood = _final_row("E")
+    temperature = _temperature()
     return [
         {"id": "B_fire", "what": "пожарный риск участка: текстовое пожарное или газовое "
                                   "тревожное состояние на участке завтра",
@@ -419,10 +445,17 @@ def rejected_setups() -> list[dict]:
               "source": "reports/final_metrics.csv (E); reports/final.md:47",
               "command": "python scripts/final_eval.py"}]},
         {"id": "temperature", "what": "выход температуры за диапазон 3–40 °C за 24 часа",
-         "results": [{"precision": TEMPERATURE["precision"], "recall": TEMPERATURE["recall"],
-                      "note": "среднее трёх тестов; смысл диапазона владелец данных "
-                              "не подтвердил",
-                      "source": TEMPERATURE["source"], "command": None}]},
+         "results": [{**temperature,
+                      "note": "среднее трёх полугодовых тестов 2024H1–2026H1; тест 2026H1 — "
+                              "уже просмотренный период; смысл диапазона владелец данных "
+                              "не подтвердил. Числа посчитаны кодом PR #8, перенесённый "
+                              "код на полном датасете не перезапускался",
+                      "source": "reports/temperature_episode_24h.json "
+                                "(protocols.temporal_all_channels.mean_test); "
+                                "reports/TEMPERATURE_EPISODE_HOURLY.md",
+                      "command": "python scripts/exp_temperature_episode.py features; "
+                                 "python scripts/exp_temperature_episode.py backtest "
+                                 "--clean-hours 24"}]},
         {"id": "gas_detected", "what": "«Обнаружен газ» как прогнозируемое событие",
          "results": [{"share_weekdays_09_15": _ratio(GAS_PLANNED["records_in_window"],
                                                      GAS_PLANNED["records_total"]),
@@ -579,7 +612,7 @@ def build() -> dict:
             "retrospective": "параметры политики подобраны на тех же периодах",
         },
         "scenarios": list(scenarios.values()),
-        "runtime": [RUNTIME_SCORE],
+        "runtime": runtime(),
         "holdout": holdout(),
         "rejected_setups": rejected_setups(),
         "rejected_levers": rejected_levers(),
