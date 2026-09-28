@@ -88,7 +88,7 @@
 
 ### Вне ID плана
 
-XML в REST API по ТЗ §7 — #XML_PR. В плане команды XML был записан расширением (раздел 10), PM 28.09 решил его сделать. Ответы в XML по `Accept: application/xml` у восьми GET-маршрутов, приём XML-пачек событий и журнала ОДС, XSD в `contracts/xml/`, тесты `tests/test_xml_api.py`. Остальные маршруты отвечают только JSON, файл журнала в XML не принимается (`docs/submission/02-architecture.md`, раздел 8).
+XML в REST API по ТЗ §7 — #56. В плане команды XML был записан расширением (раздел 10), PM 28.09 решил его сделать. Ответы в XML по `Accept: application/xml` у восьми GET-маршрутов, приём XML-пачек событий и журнала ОДС, XSD в `contracts/xml/`, тесты `tests/test_xml_api.py`. Остальные маршруты отвечают только JSON, файл журнала в XML не принимается (`docs/submission/02-architecture.md`, раздел 8).
 
 Переносы веток по решению D8: PR #1 — #37; #3 и #6 — #32; #4 — #38; #5 — #33; #7 — #39; #8 — #34; #9 — #40 (цензура L9c в `ml/src/mkl/label_censoring.py`, продуктовая метка её не вызывает; отчёт `ml/reports/A_LINK_AVAILABILITY_CHECKS.md`).
 
