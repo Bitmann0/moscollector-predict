@@ -46,3 +46,6 @@ class ChannelRef(BaseModel):
     name: str | None = None
     sensor_type: str | None = None
     picket_label: str | None = None
+    # Расшифровка названия канала «Состояние фазы» (services/phase_channels.py): «ФВ2 (В23)» →
+    # «фидер вентиляции 2, питает вентилятор В23». У других типов и у неразобранных — null.
+    name_decoded: str | None = None

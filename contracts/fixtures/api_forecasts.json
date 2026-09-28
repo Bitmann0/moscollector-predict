@@ -6,6 +6,7 @@
       "channel": {
         "id": 9000026,
         "name": "ИБП ПК80 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 80",
         "sensor_type": "ИБП"
       },
@@ -71,6 +72,7 @@
       "channel": {
         "id": 9000018,
         "name": "ИБП ПК16 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 16",
         "sensor_type": "ИБП"
       },
@@ -106,6 +108,7 @@
       "channel": {
         "id": 9000002,
         "name": "Состояние насоса ПК8 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 8",
         "sensor_type": "Состояние насоса"
       },
@@ -141,6 +144,7 @@
       "channel": {
         "id": 9000005,
         "name": "Датчик дыма ПК32 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 32",
         "sensor_type": "Датчик дыма"
       },
@@ -176,6 +180,7 @@
       "channel": {
         "id": 9000019,
         "name": "Датчик температуры ПК24 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 24",
         "sensor_type": "Датчик температуры"
       },
@@ -211,6 +216,7 @@
       "channel": {
         "id": 9000012,
         "name": "Газовый датчик ПК88 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 88",
         "sensor_type": "Газовый датчик"
       },
@@ -246,6 +252,7 @@
       "channel": {
         "id": 9000022,
         "name": "ИБП ПК48 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 48",
         "sensor_type": "ИБП"
       },
@@ -281,6 +288,7 @@
       "channel": {
         "id": 9000003,
         "name": "Состояние вентилятора ПК16 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 16",
         "sensor_type": "Состояние вентилятора"
       },
@@ -316,6 +324,7 @@
       "channel": {
         "id": 9000020,
         "name": "КД Дверь ПК32 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 32",
         "sensor_type": "КД Дверь"
       },
@@ -351,6 +360,7 @@
       "channel": {
         "id": 9000018,
         "name": "ИБП ПК16 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 16",
         "sensor_type": "ИБП"
       },
@@ -386,6 +396,7 @@
       "channel": {
         "id": 9000025,
         "name": "Датчик движения ПК72 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 72",
         "sensor_type": "Датчик движения"
       },
@@ -421,6 +432,7 @@
       "channel": {
         "id": 9000023,
         "name": "Датчик температуры ПК56 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 56",
         "sensor_type": "Датчик температуры"
       },
@@ -456,6 +468,7 @@
       "channel": {
         "id": 9000029,
         "name": "Датчик движения ПК104 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 104",
         "sensor_type": "Датчик движения"
       },
@@ -491,6 +504,7 @@
       "channel": {
         "id": 9000016,
         "name": "Газовый датчик ПК0 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 0",
         "sensor_type": "Газовый датчик"
       },
@@ -526,6 +540,7 @@
       "channel": {
         "id": 9000006,
         "name": "Состояние насоса ПК40 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 40",
         "sensor_type": "Состояние насоса"
       },
@@ -561,6 +576,7 @@
       "channel": {
         "id": 9000015,
         "name": "Датчик температуры ПК112 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 112",
         "sensor_type": "Датчик температуры"
       },
@@ -596,6 +612,7 @@
       "channel": {
         "id": 9000030,
         "name": "Состояние насоса ПК112 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 112",
         "sensor_type": "Состояние насоса"
       },
@@ -631,6 +648,7 @@
       "channel": {
         "id": 9000009,
         "name": "Датчик дыма ПК64 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 64",
         "sensor_type": "Датчик дыма"
       },
@@ -666,6 +684,7 @@
       "channel": {
         "id": 9000028,
         "name": "КД Дверь ПК96 (заглушка)",
+        "name_decoded": null,
         "picket_label": "ПК 96",
         "sensor_type": "КД Дверь"
       },

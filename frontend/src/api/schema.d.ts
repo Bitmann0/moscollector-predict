@@ -646,10 +646,31 @@ export interface components {
             id: number;
             /** Name */
             name?: string | null;
+            /** Name Decoded */
+            name_decoded?: string | null;
             /** Picket Label */
             picket_label?: string | null;
             /** Sensor Type */
             sensor_type?: string | null;
+        };
+        /**
+         * ChecklistOut
+         * @description Что проверить бригаде на оборудовании одного типа из заявки.
+         *
+         *     Перечень есть только там, где его подтвердил заказчик: сейчас это фидеры, каналы
+         *     «Состояние фазы» (services/phase_channels.py). basis называет, кто подтвердил.
+         */
+        ChecklistOut: {
+            /** Basis */
+            basis: string;
+            /** Channels */
+            channels: components["schemas"]["ChannelRef"][];
+            /** Equipment */
+            equipment: string;
+            /** Items */
+            items: string[];
+            /** Note */
+            note?: string | null;
         };
         /** DashboardSummary */
         DashboardSummary: {
@@ -1628,6 +1649,8 @@ export interface components {
         WorkOrderCard: {
             /** Channels */
             channels?: number[];
+            /** Checklist */
+            checklist?: components["schemas"]["ChecklistOut"][];
             /**
              * Created At
              * Format: date-time
