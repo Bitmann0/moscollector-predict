@@ -165,6 +165,31 @@ def test_card_dynamics_uses_moscow_days(admin, ran, db):
     assert (by_day["2026-06-15"], by_day["2026-06-14"]) == (1, 0)
 
 
+def test_card_dynamics_marks_days_without_events(admin, ran, db):
+    """Сутки без событий канала — events=0, а не «ноль тревог» (правило PR #5)."""
+    forecast = db.scalars(select(models.Forecast).where(
+        models.Forecast.in_budget.is_(True), models.Forecast.channel_id.is_not(None))).first()
+    for event_id, ts, alarm, event_class in (
+            (81, datetime(2026, 6, 15, 10, 0, tzinfo=MSK), True, "alarm"),
+            (82, datetime(2026, 6, 15, 11, 0, tzinfo=MSK), False, "normal"),
+            (83, datetime(2026, 6, 13, 9, 0, tzinfo=MSK), False, "normal")):
+        db.add(models.Event(event_id=event_id, channel_id=forecast.channel_id, ts=to_db(ts),
+                            alarm=alarm, val_raw="x", event_class=event_class,
+                            row_hash=f"dyn-gap-{event_id}"))
+    db.commit()
+    card = admin.get(f"{API}/forecasts/{forecast.id}").json()
+    by_day = {p["day"]: (p["events"], p["alarms"]) for p in card["dynamics_30d"]}
+    assert len(by_day) == 30
+    assert by_day["2026-06-15"] == (2, 1)
+    assert by_day["2026-06-14"] == (0, 0)  # нет данных
+    assert by_day["2026-06-13"] == (1, 0)  # события были, тревог нет — настоящий ноль
+
+    weekly = db.scalars(select(models.Forecast).where(
+        models.Forecast.kind == "weekly_recommendation")).first()
+    points = admin.get(f"{API}/forecasts/{weekly.id}").json()["dynamics_30d"]
+    assert len(points) == 30 and all(p["events"] == 0 for p in points)
+
+
 def test_decision_filter_uses_latest_decision(admin, ran):
     fid = admin.get(f"{API}/forecasts").json()["items"][0]["id"]
     for action, reason in (("defer", "await_data"), ("reject", "false_alarm")):

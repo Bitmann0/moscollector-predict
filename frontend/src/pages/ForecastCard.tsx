@@ -69,7 +69,11 @@ function CardView({ card }: { card: Card }) {
   const factors = card.factors ?? [];
   const decisions = card.decisions ?? [];
   const versions = card.versions ?? [];
-  const dynamics = card.dynamics_30d ?? [];
+  // Динамика строится по одному каналу. У недельной рекомендации по объекту канала нет,
+  // backend отдаёт 30 суток без событий, и график из одних «нет данных» ничего не скажет.
+  const dynamics = channel ? card.dynamics_30d ?? [] : [];
+  // Нет ни одних суток с событиями — LineChart покажет пустое состояние, легенда линий там лишняя.
+  const dynamicsObserved = dynamics.some((p) => p.events > 0);
   const maxContribution = Math.max(...factors.map((item) => Math.abs(item.contribution)), 0.01);
   const score = card.score_type === "probability" ? fmtPercent(card.risk) : fmtNumber(card.priority_score);
   return (
@@ -79,7 +83,7 @@ function CardView({ card }: { card: Card }) {
       <div className="forecast-hero panel"><div className="forecast-score"><span>{title("score_type", card.score_type)}</span><strong>{score}</strong><small>{card.score_type === "probability" ? "вероятность события в окне" : "ранжирует объекты, в процентах не читается"}</small></div><div className="forecast-window"><Icon name="calendar" /><div><span>Окно прогноза · {card.horizon_hours} ч</span><strong>{fmtDateTime(card.valid_from)} — {fmtDateTime(card.valid_to)}</strong><small>{card.calendar ? `${card.calendar.weekday_title}${card.calendar.holiday ? ` · ${card.calendar.holiday}` : ""}` : "Календарный контекст не передан"}</small></div></div><div className="forecast-rank"><span>Приоритет</span><strong>№ {card.rank}</strong><SourceBadge source={card.source} /></div></div>
       <div className="forecast-layout"><div className="forecast-main">
       {card.kind === "weekly_recommendation" && <div className="weekly-evidence panel"><div><span className="panel__eyebrow">Основание рекомендации</span><h3>{evidenceText(card.evidence)}</h3>{card.coverage_note && <p>{card.coverage_note}</p>}</div><div className="alarm-stat"><strong>{card.recent_alarm_days_7 ?? "—"}</strong><span>дней с тревогами<br/>за 7 суток</span></div><div className="alarm-stat"><strong>{card.recent_alarm_days_30 ?? "—"}</strong><span>дней с тревогами<br/>за 30 суток</span></div></div>}
-      {dynamics.length > 0 && <article className="panel dynamics-card"><header><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div><div className="dynamics-legend"><span><i/>Тревоги</span><span><i/>Плохие состояния</span></div></header><DynamicsChart points={dynamics} /></article>}
+      {dynamics.length > 0 && <article className="panel dynamics-card"><header><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div>{dynamicsObserved && <div className="dynamics-legend"><span><i/>Тревоги</span><span><i/>Плохие состояния</span></div>}</header><DynamicsChart points={dynamics} /></article>}
       {card.kind !== "weekly_recommendation" && <><h2 className="section-title">Почему модель подняла риск</h2>
       {factors.length === 0 ? (
         <p className="muted">Факторы для этого прогноза не переданы.</p>
@@ -135,10 +139,25 @@ function CardView({ card }: { card: Card }) {
 }
 
 function DynamicsChart({ points }: { points: NonNullable<Card["dynamics_30d"]> }) {
-  return <LineChart days={points.map((p) => p.day)} label="Тревоги и плохие состояния за 30 суток" series={[
-    { key: "alarms", label: "Тревоги", color: "var(--alarm)", values: points.map((p) => p.alarms) },
-    { key: "bad", label: "Плохие состояния", color: "var(--data)", values: points.map((p) => p.bad_states), dashed: true },
-  ]} />;
+  // Сутки без событий канала — «нет данных», а не ноль тревог: у потери связи
+  // молчание канала и есть симптом, нулевая линия выдала бы его за исправность.
+  const observed = points.filter((p) => p.events > 0).length;
+  const missing = points.length - observed;
+  const known = (value: number, events: number) => (events > 0 ? value : null);
+  const note = observed === 0
+    ? `За ${points.length} суток событий канала в журнале сервиса нет. Отсутствие событий не доказывает исправность.`
+    : missing === 0
+      ? `События канала есть в журнале сервиса за все ${points.length} суток.`
+      : `Дней с событиями канала в журнале сервиса: ${observed} из ${points.length}, без событий: ${missing}. Дни без событий на графике — разрывы, а не ноль: отсутствие событий не доказывает исправность.`;
+  return (
+    <>
+      <LineChart days={points.map((p) => p.day)} label="Тревоги и плохие состояния за 30 суток" series={[
+        { key: "alarms", label: "Тревоги", color: "var(--alarm)", values: points.map((p) => known(p.alarms, p.events)) },
+        { key: "bad", label: "Плохие состояния", color: "var(--data)", values: points.map((p) => known(p.bad_states, p.events)), dashed: true },
+      ]} />
+      <p className="chart-note">{note}</p>
+    </>
+  );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {

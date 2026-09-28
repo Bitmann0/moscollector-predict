@@ -718,6 +718,11 @@ export interface components {
              * Format: date
              */
             day: string;
+            /**
+             * Events
+             * @description Все события канала за сутки МСК в журнале сервиса. 0 — сутки без событий: состояние неизвестно, alarms и bad_states за них не означают ноль
+             */
+            events: number;
         };
         /**
          * EmulateDecisionsIn
@@ -850,7 +855,10 @@ export interface components {
             decision?: components["schemas"]["DecisionOut"] | null;
             /** Decisions */
             decisions?: components["schemas"]["DecisionOut"][];
-            /** Dynamics 30D */
+            /**
+             * Dynamics 30D
+             * @description 30 суток МСК до asof включительно. Сутки без событий канала (events=0) не пропускаются и не означают исправность: в журнале сервиса о них нет данных. У прогноза без канала все events=0
+             */
             dynamics_30d?: components["schemas"]["DynamicsPoint"][];
             /** Evidence */
             evidence?: string | null;
