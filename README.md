@@ -65,26 +65,28 @@ docker compose up --build
 
 ## Запуск с реальными моделями
 
-Нужен бандл C4 (раздел 4 плана): 13 обязательных файлов, которые читают ML-сервис в режиме
-`real`, дообучение, `scripts/replay.py` и seed backend. Это модель A_link, фичестор
-`sensor` и `object`, v2-кэш охранной очереди, справочник каналов, метки для `/outcomes`,
-события 2026 года, `configs/features.yaml`, `reports/intrusion_eventtime_v2_build.json` и
-справочники объектов и каналов в `Materials/`. Список с местом чтения каждого файла —
-словарь `REQUIRED` в `ml/scripts/build_bundle.py`; датированные модели A_link
-`models/A_link@*.pkl` приходят как необязательные. Текущая версия — `bundle-20260928-3`
-с моделями A_link на рабочей точке 0,70 (PR #30): с `-1` не пройдёт проверка раскладки
-(нет `Materials/`), модели 0,50 из `-2` ML-сервис отвергает. Бандл
-распространяется архивом `bundle-YYYYMMDD-N.7z` под паролем датасета организаторов
-(решение D10), ссылка — в поле «Доп. материалы» формы сдачи.
+Нужен бандл C4 (раздел 4 плана): 16 обязательных файлов, которые читают ML-сервис в режиме
+`real`, дообучение, `scripts/replay.py` и seed backend. Это модели A_link, B и E, фичестор
+`sensor`, `object` и `segment`, v2-кэш охранной очереди, справочник каналов, метки для
+`/outcomes`, события 2026 года, `configs/features.yaml`,
+`reports/intrusion_eventtime_v2_build.json` и справочники объектов и каналов в
+`Materials/`. Список с местом чтения каждого файла — словарь `REQUIRED` в
+`ml/scripts/build_bundle.py`; датированные модели `models/{голова}@*.pkl` приходят как
+необязательные. Текущая версия — `bundle-20260928-5`: 29 файлов, в том числе модели A_link
+на рабочей точке 0,70 (PR #30), модели пожарного риска B и подтопления E и признаки
+участков `segment.parquet`. На `-4` и более ранних моделей B и E нет, и ML-сервис на
+`/ready` ответит `missing_data`; с `-1` не пройдёт и проверка раскладки (нет
+`Materials/`). Бандл распространяется архивом `bundle-YYYYMMDD-N.7z` под паролем датасета
+организаторов (решение D10), ссылка — в поле «Доп. материалы» формы сдачи.
 
 **1. Получить и проверить бандл.**
 
 ```bash
-sh scripts/fetch_bundle.sh ~/Downloads/bundle-20260928-3.7z ./bundle
+sh scripts/fetch_bundle.sh ~/Downloads/bundle-20260928-5.7z ./bundle
 ```
 
 ```powershell
-powershell -File scripts\fetch_bundle.ps1 -Version $HOME\Downloads\bundle-20260928-3.7z -Dest .\bundle
+powershell -File scripts\fetch_bundle.ps1 -Version $HOME\Downloads\bundle-20260928-5.7z -Dest .\bundle
 ```
 
 Вместо пути к `.7z` можно передать URL, распакованный каталог (скрипт его только проверит)
@@ -152,8 +154,10 @@ docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml start 
    `справочник_каналов_датчиков.csv` и `справочник_объектов_диспетчер.csv` — в
    `ml/Materials/`.
 2. `python -m mkl.cli run` — приём, эпизоды, суточная панель, погода, фичестор, обучение
-   A_link. Стадии перечислены в `ml/src/mkl/pipeline.py`; погода качается из сети,
-   без сети её колонки остаются пустыми.
+   A_link, B и E. Стадии перечислены в `ml/src/mkl/pipeline.py`; погода качается из сети,
+   без сети её колонки остаются пустыми. Датированные модели для окна демо —
+   `python scripts/train_latest.py A_link B E --train-window` (`ml/README.md`, «Модели для
+   исторических дней: окно демо»).
 3. `python scripts/build_intrusion_eventtime_labels.py` — v2-кэш охранной очереди.
 4. Необязательно: `python scripts/normalize_maintenance_schedules.py --ppr <ППР.xlsx>
    --to <ТО.xlsx> --available-from YYYY-MM-DD` — графики ППР и ТО для контекста алертов
