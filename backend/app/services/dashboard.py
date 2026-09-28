@@ -57,8 +57,10 @@ def summary(db: Session) -> DashboardSummary:
         scenarios=scenarios,
         work_orders_by_status=by_status,
         alarms_24h=db.scalar(alarms) or 0,
+        # Все подсказки о ППР и ТО — и газ в рабочие часы, и серии — начинаются с
+        # PPR_HINT, а число извещателей в тексте серии разное: сравнение по префиксу.
         planned_like_alarms_24h=db.scalar(alarms.where(
-            models.Event.hint == semantics.PLANNED_CHECK_HINT)) or 0,
+            models.Event.hint.startswith(semantics.PPR_HINT, autoescape=True))) or 0,
         heads=head_states(db),
         # Как и охват: день без дневного прогона (на стенде это сам 30.06 — его прогноз
         # дал расчёт за 29.06) не рисуем нулём.

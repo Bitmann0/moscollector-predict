@@ -23,7 +23,7 @@ class DashboardSummary(BaseModel):
     scenarios: list[ScenarioKpi]
     work_orders_by_status: dict[str, int]
     alarms_24h: int
-    planned_like_alarms_24h: int  # «сработки, похожие на плановые работы» (C5)
+    planned_like_alarms_24h: int  # тревожные сообщения с подсказкой «вероятно, ППР или ТО» (C5)
     heads: list[HeadState]
     series_forecasts_per_day: list[SeriesPoint]
     series_coverage_per_day: list[SeriesPoint]

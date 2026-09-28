@@ -86,10 +86,17 @@
   "event_class": [
     {"code": "normal", "title": "Норма"},
     {"code": "warning", "title": "Предупреждение"},
-    {"code": "alarm", "title": "Тревога"},
+    {"code": "alarm", "title": "Тревожное сообщение"},
     {"code": "critical", "title": "Критическое"},
     {"code": "fault", "title": "Неисправность"},
     {"code": "service", "title": "Служебное"}
+  ],
+  "incident_group": [
+    {"code": "fire", "title": "Пожар"},
+    {"code": "flood", "title": "Наводнение"},
+    {"code": "gas", "title": "Газ"},
+    {"code": "intrusion", "title": "Проникновение"},
+    {"code": "temperature", "title": "Аномальная температура"}
   ],
   "roles": [
     {"code": "dispatcher", "title": "Диспетчер ОДС"},

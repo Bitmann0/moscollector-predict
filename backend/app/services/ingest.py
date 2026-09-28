@@ -4,11 +4,12 @@ import hashlib
 import io
 import zipfile
 from datetime import date, datetime, time
+from typing import NamedTuple
 
 import openpyxl
 from fastapi import HTTPException
 from openpyxl.utils.exceptions import InvalidFileException
-from sqlalchemy import delete, select
+from sqlalchemy import and_, delete, or_, select, update
 from sqlalchemy.orm import Session
 
 from .. import models
@@ -24,7 +25,9 @@ from .notifications import publish_safe
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 # Размер пачки для IN (...): SQLite до 3.32 принимает не больше 999 параметров.
 LOOKUP_CHUNK = 500
-ALARM_TITLE = "Тревожное событие СМВУ"
+# «Тревожное сообщение» — термин заказчика для записи с флагом «тревожное» (ответ 1,
+# analysis/qa_customer_2026-09-28.md).
+ALARM_TITLE = "Тревожное сообщение СМВУ"
 
 
 def _out(row: models.IngestBatch) -> IngestBatchOut:
@@ -81,12 +84,86 @@ def _existing_hashes(db: Session, hashes: list[str]) -> set[str]:
     return found
 
 
-def _sensor_types(db: Session, channel_ids: list[int]) -> dict[int, str | None]:
-    types: dict[int, str | None] = {}
+class ChannelInfo(NamedTuple):
+    sensor_type: str | None
+    obj_id: str | None
+    complex_id: str | None
+
+
+def _channels(db: Session, channel_ids: list[int]) -> dict[int, ChannelInfo]:
+    """Тип датчика — для класса; объект и комплекс — для ключа серии ППР/ТО."""
+    found: dict[int, ChannelInfo] = {}
     for chunk in _chunks(channel_ids):
-        types.update(db.execute(select(models.RefChannel.id, models.RefChannel.sensor_type)
-                                .where(models.RefChannel.id.in_(chunk))).all())
-    return types
+        rows = db.execute(select(models.RefChannel.id, models.RefChannel.sensor_type,
+                                 models.RefChannel.obj_id, models.RefObject.parent_id)
+                          .outerjoin(models.RefObject,
+                                     models.RefObject.id == models.RefChannel.obj_id)
+                          .where(models.RefChannel.id.in_(chunk)))
+        found.update((cid, ChannelInfo(st, obj, parent)) for cid, st, obj, parent in rows)
+    return found
+
+
+def _series_event(ref, group: str | None, info: ChannelInfo | None, channel_id: int,
+                  ts: datetime) -> semantics.SeriesEvent | None:
+    key = semantics.series_key(group, info.obj_id if info else None,
+                               info.complex_id if info else None)
+    if key is None:
+        return None
+    return semantics.SeriesEvent(ref=ref, group=group, key=key, channel_id=channel_id, ts=ts)
+
+
+def mark_series(db: Session, fresh: list[models.Event],
+                channels: dict[int, ChannelInfo]) -> int:
+    """Подсказка «вероятно, ППР или ТО: серия…» новым событиям и уже записанным.
+
+    Серию видно, только когда пришло N-е событие, поэтому подсказку получают и
+    предыдущие события серии — UPDATE в той же транзакции, что и приём пачки.
+    Вызывать до db.add(fresh): запрос видит только прежние строки. Запрос к БД один
+    на пачку: события групп серий у тех же объектов и комплексов за
+    [первое − 20 мин, последнее + 20 мин]. Этого хватает, чтобы точно пересчитать
+    подсказки в [первое − 10 мин, последнее + 10 мин] (semantics.series_hints); дальше
+    новые события ни на одно окно не влияют. Возвращает число обновлённых старых строк.
+    """
+    new = [e for e in (_series_event(event, event.incident_group,
+                                     channels.get(event.channel_id), event.channel_id,
+                                     from_db(event.ts)) for event in fresh) if e]
+    if not new:
+        return 0
+    first, last = min(e.ts for e in new), max(e.ts for e in new)
+    window = semantics.SERIES_WINDOW
+    stored = db.execute(
+        select(models.Event.id, models.Event.channel_id, models.Event.ts,
+               models.Event.incident_group, models.Event.hint,
+               models.RefChannel.obj_id, models.RefObject.parent_id)
+        .join(models.RefChannel, models.RefChannel.id == models.Event.channel_id)
+        .outerjoin(models.RefObject, models.RefObject.id == models.RefChannel.obj_id)
+        .where(models.Event.incident_group.in_(list(semantics.SERIES_MIN)),
+               models.Event.ts >= to_db(first - 2 * window),
+               models.Event.ts <= to_db(last + 2 * window),
+               or_(and_(models.Event.incident_group == "fire",
+                        models.RefChannel.obj_id.in_({e.key for e in new
+                                                      if e.group == "fire"})),
+                   and_(models.Event.incident_group == "gas",
+                        models.RefObject.parent_id.in_({e.key for e in new
+                                                        if e.group == "gas"}))))).all()
+    candidates = list(new)
+    before: dict[int, tuple[datetime, str | None]] = {}
+    for row_id, channel_id, ts, group, hint, obj_id, parent_id in stored:
+        event = _series_event(row_id, group, ChannelInfo(None, obj_id, parent_id),
+                              channel_id, from_db(ts))
+        if event:
+            before[row_id] = (event.ts, hint)
+            candidates.append(event)
+    hints = semantics.series_hints(candidates)
+    for event in new:
+        if event.ref in hints:
+            event.ref.hint = hints[event.ref]
+    changed = [{"id": row_id, "hint": hints[row_id]} for row_id, (ts, hint) in before.items()
+               if row_id in hints and first - window <= ts <= last + window
+               and hint != hints[row_id]]
+    if changed:
+        db.execute(update(models.Event), changed)
+    return len(changed)
 
 
 def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
@@ -110,17 +187,22 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
     # Дубли ищем одним запросом на пачку хешей, а не запросом на строку: файл до 200 МБ —
     # это миллионы строк. seen ловит повтор строки внутри той же партии.
     seen = _existing_hashes(db, list({e.row_hash for e in parsed}))
-    sensor_types = _sensor_types(db, list({e.channel_id for e in parsed}))
-    alarms: list[models.Notification] = []
+    channels = _channels(db, list({e.channel_id for e in parsed}))
+    fresh: list[models.Event] = []
     for event in parsed:
         if event.row_hash in seen:
             batch.duplicates += 1
             continue
         seen.add(event.row_hash)
-        event.event_class, event.hint = semantics.classify(
-            sensor_types.get(event.channel_id), event.val_raw, event.val_num, event.alarm,
+        info = channels.get(event.channel_id)
+        event.event_class, event.hint, event.incident_group = semantics.classify(
+            info.sensor_type if info else None, event.val_raw, event.val_num, event.alarm,
             ts=from_db(event.ts))
         event.batch_id = batch.id
+        fresh.append(event)
+    mark_series(db, fresh, channels)
+    alarms: list[models.Notification] = []
+    for event in fresh:
         db.add(event)
         batch.accepted += 1
         if notify and event.event_class in {"alarm", "critical"}:
@@ -129,7 +211,8 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
                 severity="critical" if event.event_class == "critical" else "warning",
                 title=ALARM_TITLE, read_by=[],
                 payload={"event_id": event.event_id, "channel_id": event.channel_id,
-                         "event_class": event.event_class})
+                         "event_class": event.event_class,
+                         "incident_group": event.incident_group})
             db.add(notification)
             alarms.append(notification)
     batch.status = "accepted" if not batch.rejected else ("partial" if batch.accepted else "rejected")
