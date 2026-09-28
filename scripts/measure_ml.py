@@ -35,6 +35,7 @@ def call(method: str, path: str, body: dict | None = None) -> tuple[float, dict]
 
 rows = []
 for day in DAYS:
+    first = len(rows)
     seconds, out = call("POST", "/api/v1/score", {
         "asof": day.isoformat(), "heads": ["A_link", "D"], "issued_histories": {"A_link": [], "D": []},
         "history_complete_from": (day - timedelta(days=7)).isoformat(), "with_factors": True})
@@ -46,7 +47,8 @@ for day in DAYS:
         rows.append({"call": "guard_weekly", "asof": day.isoformat(),
                      "seconds": round(seconds, 2), "status": out.get("result_status"),
                      "items": sum(len(v) for v in out.values() if isinstance(v, list))})
-    print(json.dumps(rows[-1], ensure_ascii=False), flush=True)
+    for row in rows[first:]:  # по понедельникам строк две: /score и недельная очередь
+        print(json.dumps(row, ensure_ascii=False), flush=True)
 
 summary = {}
 for kind in ("score", "guard_weekly"):
