@@ -69,7 +69,9 @@ function CardView({ card }: { card: Card }) {
   const factors = card.factors ?? [];
   const decisions = card.decisions ?? [];
   const versions = card.versions ?? [];
-  const dynamics = card.dynamics_30d ?? [];
+  // Динамика строится по одному каналу. У недельной рекомендации по объекту канала нет,
+  // backend отдаёт 30 суток без событий, и график из одних «нет данных» ничего не скажет.
+  const dynamics = channel ? card.dynamics_30d ?? [] : [];
   const maxContribution = Math.max(...factors.map((item) => Math.abs(item.contribution)), 0.01);
   const score = card.score_type === "probability" ? fmtPercent(card.risk) : fmtNumber(card.priority_score);
   return (
@@ -135,10 +137,25 @@ function CardView({ card }: { card: Card }) {
 }
 
 function DynamicsChart({ points }: { points: NonNullable<Card["dynamics_30d"]> }) {
-  return <LineChart days={points.map((p) => p.day)} label="Тревоги и плохие состояния за 30 суток" series={[
-    { key: "alarms", label: "Тревоги", color: "var(--alarm)", values: points.map((p) => p.alarms) },
-    { key: "bad", label: "Плохие состояния", color: "var(--data)", values: points.map((p) => p.bad_states), dashed: true },
-  ]} />;
+  // Сутки без событий канала — «нет данных», а не ноль тревог: у потери связи
+  // молчание канала и есть симптом, нулевая линия выдала бы его за исправность.
+  const observed = points.filter((p) => p.events > 0).length;
+  const missing = points.length - observed;
+  const known = (value: number, events: number) => (events > 0 ? value : null);
+  const note = observed === 0
+    ? `За ${points.length} суток событий канала в журнале сервиса нет. Отсутствие событий не доказывает исправность.`
+    : missing === 0
+      ? `События канала есть в журнале сервиса за все ${points.length} суток.`
+      : `Дней с событиями канала в журнале сервиса: ${observed} из ${points.length}, без событий: ${missing}. Дни без событий на графике — разрывы, а не ноль: отсутствие событий не доказывает исправность.`;
+  return (
+    <>
+      <LineChart days={points.map((p) => p.day)} label="Тревоги и плохие состояния за 30 суток" series={[
+        { key: "alarms", label: "Тревоги", color: "var(--alarm)", values: points.map((p) => known(p.alarms, p.events)) },
+        { key: "bad", label: "Плохие состояния", color: "var(--data)", values: points.map((p) => known(p.bad_states, p.events)), dashed: true },
+      ]} />
+      <p className="chart-note">{note}</p>
+    </>
+  );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {

@@ -69,6 +69,11 @@ class DynamicsPoint(BaseModel):
     day: date
     alarms: int
     bad_states: int
+    # Без этого счётчика alarms=0 не отличить: канал молчал (для потери связи это и есть
+    # симптом) или сутки прошли без тревог.
+    events: int = Field(description="Все события канала за сутки МСК в журнале сервиса. "
+                                    "0 — сутки без событий: состояние неизвестно, "
+                                    "alarms и bad_states за них не означают ноль")
 
 
 class CalendarInfo(BaseModel):
@@ -85,7 +90,11 @@ class ForecastCard(ForecastItem):
     coverage_note: str | None = None
     versions: list[VersionItem] = Field(default_factory=list)
     decisions: list[DecisionOut] = Field(default_factory=list)
-    dynamics_30d: list[DynamicsPoint] = Field(default_factory=list)
+    dynamics_30d: list[DynamicsPoint] = Field(
+        default_factory=list,
+        description="30 суток МСК до asof включительно. Сутки без событий канала (events=0) "
+                    "не пропускаются и не означают исправность: в журнале сервиса о них "
+                    "нет данных. У прогноза без канала все events=0")
     calendar: CalendarInfo | None = None
 
 

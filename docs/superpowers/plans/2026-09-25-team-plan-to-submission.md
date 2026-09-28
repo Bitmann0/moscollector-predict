@@ -294,7 +294,7 @@ cmd /c mklink /J ml\Materials %DATA_ROOT%\Materials
 | `GET /system/status` | все | `{demo_today, mode, ml_ready{status, data_last_day}, heads{…статус головы из C1…}, last_run{asof, finished_at}}` |
 | `GET /dashboard/summary` | все | KPI: открытые прогнозы по сценариям, охват, заявки по статусам, тревоги за 24 ч, «сработки, похожие на плановые работы» (C5), статус головы; ряды для двух диаграмм |
 | `GET /forecasts?scenario&from&to&decision&outcome&obj&group_by&page` | все | Журнал прогнозов (ТЗ §10) |
-| `GET /forecasts/{id}` | все | Карточка: поля списка, `factors[]` (у недельной очереди — `evidence` и счётчики за 7 и 30 дней), `coverage`, `versions[]`, `decisions[]`, исходы, `work_order_id`, `dynamics_30d[]` (тревоги и плохие состояния по дням), `calendar` (день недели, праздник) |
+| `GET /forecasts/{id}` | все | Карточка: поля списка, `factors[]` (у недельной очереди — `evidence` и счётчики за 7 и 30 дней), `coverage`, `versions[]`, `decisions[]`, исходы, `work_order_id`, `dynamics_30d[]` (тревоги, плохие состояния и число событий канала по дням; сутки без событий — «нет данных», а не ноль), `calendar` (день недели, праздник) |
 | `GET /reason-codes` | все | Справочник причин (C3) |
 | `POST /forecasts/{id}/decisions` `{action, reason_code, comment}` | dispatcher, admin | Решение диспетчера (ТЗ §12, шаг 5) |
 | `POST /forecasts/{id}/outcome` `{outcome, comment, event_at?, channel?}` | dispatcher, technician, analyst, admin | Итог проверки; `event_at` и `channel` — будущие метки для ML (`BACKEND_ML_SYNC.md:34-37`) |
