@@ -300,9 +300,9 @@ docker compose -f compose.yaml -f compose.real.yaml up -d --build
 
 Замер 28.09:
 
-- `/score` ML-сервиса по A_link и D за каждый день 01–30.06 — 7,61 с по медиане, от 0,14
-  до 10,57 с. 0,14 с приходится на 01.06: событий за этот день нет, ML сразу отвечает
-  `no_data` (`docs/submission/08-performance.md`, `docs/submission/perf/ml_score_june.jsonl`).
+- `/score` ML-сервиса по A_link, D, B и E за каждый день 01–30.06 — 9,08 с по медиане, от 0,21
+  до 10,63 с. 0,21 с приходится на 01.06: событий за этот день нет, ML сразу отвечает
+  `no_data` (`docs/submission/08-performance.md`, `docs/submission/perf/ml_score_june_4heads.jsonl`).
   B и E в замер не входили.
 - В прелоаде за 01.06–29.06 A_link ответила `ok` на 13 днях, `empty_valid` на 15 и
   `no_data` на 01.06; D — `ok` на 29.06 и `empty_valid` на остальных днях с данными

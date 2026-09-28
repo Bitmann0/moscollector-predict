@@ -223,14 +223,16 @@ python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 
 
 | Вызов | Вызовов | Минимум | Медиана | Максимум |
 |---|---:|---:|---:|---:|
-| `POST /api/v1/score`, один день по A_link и D, с факторами | 30 | 0,14 с | 7,61 с | 10,57 с |
-| `GET /api/v1/guard-weekly-inspections`, понедельники | 5 | 0,05 с | 0,22 с | 0,23 с |
+| `POST /api/v1/score`, один день по A_link, D, B и E, с факторами | 30 | 0,21 с | 9,08 с | 10,63 с |
+| `GET /api/v1/guard-weekly-inspections`, понедельники | 5 | 0,05 с | 0,25 с | 0,27 с |
 
-Замер ML2-04 28.09 за каждый день 01–30.06: машина разработчика, Docker
-Desktop, `ML_MODE=real`, бандл `bundle-20260928-3` с моделями A_link 0,70.
-Запросы шли по одному из контейнера api, журнал выданного пустой. Минимум
-0,14 с — 01.06: событий за этот день нет, ответ `no_data`. Источник —
-`docs/submission/perf/ml_score_june.jsonl`, команда —
+Замер 29.09 за каждый день 01–30.06: машина разработчика, Docker
+Desktop, `ML_MODE=real`, бандл `bundle-20260928-5` с моделями A_link 0,70,
+B и E. Запросы шли по одному из контейнера api, журнал выданного пустой.
+Минимум 0,21 с — 01.06: событий за этот день нет, ответ `no_data`.
+Замер 28.09 по двум головам A_link и D: медиана 7,61 с, максимум 10,57 с
+(`docs/submission/perf/ml_score_june.jsonl`). Источник —
+`docs/submission/perf/ml_score_june_4heads.jsonl`, команда —
 `scripts/measure_ml.py` в корне репозитория; условия и разбор —
 `docs/submission/08-performance.md`. Требование ТЗ — формирование прогноза
 меньше 5 минут (`docs/ТЗ.md`, «Метрики»).

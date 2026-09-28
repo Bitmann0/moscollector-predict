@@ -896,15 +896,15 @@
   ],
   "runtime": [
     {
-      "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D, с факторами и пустым журналом выданного",
+      "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link, D, B и E, с факторами и пустым журналом выданного",
       "calls": 30,
       "seconds": {
-        "min": 0.14,
-        "median": 7.61,
-        "max": 10.57
+        "min": 0.21,
+        "median": 9.08,
+        "max": 10.63
       },
-      "conditions": "28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы по одному из контейнера api",
-      "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+      "conditions": "29.09, машина разработчика: Windows 11, Docker Desktop на WSL2, ML_MODE=real, бандл bundle-20260928-5 (A_link 0,70, модели B и E); запросы по одному из контейнера api",
+      "source": "docs/submission/perf/ml_score_june_4heads.jsonl (строка summary)",
       "command": "docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < scripts/measure_ml.py"
     },
     {
@@ -912,11 +912,11 @@
       "calls": 5,
       "seconds": {
         "min": 0.05,
-        "median": 0.22,
-        "max": 0.23
+        "median": 0.25,
+        "max": 0.27
       },
-      "conditions": "28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы по одному из контейнера api",
-      "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+      "conditions": "29.09, машина разработчика: Windows 11, Docker Desktop на WSL2, ML_MODE=real, бандл bundle-20260928-5 (A_link 0,70, модели B и E); запросы по одному из контейнера api",
+      "source": "docs/submission/perf/ml_score_june_4heads.jsonl (строка summary)",
       "command": "docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < scripts/measure_ml.py"
     }
   ],
