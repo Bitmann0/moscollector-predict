@@ -6,6 +6,11 @@
 потоков, чтобы не останавливать цикл событий. Необработанное исключение
 обработчика записывается как 500 и пробрасывается дальше. Анонимные 404/405
 (перебор несуществующих путей) не пишутся: иначе их поток забивает журнал.
+
+Логин берётся из request.state.user. У неудачного входа пользователя нет, и пишется
+логин, который пробовали (request.state.login_attempt, ставит routers/auth.py), без
+роли: по журналу видно, какую учётную запись перебирали. Выход кладёт в state
+пользователя, чью сессию отозвал. Тело запроса, а с ним и пароль, не пишется.
 """
 import logging
 from datetime import UTC, datetime
@@ -59,9 +64,11 @@ class AuditMiddleware(BaseHTTPMiddleware):
         finally:
             user = getattr(request.state, "user", None)
             if user is not None or status not in (404, 405):
+                login = (user.login if user is not None
+                         else getattr(request.state, "login_attempt", None))
                 await run_in_threadpool(_write, {
                     "ts": datetime.now(UTC),
-                    "user_login": getattr(user, "login", None),
+                    "user_login": login,
                     "role": getattr(user, "role", None),
                     "method": request.method,
                     "path": request.url.path[:PATH_MAX],

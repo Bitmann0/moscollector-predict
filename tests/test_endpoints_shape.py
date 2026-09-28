@@ -5,16 +5,13 @@
 данных для его параметров здесь сразу упадёт — допишите их в REQUIRED_QUERY.
 """
 import io
-import threading
 import time
 
 import httpx
 import openpyxl
 import pytest
-import uvicorn
 from app import models
 from app.main import API_PREFIX, ROUTERS, create_app
-from app.routers import stream as stream_router
 from app.services.export import COLUMNS
 from app.services.helpers import now_utc
 from app.services.notifications import broker
@@ -220,24 +217,6 @@ def test_geo_schema_is_conditional(admin):
     assert geo["properties"]["note"] == "условная схема, не географические координаты"
     assert geo["features"]
     assert admin.get(f"{API}/schema.wkt").text.startswith("GEOMETRYCOLLECTION")
-
-
-@pytest.fixture
-def live_server(app, monkeypatch):
-    """uvicorn в потоке: TestClient копит тело ответа целиком и бесконечный SSE не отдаст."""
-    monkeypatch.setattr(stream_router, "HEARTBEAT_S", 0.2)
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=0, log_level="warning",
-                                           lifespan="off"))
-    thread = threading.Thread(target=server.run, daemon=True)
-    thread.start()
-    deadline = time.monotonic() + 10
-    while not server.started:
-        assert time.monotonic() < deadline, "uvicorn не стартовал"
-        time.sleep(0.02)
-    port = server.servers[0].sockets[0].getsockname()[1]
-    yield f"http://127.0.0.1:{port}"
-    server.should_exit = True
-    thread.join(timeout=10)
 
 
 def _read_until(lines, wanted: str, limit: int = 50) -> list[str]:
