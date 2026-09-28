@@ -7,13 +7,16 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
 Пути даны от корня репозитория. После снятия перечня `pandas>=2.2` стал прямой
 зависимостью ML (`ml/pyproject.toml`, PR #34, температурный бэктест); версия в
 `ml/requirements.lock` та же, 3.0.5, поэтому состав образа ml не изменился — пакет
-перенесён из транзитивных в прямые.
+перенесён из транзитивных в прямые. Позже backend получил прямую зависимость `fpdf2` (отчёт
+руководству в PDF, ветка `feat/report-pdf`) и dev-зависимость `pypdf`: версии `fpdf2` и трёх
+его транзитивных пакетов сняты с образа api этой ветки, собранного 28.09.2026 в 21:26 МСК,
+версия `pypdf` — с venv разработчика.
 
 ## Сводка
 
 | Компонент | Где исполняется | Прямых | Транзитивных | Лицензии пакетов, попадающих в образ или сборку |
 |---|---|---|---|---|
-| backend | контейнер api | 10 и 2 dev | 23 | MIT — 17, BSD-3-Clause — 10, LGPL-3.0-only — 2, Apache-2.0, MPL-2.0, PSF-2.0, «MIT или Apache-2.0» — по 1 |
+| backend | контейнер api | 11 и 3 dev | 26 | MIT — 18, BSD-3-Clause — 10, LGPL-3.0-only — 3, PSF-2.0 — 2, Apache-2.0, MPL-2.0, MIT-CMU, «MIT или Apache-2.0» — по 1 |
 | ML | контейнеры ml и replay | 12, 1 в группе `schedules` и 2 dev | 34 | MIT — 21, BSD-3-Clause — 15, Apache-2.0 — 3, ещё 7 — PSF-2.0, MIT-CMU, лицензия Matplotlib и составные (таблицы ниже) |
 | frontend, браузерная сборка | браузер пользователя | 5 | 6 | MIT — 10, OFL-1.1 — 1 (шрифт) |
 | frontend, инструменты сборки | стадия сборки образа api, `npm run dev` | 6 | 136 | MIT — 128, ISC — 7, Apache-2.0 — 3, BSD-3-Clause, Python-2.0, CC-BY-4.0, «MIT или CC0-1.0» — по 1 |
@@ -26,10 +29,11 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
 
 | Лицензия | Что под ней | Где находится |
 |---|---|---|
-| LGPL-3.0-only | `psycopg` и `psycopg-binary` 3.3.6 | образ api; ставятся из PyPI без изменений отдельными пакетами |
+| LGPL-3.0-only | `psycopg` и `psycopg-binary` 3.3.6, `fpdf2` 2.8.8 | образ api; ставятся из PyPI без изменений отдельными пакетами |
 | MPL-2.0 | `certifi` 2026.7.22 | образ api, транзитивно от `httpx` |
 | GPL-3.0-or-later с GCC Runtime Library Exception 3.1 | системная библиотека `libgomp1` 14.2.0-19 | образ ml, ставится `apt-get` в `ml/Dockerfile` |
 | OFL-1.1 | шрифт Golos Text, `@fontsource-variable/golos-text` 5.3.0 | файлы woff2 браузерной сборки |
+| Bitstream Vera Fonts и Arev Fonts; правки DejaVu — общественное достояние | шрифт DejaVu Sans 2.35, обычный и полужирный; файлы взяты без изменений из `matplotlib` 3.11.2 (`mpl-data/fonts/ttf`), текст лицензии — `backend/app/resources/fonts/LICENSE` | образ api, `backend/app/resources/fonts/`; подмножество глифов встраивается в PDF отчёта |
 | CC-BY-4.0 | `caniuse-lite` (база поддержки браузеров) | только инструменты сборки фронта, в браузерную сборку не попадает |
 | LGPL-2.1-or-later, ограничение unRAR | 7-Zip | утилита хоста для упаковки и распаковки бандла |
 | LGPL-2.1-or-later | `py7zr` 1.1.3 | только окружение аудита данных `analysis/` |
@@ -87,8 +91,10 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `python-multipart` | `python-multipart>=0.0.9` | 0.0.32 | Apache-2.0 | разбор multipart/form-data для загрузки файлов (`UploadFile` в `backend/app/routers/ingest.py`) |
 | `httpx` | `httpx>=0.27,<1` | 0.28.1 | BSD-3-Clause | HTTP-клиент к ML-сервису C1 (`backend/app/services/ml_client.py`) |
 | `openpyxl` | `openpyxl>=3.1,<4` | 3.1.5 | MIT | выгрузка в XLSX (`backend/app/services/export.py`) и приём XLSX (`backend/app/services/ingest.py`) |
+| `fpdf2` | `fpdf2>=2.8,<3` | 2.8.8 | LGPL-3.0-only | отчёт руководству в PDF (`backend/app/services/report_pdf.py`) |
 | `pytest` (dev) | `pytest>=8,<9` | 8.4.2 (venv; в образ не входит) | MIT | тесты `tests/` (`make test-backend`, CI) |
 | `ruff` (dev) | `ruff>=0.6,<1` | 0.16.9 (venv; в образ не входит) | MIT | линтер (`make lint`, CI) |
+| `pypdf` (dev) | `pypdf>=6,<7` | 6.19.0 (venv; в образ не входит) | BSD-3-Clause | текст PDF отчёта в `tests/test_report_pdf.py` |
 
 ### Транзитивные зависимости
 
@@ -99,13 +105,16 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `anyio` | 4.15.1 | MIT | httpx, starlette, watchfiles |
 | `certifi` | 2026.7.22 | MPL-2.0 | httpcore, httpx |
 | `click` | 8.5.0 | BSD-3-Clause | uvicorn |
+| `defusedxml` | 0.7.1 | PSF-2.0² | fpdf2 |
 | `et_xmlfile` | 2.0.0 | MIT | openpyxl |
+| `fonttools` | 4.66.0 | MIT | fpdf2 |
 | `h11` | 0.16.0 | MIT | httpcore, uvicorn |
 | `httpcore` | 1.0.9 | BSD-3-Clause | httpx |
 | `httptools` | 0.8.0 | MIT | uvicorn |
 | `idna` | 3.20 | BSD-3-Clause | anyio, httpx |
 | `Mako` | 1.4.3 | MIT | alembic |
 | `MarkupSafe` | 3.0.3 | BSD-3-Clause | Mako |
+| `pillow` | 12.3.0 | MIT-CMU | fpdf2 |
 | `psycopg-binary` | 3.3.6 | LGPL-3.0-only | psycopg |
 | `pydantic` | 2.13.5 | MIT | fastapi, pydantic-settings |
 | `pydantic_core` | 2.46.5 | MIT | pydantic |

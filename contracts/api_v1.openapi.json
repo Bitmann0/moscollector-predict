@@ -3836,6 +3836,88 @@
         ]
       }
     },
+    "/api/v1/export/report.pdf": {
+      "get": {
+        "description": "Отчёт руководству за период (ТЗ §8): сценарии, прогнозы по дням, заявки по статусам,\nтревожные сообщения по группам аварий, топ-10 объектов. Выгрузка пишется в аудит.\n\n422 `from_after_to` — from позже to; 422 `period_too_long` — период длиннее\n366 суток (report.MAX_DAYS).",
+        "operationId": "management_report_pdf_api_v1_export_report_pdf_get",
+        "parameters": [
+          {
+            "description": "По умолчанию — семь суток до to включительно",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "По умолчанию — семь суток до to включительно",
+              "title": "From"
+            }
+          },
+          {
+            "description": "По умолчанию — демо-дата",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "По умолчанию — демо-дата",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {}
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Management Report Pdf",
+        "tags": [
+          "export"
+        ]
+      }
+    },
     "/api/v1/forecasts": {
       "get": {
         "operationId": "list_forecasts_api_v1_forecasts_get",

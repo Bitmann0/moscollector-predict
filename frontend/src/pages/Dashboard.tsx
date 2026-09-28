@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import { api, type Schemas } from "../api/client";
 import { useLoad, type Load } from "../api/useLoad";
+import { useAuth } from "../auth/AuthContext";
 import { TrendChart, Donut, dailySeries } from "../components/Charts";
 import { Icon } from "../components/Icons";
 import { PageHeader } from "../components/PageHeader";
@@ -15,6 +16,12 @@ type Summary = Schemas["DashboardSummary"];
 type Forecast = Schemas["ForecastItem"];
 
 const QUEUE_SIZE = 6;
+
+/**
+ * Отчёт руководству в PDF (ТЗ §8). Без параметров сервер берёт семь суток по демо-дату
+ * включительно (backend/app/services/report.py), и правило периода живёт в одном месте.
+ */
+const REPORT_HREF = "/api/v1/export/report.pdf";
 
 /**
  * Верх очереди диспетчера: прогнозы без решения, окно которых не кончилось к
@@ -40,6 +47,7 @@ async function loadDispatcherQueue(demoToday: string | undefined): Promise<{ dat
 }
 
 export function Dashboard() {
+  const { can } = useAuth();
   const summary = useLoad(() => api.GET("/api/v1/dashboard/summary"), []);
   const demoToday = summary.data?.demo_today;
   const queue = useLoad(() => loadDispatcherQueue(demoToday), [demoToday]);
@@ -47,7 +55,7 @@ export function Dashboard() {
   useReloadOn(["run.finished", "alert.new", "workorder.changed"], summary.reload);
   useReloadOn(["run.finished", "alert.new"], queue.reload);
   return <section className="dashboard-page">
-    <PageHeader eyebrow="Оперативный контур" title="Центр управления" description="Риски инфраструктуры и действия диспетчерской службы в одном окне" actions={<><button className="button" type="button" onClick={() => { summary.reload(); queue.reload(); }}>Обновить</button><Link className="button button--primary" to="/forecasts">Открыть очередь <Icon name="arrow" /></Link></>} />
+    <PageHeader eyebrow="Оперативный контур" title="Центр управления" description="Риски инфраструктуры и действия диспетчерской службы в одном окне" actions={<>{can("export") && <a className="button" href={REPORT_HREF} download title="Семь суток по демо-дату включительно: сценарии, прогнозы по дням, заявки, тревожные сообщения по группам аварий, топ-10 объектов"><Icon name="download" /> Отчёт PDF</a>}<button className="button" type="button" onClick={() => { summary.reload(); queue.reload(); }}>Обновить</button><Link className="button button--primary" to="/forecasts">Открыть очередь <Icon name="arrow" /></Link></>} />
     <Loaded load={summary}>{(data) => <SummaryView summary={data} queue={queue} />}</Loaded>
   </section>;
 }

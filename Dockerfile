@@ -35,6 +35,8 @@ RUN python -c "import tomllib; print('\n'.join(tomllib.load(open('pyproject.toml
     && rm /tmp/requirements.txt
 
 COPY contracts/ /app/contracts/
+# С кодом приходит шрифт DejaVu Sans для отчёта PDF (backend/app/resources/fonts), поэтому
+# системные шрифты и apt-пакет fonts-dejavu-core образу не нужны.
 COPY backend/ /app/backend/
 COPY --from=build /fe/dist/ /app/backend/app/static/
 
