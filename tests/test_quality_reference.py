@@ -29,7 +29,8 @@ def test_reference_covers_every_scenario():
     assert set(_reference()) == set(vocab.codes("scenario"))
 
 
-@pytest.mark.parametrize("scenario", ["sensor_link", "equipment_diag", "guard_weekly"])
+@pytest.mark.parametrize("scenario", ["sensor_link", "equipment_diag", "guard_weekly",
+                                      "fire_risk", "flood_risk"])
 def test_quality_returns_reference_numbers(admin, scenario):
     expected = _reference()[scenario]
     result = admin.get(f"{API}/quality", params={"scenario": scenario}).json()
@@ -39,6 +40,21 @@ def test_quality_returns_reference_numbers(admin, scenario):
     assert result["reference_source"] == expected["source"]
     assert result["reference_note"] == expected["note"]
     assert result["base_rate"] is not None
+
+
+def test_quality_without_reference_is_not_an_error(admin, monkeypatch):
+    """Сценарий без записи в quality_reference.json: экран работает, опорных чисел нет."""
+    from app.services import quality
+
+    reference = {k: v for k, v in _reference().items() if k != "fire_risk"}
+    monkeypatch.setattr(quality, "reference", lambda: reference)
+    resp = admin.get(f"{API}/quality", params={"scenario": "fire_risk"})
+    assert resp.status_code == 200, resp.text
+    result = resp.json()
+    assert result["scenario"] == "fire_risk" and len(result["weeks"]) == 4
+    for key in ("base_rate", "rule_precision", "reference_period", "reference_source",
+                "reference_note"):
+        assert result[key] is None, key
 
 
 def test_quality_reference_source_files_exist():

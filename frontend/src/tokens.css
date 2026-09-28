@@ -8,7 +8,11 @@
  *
  * Цвета сценариев проверены валидатором палитры (dataviz): светлая тема —
  * различимость при нарушениях цветового зрения ΔE 9,3, тёмная — 7,1, поэтому
- * серии на графиках всегда подписаны. Шрифт — Golos Text (Paratype, OFL),
+ * серии на графиках всегда подписаны. Пожар и подтопление добавлены 29.09 тем же
+ * валидатором по всем парам пяти цветов: худшие пары остались прежними (9,3 и 7,1),
+ * при обычном зрении не ближе ΔE 18,8, от цветов статусов — не ближе 15,5. Голубой
+ * подтопления в тёмной теме светлее полосы яркости валидатора (L 0,76 при верхней
+ * границе 0,67): в полосе нет холодного тона, отличимого от синего и зелёного. Шрифт — Golos Text (Paratype, OFL),
  * заказан для государственных и социальных сервисов; подключён из сборки.
  */
 
@@ -66,6 +70,8 @@
   --s-link: #1d5b9c;
   --s-wear: #1b9b74;
   --s-guard: #b85cc4;
+  --s-fire: #805800;
+  --s-flood: #0090f8;
 
   /* Статусы: заливка / текст / подложка */
   --crit: #c4261d;  --crit-ink: #a11f17;  --crit-tint: #f7e1df;
@@ -96,7 +102,7 @@
     --nav-bg: #0b1117; --nav-text: #c9d2da; --nav-muted: #8c99a6; --nav-hover: #16202a; --nav-active: #1f2c39; --nav-line: #1f2a35; --nav-marker: #7fb2e0; --nav-badge: #ff8a82;
     --accent: #2f5f87; --accent-hover: #3a6f9c; --accent-text: #ffffff; --accent-tint: #1f3346; --link: #7fb2e0; --focus: #5aa2f0;
     --data: #6fa4d6; --data-tint: #1f3346; --grid: #26313c; --axis: #5b6874;
-    --s-link: #2f6fb8; --s-wear: #1e9c76; --s-guard: #bf72cc;
+    --s-link: #2f6fb8; --s-wear: #1e9c76; --s-guard: #bf72cc; --s-fire: #906000; --s-flood: #6cbcf0;
     --crit: #e5534b;  --crit-ink: #ff8a82;  --crit-tint: #3a1c1b;
     --alarm: #f08a2e; --alarm-ink: #ffb067; --alarm-tint: #3a2616;
     --warn: #e8c040;  --warn-ink: #f2d373;  --warn-tint: #352d12;
@@ -114,7 +120,7 @@
   --nav-bg: #0b1117; --nav-text: #c9d2da; --nav-muted: #8c99a6; --nav-hover: #16202a; --nav-active: #1f2c39; --nav-line: #1f2a35; --nav-marker: #7fb2e0; --nav-badge: #ff8a82;
   --accent: #2f5f87; --accent-hover: #3a6f9c; --accent-text: #ffffff; --accent-tint: #1f3346; --link: #7fb2e0; --focus: #5aa2f0;
   --data: #6fa4d6; --data-tint: #1f3346; --grid: #26313c; --axis: #5b6874;
-  --s-link: #2f6fb8; --s-wear: #1e9c76; --s-guard: #bf72cc;
+  --s-link: #2f6fb8; --s-wear: #1e9c76; --s-guard: #bf72cc; --s-fire: #906000; --s-flood: #6cbcf0;
   --crit: #e5534b;  --crit-ink: #ff8a82;  --crit-tint: #3a1c1b;
   --alarm: #f08a2e; --alarm-ink: #ffb067; --alarm-tint: #3a2616;
   --warn: #e8c040;  --warn-ink: #f2d373;  --warn-tint: #352d12;

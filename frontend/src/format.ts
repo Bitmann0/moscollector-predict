@@ -65,12 +65,18 @@ export function scoreText(item: Pick<Forecast, "score_type" | "risk" | "priority
   return `${value === null || value === undefined ? DASH : PRIORITY.format(value)} (${label})`;
 }
 
-export function placeText(item: Pick<Forecast, "object" | "channel">): string {
-  const parts = [
-    item.object.name ?? item.object.id,
-    item.channel?.picket_label,
-    item.channel?.name ?? (item.channel ? `канал ${item.channel.id}` : null),
-  ];
+/**
+ * Что внутри объекта охватывает прогноз: канал с пикетом, участок объекта у пожарного риска
+ * (канала у него нет, есть segment_label) или объект целиком — подтопление и недельная очередь.
+ */
+export function entityText(item: Pick<Forecast, "channel" | "segment_label">): string {
+  if (item.channel) return [item.channel.picket_label, item.channel.name?.trim() || `канал ${item.channel.id}`].filter(Boolean).join(" · ");
+  if (item.segment_label) return `участок: ${item.segment_label}`;
+  return "объект целиком";
+}
+
+export function placeText(item: Pick<Forecast, "object" | "channel" | "segment_label">): string {
+  const parts = [item.object.name ?? item.object.id, item.channel || item.segment_label ? entityText(item) : null];
   return parts.filter(Boolean).join(" · ") || "—";
 }
 

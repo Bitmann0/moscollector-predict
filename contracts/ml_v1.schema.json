@@ -568,7 +568,7 @@
       "type": "object"
     },
     "IssuedEntry": {
-      "description": "Строка журнала выданного: канал (A_link, D) или объект — и день выдачи.",
+      "description": "Строка журнала выданного: канал (A_link, D) или объект (B, E) — и день выдачи.",
       "properties": {
         "channel": {
           "anyOf": [
@@ -652,6 +652,18 @@
           ],
           "default": null,
           "title": "Obj"
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segment"
         }
       },
       "required": [
@@ -765,7 +777,9 @@
           "items": {
             "enum": [
               "A_link",
-              "D"
+              "D",
+              "B",
+              "E"
             ],
             "type": "string"
           },
@@ -795,7 +809,9 @@
           "propertyNames": {
             "enum": [
               "A_link",
-              "D"
+              "D",
+              "B",
+              "E"
             ]
           },
           "title": "Issued Histories",

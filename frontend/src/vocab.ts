@@ -82,4 +82,5 @@ export function incidentGroupOf(value: unknown): IncidentGroup | undefined {
 /** Короткие имена сценариев для плотных мест: шапка, таблицы, метки. */
 export const SCENARIO_SHORT: Record<string, string> = {
   sensor_link: "Датчики", equipment_diag: "Износ", guard_weekly: "НСД",
+  fire_risk: "Пожар", flood_risk: "Подтопление",
 };

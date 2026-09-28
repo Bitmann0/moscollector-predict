@@ -186,6 +186,8 @@
             <xs:enumeration value="sensor_link" />
             <xs:enumeration value="equipment_diag" />
             <xs:enumeration value="guard_weekly" />
+            <xs:enumeration value="fire_risk" />
+            <xs:enumeration value="flood_risk" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -208,6 +210,11 @@
       <xs:element name="rank" type="xs:long" />
       <xs:element name="object" type="ObjectRef" />
       <xs:element name="channel" nillable="true" type="ChannelRef" />
+      <xs:element name="segment_label" nillable="true" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Участок объекта из адреса ML (address.segment_label): «ПК 10–20» или «каналы без пикета». Приходит у пожарного риска (голова B), у которого канала нет; у прогноза по объекту целиком — null</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="data_status">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -281,6 +288,8 @@
             <xs:enumeration value="sensor_link" />
             <xs:enumeration value="equipment_diag" />
             <xs:enumeration value="guard_weekly" />
+            <xs:enumeration value="fire_risk" />
+            <xs:enumeration value="flood_risk" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -303,6 +312,11 @@
       <xs:element name="rank" type="xs:long" />
       <xs:element name="object" type="ObjectRef" />
       <xs:element name="channel" nillable="true" type="ChannelRef" />
+      <xs:element name="segment_label" nillable="true" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Участок объекта из адреса ML (address.segment_label): «ПК 10–20» или «каналы без пикета». Приходит у пожарного риска (голова B), у которого канала нет; у прогноза по объекту целиком — null</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="data_status">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -385,6 +399,8 @@
             <xs:enumeration value="sensor_link" />
             <xs:enumeration value="equipment_diag" />
             <xs:enumeration value="guard_weekly" />
+            <xs:enumeration value="fire_risk" />
+            <xs:enumeration value="flood_risk" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -520,6 +536,8 @@
             <xs:enumeration value="sensor_link" />
             <xs:enumeration value="equipment_diag" />
             <xs:enumeration value="guard_weekly" />
+            <xs:enumeration value="fire_risk" />
+            <xs:enumeration value="flood_risk" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -605,6 +623,8 @@
             <xs:enumeration value="sensor_link" />
             <xs:enumeration value="equipment_diag" />
             <xs:enumeration value="guard_weekly" />
+            <xs:enumeration value="fire_risk" />
+            <xs:enumeration value="flood_risk" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -659,6 +679,8 @@
             <xs:enumeration value="sensor_link" />
             <xs:enumeration value="equipment_diag" />
             <xs:enumeration value="guard_weekly" />
+            <xs:enumeration value="fire_risk" />
+            <xs:enumeration value="flood_risk" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>

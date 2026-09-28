@@ -4,9 +4,11 @@
 
     docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < scripts/measure_ml.py
 
-Для каждого дня 01.06–30.06 — POST /api/v1/score по A_link и D с факторами и пустым
-журналом выданного (как первый расчёт дня в run_daily), для понедельников — ещё
-GET /api/v1/guard-weekly-inspections. Время — от отправки до полного ответа, запросы
+Для каждого дня 01.06–30.06 — POST /api/v1/score по головам дневного расчёта с факторами
+и пустым журналом выданного (как первый расчёт дня в run_daily), для понедельников — ещё
+GET /api/v1/guard-weekly-inspections. Головы — из HEADS через запятую, по умолчанию
+A_link, D, B, E, как в backend/app/services/daily_run.py; замеры до 29.09 шли по A_link
+и D — для сравнения с ними HEADS=A_link,D. Время — от отправки до полного ответа, запросы
 строго по одному, как их шлёт backend (ML считает под одной блокировкой). Итог — JSON
 в stdout: по запросу время и статусы голов, в конце min / median / max.
 
@@ -21,6 +23,7 @@ from datetime import date, timedelta
 
 ML = os.environ.get("ML_URL", "http://ml:8001").rstrip("/")
 DAYS = [date(2026, 6, 1) + timedelta(days=n) for n in range(30)]
+HEADS = os.environ.get("HEADS", "A_link,D,B,E").split(",")
 
 
 def call(method: str, path: str, body: dict | None = None) -> tuple[float, dict]:
@@ -37,7 +40,7 @@ rows = []
 for day in DAYS:
     first = len(rows)
     seconds, out = call("POST", "/api/v1/score", {
-        "asof": day.isoformat(), "heads": ["A_link", "D"], "issued_histories": {"A_link": [], "D": []},
+        "asof": day.isoformat(), "heads": HEADS, "issued_histories": {h: [] for h in HEADS},
         "history_complete_from": (day - timedelta(days=7)).isoformat(), "with_factors": True})
     heads = {h: s.get("result_status") for h, s in (out.get("heads") or {}).items()}
     rows.append({"call": "score", "asof": day.isoformat(), "seconds": round(seconds, 2),
