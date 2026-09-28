@@ -589,7 +589,33 @@ def rejected_levers() -> list[dict]:
          "decision": "не принят: не отделяет кандидатов лучше исходного списка",
          "source": "reports/laya_typed_d_decisions.json; reports/LAYA_TYPED_DECISIONS.md",
          "command": "python scripts/eval_laya_typed_decisions.py"},
+        fire_history_lever(),
     ]
+
+
+def fire_history_lever() -> dict:
+    base = _load("fire_flood_product.json")["heads"]["B"]["budgets"]["10"]
+    hist = _load("fire_history_lever.json")["heads"]["B"]["budgets"]["10"]
+    months = base["model_by_month"]
+    not_worse = sum((hist["model_by_month"][m]["precision_lower"] or 0) >=
+                    (months[m]["precision_lower"] or 0) for m in months)
+
+    def block(x: dict) -> dict:
+        return {**_counts(x["recommendations"], x["hits"], x["unknown"]),
+                "new_hits": x["new_hits"], "recall": x["recall"]}
+
+    return {"id": "fire_history", "what": "B: история тревог участка (fire_days_to_date, "
+                                           "fire_rate_to_date, days_since_fire) в признаках",
+            "period": _load("fire_history_lever.json")["heads"]["B"]["period"],
+            "without": block(base["model"]), "with": block(hist["model"]),
+            "months": len(months), "months_not_worse": not_worse,
+            "criterion": "нижняя граница точности выше суммарно и не хуже в 8 месяцах из 12; "
+                         "записан до прогона",
+            "decision": "не принят",
+            "source": "reports/fire_history_lever.json; reports/fire_flood_product.json",
+            "command": "MKL_ROOT=<новый корень> python scripts/exp_fire_history_lever.py "
+                       "<segment.parquet>; MKL_ROOT=<новый корень> python "
+                       "scripts/eval_fire_flood_product.py B --output reports/fire_history_lever.json"}
 
 
 def holdout() -> dict:
