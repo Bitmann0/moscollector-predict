@@ -5,7 +5,7 @@
 Режим задаёт ML_MODE:
 - stub (по умолчанию) — ответы строит mkl.product_stub из синтетического
   справочника; данные, модели и тяжёлые модули mkl не нужны;
-- real — пилотные модели и недельная очередь читаются из бандла.
+- real — модели A_link, B, E, правило D и недельная очередь читаются из бандла.
 
 Тяжёлые модули (mkl.service, serve, train, polars) импортируются только
 внутри _real_*, поэтому образ в режиме stub стартует без бандла.
@@ -51,7 +51,13 @@ MODES = ("stub", "real")
 log = logging.getLogger(__name__)
 
 
-PILOT_HEADS = ("A_link", "D")
+PILOT_HEADS = ("A_link", "D", "B", "E")
+# Пояснение к охвату: по каким сущностям голова вообще отвечает.
+COVERAGE_REASON = {
+    "D": "только каналы оборудования",
+    "B": "объекты по участкам 10 пикетов; риск считается на участок",
+    "E": "только объекты с насосами: «Затоплен» приходит с каналов насосов",
+}
 
 
 def _last_feature_day() -> dt.date | None:
@@ -182,15 +188,22 @@ def _real_score(req: ScoreRequest) -> ScoreResponse:
     catalog = None
     for head in dict.fromkeys(req.heads):
         cfg = serve.load_heads()[head]
+        # B и E отвечают по объектам (участкам объекта), A_link и D — по каналам.
+        by_object = cfg["entity"][0] == "obj"
         total = 0
         if (PATHS.interim / "channels.parquet").exists():
             if catalog is None:
                 import polars as pl
                 catalog = pl.read_parquet(PATHS.interim / "channels.parquet")
-            population = (catalog.filter(pl.col("stype").is_in(EQUIPMENT_STYPES))
-                          if head == "D" else catalog)
-            total = population["ch"].n_unique()
-        reason = ("только каналы оборудования" if head == "D" else None)
+            if cfg.get("population") == "pump_objects":
+                total = len(serve.pump_objects())
+            elif by_object:
+                total = catalog["obj"].drop_nulls().n_unique()
+            else:
+                population = (catalog.filter(pl.col("stype").is_in(EQUIPMENT_STYPES))
+                              if head == "D" else catalog)
+                total = population["ch"].n_unique()
+        reason = COVERAGE_REASON.get(head)
         try:
             if not has_day:
                 raise ValueError(f"no feature rows for requested day {req.asof}")
@@ -212,7 +225,9 @@ def _real_score(req: ScoreRequest) -> ScoreResponse:
                 # train_latest.py saves nextafter(1.0), a rule head saves inf when
                 # no threshold meets the precision gate: silent by design.
                 threshold_feasible=rule_head.feasible(art))
-            scored = len({a.address.channel for a in got if a.address.channel is not None})
+            scored = (len({a.address.obj for a in got if a.address.obj is not None})
+                      if by_object else
+                      len({a.address.channel for a in got if a.address.channel is not None}))
         except Exception as exc:
             detail = str(exc)
             status = ("no_data" if "no feature rows" in detail or
@@ -398,7 +413,7 @@ def create_app(mode: str | None = None) -> FastAPI:
     app = FastAPI(
         title="Москоллектор ML — контракт C1",
         version=SCHEMA_VERSION,
-        description=("Прогнозы пилотных голов A_link и D, недельная охранная очередь и "
+        description=("Прогнозы голов A_link, D, B и E, недельная охранная очередь и "
                      f"факт по выданному. Режим: {mode}."),
         lifespan=lifespan,
     )
