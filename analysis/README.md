@@ -5,8 +5,6 @@
 Ревью реализации: [подтверждённые ошибки MVP и приоритеты исправлений](REVIEW_OTHER_IMPLEMENTATION.md).
 Обзор относится к коммиту `550ed9e`; результаты исправлений описываются отдельно, чтобы сохранить исходные свидетельства.
 
-Запись PR #7: [семантика датчиков, десять дневных целей, отрицательные бэктесты фаз, температуры, дыма и газа, ревью `feat/ml-pipeline`](experiments/deep-data-audit/README.md). Аудит датчиков и целей пересчитан на `main` (`ml/scripts/audit_sensor_semantics.py`), бэктесты — нет.
-
 ![Обзор данных](data_overview.png)
 
 ## Как читать измерения
@@ -55,3 +53,4 @@ python -m pip install -r analysis/requirements.txt
 - [experiments/pump-signal-v1](experiments/pump-signal-v1/README.md) — PR #3: запись «Неисправен» у насоса в следующие сутки. На 01–06.2026 Precision 0,368 при Recall 0,226, цель 0,7 / 0,5 не достигнута.
 - [experiments/pump-validation-review](experiments/pump-validation-review/README.md) — PR #6: побайтное воспроизведение PR #3; сигнал через 24–48 ч без сигнала в первые сутки (Precision 0,103, Recall 0,147); аудит совместных состояний насосов: в 41 851 из 41 952 секунд с «Неисправен» у канала есть и другое значение.
 - [experiments/annual-ingestion](experiments/annual-ingestion/README.md) — PR #4: импорт годовых CSV в DuckDB. Хранилище не перенесено; что в parquet приёма за каждый год столько же событий, проверяет `ml/scripts/verify_ingest.py`. В отчёте есть карта колонок хранилища для переноса PR #5–#9.
+- [experiments/deep-data-audit](experiments/deep-data-audit/README.md) — PR #7: семантика датчиков, десять дневных целей, отрицательные бэктесты фаз, температуры, дыма и газа, ревью `feat/ml-pipeline`. Аудит датчиков и целей пересчитан на `main` (`ml/scripts/audit_sensor_semantics.py`), бэктесты — нет.
