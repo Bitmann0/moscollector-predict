@@ -22,7 +22,7 @@ python scripts/audit_sensor_semantics.py --temp-dir <каталог для сб�
 
 Результат — [sensor_semantics_audit.json](../../../ml/reports/sensor_semantics_audit.json).
 Все 342 сверенных счётчика из `sensor-audit.json` и `target-audit.json` совпали,
-прогон на двух потоках с лимитом DuckDB 1,5 ГБ занял 110 с.
+прогон на двух потоках с лимитом DuckDB 1,5 ГБ занял 141 с (`runtime` в отчёте).
 
 **Что из `main` не воспроизводится.** Бэктесты фаз, температуры, дыма и газа
 (`*-baseline.json`, `*-observation.json`, `*-sources.json`) и разбор ошибок модели
