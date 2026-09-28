@@ -33,6 +33,7 @@ DIRECTIONS = {
     "fire_risk": "Пожарный риск",
     "unauthorised_access": "Несанкционированный доступ",
     "infrastructure_wear": "Износ инфраструктуры",
+    "flood_risk": "Риск подтопления",
     "beyond_scope": "Вне четырёх направлений ТЗ",
 }
 

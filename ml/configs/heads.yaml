@@ -139,6 +139,18 @@ A_prime:
 B:
   direction: fire_risk  # Пожарный риск
   title: Пожарный риск участка
+  # В продукте с 29.09.2026: сценарий из ТЗ, эксперты разрешили снижать
+  # пороги точности с обоснованием (reports/qa_experts.csv, вопрос 9).
+  # Порога точности нет, выдаётся top по риску; числа июня — в
+  # reports/FIRE_FLOOD_PRODUCT.md.
+  product_status: pilot
+  product_target: recorded_fire_or_gas_alarm_on_segment_tomorrow
+  product_action: manual_segment_fire_inspection
+  product_policy: top_k_per_day_no_precision_gate; cooldown_7d_per_object
+  operating_min_precision: 0.0
+  operating_min_alerts: 1
+  cooldown_days: 7
+  max_model_lag_days: 8
   entity: [obj, seg, day]
   feature_set: segment
   label: label_fire
@@ -234,8 +246,20 @@ D:
   drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 E:
-  direction: beyond_scope  # Вне четырёх направлений ТЗ
+  direction: flood_risk  # Подтопление, сценарий ТЗ
   title: Риск подтопления
+  # В продукте с 29.09.2026, как B: без порога точности, top по риску.
+  product_status: pilot
+  product_target: recorded_pump_flooded_state_on_object_tomorrow
+  product_action: manual_pump_and_drainage_inspection
+  product_policy: top_k_per_day_no_precision_gate; cooldown_7d
+  # Метка определена только на объектах с насосами (labels.build_flood);
+  # serve.restrict_population отсекает остальные до бюджета.
+  population: pump_objects
+  operating_min_precision: 0.0
+  operating_min_alerts: 1
+  cooldown_days: 7
+  max_model_lag_days: 8
   entity: [obj, day]
   feature_set: object
   label: label_flood

@@ -18,7 +18,7 @@ SCHEMA_VERSION = "1.0"
 
 Mode = Literal["stub", "real"]
 Source = Literal["stub", "live"]
-PilotHead = Literal["A_link", "D"]
+PilotHead = Literal["A_link", "D", "B", "E"]
 ResultStatus = Literal["ok", "empty_valid", "no_data", "stale", "error"]
 ReadyStatus = Literal["ready", "missing_data", "stale", "stale_source", "future_source", "error"]
 AlertStatus = Literal["ok", "no_data", "stale"]
@@ -54,7 +54,7 @@ class DirectionItem(BaseModel):
 
 
 class IssuedEntry(BaseModel):
-    """Строка журнала выданного: канал (A_link, D) или объект — и день выдачи."""
+    """Строка журнала выданного: канал (A_link, D) или объект (B, E) — и день выдачи."""
     channel: int | None = None
     obj: str | None = None
     sent_day: dt.date
@@ -62,7 +62,7 @@ class IssuedEntry(BaseModel):
 
 class ScoreRequest(BaseModel):
     asof: dt.date
-    heads: list[PilotHead] = Field(default_factory=lambda: ["A_link", "D"])
+    heads: list[PilotHead] = Field(default_factory=lambda: ["A_link", "D", "B", "E"])
     issued_histories: dict[PilotHead, list[IssuedEntry]] = Field(default_factory=dict)
     history_complete_from: dt.date | None = None
     with_factors: bool = True
@@ -113,7 +113,7 @@ class AlertOut(BaseModel):
     valid_from: dt.datetime  # без таймзоны: Europe/Moscow
     valid_to: dt.datetime
     horizon_hours: int
-    risk: float  # вероятность у модели; у головы-правила (D) — значение признака
+    risk: float  # вероятность у модели (A_link, B, E); у головы-правила (D) — значение признака
     rank: int
     in_budget: bool
     above_threshold: bool | None = None
@@ -211,6 +211,8 @@ class OutcomeQuery(BaseModel):
     head: str
     channel: int | None = None
     obj: str | None = None
+    # Участок объекта у пожарной головы B: address.segment прогноза.
+    segment: int | None = None
     asof: dt.date
 
 
