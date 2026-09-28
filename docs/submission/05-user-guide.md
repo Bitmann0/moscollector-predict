@@ -480,4 +480,4 @@
 | `POST /api/v1/admin/emulate-decisions` | засеять эмулированные решения и итоги за период |
 | `DELETE /api/v1/ingest/day/{day}` | удалить события одних суток МСК |
 
-Все 40 операций — в `docs/submission/02-architecture.md`, раздел 8, и в `contracts/api_v1.openapi.json`.
+Полный список, 41 операция, — в `docs/submission/02-architecture.md`, раздел 8, и в `contracts/api_v1.openapi.json`.
