@@ -69,6 +69,9 @@ function mlText(ml: Ml): string {
   return (ml.status && ML_NOT_READY[ml.status]) || "На связи";
 }
 
+// Состояния, при которых последний прогон новых прогнозов по сценарию не выдал.
+const SILENT = new Set(["empty_valid", "no_data", "error", "threshold_infeasible", "not_run"]);
+
 function coverageNote(code: string, fraction: number | null | undefined): string {
   if (code === WEEKLY) return "для недельной очереди не считается";
   if (fraction == null) return "нет сведений в последнем дневном прогоне";
@@ -117,6 +120,9 @@ export function ScenarioStatus() {
     <Loaded load={status}>{(data) => {
       const head = data.heads.find((item) => item.scenario === scenario.code);
       const state = head ? headState(head) ?? "not_run" : "not_run";
+      // Открытый прогноз — в бюджете, без решения и с незакрытым окном (helpers.open_forecast_clauses),
+      // поэтому очередь бывает непустой и после прогона без выдачи: там прогнозы прошлых прогонов.
+      const pastOnly = SILENT.has(state) && (kpi?.open_forecasts ?? 0) > 0;
       return <div className="scenario-status-grid">
         <article className={`panel scenario-status-main scenario-status-main--${scenario.code}`}>
           <span className="panel__eyebrow">Результат последнего расчёта</span>
@@ -131,7 +137,7 @@ export function ScenarioStatus() {
             <div>
               <strong>{kpi ? kpi.open_forecasts : "—"}</strong>
               <span>{kpi ? plural(kpi.open_forecasts, "прогноз", "прогноза", "прогнозов") : "прогнозов"} в очереди</span>
-              <small>открытые, без решения диспетчера</small>
+              <small>{kpi ? (pastOnly ? "от прошлых прогонов: окно ещё открыто, решения нет" : "открытые, без решения диспетчера") : kpiMissing}</small>
             </div>
             <div>
               <strong>{fmtPercent(kpi?.coverage_fraction)}</strong>
