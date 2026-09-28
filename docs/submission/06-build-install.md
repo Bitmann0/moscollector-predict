@@ -295,7 +295,7 @@ docker compose -f compose.yaml -f compose.real.yaml up -d --build
 - В прелоаде за 01.06–29.06 A_link ответила `ok` на 13 днях, `empty_valid` на 15 и
   `no_data` на 01.06; D — `ok` на 29.06 и `empty_valid` на остальных днях с данными
   (`docs/submission/perf/preload_demo_0928.txt`).
-- Смоук — 8 шагов из 8.
+- Смоук — 8 шагов из 8 (`docs/submission/perf/smoke_0928.txt`).
 
 Backend сохраняет состояния `no_data`, `stale`, `empty_valid` и `error` как есть и не
 подменяет их прошлой успешной выдачей (`README.md`).
