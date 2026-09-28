@@ -128,6 +128,17 @@
             ],
             "title": "Name"
           },
+          "name_decoded": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Decoded"
+          },
           "picket_label": {
             "anyOf": [
               {
@@ -155,6 +166,52 @@
           "id"
         ],
         "title": "ChannelRef",
+        "type": "object"
+      },
+      "ChecklistOut": {
+        "description": "Что проверить бригаде на оборудовании одного типа из заявки.\n\nПеречень есть только там, где его подтвердил заказчик: сейчас это фидеры, каналы\n«Состояние фазы» (services/phase_channels.py). basis называет, кто подтвердил.",
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "channels": {
+            "items": {
+              "$ref": "#/components/schemas/ChannelRef"
+            },
+            "title": "Channels",
+            "type": "array"
+          },
+          "equipment": {
+            "title": "Equipment",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "required": [
+          "equipment",
+          "channels",
+          "items",
+          "basis"
+        ],
+        "title": "ChecklistOut",
         "type": "object"
       },
       "DashboardSummary": {
@@ -2758,6 +2815,13 @@
               "type": "integer"
             },
             "title": "Channels",
+            "type": "array"
+          },
+          "checklist": {
+            "items": {
+              "$ref": "#/components/schemas/ChecklistOut"
+            },
+            "title": "Checklist",
             "type": "array"
           },
           "created_at": {

@@ -9,6 +9,7 @@
   "channel": {
     "id": 9000026,
     "name": "ИБП ПК80 (заглушка)",
+    "name_decoded": null,
     "picket_label": "ПК 80",
     "sensor_type": "ИБП"
   },
