@@ -1,0 +1,184 @@
+-- ML2-10: первый /score после рестарта ML, до и после прогрева. 28.09.2026, около 20:20–20:50 МСК.
+-- Машина разработчика (Windows 11, Docker Desktop на WSL2, 16 логических процессоров).
+-- Compose-проект mkinteg: compose.yaml + compose.real.yaml, api на 127.0.0.1:8010, ML_MODE=real,
+-- бандл bundle-20260928-4 смонтирован с диска U: (в контейнере это 9p, drvfs, cache=0x5).
+-- «До» — образ ml из origin/main 3bbca6d, «после» — из ветки feat/ML2-10-warmup.
+-- Контейнеры api и db не пересоздавались.
+--
+-- Один прогон:
+--   docker restart mkinteg-ml-1
+--   дождаться docker inspect -f '{{.State.Health.Status}}' mkinteg-ml-1 = healthy
+--   docker exec -i [-e WAIT_READY=1] mkinteg-api-1 python - < scripts/measure_ml_first_score.py
+-- restart_to_healthy_s — от команды docker restart до healthy, в целых секундах.
+-- «ML: прогрев …» — строка из docker logs mkinteg-ml-1 того же старта.
+
+== До: main без прогрева
+
+{"restart_to_healthy_s": 7}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 13.49, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.9, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 8.0, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+
+{"restart_to_healthy_s": 7}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 12.78, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.74, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 7.83, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+
+== Из чего складывается холодный первый /score (main, свежий процесс в контейнере ml)
+-- docker exec -i mkinteg-ml-1 python - < profile.py; скрипт ниже. Секунды на шаг.
+
+import product_api                         0.31
+import service/serve/rule_head/workorders   1.35
+_last_feature_day                          0.04
+_has_feature_day                           0.03
+A_link _pilot_artifact                     0.17
+A_link load_artifact (again, no cache)     0.13
+D rule _outcomes                           2.92
+D rule artifact                            0.31
+read_slice sensor day                      3.70
+read_slice sensor day (again)              3.70
+address caches                             0.10
+maintenance snapshot                       0.01
+alerts_for_head A_link                     4.17
+alerts_for_head A_link (again)             4.12
+alerts_for_head D                          3.61
+alerts_for_head D (again)                  3.64
+
+-- Кэшируются в процессе и дают разницу первого и повторного вызова: импорт (0,31 + 1,35),
+-- исходы правила D (2,92), порог правила на неделю (0,31), метаданные артефакта A_link
+-- (0,17), справочник адресов (0,10). Срез фичестора за день — 3,70 с оба раза.
+--
+-- profile.py:
+--   """Из чего складывается холодный первый /score: запуск в свежем процессе контейнера ml."""
+--   import datetime as dt
+--   import time
+--
+--   T = time.perf_counter()
+--
+--
+--   def step(name, fn):
+--       global T
+--       t = time.perf_counter()
+--       out = fn()
+--       print(f"{name:40s} {time.perf_counter() - t:6.2f}", flush=True)
+--       return out
+--
+--
+--   DAY = dt.date(2026, 6, 29)
+--   step("import product_api", lambda: __import__("mkl.product_api"))
+--   from mkl import product_api as pa  # noqa: E402
+--
+--   step("import service/serve/rule_head/workorders",
+--        lambda: __import__("mkl.service") and __import__("mkl.workorders") and __import__("mkl.rule_head"))
+--   from mkl import address, rule_head, serve, service, store  # noqa: E402
+--
+--   step("_last_feature_day", pa._last_feature_day)
+--   step("_has_feature_day", lambda: pa._has_feature_day(DAY))
+--   step("A_link _pilot_artifact", lambda: pa._pilot_artifact("A_link", DAY))
+--   step("A_link load_artifact (again, no cache)",
+--        lambda: serve.load_artifact(serve.artifact_path("A_link", DAY)))
+--   cfg = serve.load_heads()["D"]
+--   step("D rule _outcomes", lambda: rule_head._outcomes("D", rule_head._source_key()))
+--   step("D rule artifact", lambda: rule_head.artifact("D", cfg, DAY))
+--   step("read_slice sensor day", lambda: store.read_slice("sensor", DAY, DAY))
+--   step("read_slice sensor day (again)", lambda: store.read_slice("sensor", DAY, DAY))
+--   step("address caches", lambda: (address._by_channel(), address._by_object(),
+--                                   address._segment_has_picket(), address._objects_without_picket()))
+--   step("maintenance snapshot", service._load_maintenance_snapshot)
+--   kw = dict(with_factors=True, issued_history=[], history_complete_from=DAY - dt.timedelta(days=7))
+--   step("alerts_for_head A_link", lambda: service.alerts_for_head("A_link", DAY, **kw))
+--   step("alerts_for_head A_link (again)", lambda: service.alerts_for_head("A_link", DAY, **kw))
+--   step("alerts_for_head D", lambda: service.alerts_for_head("D", DAY, **kw))
+--   step("alerts_for_head D (again)", lambda: service.alerts_for_head("D", DAY, **kw))
+
+== Почему прогрев не читает фичестор: sensor.parquet по дням не упорядочен
+-- pyarrow.parquet.ParquetFile(...).metadata, статистика колонки day по группам строк.
+
+row_groups 36 rows 4273083 cols 225
+0 122880 2019-01-01 2026-06-30
+1 122880 2019-01-01 2026-06-30
+2 122880 2019-01-01 2026-06-30
+33 122880 2019-01-01 2026-06-30
+34 71680 2019-01-01 2026-06-30
+35 55296 2019-01-01 2026-06-30
+
+== Отклонённый вариант: прогрев с предчтением store.read_slice("sensor", 30.06, 30.06)
+
+-- сразу после healthy
+{"restart_to_healthy_s": 7}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 9.81, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.44, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 7.32, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+ML: прогрев за 8.0 с: A_link@2026-05-30.pkl 0.13 с, A_link@2026-06-07.pkl 0.12 с, A_link@2026-06-15.pkl 0.11 с, A_link@2026-06-23.pkl 0.12 с, A_link.pkl 0.11 с, D: порог правила 2.65 с, справочник адресов 0.05 с, фичестор sensor за 2026-06-30 3.32 с
+
+-- WAIT_READY=1: /score только после конца прогрева
+{"restart_to_healthy_s": 7}
+{"call": "ready", "seconds": 2.49, "status": "ready", "detail": null}
+{"waited_ready_s": 2.5}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 7.75, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.74, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 8.29, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+ML: прогрев за 8.0 с: A_link@2026-05-30.pkl 0.14 с, A_link@2026-06-07.pkl 0.12 с, A_link@2026-06-15.pkl 0.11 с, A_link@2026-06-23.pkl 0.11 с, A_link.pkl 0.11 с, D: порог правила 2.87 с, справочник адресов 0.05 с, фичестор sensor за 2026-06-30 3.23 с
+
+== После: прогрев из ветки feat/ML2-10-warmup
+
+-- прогон 1, сразу после healthy
+{"restart_to_healthy_s": 6}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 7.74, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.65, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 7.36, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+ML: прогрев за 5.0 с: импорт 1.36 с, A_link@2026-05-30.pkl 0.14 с, A_link@2026-06-07.pkl 0.13 с, A_link@2026-06-15.pkl 0.13 с, A_link@2026-06-23.pkl 0.12 с, A_link.pkl 0.12 с, D: порог правила 2.91 с, справочник адресов 0.05 с
+
+-- прогон 2, сразу после healthy
+{"restart_to_healthy_s": 6}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 7.63, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 8.61, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 7.78, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+ML: прогрев за 4.7 с: импорт 1.19 с, A_link@2026-05-30.pkl 0.13 с, A_link@2026-06-07.pkl 0.12 с, A_link@2026-06-15.pkl 0.11 с, A_link@2026-06-23.pkl 0.12 с, A_link.pkl 0.12 с, D: порог правила 2.83 с, справочник адресов 0.05 с
+
+-- прогон 3, сразу после healthy
+{"restart_to_healthy_s": 7}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 8.45, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.91, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 7.63, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+ML: прогрев за 5.0 с: импорт 1.24 с, A_link@2026-05-30.pkl 0.13 с, A_link@2026-06-07.pkl 0.12 с, A_link@2026-06-15.pkl 0.13 с, A_link@2026-06-23.pkl 0.12 с, A_link.pkl 0.12 с, D: порог правила 3.04 с, справочник адресов 0.07 с
+
+-- прогон 4, WAIT_READY=1
+{"restart_to_healthy_s": 7}
+{"call": "ready", "seconds": 0.13, "status": "ready", "detail": null}
+{"waited_ready_s": 0.1}
+{"call": "score#1", "asof": "2026-06-29", "seconds": 7.88, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 7.95, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 7.87, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+ML: прогрев за 4.8 с: импорт 1.25 с, A_link@2026-05-30.pkl 0.13 с, A_link@2026-06-07.pkl 0.12 с, A_link@2026-06-15.pkl 0.12 с, A_link@2026-06-23.pkl 0.12 с, A_link.pkl 0.12 с, D: порог правила 2.83 с, справочник адресов 0.05 с
+
+-- /health и /ready во время прогрева: сразу после docker restart из контейнера api раз в 0,5 с,
+-- строки с отказом соединения (процесс ещё не поднялся) убраны. t — от старта опроса, s — время ответа.
+{"t": 0.0, "/health": {"s": 0.04, "status": "ok", "detail": null}, "/ready": {"s": 1.44, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 2.0, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.19, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 2.7, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.14, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 3.3, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.24, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 4.1, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.19, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 4.7, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.24, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 5.5, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.26, "status": "ready", "detail": "идёт прогрев моделей и данных, первый расчёт будет медленнее"}}
+{"t": 6.3, "/health": {"s": 0.0, "status": "ok", "detail": null}, "/ready": {"s": 0.18, "status": "ready", "detail": null}}
+ML: прогрев за 6.5 с: импорт 1.41 с, A_link@2026-05-30.pkl 0.18 с, A_link@2026-06-07.pkl 0.12 с, A_link@2026-06-15.pkl 0.13 с, A_link@2026-06-23.pkl 0.0 с, A_link.pkl 0.12 с, D: порог правила 4.37 с, справочник адресов 0.1 с
+-- A_link@2026-06-23.pkl 0.0 с: этот артефакт для 29.06 раньше прогрева загрузил сам /ready.
+
+== Побочный замер: чтение sensor.parquet через 9p Docker Desktop
+-- Не часть ML2-10, в продукт не вошло. Файл 1 350 379 691 байт.
+
+-- побайтовое чтение файла отдельным процессом в контейнере ml: open(..., buffering=0) + readinto(16 МиБ)
+raw read s 5.1
+-- /score сразу после этого, файл закрыт
+{"call": "score#1", "asof": "2026-06-29", "seconds": 7.77, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 8.33, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 8.3, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+
+-- то же чтение, но процесс после чтения держит файл открытым (time.sleep(240))
+{"call": "score#1", "asof": "2026-06-29", "seconds": 4.61, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#2", "asof": "2026-06-29", "seconds": 1.54, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+{"call": "score#3", "asof": "2026-06-29", "seconds": 1.59, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3005}
+-- Вывод, не проверенный отдельно: на этом стенде кэш страниц 9p живёт, пока файл кем-то открыт,
+-- и большую часть 7–8 с /score занимает чтение sensor.parquet с диска Windows. На Linux-стенде
+-- с локальным диском этот замер не повторялся.

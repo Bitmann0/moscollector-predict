@@ -12,12 +12,17 @@
 
 Все расчёты идут под одним threading.Lock: backend вызывает ML строго
 последовательно, а замок защищает от параллельных запросов снаружи (ML1-04).
+
+В режиме real при старте в отдельном потоке идёт прогрев (_real_warmup, ML2-10):
+/health отвечает сразу, /ready пишет в detail, что прогрев не закончен.
 """
 import datetime as dt
 import logging
 import os
 import threading
+import time
 from collections.abc import Callable
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 
@@ -265,6 +270,84 @@ def _real_outcomes(items: list[OutcomeQuery]) -> list[OutcomeResult]:
     return resolve(items)
 
 
+def _real_warmup(lock: threading.Lock) -> tuple[dict[str, float], list[str]]:
+    """Заполнить кэши, которые иначе заполняет первый /score после старта.
+
+    Свежий процесс на стенде 28.09 тратил сверх обычного расчёта около 5 с:
+    импорт mkl.service и соседей 1,7 с, исходы правила D через duckdb 2,9 с,
+    порог правила на неделю 0,3 с, метаданные артефакта A_link 0,2 с,
+    справочник адресов 0,1 с (docs/submission/perf/ml_warmup_0928.txt).
+
+    Фичестор не читается. Процесс его не кэширует, а sensor.parquet не
+    упорядочен по дню: в каждой из 36 групп строк есть все дни, и срез за любой
+    день читает файл целиком — 3,7 с на каждом /score, первом и последующих.
+    Предчтение через store.read_slice удлиняло прогрев с 5 до 8 с, и /score,
+    пришедший сразу после healthy, делил с ним процессор: 9,81 с против 7,44 с
+    у следующего.
+
+    День — последний день фичестора: его запрашивает backend, в демо это
+    DEMO_TODAY = 30.06. От дня зависит только порог правила D, он недельный.
+    Артефакты A_link грузятся все, датированные и основной: какой из них
+    выберет /score, зависит от дня расчёта.
+
+    Шаги независимы: упавший пишется в журнал и в список ошибок, остальные
+    выполняются. Замок берёт только шаг правила D, иначе параллельный /score
+    собирал бы те же исходы вторым duckdb. serve.score здесь не вызывается:
+    флаг serve._with_internals общий на процесс, и вызов вне замка испортил
+    бы ответ параллельного /score.
+    """
+    start = time.perf_counter()
+    from . import address, rule_head, serve, service, workorders  # noqa: F401
+
+    timings: dict[str, float] = {"импорт": round(time.perf_counter() - start, 2)}
+    failed: list[str] = []
+
+    def step(name: str, fn: Callable) -> None:
+        start = time.perf_counter()
+        try:
+            fn()
+        except Exception as exc:
+            log.exception("ML warmup step %r failed", name)
+            failed.append(f"{name}: {type(exc).__name__}: {exc}")
+            return
+        timings[name] = round(time.perf_counter() - start, 2)
+
+    def locked(fn: Callable, *args) -> Callable:
+        def call():
+            with lock:
+                return fn(*args)
+        return call
+
+    heads = serve.load_heads()
+    day = _last_feature_day()
+    for head in PILOT_HEADS:
+        cfg = heads[head]
+        if rule_head.is_rule(cfg):
+            if day is not None:
+                step(f"{head}: порог правила", locked(rule_head.artifact, head, cfg, day))
+            continue
+        paths = [*serve.dated_model_paths(head).values(), serve.model_path(head)]
+        for path in paths:
+            if path.exists():
+                step(path.name, lambda p=path: _artifact_info(p, p.stat().st_mtime_ns))
+    step("справочник адресов", lambda: (
+        address._by_channel(), address._by_object(),
+        address._segment_has_picket(), address._objects_without_picket()))
+    return timings, failed
+
+
+def _warmup_note(state: dict) -> str | None:
+    """Приписка к detail в /ready. Статус готовности прогрев не меняет:
+    /score во время прогрева работает, только первый расчёт медленнее."""
+    if state["status"] == "running":
+        return "идёт прогрев моделей и данных, первый расчёт будет медленнее"
+    if state["status"] == "failed":
+        extra = f" и ещё {len(state['failed']) - 1}" if len(state["failed"]) > 1 else ""
+        return (f"прогрев с ошибкой ({state['failed'][0]}{extra}), "
+                "первый расчёт будет медленнее")
+    return None
+
+
 def create_app(mode: str | None = None) -> FastAPI:
     """Приложение C1. mode=None — из ML_MODE, по умолчанию stub."""
     mode = mode or os.environ.get("ML_MODE", "stub")
@@ -284,22 +367,60 @@ def create_app(mode: str | None = None) -> FastAPI:
         except NotImplementedError as exc:
             raise HTTPException(status_code=501, detail=str(exc)) from exc
 
+    # off — заглушке греть нечего; idle — real, но приложение запущено без lifespan
+    # (TestClient без with); дальше running → done или failed.
+    warmup = {"status": "off" if mode == "stub" else "idle", "failed": [],
+              "seconds": None, "thread": None}
+
+    def warm() -> None:
+        start = time.perf_counter()
+        try:
+            timings, failed = _real_warmup(lock)
+        except Exception as exc:
+            log.exception("ML warmup failed, the first /score will be cold")
+            timings, failed = {}, [f"{type(exc).__name__}: {exc}"]
+        warmup["failed"] = failed
+        warmup["seconds"] = round(time.perf_counter() - start, 1)
+        warmup["status"] = "failed" if failed else "done"
+        steps = ", ".join(f"{name} {sec} с" for name, sec in timings.items())
+        print(f"ML: прогрев {'с ошибками ' if failed else ''}за {warmup['seconds']} с"
+              f"{': ' + steps if steps else ''}", flush=True)
+
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        if mode == "real":
+            warmup["status"] = "running"
+            # daemon: остановка контейнера не ждёт недогретый кэш.
+            warmup["thread"] = threading.Thread(target=warm, name="ml-warmup", daemon=True)
+            warmup["thread"].start()
+        yield
+
     app = FastAPI(
         title="Москоллектор ML — контракт C1",
         version=SCHEMA_VERSION,
         description=("Прогнозы пилотных голов A_link и D, недельная охранная очередь и "
                      f"факт по выданному. Режим: {mode}."),
+        lifespan=lifespan,
     )
     app.state.mode = mode
+    app.state.warmup = warmup
 
     @app.get("/health", response_model=Health)
     def health() -> Health:
-        """Живое: процесс отвечает, режим и версия схемы."""
+        """Живое: процесс отвечает, режим и версия схемы. Прогрева не ждёт."""
         return Health(mode=mode)
 
     @app.get("/ready", response_model=ReadyResponse)
     def ready(asof: dt.date | None = Query(None, description="сутки расчёта")) -> ReadyResponse:
-        return run(product_stub.ready, _real_ready, asof, exclusive=False)
+        resp = run(product_stub.ready, _real_ready, asof, exclusive=False)
+        # Нового статуса backend не примет: ReadyStatus в backend/app/schemas/ml.py —
+        # закрытый Literal, ответ не пройдёт валидацию, и шапка покажет «ML недоступна».
+        # Поэтому о прогреве сообщает detail.
+        note = _warmup_note(warmup)
+        if note:
+            resp = resp.model_copy(update={
+                "detail": "; ".join(d for d in (resp.detail, note) if d)})
+        return resp
 
     @app.get(f"{API_PREFIX}/directions", response_model=list[DirectionItem])
     def directions() -> list[DirectionItem]:
