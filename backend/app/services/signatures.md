@@ -18,7 +18,7 @@
 | `work_orders.py` | `get(db, order_id) -> WorkOrderCard \| None` | живое | BE-06 |
 | `work_orders.py` | `create(db, body: WorkOrderCreate, user) -> WorkOrderCard` | живое | BE-06 |
 | `work_orders.py` | `transition(db, order_id, body: WorkOrderTransition, user) -> WorkOrderCard` | живое | BE-06 |
-| `events.py` | `list_events(db, *, date_from, date_to, obj, sensor_type, event_class, q, page, page_size, hide_normal_gas=False, incident_group=None) -> Page[EventItem]` | живое | ML2-03 |
+| `events.py` | `list_events(db, *, date_from, date_to, obj, sensor_type, event_class, q, page, page_size, hide_normal_gas=False, incident_group=None, sort="ts", order="desc") -> Page[EventItem]` — `sort` кроме `ts` роутер пускает только при `sort_range_ok` | живое | ML2-03 |
 | `ingest.py` | `ingest_rows(db, rows: list[EventRowIn], user, *, notify: bool = True) -> IngestBatchOut` | живое | ML2-03 |
 | `ingest.py` | `ingest_file(db, filename: str, content: bytes, user, *, notify: bool = True) -> IngestBatchOut` | живое | ML2-03 |
 | `ingest.py` | `mark_series(db, fresh: list[Event], channels: dict[int, ChannelInfo]) -> int` — подсказка серии ППР/ТО новым событиям пачки до `db.add` и UPDATE уже записанных; возвращает число обновлённых | живое | ML2-01 |
