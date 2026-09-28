@@ -16,7 +16,7 @@ from .. import models
 from ..schemas.common import Page
 from ..schemas.events import EventRowIn, IngestBatchOut, OdsRowIn, ResetDayOut
 from ..security import CurrentUser
-from . import semantics, settings_store
+from . import parameters, semantics, settings_store
 from .helpers import assume_msk, count, from_db, now_utc, page_of, to_db
 from .notifications import publish_safe
 
@@ -28,6 +28,7 @@ LOOKUP_CHUNK = 500
 # «Тревожное сообщение» — термин заказчика для записи с флагом «тревожное» (ответ 1,
 # analysis/qa_customer_2026-09-28.md).
 ALARM_TITLE = "Тревожное сообщение СМВУ"
+SERIES_GROUPS = ("fire", "gas")
 
 
 def _out(row: models.IngestBatch) -> IngestBatchOut:
@@ -112,17 +113,18 @@ def _series_event(ref, group: str | None, info: ChannelInfo | None, channel_id: 
     return semantics.SeriesEvent(ref=ref, group=group, key=key, channel_id=channel_id, ts=ts)
 
 
-def mark_series(db: Session, fresh: list[models.Event],
-                channels: dict[int, ChannelInfo]) -> int:
+def mark_series(db: Session, fresh: list[models.Event], channels: dict[int, ChannelInfo],
+                rules: semantics.Rules = semantics.DEFAULT_RULES) -> int:
     """Подсказка «вероятно, ППР или ТО: серия…» новым событиям и уже записанным.
 
     Серию видно, только когда пришло N-е событие, поэтому подсказку получают и
     предыдущие события серии — UPDATE в той же транзакции, что и приём пачки.
     Вызывать до db.add(fresh): запрос видит только прежние строки. Запрос к БД один
     на пачку: события групп серий у тех же объектов и комплексов за
-    [первое − 20 мин, последнее + 20 мин]. Этого хватает, чтобы точно пересчитать
-    подсказки в [первое − 10 мин, последнее + 10 мин] (semantics.series_hints); дальше
-    новые события ни на одно окно не влияют. Возвращает число обновлённых старых строк.
+    [первое − 2 окна, последнее + 2 окна] (окно — rules.series_window, проверено 10 мин).
+    Этого хватает, чтобы точно пересчитать подсказки в [первое − окно, последнее + окно]
+    (semantics.series_hints); дальше новые события ни на одно окно не влияют.
+    Возвращает число обновлённых старых строк.
     """
     new = [e for e in (_series_event(event, event.incident_group,
                                      channels.get(event.channel_id), event.channel_id,
@@ -130,14 +132,14 @@ def mark_series(db: Session, fresh: list[models.Event],
     if not new:
         return 0
     first, last = min(e.ts for e in new), max(e.ts for e in new)
-    window = semantics.SERIES_WINDOW
+    window = rules.series_window
     stored = db.execute(
         select(models.Event.id, models.Event.channel_id, models.Event.ts,
                models.Event.incident_group, models.Event.hint,
                models.RefChannel.obj_id, models.RefObject.parent_id)
         .join(models.RefChannel, models.RefChannel.id == models.Event.channel_id)
         .outerjoin(models.RefObject, models.RefObject.id == models.RefChannel.obj_id)
-        .where(models.Event.incident_group.in_(list(semantics.SERIES_MIN)),
+        .where(models.Event.incident_group.in_(SERIES_GROUPS),
                models.Event.ts >= to_db(first - 2 * window),
                models.Event.ts <= to_db(last + 2 * window),
                or_(and_(models.Event.incident_group == "fire",
@@ -154,7 +156,7 @@ def mark_series(db: Session, fresh: list[models.Event],
         if event:
             before[row_id] = (event.ts, hint)
             candidates.append(event)
-    hints = semantics.series_hints(candidates)
+    hints = semantics.series_hints(candidates, rules)
     for event in new:
         if event.ref in hints:
             event.ref.hint = hints[event.ref]
@@ -169,10 +171,14 @@ def mark_series(db: Session, fresh: list[models.Event],
 def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
                *, rejected: int = 0, notify: bool = True) -> IngestBatchOut:
     """notify=False — загрузка истории (replay.py --bulk, --catch-up): события получают
-    класс, но уведомлений и SSE нет — иначе прошлые тревоги пришли бы диспетчеру как новые."""
+    класс, но уведомлений и SSE нет — иначе прошлые тревоги пришли бы диспетчеру как новые.
+
+    Пороги, окна и классы уведомлений — из параметров (parameters.current): одно чтение
+    кеша на пачку, БД — не чаще раза в parameters.CACHE_TTL_S."""
     batch = _new_batch(db, "smvu", len(rows) + rejected)
     batch.rejected = rejected
     demo_today = settings_store.demo_today(db)
+    tuning = parameters.current(db)
     parsed: list[models.Event] = []
     for item in rows:
         try:
@@ -197,15 +203,15 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
         info = channels.get(event.channel_id)
         event.event_class, event.hint, event.incident_group = semantics.classify(
             info.sensor_type if info else None, event.val_raw, event.val_num, event.alarm,
-            ts=from_db(event.ts))
+            ts=from_db(event.ts), rules=tuning.rules)
         event.batch_id = batch.id
         fresh.append(event)
-    mark_series(db, fresh, channels)
+    mark_series(db, fresh, channels, tuning.rules)
     alarms: list[models.Notification] = []
     for event in fresh:
         db.add(event)
         batch.accepted += 1
-        if notify and event.event_class in {"alarm", "critical"}:
+        if notify and tuning.notifies(event.event_class, event.incident_group):
             notification = models.Notification(
                 ts=event.ts, kind="event.alarm",
                 severity="critical" if event.event_class == "critical" else "warning",

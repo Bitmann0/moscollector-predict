@@ -11,6 +11,9 @@
 логин, который пробовали (request.state.login_attempt, ставит routers/auth.py), без
 роли: по журналу видно, какую учётную запись перебирали. Выход кладёт в state
 пользователя, чью сессию отозвал. Тело запроса, а с ним и пароль, не пишется.
+Что изменилось, обработчик кладёт в request.state.audit_payload, и оно идёт в
+audit_log.payload: PUT /settings/parameters — поля «было → стало», пересчёт истории —
+период и число изменённых строк.
 """
 import logging
 from datetime import UTC, datetime
@@ -74,4 +77,5 @@ class AuditMiddleware(BaseHTTPMiddleware):
                     "path": request.url.path[:PATH_MAX],
                     "status": status,
                     "entity": _entity(request),
+                    "payload": getattr(request.state, "audit_payload", None),
                 })

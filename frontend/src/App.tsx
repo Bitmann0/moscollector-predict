@@ -2,7 +2,7 @@
  * Маршруты интерфейса. Живое.
  *
  * Все экраны, кроме входа, живут внутри Layout и пускают только вошедшего
- * пользователя с правом view. Адреса совпадают с таблицей раздела Frontend
+ * пользователя с правом view; «Настройки» — только с правом admin. Адреса совпадают с таблицей раздела Frontend
  * спецификации каркаса; backend отдаёт index.html на любой путь вне /api.
  */
 import { Link, Route, Routes, useLocation } from "react-router-dom";
@@ -19,6 +19,7 @@ import { Notifications } from "./pages/Notifications";
 import { Quality } from "./pages/Quality";
 import { Schema } from "./pages/Schema";
 import { ScenarioStatus } from "./pages/ScenarioStatus";
+import { Settings } from "./pages/Settings";
 import { WorkOrders } from "./pages/WorkOrders";
 
 export function App() {
@@ -41,6 +42,7 @@ export function App() {
         <Route path="scenarios/:scenario" element={<ScenarioStatus />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="quality" element={<Quality />} />
+        <Route path="settings" element={<RequireAuth perm="admin"><Settings /></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
