@@ -11,3 +11,4 @@ Caddyfile text eol=lf
 *.json text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+*.ttf binary

@@ -136,6 +136,7 @@ GUARDED = [
     ("POST", "/ingest/events", [], ["ingest"]),
     ("DELETE", "/ingest/day/2026-06-30", None, ["integration", "admin"]),
     ("GET", "/export/forecasts.xlsx", None, ["export"]),
+    ("GET", "/export/report.pdf", None, ["export"]),
     ("GET", "/audit", None, ["admin"]),
     ("PUT", "/settings", {"replay_speed": 90}, ["admin"]),
     ("POST", "/reference/sync", None, ["admin"]),
