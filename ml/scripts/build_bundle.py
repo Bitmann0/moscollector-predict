@@ -45,9 +45,9 @@ CHUNK = 8 * 1024 * 1024
 LAYOUT = ("data", "models", "configs/features.yaml",
           "reports/intrusion_eventtime_v2_build.json")
 
-# Пилотные головы с файлом модели. D — правило n_bad_w7 (configs/heads.yaml:215),
+# Пилотные головы с файлом модели. D — правило n_bad_w7 (configs/heads.yaml),
 # артефакт собирается при расчёте, файла нет (src/mkl/rule_head.py:16).
-MODEL_HEADS = ("A_link",)
+MODEL_HEADS = ("A_link", "B", "E")
 
 # Путь в бандле → кто его читает. Пути ведутся от корня ML-проекта, строки —
 # на момент origin/main 9856984. tests/test_build_bundle.py сверяет список с
@@ -65,7 +65,9 @@ REQUIRED = {
         "src/mkl/product_api.py:58, src/mkl/store.py:55 — признаки A_link и D",
     "data/features/object.parquet":
         "src/mkl/guard_weekly.py:148, src/mkl/outcomes.py:131 — недельная "
-        "охранная очередь и её факт",
+        "охранная очередь и её факт; признаки головы E",
+    "data/features/segment.parquet":
+        "src/mkl/serve.py:score, src/mkl/store.py:55 — признаки головы B (участки)",
     "data/features/intrusion_eventtime_days_v2.parquet":
         "src/mkl/guard_queue.py:20 — v2-кэш охранной очереди",
     "data/interim/channels.parquet":
@@ -102,9 +104,8 @@ OPTIONAL_PATTERNS = {
     for head in MODEL_HEADS
 }
 # Не берутся, хотя перечислены в C4 (план, раздел 4): в режиме real их не читает
-# ни сервис, ни дообучение. data/features/segment.parquet нужен только голове B
-# (не пилот), data/interim/weather.parquet — только сборке фичестора
-# (src/mkl/features/external.py:12).
+# ни сервис, ни дообучение. data/interim/weather.parquet нужен только сборке
+# фичестора (src/mkl/features/external.py:12).
 
 
 class BundleError(Exception):

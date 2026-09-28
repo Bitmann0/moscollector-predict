@@ -76,9 +76,14 @@ function CardView({ card }: { card: Card }) {
   const decisions = card.decisions ?? [];
   // backend отдаёт пересчёты от старых к новым; показываем, как историю решений, — новые сверху
   const versions = [...(card.versions ?? [])].reverse();
-  // Динамика строится по одному каналу. У недельной рекомендации по объекту канала нет,
-  // backend отдаёт 30 суток без событий, и график из одних «нет данных» ничего не скажет.
+  // Динамика строится по одному каналу. У недельной рекомендации, пожарного риска участка и
+  // подтопления объекта канала нет, backend отдаёт 30 суток без событий, и график из одних
+  // «нет данных» ничего не скажет.
   const dynamics = channel ? card.dynamics_30d ?? [] : [];
+  // Прогноз ML без канала — на участок объекта (B) или объект (E): вместо графика ссылка на
+  // журнал событий объекта за те же 30 суток, фильтр obj там уже есть.
+  const objectAlert = card.kind === "alert" && !channel;
+  const objectEvents = card.object.id ? `/events?${new URLSearchParams({ obj: card.object.id, from: shiftDay(card.asof, -29), to: card.asof })}` : null;
   // Сутки без событий канала — «нет данных», а не ноль (events = 0). Если наблюдаемых суток нет
   // или в каждых из них тревог и плохих состояний ноль, график из пустоты не рисуем — пишем словами.
   const observedDays = dynamics.filter((p) => p.events > 0);
@@ -99,6 +104,7 @@ function CardView({ card }: { card: Card }) {
         // Пустой график с дробной осью на полэкрана — тот же факт короче словами.
         <article className="panel dynamics-card dynamics-card--quiet"><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div><p>{quietText(dynamics, observedDays.length)}</p></article>
       ) : <article className="panel dynamics-card"><header><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div><div className="dynamics-legend"><span><i/>Тревоги</span><span><i/>Плохие состояния</span></div></header><DynamicsChart points={dynamics} /></article>)}
+      {objectAlert && <article className="panel dynamics-card dynamics-card--quiet"><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div><p>{card.segment_label ? `Прогноз на участок объекта (${card.segment_label})` : "Прогноз на объект целиком"}, а не на канал: график событий одного канала к нему не строится.{objectEvents && <> <Link to={objectEvents}>События объекта за 30 суток — в журнале событий</Link></>}</p></article>}
       {card.kind !== "weekly_recommendation" && <><h2 className="section-title">Почему модель подняла риск</h2>
       {factors.length === 0 ? (
         <p className="muted">Факторы для этого прогноза не переданы.</p>
@@ -149,7 +155,7 @@ function CardView({ card }: { card: Card }) {
           </table>
         </article>
       )}</div></div>
-      <aside className="forecast-side panel"><span className="panel__eyebrow">Паспорт риска</span><h3>{card.object.name ?? card.object.id ?? "Объект"}</h3><dl><Field label="Комплекс">{card.object.complex_name ?? card.object.complex_id ?? "—"}</Field>{card.object.kind_ru && <Field label="Тип объекта">{card.object.kind_ru}</Field>}{channel && <Field label="Датчик">{channel.sensor_type ?? channel.name ?? "—"}</Field>}{channel?.name_decoded && <Field label="Расшифровка канала">{capital(channel.name_decoded)}</Field>}<Field label="Вид прогноза">{title("kind", card.kind)}</Field><Field label="Факт по данным">{card.outcome_auto ? title("outcome_auto", card.outcome_auto) : <span className="muted">Ещё не определён</span>}</Field><Field label="Итог проверки">{card.outcome_manual ? title("outcome_manual", card.outcome_manual) : <span className="muted">Не внесён</span>}</Field>{card.coverage_note && <Field label="Охват">{coverageText(card.coverage_note)}</Field>}<Field label="Код случая"><code className="case-key">{card.case_key}</code></Field></dl>{card.work_order_id && <Link className="linked-order" to={`/work-orders?open=${encodeURIComponent(card.work_order_id)}`}><Icon name="wrench"/><span><small>Связанная заявка</small><strong>{card.work_order_id}</strong></span><Icon name="arrow"/></Link>}</aside></div>
+      <aside className="forecast-side panel"><span className="panel__eyebrow">Паспорт риска</span><h3>{card.object.name ?? card.object.id ?? "Объект"}</h3><dl><Field label="Комплекс">{card.object.complex_name ?? card.object.complex_id ?? "—"}</Field>{card.object.kind_ru && <Field label="Тип объекта">{card.object.kind_ru}</Field>}{!channel && card.segment_label && <Field label="Участок">{card.segment_label}</Field>}{channel && <Field label="Датчик">{channel.sensor_type ?? channel.name ?? "—"}</Field>}{channel?.name_decoded && <Field label="Расшифровка канала">{capital(channel.name_decoded)}</Field>}<Field label="Вид прогноза">{title("kind", card.kind)}</Field><Field label="Факт по данным">{card.outcome_auto ? title("outcome_auto", card.outcome_auto) : <span className="muted">Ещё не определён</span>}</Field><Field label="Итог проверки">{card.outcome_manual ? title("outcome_manual", card.outcome_manual) : <span className="muted">Не внесён</span>}</Field>{card.coverage_note && <Field label="Охват">{coverageText(card.coverage_note)}</Field>}<Field label="Код случая"><code className="case-key">{card.case_key}</code></Field></dl>{card.work_order_id && <Link className="linked-order" to={`/work-orders?open=${encodeURIComponent(card.work_order_id)}`}><Icon name="wrench"/><span><small>Связанная заявка</small><strong>{card.work_order_id}</strong></span><Icon name="arrow"/></Link>}</aside></div>
     </>
   );
 }
@@ -187,6 +193,12 @@ function quietText(points: NonNullable<Card["dynamics_30d"]>, observed: number):
 
 function AlarmStat({ days, period }: { days: number | null | undefined; period: string }) {
   return <div className="alarm-stat"><strong>{days ?? "—"}</strong><span>{plural(days ?? 0, "день", "дня", "дней")} с тревогами<br/>{period}</span></div>;
+}
+
+/** «2026-06-15» ± n суток без Date в поясе браузера: asof — день по МСК. */
+function shiftDay(day: string, days: number): string {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
 /** Подписи словаря и признаков приходят со строчной, а в карточке стоят как заголовки. */

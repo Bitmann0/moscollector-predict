@@ -139,6 +139,21 @@ A_prime:
 B:
   direction: fire_risk  # Пожарный риск
   title: Пожарный риск участка
+  # В продукте с 29.09.2026: сценарий из ТЗ, эксперты разрешили снижать
+  # пороги точности с обоснованием (reports/qa_experts.csv, вопрос 9).
+  # Порога точности нет, выдаётся top-10 участков по риску без паузы.
+  # 07.2025–06.2026, модель на каждый месяц по данным до него: 238/2 769 =
+  # 8,6% нижней границы точности против 3,1% у правила «тревоги участка за
+  # 7 суток», полнота 15,6%, база 0,9% (reports/FIRE_FLOOD_PRODUCT.md).
+  # Пауза 7 суток по объекту снижала точность до 6,0%.
+  product_status: pilot
+  product_target: recorded_fire_or_gas_alarm_on_segment_tomorrow
+  product_action: manual_segment_fire_inspection
+  product_policy: top_10_per_day_no_precision_gate; no_cooldown
+  operating_min_precision: 0.0
+  operating_min_alerts: 1
+  cooldown_days: 0
+  max_model_lag_days: 8
   entity: [obj, seg, day]
   feature_set: segment
   label: label_fire
@@ -149,6 +164,10 @@ B:
   # только до текущих суток. На walk-forward 2025 подняла PR-AUC 0.0329 ->
   # 0.0671 и точность при 10 алертах В КАЖДЫЕ сутки 0.0407 -> 0.0637.
   # На ранее просмотренном 2026: 0.0782 -> 0.0950 по дневной точности.
+  # В segment.parquet бандла этих колонок нет (собран 23.09 без второго шага
+  # build_segment_level), и модель продукта обучена без них. С ними на
+  # 12 месяцах 10,4% против 8,6%, но не хуже лишь в 6 месяцах из 12 — не
+  # принято (reports/FIRE_FLOOD_PRODUCT.md, раздел о рычаге).
   # Это прогноз тревожного состояния, НЕ подтверждённого пожара.
   # Типизированные температура/газ подняли PR-AUC с 0.0313 до 0.0338,
   # но по реальному лимиту 10 алертов в каждые сутки снизили точность
@@ -234,8 +253,25 @@ D:
   drop_feature_prefixes: [cusum_, dev90_, ewma_, hhi_, top1_share, top10_share, n_channels_80pct, api_, precip_7d, precip_14d, precip_30d, snowmelt_7d, snowmelt_30d, adi_w90, cv2_w90]
 
 E:
-  direction: beyond_scope  # Вне четырёх направлений ТЗ
+  direction: flood_risk  # Подтопление, сценарий ТЗ
   title: Риск подтопления
+  # В продукте с 29.09.2026, как B: без порога точности, top-5 объектов без
+  # паузы. 07.2025–06.2026, модель на каждый месяц: 358/1 637 = 21,9% нижней
+  # границы точности, полнота 62,3%, из новых подтоплений (вчера сухо) поймано
+  # 43,3%; правило «Затоплен сегодня» — 16,3%, 51,3% и 19,5%; база 9,4%
+  # (reports/FIRE_FLOOD_PRODUCT.md). Пауза 7 суток роняла полноту до 12,2%:
+  # подтопление держится днями, и повторная выдача по объекту — попадание.
+  product_status: pilot
+  product_target: recorded_pump_flooded_state_on_object_tomorrow
+  product_action: manual_pump_and_drainage_inspection
+  product_policy: top_5_per_day_no_precision_gate; no_cooldown
+  # Метка определена только на объектах с насосами (labels.build_flood);
+  # serve.restrict_population отсекает остальные до бюджета.
+  population: pump_objects
+  operating_min_precision: 0.0
+  operating_min_alerts: 1
+  cooldown_days: 0
+  max_model_lag_days: 8
   entity: [obj, day]
   feature_set: object
   label: label_flood

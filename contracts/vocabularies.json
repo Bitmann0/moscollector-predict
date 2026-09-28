@@ -7,7 +7,11 @@
     {"code": "equipment_diag", "head": "D", "direction": "infrastructure_wear",
      "title": "Износ: плановая диагностика оборудования", "score_type": "relative_priority", "horizon_hours": 168},
     {"code": "guard_weekly", "head": "guard_weekly", "direction": "unauthorised_access",
-     "title": "НСД: проверка объектов с хроническими охранными тревогами", "score_type": "relative_priority", "horizon_hours": 168}
+     "title": "НСД: проверка объектов с хроническими охранными тревогами", "score_type": "relative_priority", "horizon_hours": 168},
+    {"code": "fire_risk", "head": "B", "direction": "fire_risk",
+     "title": "Пожар: риск пожарной или газовой тревоги на участке", "score_type": "probability", "horizon_hours": 24},
+    {"code": "flood_risk", "head": "E", "direction": "flood_risk",
+     "title": "Подтопление: риск затопления насосной на объекте", "score_type": "probability", "horizon_hours": 24}
   ],
   "kind": [
     {"code": "alert", "title": "Прогноз"},

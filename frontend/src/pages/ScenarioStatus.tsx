@@ -25,6 +25,19 @@ type Ml = Schemas["MlReady"];
 // только по понедельникам (backend/app/services/daily_run.py).
 const WEEKLY = "guard_weekly";
 
+// Пожарный риск и подтопление выдаются без порога точности: первые N по риску в сутки
+// (ml/configs/heads.yaml, product_policy top_10_per_day и top_5_per_day). «Подобран»
+// читался бы как обещание точности, которого у этих сценариев нет.
+const NO_PRECISION_GATE = new Set(["fire_risk", "flood_risk"]);
+
+// Что меряет охват: A_link и D оценивают каналы, B и E — объекты (ML считает
+// entities_scored по объектам, у B объект оценён, если оценён хотя бы один его участок).
+const COVERAGE_TEXT: Record<string, string> = {
+  equipment_diag: "доля каналов оборудования, получивших оценку в последнем дневном прогоне",
+  fire_risk: "доля объектов, у которых в последнем дневном прогоне оценён хотя бы один участок",
+  flood_risk: "доля объектов с насосами, получивших оценку в последнем дневном прогоне",
+};
+
 // Готовность ML (ReadyStatus контракта ml_v1) человеческими словами. «ready» — просто
 // «На связи»: подробности нужны, только когда расчёт на демо-день не пройдёт.
 const ML_NOT_READY: Record<string, string> = {
@@ -59,6 +72,7 @@ function lagText(code: string, head: Head | undefined): string {
 // Подпись согласована с заголовком состояния threshold_infeasible в StateView.
 function thresholdText(code: string, head: Head | undefined): string {
   if (code === WEEKLY) return "Не применяется";
+  if (NO_PRECISION_GATE.has(code)) return "Без порога точности — первые по риску";
   if (head?.threshold_feasible === true) return "Подобран";
   if (head?.threshold_feasible === false) return "Недостижим\u00a0— прогнозы не\u00a0выдаются";
   return "Нет сведений";
@@ -75,8 +89,7 @@ const SILENT = new Set(["empty_valid", "no_data", "error", "threshold_infeasible
 function coverageNote(code: string, fraction: number | null | undefined): string {
   if (code === WEEKLY) return "для недельной очереди не считается";
   if (fraction == null) return "нет сведений в последнем дневном прогоне";
-  const who = code === "equipment_diag" ? "каналов оборудования" : "каналов";
-  return `доля ${who}, получивших оценку в последнем дневном прогоне`;
+  return COVERAGE_TEXT[code] ?? "доля каналов, получивших оценку в последнем дневном прогоне";
 }
 
 // Цвет только у отклонения (ISA-101, tokens.css): штатные значения — обычным текстом.
@@ -104,7 +117,7 @@ export function ScenarioStatus() {
 
   if (!scenario) {
     return <section>
-      <PageHeader eyebrow="Состояние расчёта" title="Сценарий не найден" description="В адресе указан сценарий, которого нет. Выберите один из трёх." />
+      <PageHeader eyebrow="Состояние расчёта" title="Сценарий не найден" description="В адресе указан сценарий, которого нет. Выберите сценарий из списка." />
       <ScenarioSwitch />
     </section>;
   }
@@ -156,7 +169,7 @@ export function ScenarioStatus() {
             <Row label="Данные для расчёта по">{data.ml.data_last_day ? fmtDate(data.ml.data_last_day) : "Нет сведений"}</Row>
             {/* asof — демо-дата прогона, finished_at — настоящее время сервера: при воспроизведении истории они расходятся на месяцы. */}
             <Row label="Последний прогон" hint={data.last_run?.finished_at ? `завершён ${fmtDateTime(data.last_run.finished_at)} по реальному времени` : undefined}>{data.last_run ? fmtDate(data.last_run.asof) : "Не запускался"}</Row>
-            <Row label="Задержка модели" hint={scenario.code === WEEKLY ? "очередь строится правилом, без обучаемой модели" : "от конца данных, на которых подобран порог, до даты расчёта"}>{lagText(scenario.code, head)}</Row>
+            <Row label="Задержка модели" hint={scenario.code === WEEKLY ? "очередь строится правилом, без обучаемой модели" : NO_PRECISION_GATE.has(scenario.code) ? "от конца данных, на которых собран артефакт модели, до даты расчёта" : "от конца данных, на которых подобран порог, до даты расчёта"}>{lagText(scenario.code, head)}</Row>
             <Row label="Порог выдачи">{thresholdText(scenario.code, head)}</Row>
             <Row label="Сервис ML" tone={!data.ml.reachable ? "bad" : data.ml.status && ML_NOT_READY[data.ml.status] ? "warn" : undefined}>{mlText(data.ml)}</Row>
           </dl>

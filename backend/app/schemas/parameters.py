@@ -20,9 +20,12 @@ NotifyClass = Literal["alarm", "critical"]
 
 # Проверенный лимит показа по сценарию, в сутки (недельная очередь — в неделю):
 # sensor_link — budget_per_day: 20 у A_link в ml/configs/heads.yaml, product_policy
-# max_20_per_day; equipment_diag — budget_per_day: 3 у D там же; guard_weekly —
-# BUDGET = 4 в ml/src/mkl/guard_weekly.py. Сверку держит tests/test_parameters.py.
-VERIFIED_LIMITS: dict[str, int] = {"sensor_link": 20, "equipment_diag": 3, "guard_weekly": 4}
+# max_20_per_day; equipment_diag — budget_per_day: 3 у D там же; fire_risk и
+# flood_risk — budget_per_day: 10 у B и 5 у E там же (top_10_per_day и top_5_per_day);
+# guard_weekly — BUDGET = 4 в ml/src/mkl/guard_weekly.py. Сверку держит
+# tests/test_parameters.py.
+VERIFIED_LIMITS: dict[str, int] = {"sensor_link": 20, "equipment_diag": 3, "guard_weekly": 4,
+                                   "fire_risk": 10, "flood_risk": 5}
 RECLASSIFY_MAX_DAYS = 31
 
 
@@ -88,8 +91,15 @@ class LimitParams(BaseModel):
     sensor_link: int = Field(ge=1, description="В сутки; проверено 20")
     equipment_diag: int = Field(ge=1, description="В сутки; проверено 3")
     guard_weekly: int = Field(ge=1, description="В неделю; проверено 4")
+    # У лимитов, добавленных после первой версии параметров, по умолчанию проверенное
+    # значение: сохранённые раньше параметры без этих полей проходят схему, и load() не
+    # заменяет их целиком проверенными вместе с порогами метана и окнами.
+    fire_risk: int = Field(default=VERIFIED_LIMITS["fire_risk"], ge=1,
+                           description="Участков объектов в сутки; проверено 10")
+    flood_risk: int = Field(default=VERIFIED_LIMITS["flood_risk"], ge=1,
+                            description="Объектов в сутки; проверено 5")
 
-    @field_validator("sensor_link", "equipment_diag", "guard_weekly")
+    @field_validator("sensor_link", "equipment_diag", "guard_weekly", "fire_risk", "flood_risk")
     @classmethod
     def _verified(cls, value: int, info) -> int:
         verified = VERIFIED_LIMITS[info.field_name]
@@ -164,4 +174,5 @@ class ReclassifyOut(BaseModel):
     seconds: float
 
 
-LIMIT_SCENARIOS: tuple[Scenario, ...] = ("sensor_link", "equipment_diag", "guard_weekly")
+LIMIT_SCENARIOS: tuple[Scenario, ...] = ("sensor_link", "equipment_diag", "guard_weekly",
+                                         "fire_risk", "flood_risk")

@@ -8,7 +8,7 @@ import { Icon } from "../components/Icons";
 import { PageHeader } from "../components/PageHeader";
 import { Pager, SourceBadge } from "../components/common";
 import { Loaded, StateView } from "../components/StateView";
-import { fmtDateTime, fmtNumber, fmtWindow, pageParam, scoreText } from "../format";
+import { entityText, fmtDateTime, fmtNumber, fmtWindow, pageParam, scoreText } from "../format";
 import { SCENARIOS, title, vocab, type Permission } from "../vocab";
 
 const PAGE_SIZE = 50;
@@ -165,10 +165,10 @@ function LinkedForecasts({ order }: { order: OrderCard }) {
   return <div className="drawer-forecasts"><strong>{count > 1 ? `Связанные прогнозы: ${count}` : "Связанный прогноз"}</strong><div>{ids.map((forecastId) => { const item = found.get(forecastId); return <Link key={forecastId} to={`/forecasts/${encodeURIComponent(forecastId)}`}><Icon name="forecast" /><span><b>{item ? forecastPlace(item) : pending ? "Прогноз" : `Прогноз ${forecastId}`}</b><small>{item ? `${fmtWindow(item.valid_from, item.valid_to)} · ${scoreText(item)}` : pending ? "загрузка…" : "открыть карточку прогноза"}</small></span><Icon name="arrow" /></Link>; })}</div>{count > FORECASTS_SHOWN + 1 && <button type="button" className="drawer-forecasts__more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>{expanded ? "Свернуть список" : `Показать ещё ${count - FORECASTS_SHOWN}`}</button>}</div>;
 }
 
+/** Канал, участок объекта (пожарный риск) или объект целиком; объект заявки уже стоит в заголовке карточки. */
 function forecastPlace(item: Forecast): string {
-  const channel = item.channel;
-  if (!channel) return title("kind", item.kind);
-  return [channel.picket_label, channel.name?.trim() || `канал ${channel.id}`].filter(Boolean).join(" · ");
+  const place = entityText(item);
+  return item.kind === "weekly_recommendation" ? title("kind", item.kind) : capitalize(place);
 }
 
 /** «Подтвердить или отменить заявку могут: диспетчер ОДС, …» — роли из матрицы прав, без внешней системы. */

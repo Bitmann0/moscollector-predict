@@ -46,6 +46,10 @@ def _in_budget(resp: ScoreResponse, head: str) -> list:
     return [a for a in resp.alerts if a.head == head and a.in_budget]
 
 
+OBJECT_HEADS = ("B", "E")
+FULL_JOURNAL = {"A_link": [], "D": [], "B": [], "E": []}
+
+
 def test_health_stub(client):
     resp = client.get("/health")
     assert resp.status_code == 200
@@ -56,10 +60,13 @@ def test_health_stub(client):
 def test_score_shape_and_budgets(client):
     resp = _score(client)
     assert resp.source == "stub"
-    assert set(resp.heads) == {"A_link", "D"}
+    assert set(resp.heads) == {"A_link", "D", "B", "E"}
     assert all(h.result_status in ("ok", "empty_valid") for h in resp.heads.values())
     assert len(_in_budget(resp, "A_link")) <= 20
     assert len(_in_budget(resp, "D")) <= 3
+    assert len(_in_budget(resp, "B")) <= 10
+    assert len(_in_budget(resp, "E")) <= 5
+    assert _in_budget(resp, "B") and _in_budget(resp, "E")
     assert _in_budget(resp, "A_link"), "на 2026-06-15 нужен хотя бы один алерт для теста паузы"
     assert resp.data_snapshot == {"data_last_day": "2026-06-30"}
 
@@ -71,8 +78,15 @@ def test_score_shape_and_budgets(client):
         assert a.valid_to == start + dt.timedelta(hours=spec.horizon_hours)
         assert a.address.obj_name.startswith("Объект-заглушка")
         assert a.address.obj_parent_name.startswith("Комплекс-заглушка")
-        assert a.address.picket_label == f"ПК {a.address.picket:g}"
-        entity = {"ch": a.address.channel, "obj": a.address.obj}
+        if a.head in OBJECT_HEADS:
+            # Сущность — участок объекта (B) или объект (E), канала нет.
+            assert a.address.channel is None
+            entity = ({"obj": a.address.obj, "seg": a.address.segment} if a.head == "B"
+                      else {"obj": a.address.obj})
+            assert (a.address.segment_label is not None) == (a.head == "B")
+        else:
+            assert a.address.picket_label == f"ПК {a.address.picket:g}"
+            entity = {"ch": a.address.channel, "obj": a.address.obj}
         assert a.alert_id == contract.make_alert_id(a.head, entity, ASOF)
         assert a.case_key == contract.make_case_key(a.head, entity)
         if a.in_budget:
@@ -82,7 +96,7 @@ def test_score_shape_and_budgets(client):
             assert a.factors == []
     assert all(a.address.sensor_type in product_stub.EQUIPMENT_STYPES
                for a in resp.alerts if a.head == "D")
-    for head in ("A_link", "D"):
+    for head in ("A_link", "D", "B", "E"):
         ranks = [a.rank for a in resp.alerts if a.head == head]
         assert sorted(ranks) == list(range(1, len(ranks) + 1))
 
@@ -94,8 +108,13 @@ def test_score_coverage(client):
     equipment = [c for c in ref["channels"] if c["sensor_type"] in product_stub.EQUIPMENT_STYPES]
     assert cov["A_link"].entities_total == len(ref["channels"])
     assert cov["D"].entities_total == len(equipment)
+    assert cov["B"].entities_total == len({c["obj_id"] for c in ref["channels"]})
+    assert cov["E"].entities_total == len({c["obj_id"] for c in ref["channels"]
+                                           if c["sensor_type"] == product_stub.PUMP_STYPE})
     for head, c in cov.items():
-        assert c.entities_scored == len([a for a in resp.alerts if a.head == head])
+        mine = [a for a in resp.alerts if a.head == head]
+        scored = len({a.address.obj for a in mine}) if head in OBJECT_HEADS else len(mine)
+        assert c.entities_scored == scored
         assert c.fraction == round(c.entities_scored / c.entities_total, 4)
 
 
@@ -130,9 +149,9 @@ def test_score_is_deterministic(client):
 def test_issued_history_cooldown(client, days_ago, blocked):
     base = _score(client)
     target = _in_budget(base, "A_link")[0]
-    history = {"A_link": [{"channel": target.address.channel,
-                           "sent_day": (ASOF - dt.timedelta(days=days_ago)).isoformat()}],
-               "D": []}
+    history = {**FULL_JOURNAL,
+               "A_link": [{"channel": target.address.channel,
+                           "sent_day": (ASOF - dt.timedelta(days=days_ago)).isoformat()}]}
     resp = _score(client, issued_histories=history,
                   history_complete_from=(ASOF - dt.timedelta(days=7)).isoformat())
     got = {a.alert_id: a.in_budget for a in resp.alerts}
@@ -141,6 +160,20 @@ def test_issued_history_cooldown(client, days_ago, blocked):
     others_before = {a.alert_id: a.in_budget for a in base.alerts if a.alert_id != target.alert_id}
     assert {k: got[k] for k in others_before} == others_before
     assert all(h.detail is None for h in resp.heads.values())
+
+
+@pytest.mark.parametrize("head", OBJECT_HEADS)
+def test_object_head_repeats_without_cooldown(client, head):
+    """У B и E паузы нет (heads.yaml, cooldown_days: 0): вчерашний объект снова в выдаче."""
+    assert product_stub.HEADS[head].cooldown_days == 0
+    base = _score(client)
+    target = _in_budget(base, head)[0]
+    history = {**FULL_JOURNAL, head: [{"obj": target.address.obj,
+                                       "sent_day": (ASOF - dt.timedelta(days=1)).isoformat()}]}
+    resp = _score(client, issued_histories=history,
+                  history_complete_from=(ASOF - dt.timedelta(days=7)).isoformat())
+    assert {a.alert_id for a in _in_budget(resp, head)} == {
+        a.alert_id for a in _in_budget(base, head)}
 
 
 def test_incomplete_journal_is_reported(client):
@@ -245,7 +278,7 @@ def test_real_mode_uses_live_routes(monkeypatch):
     directions = real.get("/api/v1/directions")
     assert directions.status_code == 200
     assert {h["head"] for item in directions.json() for h in item["heads"]} == {
-        "A_link", "D", "guard_weekly"}
+        "A_link", "D", "B", "E", "guard_weekly"}
     weekly = real.get("/api/v1/guard-weekly-inspections",
                       params={"asof": "2026-06-15"})
     assert weekly.status_code == 200 and weekly.json()["source"] == "live"
