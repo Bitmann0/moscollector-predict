@@ -29,5 +29,11 @@
 	reverse_proxy api:8000 {
 		# SSE: события уходят в браузер сразу, без накопления в буфере прокси.
 		flush_interval -1
+		# Простаивающее соединение к api живёт 60 с, а api держит его 75 с
+		# (backend/entrypoint.sh): Caddy не отправит запрос в соединение,
+		# которое api уже закрыл.
+		transport http {
+			keepalive 60s
+		}
 	}
 }

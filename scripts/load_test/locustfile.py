@@ -153,9 +153,11 @@ class DemoUser(HttpUser):
         while True:
             started = time.perf_counter()
             try:
+                # locust 2.46 пускает запрос в with-блок только с catch_response=True;
+                # без него поток падал LocustError и SSE-пользователей в прогоне не было.
                 with self.client.get(f"{API}/stream", stream=True, timeout=(10, 60),
                                      headers={"Accept": "text/event-stream"},
-                                     name=f"{API}/stream (SSE)") as resp:
+                                     name=f"{API}/stream (SSE)", catch_response=True) as resp:
                     if resp.ok:
                         for line in resp.iter_lines():
                             if line == b"event: hello":
