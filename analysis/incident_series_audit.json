@@ -1,0 +1,813 @@
+{
+  "source": {
+    "file": "alarm_events_stand.csv",
+    "sha256": "2ac8da6cbc6eefc010eea6358ecbbb3fefac0390e68d05be3a96c4f87a2834b2",
+    "alarm_rows": 64973,
+    "first": "2026-05-02T00:44:26+03:00",
+    "last": "2026-06-30T17:26:13+03:00"
+  },
+  "groups": {
+    "intrusion": 6137,
+    "fire": 5613,
+    "flood": 1275,
+    "gas": 505,
+    "temperature": 107
+  },
+  "without_group": 51336,
+  "group_detail": [
+    {
+      "group": "fire",
+      "sensor_type": "Датчик дыма",
+      "value": "Обнаружен дым",
+      "events": 4714
+    },
+    {
+      "group": "fire",
+      "sensor_type": "Состояние УИР-Р",
+      "value": "Рычаг сдернут",
+      "events": 618
+    },
+    {
+      "group": "fire",
+      "sensor_type": "Тепловой датчик",
+      "value": "Не замкнут",
+      "events": 236
+    },
+    {
+      "group": "fire",
+      "sensor_type": "Ручной извещатель",
+      "value": "Не замкнут",
+      "events": 45
+    },
+    {
+      "group": "flood",
+      "sensor_type": "Состояние насоса",
+      "value": "Затоплен",
+      "events": 1256
+    },
+    {
+      "group": "flood",
+      "sensor_type": "Датчик затопления",
+      "value": "Не замкнут",
+      "events": 19
+    },
+    {
+      "group": "gas",
+      "sensor_type": "Газовый датчик",
+      "value": "Обнаружен газ",
+      "events": 505
+    },
+    {
+      "group": "intrusion",
+      "sensor_type": "КД АВ",
+      "value": "Не замкнут",
+      "events": 3998
+    },
+    {
+      "group": "intrusion",
+      "sensor_type": "Датчик движения",
+      "value": "Обнаружено движение",
+      "events": 1358
+    },
+    {
+      "group": "intrusion",
+      "sensor_type": "КД Дверь",
+      "value": "Не замкнут",
+      "events": 489
+    },
+    {
+      "group": "intrusion",
+      "sensor_type": "Стекло",
+      "value": "Не замкнут",
+      "events": 218
+    },
+    {
+      "group": "intrusion",
+      "sensor_type": "КД Люк",
+      "value": "Не замкнут",
+      "events": 73
+    },
+    {
+      "group": "intrusion",
+      "sensor_type": "КД Дверь",
+      "value": "Обнаружено движение",
+      "events": 1
+    },
+    {
+      "group": "temperature",
+      "sensor_type": "Датчик температуры",
+      "value": "Температура ниже 3ºC",
+      "events": 100
+    },
+    {
+      "group": "temperature",
+      "sensor_type": "Датчик температуры",
+      "value": "Температура выше 40ºC",
+      "events": 7
+    }
+  ],
+  "fire": {
+    "threshold": 5,
+    "events_in_group": 5613,
+    "series_any_time": 46,
+    "series_by_weekday": {
+      "пн": 6,
+      "вт": 9,
+      "ср": 7,
+      "чт": 12,
+      "пт": 8,
+      "сб": 3,
+      "вс": 1
+    },
+    "series_by_start_hour_weekdays": {
+      "0": 1,
+      "1": 1,
+      "8": 2,
+      "9": 12,
+      "10": 4,
+      "11": 10,
+      "12": 4,
+      "13": 5,
+      "15": 2,
+      "17": 1
+    },
+    "series_by_start_hour_weekend": {
+      "15": 1,
+      "17": 1,
+      "19": 1,
+      "23": 1
+    },
+    "series_starting_in_window": {
+      "будни 8:00–13:59": 37,
+      "будни 9:00–17:59": 38,
+      "будни 8:00–17:59": 40,
+      "будни 8:00–19:59": 40
+    },
+    "outside_working_time": [
+      {
+        "start": "2026-05-17 23:08",
+        "weekday": "вс",
+        "obj_id": "5962",
+        "channels": 8,
+        "pickets": 5,
+        "events": 15,
+        "minutes": 18.3
+      },
+      {
+        "start": "2026-05-23 15:13",
+        "weekday": "сб",
+        "obj_id": "5581",
+        "channels": 5,
+        "pickets": 4,
+        "events": 7,
+        "minutes": 9.4
+      },
+      {
+        "start": "2026-06-10 00:15",
+        "weekday": "ср",
+        "obj_id": "3356",
+        "channels": 29,
+        "pickets": 23,
+        "events": 34,
+        "minutes": 9.7
+      },
+      {
+        "start": "2026-06-10 01:14",
+        "weekday": "ср",
+        "obj_id": "3356",
+        "channels": 33,
+        "pickets": 23,
+        "events": 37,
+        "minutes": 0.8
+      },
+      {
+        "start": "2026-06-13 17:38",
+        "weekday": "сб",
+        "obj_id": "5567",
+        "channels": 5,
+        "pickets": 4,
+        "events": 6,
+        "minutes": 8.8
+      },
+      {
+        "start": "2026-06-13 19:01",
+        "weekday": "сб",
+        "obj_id": "5567",
+        "channels": 7,
+        "pickets": 6,
+        "events": 9,
+        "minutes": 13.6
+      }
+    ],
+    "with_working_time_rule": {
+      "series": 40,
+      "events": 3740
+    },
+    "series": [
+      {
+        "start": "2026-05-05 08:59",
+        "weekday": "вт",
+        "obj_id": "5539",
+        "channels": 38,
+        "pickets": 14,
+        "events": 46,
+        "minutes": 25.2
+      },
+      {
+        "start": "2026-05-05 10:41",
+        "weekday": "вт",
+        "obj_id": "5537",
+        "channels": 108,
+        "pickets": 59,
+        "events": 123,
+        "minutes": 49.6
+      },
+      {
+        "start": "2026-05-05 11:42",
+        "weekday": "вт",
+        "obj_id": "5539",
+        "channels": 156,
+        "pickets": 81,
+        "events": 164,
+        "minutes": 31.3
+      },
+      {
+        "start": "2026-05-06 09:23",
+        "weekday": "ср",
+        "obj_id": "5537",
+        "channels": 165,
+        "pickets": 100,
+        "events": 200,
+        "minutes": 60.4
+      },
+      {
+        "start": "2026-05-06 13:42",
+        "weekday": "ср",
+        "obj_id": "5677",
+        "channels": 10,
+        "pickets": 8,
+        "events": 16,
+        "minutes": 25.2
+      },
+      {
+        "start": "2026-05-07 09:21",
+        "weekday": "чт",
+        "obj_id": "4370",
+        "channels": 64,
+        "pickets": 16,
+        "events": 157,
+        "minutes": 99.1
+      },
+      {
+        "start": "2026-05-07 11:23",
+        "weekday": "чт",
+        "obj_id": "4370",
+        "channels": 21,
+        "pickets": 8,
+        "events": 31,
+        "minutes": 17.9
+      },
+      {
+        "start": "2026-05-07 12:52",
+        "weekday": "чт",
+        "obj_id": "4370",
+        "channels": 5,
+        "pickets": 5,
+        "events": 5,
+        "minutes": 2.8
+      },
+      {
+        "start": "2026-05-08 09:53",
+        "weekday": "пт",
+        "obj_id": "4069",
+        "channels": 6,
+        "pickets": 6,
+        "events": 36,
+        "minutes": 19.9
+      },
+      {
+        "start": "2026-05-08 13:09",
+        "weekday": "пт",
+        "obj_id": "4177",
+        "channels": 5,
+        "pickets": 1,
+        "events": 8,
+        "minutes": 3.4
+      },
+      {
+        "start": "2026-05-13 10:59",
+        "weekday": "ср",
+        "obj_id": "5129",
+        "channels": 18,
+        "pickets": 13,
+        "events": 74,
+        "minutes": 32.7
+      },
+      {
+        "start": "2026-05-17 23:08",
+        "weekday": "вс",
+        "obj_id": "5962",
+        "channels": 8,
+        "pickets": 5,
+        "events": 15,
+        "minutes": 18.3
+      },
+      {
+        "start": "2026-05-18 10:36",
+        "weekday": "пн",
+        "obj_id": "165",
+        "channels": 16,
+        "pickets": 4,
+        "events": 16,
+        "minutes": 5.8
+      },
+      {
+        "start": "2026-05-18 11:25",
+        "weekday": "пн",
+        "obj_id": "165",
+        "channels": 11,
+        "pickets": 5,
+        "events": 11,
+        "minutes": 6.9
+      },
+      {
+        "start": "2026-05-21 10:15",
+        "weekday": "чт",
+        "obj_id": "4392",
+        "channels": 12,
+        "pickets": 1,
+        "events": 14,
+        "minutes": 13.1
+      },
+      {
+        "start": "2026-05-23 15:13",
+        "weekday": "сб",
+        "obj_id": "5581",
+        "channels": 5,
+        "pickets": 4,
+        "events": 7,
+        "minutes": 9.4
+      },
+      {
+        "start": "2026-05-28 11:06",
+        "weekday": "чт",
+        "obj_id": "3216",
+        "channels": 5,
+        "pickets": 1,
+        "events": 5,
+        "minutes": 9.2
+      },
+      {
+        "start": "2026-05-29 09:13",
+        "weekday": "пт",
+        "obj_id": "28",
+        "channels": 8,
+        "pickets": 8,
+        "events": 8,
+        "minutes": 17.8
+      },
+      {
+        "start": "2026-05-29 12:08",
+        "weekday": "пт",
+        "obj_id": "99",
+        "channels": 12,
+        "pickets": 1,
+        "events": 13,
+        "minutes": 10.7
+      },
+      {
+        "start": "2026-06-02 09:24",
+        "weekday": "вт",
+        "obj_id": "5677",
+        "channels": 530,
+        "pickets": 255,
+        "events": 624,
+        "minutes": 139.9
+      },
+      {
+        "start": "2026-06-02 12:20",
+        "weekday": "вт",
+        "obj_id": "5677",
+        "channels": 35,
+        "pickets": 9,
+        "events": 40,
+        "minutes": 24.2
+      },
+      {
+        "start": "2026-06-02 13:00",
+        "weekday": "вт",
+        "obj_id": "5677",
+        "channels": 15,
+        "pickets": 8,
+        "events": 18,
+        "minutes": 19.9
+      },
+      {
+        "start": "2026-06-03 09:32",
+        "weekday": "ср",
+        "obj_id": "5677",
+        "channels": 436,
+        "pickets": 199,
+        "events": 507,
+        "minutes": 83.1
+      },
+      {
+        "start": "2026-06-03 11:48",
+        "weekday": "ср",
+        "obj_id": "5674",
+        "channels": 37,
+        "pickets": 1,
+        "events": 39,
+        "minutes": 17.3
+      },
+      {
+        "start": "2026-06-04 09:46",
+        "weekday": "чт",
+        "obj_id": "3356",
+        "channels": 119,
+        "pickets": 52,
+        "events": 129,
+        "minutes": 136.0
+      },
+      {
+        "start": "2026-06-04 12:14",
+        "weekday": "чт",
+        "obj_id": "3356",
+        "channels": 34,
+        "pickets": 19,
+        "events": 37,
+        "minutes": 33.0
+      },
+      {
+        "start": "2026-06-04 13:18",
+        "weekday": "чт",
+        "obj_id": "3356",
+        "channels": 5,
+        "pickets": 2,
+        "events": 5,
+        "minutes": 2.4
+      },
+      {
+        "start": "2026-06-04 13:55",
+        "weekday": "чт",
+        "obj_id": "3356",
+        "channels": 7,
+        "pickets": 6,
+        "events": 9,
+        "minutes": 16.7
+      },
+      {
+        "start": "2026-06-04 15:14",
+        "weekday": "чт",
+        "obj_id": "3356",
+        "channels": 6,
+        "pickets": 6,
+        "events": 7,
+        "minutes": 9.4
+      },
+      {
+        "start": "2026-06-04 17:14",
+        "weekday": "чт",
+        "obj_id": "3356",
+        "channels": 11,
+        "pickets": 8,
+        "events": 11,
+        "minutes": 14.0
+      },
+      {
+        "start": "2026-06-05 08:45",
+        "weekday": "пт",
+        "obj_id": "3902",
+        "channels": 6,
+        "pickets": 1,
+        "events": 10,
+        "minutes": 15.4
+      },
+      {
+        "start": "2026-06-05 09:25",
+        "weekday": "пт",
+        "obj_id": "3902",
+        "channels": 9,
+        "pickets": 1,
+        "events": 9,
+        "minutes": 11.3
+      },
+      {
+        "start": "2026-06-10 00:15",
+        "weekday": "ср",
+        "obj_id": "3356",
+        "channels": 29,
+        "pickets": 23,
+        "events": 34,
+        "minutes": 9.7
+      },
+      {
+        "start": "2026-06-10 01:14",
+        "weekday": "ср",
+        "obj_id": "3356",
+        "channels": 33,
+        "pickets": 23,
+        "events": 37,
+        "minutes": 0.8
+      },
+      {
+        "start": "2026-06-11 15:27",
+        "weekday": "чт",
+        "obj_id": "5567",
+        "channels": 20,
+        "pickets": 16,
+        "events": 22,
+        "minutes": 15.6
+      },
+      {
+        "start": "2026-06-13 17:38",
+        "weekday": "сб",
+        "obj_id": "5567",
+        "channels": 5,
+        "pickets": 4,
+        "events": 6,
+        "minutes": 8.8
+      },
+      {
+        "start": "2026-06-13 19:01",
+        "weekday": "сб",
+        "obj_id": "5567",
+        "channels": 7,
+        "pickets": 6,
+        "events": 9,
+        "minutes": 13.6
+      },
+      {
+        "start": "2026-06-22 09:05",
+        "weekday": "пн",
+        "obj_id": "4574",
+        "channels": 6,
+        "pickets": 1,
+        "events": 6,
+        "minutes": 6.9
+      },
+      {
+        "start": "2026-06-26 11:51",
+        "weekday": "пт",
+        "obj_id": "5124",
+        "channels": 5,
+        "pickets": 1,
+        "events": 5,
+        "minutes": 2.5
+      },
+      {
+        "start": "2026-06-26 11:56",
+        "weekday": "пт",
+        "obj_id": "5123",
+        "channels": 10,
+        "pickets": 1,
+        "events": 10,
+        "minutes": 10.3
+      },
+      {
+        "start": "2026-06-29 09:32",
+        "weekday": "пн",
+        "obj_id": "5332",
+        "channels": 61,
+        "pickets": 16,
+        "events": 68,
+        "minutes": 18.1
+      },
+      {
+        "start": "2026-06-29 09:42",
+        "weekday": "пн",
+        "obj_id": "5343",
+        "channels": 297,
+        "pickets": 101,
+        "events": 408,
+        "minutes": 84.0
+      },
+      {
+        "start": "2026-06-29 11:26",
+        "weekday": "пн",
+        "obj_id": "5332",
+        "channels": 416,
+        "pickets": 107,
+        "events": 497,
+        "minutes": 67.9
+      },
+      {
+        "start": "2026-06-30 09:37",
+        "weekday": "вт",
+        "obj_id": "5332",
+        "channels": 249,
+        "pickets": 89,
+        "events": 341,
+        "minutes": 69.1
+      },
+      {
+        "start": "2026-06-30 11:17",
+        "weekday": "вт",
+        "obj_id": "5336",
+        "channels": 6,
+        "pickets": 1,
+        "events": 6,
+        "minutes": 4.1
+      },
+      {
+        "start": "2026-06-30 11:38",
+        "weekday": "вт",
+        "obj_id": "5336",
+        "channels": 5,
+        "pickets": 1,
+        "events": 5,
+        "minutes": 8.9
+      }
+    ]
+  },
+  "gas": {
+    "threshold": 4,
+    "events_in_group": 505,
+    "by_threshold": [
+      {
+        "threshold": 2,
+        "series": 33,
+        "events": 293,
+        "series_on_fewer_pickets_than_threshold": 2,
+        "series_on_at_most_two_pickets": 17
+      },
+      {
+        "threshold": 3,
+        "series": 23,
+        "events": 197,
+        "series_on_fewer_pickets_than_threshold": 8,
+        "series_on_at_most_two_pickets": 8
+      },
+      {
+        "threshold": 4,
+        "series": 15,
+        "events": 116,
+        "series_on_fewer_pickets_than_threshold": 2,
+        "series_on_at_most_two_pickets": 2
+      },
+      {
+        "threshold": 5,
+        "series": 5,
+        "events": 37,
+        "series_on_fewer_pickets_than_threshold": 1,
+        "series_on_at_most_two_pickets": 0
+      },
+      {
+        "threshold": 6,
+        "series": 2,
+        "events": 13,
+        "series_on_fewer_pickets_than_threshold": 0,
+        "series_on_at_most_two_pickets": 0
+      }
+    ],
+    "series_any_time": 16,
+    "outside_working_time": [
+      {
+        "start": "2026-05-02 14:07",
+        "weekday": "сб",
+        "parent_id": "9",
+        "channels": 6,
+        "pickets": 6,
+        "events": 24,
+        "minutes": 16.7
+      }
+    ],
+    "series": [
+      {
+        "start": "2026-05-07 11:13",
+        "weekday": "чт",
+        "parent_id": "3828",
+        "channels": 9,
+        "pickets": 9,
+        "events": 9,
+        "minutes": 19.7
+      },
+      {
+        "start": "2026-05-07 12:37",
+        "weekday": "чт",
+        "parent_id": "3828",
+        "channels": 4,
+        "pickets": 4,
+        "events": 4,
+        "minutes": 8.8
+      },
+      {
+        "start": "2026-05-14 13:04",
+        "weekday": "чт",
+        "parent_id": "9",
+        "channels": 6,
+        "pickets": 6,
+        "events": 6,
+        "minutes": 0.0
+      },
+      {
+        "start": "2026-05-21 09:51",
+        "weekday": "чт",
+        "parent_id": "6",
+        "channels": 4,
+        "pickets": 2,
+        "events": 4,
+        "minutes": 3.4
+      },
+      {
+        "start": "2026-05-26 09:00",
+        "weekday": "вт",
+        "parent_id": "3828",
+        "channels": 6,
+        "pickets": 6,
+        "events": 6,
+        "minutes": 14.3
+      },
+      {
+        "start": "2026-05-26 09:33",
+        "weekday": "вт",
+        "parent_id": "3828",
+        "channels": 18,
+        "pickets": 18,
+        "events": 20,
+        "minutes": 49.8
+      },
+      {
+        "start": "2026-05-26 10:47",
+        "weekday": "вт",
+        "parent_id": "3828",
+        "channels": 4,
+        "pickets": 4,
+        "events": 4,
+        "minutes": 9.8
+      },
+      {
+        "start": "2026-05-27 12:14",
+        "weekday": "ср",
+        "parent_id": "6",
+        "channels": 4,
+        "pickets": 2,
+        "events": 14,
+        "minutes": 18.7
+      },
+      {
+        "start": "2026-06-02 10:57",
+        "weekday": "вт",
+        "parent_id": "9",
+        "channels": 4,
+        "pickets": 4,
+        "events": 4,
+        "minutes": 1.7
+      },
+      {
+        "start": "2026-06-05 11:16",
+        "weekday": "пт",
+        "parent_id": "9",
+        "channels": 5,
+        "pickets": 5,
+        "events": 8,
+        "minutes": 14.8
+      },
+      {
+        "start": "2026-06-17 09:13",
+        "weekday": "ср",
+        "parent_id": "15",
+        "channels": 4,
+        "pickets": 4,
+        "events": 4,
+        "minutes": 9.3
+      },
+      {
+        "start": "2026-06-17 11:36",
+        "weekday": "ср",
+        "parent_id": "15",
+        "channels": 4,
+        "pickets": 4,
+        "events": 5,
+        "minutes": 9.7
+      },
+      {
+        "start": "2026-06-23 09:04",
+        "weekday": "вт",
+        "parent_id": "15",
+        "channels": 4,
+        "pickets": 4,
+        "events": 4,
+        "minutes": 6.5
+      },
+      {
+        "start": "2026-06-23 09:26",
+        "weekday": "вт",
+        "parent_id": "15",
+        "channels": 5,
+        "pickets": 5,
+        "events": 6,
+        "minutes": 13.4
+      },
+      {
+        "start": "2026-06-23 10:06",
+        "weekday": "вт",
+        "parent_id": "15",
+        "channels": 18,
+        "pickets": 15,
+        "events": 18,
+        "minutes": 51.3
+      }
+    ]
+  }
+}

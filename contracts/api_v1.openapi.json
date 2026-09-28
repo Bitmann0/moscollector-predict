@@ -549,6 +549,24 @@
             "title": "Id",
             "type": "integer"
           },
+          "incident_group": {
+            "anyOf": [
+              {
+                "enum": [
+                  "fire",
+                  "flood",
+                  "gas",
+                  "intrusion",
+                  "temperature"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Group"
+          },
           "object": {
             "$ref": "#/components/schemas/ObjectRef"
           },
@@ -3637,6 +3655,31 @@
               "description": "Скрыть события класса normal у газовых датчиков",
               "title": "Hide Normal Gas",
               "type": "boolean"
+            }
+          },
+          {
+            "description": "Группа аварии: пожар, наводнение, газ, проникновение, аномальная температура",
+            "in": "query",
+            "name": "incident_group",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "fire",
+                    "flood",
+                    "gas",
+                    "intrusion",
+                    "temperature"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Группа аварии: пожар, наводнение, газ, проникновение, аномальная температура",
+              "title": "Incident Group"
             }
           }
         ],

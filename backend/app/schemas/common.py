@@ -19,6 +19,7 @@ ResultStatus = Literal["ok", "empty_valid", "no_data", "stale", "error"]
 WorkOrderStatus = Literal["draft", "confirmed", "in_progress", "completed", "cancelled"]
 Priority = Literal["urgent", "planned", "watch"]
 EventClass = Literal["normal", "warning", "alarm", "critical", "fault", "service"]
+IncidentGroup = Literal["fire", "flood", "gas", "intrusion", "temperature"]
 Role = Literal["dispatcher", "technician", "analyst", "manager", "admin", "integration"]
 DataStatus = Literal["ok", "no_data", "stale"]
 

@@ -28,7 +28,8 @@ def _contains(column, text: str):
 def list_events(db: Session, *, date_from: date | None, date_to: date | None,
                 obj: str | None, sensor_type: str | None, event_class: str | None,
                 q: str | None, page: int, page_size: int,
-                hide_normal_gas: bool = False) -> Page[EventItem]:
+                hide_normal_gas: bool = False,
+                incident_group: str | None = None) -> Page[EventItem]:
     stmt = select(models.Event)
     if date_from:
         stmt = stmt.where(models.Event.ts >= to_db(assume_msk(datetime.combine(date_from, datetime.min.time()))))
@@ -37,6 +38,8 @@ def list_events(db: Session, *, date_from: date | None, date_to: date | None,
             date_to + timedelta(days=1), datetime.min.time()))))
     if event_class:
         stmt = stmt.where(models.Event.event_class == event_class)
+    if incident_group:
+        stmt = stmt.where(models.Event.incident_group == incident_group)
     if q:
         stmt = stmt.where(models.Event.val_raw.ilike(f"%{q}%"))
     if obj or sensor_type:
@@ -63,5 +66,6 @@ def list_events(db: Session, *, date_from: date | None, date_to: date | None,
                        channel=refs.channel_ref(row.channel_id), sensor_event=row.val_raw,
                        event_class=row.event_class,
                        event_class_title=vocab.title("event_class", row.event_class),
-                       hint=row.hint, alarm=row.alarm) for row in rows]
+                       incident_group=row.incident_group, hint=row.hint,
+                       alarm=row.alarm) for row in rows]
     return page_of(EventItem, items, total, page, page_size)

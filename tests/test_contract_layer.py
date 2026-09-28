@@ -31,6 +31,7 @@ def _literal(tp) -> set[str]:
     ("work_order_status", common.WorkOrderStatus),
     ("work_order_priority", common.Priority),
     ("event_class", common.EventClass),
+    ("incident_group", common.IncidentGroup),
     ("roles", common.Role),
 ])
 def test_vocabulary_matches_schema_literals(vocab_name, literal):
