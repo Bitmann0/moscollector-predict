@@ -13,6 +13,7 @@ from sqlalchemy import and_, delete, or_, select, update
 from sqlalchemy.orm import Session
 
 from .. import models
+from ..limits import UPLOAD_MAX_BYTES
 from ..schemas.common import Page
 from ..schemas.events import EventRowIn, IngestBatchOut, OdsRowIn, ResetDayOut
 from ..security import CurrentUser
@@ -20,9 +21,9 @@ from . import parameters, semantics, settings_store
 from .helpers import assume_msk, count, from_db, now_utc, page_of, to_db
 from .notifications import publish_safe
 
-# Тот же лимит, что в routers/ingest.py: роутер читает на байт больше, чтобы сервис
-# отличил файл ровно в лимит от файла больше лимита.
-MAX_UPLOAD_BYTES = 200 * 1024 * 1024
+# Лимит файла из limits.py, как в routers/ingest.py: роутер читает на байт больше, чтобы
+# сервис отличил файл ровно в лимит от файла больше лимита.
+MAX_UPLOAD_BYTES = UPLOAD_MAX_BYTES
 # Размер пачки для IN (...): SQLite до 3.32 принимает не больше 999 параметров.
 LOOKUP_CHUNK = 500
 # «Тревожное сообщение» — термин заказчика для записи с флагом «тревожное» (ответ 1,
@@ -168,7 +169,7 @@ def mark_series(db: Session, fresh: list[models.Event], channels: dict[int, Chan
     return len(changed)
 
 
-def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
+def _save_rows(db: Session, rows: list[EventRowIn],
                *, rejected: int = 0, notify: bool = True) -> IngestBatchOut:
     """notify=False — загрузка истории (replay.py --bulk, --catch-up): события получают
     класс, но уведомлений и SSE нет — иначе прошлые тревоги пришли бы диспетчеру как новые.
@@ -266,7 +267,7 @@ def _cell_text(header: str | None, value):
 
 def ingest_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
                 *, notify: bool = True) -> IngestBatchOut:
-    return _save_rows(db, rows, user, notify=notify)
+    return _save_rows(db, rows, notify=notify)
 
 
 def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser,
@@ -305,7 +306,7 @@ def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser,
         batch.status = "rejected"
         db.commit()
         return _out(batch)
-    return _save_rows(db, rows, user, rejected=rejected, notify=notify)
+    return _save_rows(db, rows, rejected=rejected, notify=notify)
 
 
 def reset_day(db: Session, day: date, user: CurrentUser) -> ResetDayOut:

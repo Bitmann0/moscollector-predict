@@ -30,10 +30,6 @@ class Page[T](BaseModel):
     page_size: int
 
 
-class ErrorOut(BaseModel):
-    detail: str
-
-
 class ObjectRef(BaseModel):
     id: str | None = None
     name: str | None = None

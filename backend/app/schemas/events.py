@@ -25,8 +25,9 @@ class EventItem(BaseModel):
 class EventRowIn(BaseModel):
     """Строка журнала СМВУ в формате журнал_событий_пример.csv (C5)."""
     model_config = ConfigDict(populate_by_name=True)
-    event_id: int = Field(alias="ид_события")
-    channel_id: int = Field(alias="ид_канала_данных")
+    # Колонки BIGINT (models.py): без границ число больше 2^63 роняло пачку в 500.
+    event_id: int = Field(alias="ид_события", ge=-2**63, lt=2**63)
+    channel_id: int = Field(alias="ид_канала_данных", ge=-2**63, lt=2**63)
     day: str = Field(alias="дата")          # YYYY-MM-DD
     time: str = Field(alias="время")        # HH:MM:SS
     alarm: str | bool = Field(alias="тревожное")  # t/f/true/false
@@ -36,7 +37,7 @@ class EventRowIn(BaseModel):
 class OdsRowIn(BaseModel):
     """Запись журнала ОДС (ТЗ §7) для /ingest/ods-journal."""
     ts: datetime
-    obj_id: str | None = None
+    obj_id: str | None = Field(default=None, max_length=32)  # ods_journal.obj_id — String(32)
     record_type: str = Field(max_length=64)
     decision: str | None = Field(default=None, max_length=64)
     reason: str | None = Field(default=None, max_length=2000)

@@ -4,14 +4,13 @@ from fastapi import APIRouter, Body, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from ..db import get_db
+from ..limits import UPLOAD_MAX_BYTES as MAX_UPLOAD_BYTES
 from ..schemas.common import Page
 from ..schemas.events import EventRowIn, IngestBatchOut, OdsRowIn, ResetDayOut
 from ..security import CurrentUser, require_perm
 from ..services import ingest
 
 router = APIRouter(tags=["ingest"])
-
-from ..limits import UPLOAD_MAX_BYTES as MAX_UPLOAD_BYTES  # лимит файла (ML2-07 — в документацию)
 
 MAX_BATCH_ROWS = 5000  # C5: JSON-пачка журнала — до 5 000 строк
 NOTIFY_HELP = ("false — загрузка истории: события сохраняются и классифицируются, но "
