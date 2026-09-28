@@ -1148,6 +1148,38 @@
       "decision": "не принят: не отделяет кандидатов лучше исходного списка",
       "source": "reports/laya_typed_d_decisions.json; reports/LAYA_TYPED_DECISIONS.md",
       "command": "python scripts/eval_laya_typed_decisions.py"
+    },
+    {
+      "id": "fire_history",
+      "what": "B: история тревог участка (fire_days_to_date, fire_rate_to_date, days_since_fire) в признаках",
+      "period": [
+        "2025-07-01",
+        "2026-06-29"
+      ],
+      "without": {
+        "alerts": 2769,
+        "hits": 238,
+        "unknown": 883,
+        "precision_lower_bound": 0.086,
+        "precision_known_only": 0.1262,
+        "new_hits": 83,
+        "recall": 0.1558
+      },
+      "with": {
+        "alerts": 2866,
+        "hits": 297,
+        "unknown": 890,
+        "precision_lower_bound": 0.1036,
+        "precision_known_only": 0.1503,
+        "new_hits": 162,
+        "recall": 0.1944
+      },
+      "months": 12,
+      "months_not_worse": 6,
+      "criterion": "нижняя граница точности выше суммарно и не хуже в 8 месяцах из 12; записан до прогона",
+      "decision": "не принят",
+      "source": "reports/fire_history_lever.json; reports/fire_flood_product.json",
+      "command": "MKL_ROOT=<новый корень> python scripts/exp_fire_history_lever.py <segment.parquet>; MKL_ROOT=<новый корень> python scripts/eval_fire_flood_product.py B --output reports/fire_history_lever.json"
     }
   ],
   "quality_screen": {
