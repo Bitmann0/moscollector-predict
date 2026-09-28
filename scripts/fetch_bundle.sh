@@ -14,10 +14,11 @@
 # Пароль архива — тот же, что у датасета организаторов (D10): 7z спросит его сам.
 # Без терминала пароль берётся из BUNDLE_PASSWORD; тогда он уходит в 7z ключом -p и
 # на время распаковки виден в списке процессов. Пароль нигде не записываем.
-# Итог: <каталог>/{data,models,configs/features.yaml,reports/intrusion_eventtime_v2_build.json}.
+# Итог: <каталог>/{data,models,Materials,configs/features.yaml,reports/intrusion_eventtime_v2_build.json}.
+# Materials — справочники объектов и каналов для api (BE-03, compose.real.yaml).
 set -eu
 
-LAYOUT_DIRS="data models"
+LAYOUT_DIRS="data models Materials"
 LAYOUT_FILES="configs/features.yaml reports/intrusion_eventtime_v2_build.json"
 
 die() {

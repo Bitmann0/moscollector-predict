@@ -348,8 +348,8 @@ def _work_orders(alerts: list[AlertOut]) -> list[WorkOrderOut]:
 
 
 def score(req: ScoreRequest) -> ScoreResponse:
-    """ЗАГЛУШКА — владелец ML1-03 (C1), устойчивость ML1-04, артефакты по asof ML1-05b.
-    Заменить: в real-режиме ответ строит product_api._real_score() — поголовный
+    """Ответ для ML_MODE=stub: CI, фикстуры, машина без данных заказчика.
+    В real-режиме ответ строит product_api._real_score() — поголовный
     вызов mkl.service.alerts_for_head, покрытие пилотных голов, workorders.build.
     Контракт: ScoreRequest → ScoreResponse не меняются; тест
     tests/test_product_api.py должен остаться зелёным.
@@ -375,8 +375,8 @@ def score(req: ScoreRequest) -> ScoreResponse:
 
 
 def weekly(asof: dt.date) -> WeeklyResponse:
-    """ЗАГЛУШКА — владелец ML1-04 (C1).
-    Заменить: в real-режиме ответ строит product_api._real_weekly() — вызов
+    """Ответ для ML_MODE=stub: CI, фикстуры, машина без данных заказчика.
+    В real-режиме ответ строит product_api._real_weekly() — вызов
     mkl.guard_weekly.weekly_inspections, день без данных → no_data вместо 409.
     Контракт: понедельник → WeeklyResponse, не понедельник → ValueError (HTTP 422);
     тест tests/test_product_api.py должен остаться зелёным.
@@ -431,8 +431,8 @@ def weekly(asof: dt.date) -> WeeklyResponse:
 
 
 def outcomes(items: list[OutcomeQuery]) -> list[OutcomeResult]:
-    """ЗАГЛУШКА — владелец ML1-07 (C1).
-    Заменить: в real-режиме ответ строит product_api._real_outcomes() — факт по
+    """Ответ для ML_MODE=stub: CI, фикстуры, машина без данных заказчика.
+    В real-режиме ответ строит product_api._real_outcomes() — факт по
     меткам бандла; строки вне наблюдаемых дней (labels._observable) → unknown.
     Контракт: по одному OutcomeResult на запрос в том же порядке; тест
     tests/test_product_api.py должен остаться зелёным.
@@ -448,8 +448,8 @@ def outcomes(items: list[OutcomeQuery]) -> list[OutcomeResult]:
 
 
 def ready(asof: dt.date | None = None) -> ReadyResponse:
-    """ЗАГЛУШКА — владелец ML1-03 (C1).
-    Заменить: в real-режиме ответ строит product_api._real_ready() — готовность
+    """Ответ для ML_MODE=stub: CI, фикстуры, машина без данных заказчика.
+    В real-режиме ответ строит product_api._real_ready() — готовность
     данных бандла и артефактов голов на дату.
     Контракт: ReadyResponse не меняется; тест tests/test_product_api.py должен
     остаться зелёным.
@@ -463,8 +463,8 @@ def ready(asof: dt.date | None = None) -> ReadyResponse:
 
 
 def directions() -> list[DirectionItem]:
-    """ЗАГЛУШКА — владелец ML1-03 (C1).
-    Заменить: в real-режиме ответ строит product_api._real_directions() — пилотные
+    """Ответ для ML_MODE=stub: CI, фикстуры, машина без данных заказчика.
+    В real-режиме ответ строит product_api._real_directions() — пилотные
     головы из configs/heads.yaml и недельная очередь.
     Контракт: list[DirectionItem] не меняется; тест tests/test_product_api.py
     должен остаться зелёным.

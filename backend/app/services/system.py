@@ -4,6 +4,8 @@
 считалась: недельная очередь считается только по понедельникам, и во вторник её
 статус не должен пропадать из шапки.
 """
+from datetime import date
+
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -41,9 +43,11 @@ def head_states(db: Session) -> list[HeadState]:
     return out
 
 
-def ml_ready(ml: MlClient) -> MlReady:
+def ml_ready(ml: MlClient, asof: date) -> MlReady:
+    """Готовность ML на демо-день. Без asof ML сверяет данные с настоящей датой, а
+    данные кончаются 2026-06-30, поэтому ответ всегда stale_source (раздел 1 плана)."""
     try:
-        ready = ml.ready()
+        ready = ml.ready(asof)
     except (MlUnavailable, ValidationError):
         return MlReady(reachable=False)
     return MlReady(reachable=True, status=ready.status,
@@ -64,4 +68,5 @@ def status(db: Session, ml: MlClient) -> SystemStatus:
     demo = settings_store.get(db)
     return SystemStatus(demo_today=demo.demo_today, mode=demo.mode,
                         settings_locked=get_settings().demo_settings_locked,
-                        ml=ml_ready(ml), heads=head_states(db), last_run=last_run(db))
+                        ml=ml_ready(ml, demo.demo_today), heads=head_states(db),
+                        last_run=last_run(db))

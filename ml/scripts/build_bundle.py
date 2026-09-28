@@ -81,6 +81,12 @@ REQUIRED = {
         "scripts/train_latest.py:28 — дообучение в контейнере (ML1-10)",
     "data/interim/events_year=2026.parquet":
         "../scripts/replay.py:38 — поток событий демо-окна (C4, D10)",
+    # Сам ML в режиме real читает channels.parquet, а справочник нужен api: seed сверяет
+    # с ним ref_objects и ref_channels (backend/app/seed.py, compose.real.yaml).
+    "Materials/справочник_объектов_диспетчер.csv":
+        "backend/app/services/reference.py:61 — объекты для журнала, заявок и схемы (BE-03)",
+    "Materials/справочник_каналов_датчиков.csv":
+        "backend/app/services/reference.py:62 — каналы и пикеты (BE-03)",
 }
 
 # Берутся, если есть; без них сервис работает, но беднее.

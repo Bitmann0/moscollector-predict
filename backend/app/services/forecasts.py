@@ -165,7 +165,10 @@ def get_card(db: Session, forecast_id: str) -> ForecastCard | None:
                            .where(models.Decision.forecast_id == forecast_id)
                            .order_by(models.Decision.created_at.desc(),
                                      models.Decision.id.desc()))
-    weekday = row.asof.weekday()
+    # Календарь — дня, на который прогноз (начало окна по МСК), а не дня расчёта:
+    # в карточке он стоит под окном прогноза.
+    day = from_db(row.valid_from).date() if row.valid_from else row.asof
+    weekday = day.weekday()
     return ForecastCard(
         **item.model_dump(),
         factors=[FactorItem.model_validate(f) for f in row.factors or []],
@@ -180,6 +183,6 @@ def get_card(db: Session, forecast_id: str) -> ForecastCard | None:
         # weekday по ISO: 1 — понедельник, 7 — воскресенье
         calendar=CalendarInfo(weekday=weekday + 1, weekday_title=WEEKDAYS_RU[weekday],
                               holiday=("выходной" if weekday >= 5 else
-                                       "праздничный день" if (row.asof.month, row.asof.day)
+                                       "праздничный день" if (day.month, day.day)
                                        in HOLIDAYS else None)),
     )

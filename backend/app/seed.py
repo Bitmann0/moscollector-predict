@@ -10,7 +10,12 @@
 - по пользователю на роль dispatcher, technician, analyst, manager, admin; логин равен
   коду роли, имя — название роли из словаря, пароль — DEMO_PASSWORD (обязателен);
 - синтетический справочник contracts/synthetic_reference.json, только если ref_objects и
-  ref_channels пусты: реальный справочник BE-03 не перезаписывается.
+  ref_channels пусты и настоящего справочника нет.
+
+Настоящий справочник (BE-03): если в RAW_DATA_DIR лежат справочник_объектов_диспетчер.csv
+и справочник_каналов_датчиков.csv, seed сверяет с ними таблицы через reference.sync — при
+каждом старте, поэтому синтетика прошлых запусков удаляется. На стенде файлы приходят
+из бандла: compose.real.yaml монтирует <бандл>/Materials в /app/data/raw.
 
 Прогнозов seed не создаёт: их создаёт run-daily, так проверяется сквозная труба.
 """
@@ -20,8 +25,8 @@ from sqlalchemy.orm import Session
 from . import models, vocab
 from .config import get_settings
 from .db import session_factory
-from .security import hash_password, verify_password
-from .services import settings_store
+from .security import CurrentUser, hash_password, verify_password
+from .services import reference, settings_store
 from .services.helpers import synthetic_reference
 
 DEMO_ROLES = ["dispatcher", "technician", "analyst", "manager", "admin"]
@@ -66,6 +71,17 @@ def seed_users(db: Session, password: str) -> int:
     return len(DEMO_ROLES)
 
 
+SEED_USER = CurrentUser("seed", "seed", "admin", frozenset())
+
+
+def sync_real_reference(db: Session) -> dict | None:
+    """Отчёт reference.sync, если настоящий справочник лежит в RAW_DATA_DIR, иначе None."""
+    root = get_settings().raw_data_dir
+    if not all((root / name).is_file() for name in reference.SOURCE_FILES):
+        return None
+    return reference.sync(db, SEED_USER).model_dump()
+
+
 def seed_reference(db: Session) -> bool:
     has_objects = db.scalar(select(func.count()).select_from(models.RefObject))
     has_channels = db.scalar(select(func.count()).select_from(models.RefChannel))
@@ -85,10 +101,12 @@ def seed(db: Session) -> dict:
     """Всё наполнение одной транзакцией. Возвращает, что сделано, — для лога и тестов."""
     settings = get_settings()
     report = {"reason_codes": seed_reason_codes(db), "settings_added": seed_settings(db),
-              "users": 0, "reference_loaded": False}
+              "users": 0, "reference_loaded": False,
+              "reference_synced": sync_real_reference(db)}
     if settings.seed_demo:
         report["users"] = seed_users(db, settings.demo_password)
-        report["reference_loaded"] = seed_reference(db)
+        if report["reference_synced"] is None:
+            report["reference_loaded"] = seed_reference(db)
     db.commit()
     return report
 

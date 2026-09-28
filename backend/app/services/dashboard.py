@@ -44,8 +44,10 @@ def summary(db: Session) -> DashboardSummary:
                                               models.Forecast.asof.in_(days))
                                        .group_by(models.Forecast.asof)).all())
     coverage_by_day: dict = {}
+    run_days: set = set()
     for run in db.scalars(select(models.ForecastRun).where(models.ForecastRun.asof.in_(days),
                                                             models.ForecastRun.kind == "daily")):
+        run_days.add(run.asof)
         values = [c.get("fraction") for c in ((run.raw or {}).get("score") or {}).get("coverage", [])
                   if c.get("fraction") is not None]
         if values:
@@ -58,7 +60,10 @@ def summary(db: Session) -> DashboardSummary:
         planned_like_alarms_24h=db.scalar(alarms.where(
             models.Event.hint == semantics.PLANNED_CHECK_HINT)) or 0,
         heads=head_states(db),
-        series_forecasts_per_day=[SeriesPoint(day=d, value=forecasts_by_day.get(d, 0)) for d in days],
+        # Как и охват: день без дневного прогона (на стенде это сам 30.06 — его прогноз
+        # дал расчёт за 29.06) не рисуем нулём.
+        series_forecasts_per_day=[SeriesPoint(day=d, value=forecasts_by_day.get(d, 0))
+                                  for d in days if d in run_days],
         # День без прогона пропускаем: ноль на графике читался бы как замеренный провал.
         series_coverage_per_day=[SeriesPoint(day=d, value=coverage_by_day[d])
                                  for d in days if d in coverage_by_day],
