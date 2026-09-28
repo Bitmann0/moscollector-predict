@@ -2,7 +2,8 @@
 import hashlib
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .. import models, vocab
@@ -66,6 +67,24 @@ def order_id_for(forecast_ids: list[str]) -> str:
     return "WO-" + hashlib.sha256(key.encode()).hexdigest()[:12]
 
 
+def _active_order_for(db: Session, forecast_ids: set[str]) -> str | None:
+    """Самая ранняя незакрытая заявка, куда входит хотя бы один из прогнозов.
+
+    Незакрытые — статусы, из которых граф C3 ещё ведёт дальше. Прогнозы заявки лежат
+    JSON-списком, частичный уникальный индекс по нему одинаково на SQLite и PostgreSQL
+    не построить, поэтому проверка здесь. Заявок в демо десятки: читаем все, как
+    forecasts.work_order_ids.
+    """
+    active = [s for s, targets in vocab.load()["work_order_transitions"].items() if targets]
+    for order_id, stored_ids in db.execute(
+            select(models.WorkOrder.id, models.WorkOrder.forecast_ids)
+            .where(models.WorkOrder.status.in_(active))
+            .order_by(models.WorkOrder.created_at, models.WorkOrder.id)):
+        if forecast_ids & set(stored_ids or []):
+            return order_id
+    return None
+
+
 def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCard:
     forecasts = []
     for forecast_id in dict.fromkeys(body.forecast_ids):
@@ -75,6 +94,11 @@ def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCa
         forecasts.append(row)
     if len({f.scenario for f in forecasts}) != 1 or len({f.obj_id for f in forecasts}) != 1:
         raise HTTPException(status_code=422, detail="work_order_requires_one_scenario_and_object")
+    # На прогноз одна активная заявка: если дневной расчёт или другой диспетчер её уже
+    # завёл, отдаём её. Закрытые (completed, cancelled) здесь не учитываются.
+    active_id = _active_order_for(db, {f.id for f in forecasts})
+    if active_id is not None:
+        return get(db, active_id)
     order_id = order_id_for(body.forecast_ids)
     if db.get(models.WorkOrder, order_id) is None:
         first = forecasts[0]
@@ -89,7 +113,17 @@ def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCa
             pickets=pickets,
             channels=sorted({f.channel_id for f in forecasts} - {None}),
             created_by=user.login, created_at=now, source="live"))
-        db.flush()
+        try:
+            db.flush()
+        except IntegrityError:
+            # Параллельный запрос вставил ту же заявку между проверкой и вставкой:
+            # ключ заявки детерминирован по прогнозам, значит это она и есть. Ловим на
+            # flush: INSERT уходит здесь, до commit дело не доходит.
+            db.rollback()
+            existing = get(db, order_id)
+            if existing is None:
+                raise
+            return existing
         db.add(models.WorkOrderHistory(order_id=order_id, from_status=None, to_status="draft",
                                        author=user.login, reason="черновик вручную", at=now))
         db.commit()
@@ -110,10 +144,23 @@ def transition(db: Session, order_id: str, body: WorkOrderTransition,
     permission = vocab.load()["work_order_transition_perm"].get(body.status)
     if permission and permission not in user.perms:
         raise HTTPException(status_code=403, detail="forbidden")
-    db.add(models.WorkOrderHistory(order_id=order_id, from_status=row.status,
+    # Проверки выше читали строку до записи: между ними статус мог сменить другой запрос.
+    # Поэтому сравнение и запись — один UPDATE. На PostgreSQL второй из двух одновременных
+    # UPDATE ждёт блокировку строки, после commit первого перепроверяет WHERE и меняет
+    # 0 строк.
+    moved = db.execute(update(models.WorkOrder)
+                       .where(models.WorkOrder.id == order_id,
+                              models.WorkOrder.status == body.expected_status)
+                       .values(status=body.status))
+    if moved.rowcount != 1:
+        db.rollback()
+        current = db.scalar(select(models.WorkOrder.status)
+                            .where(models.WorkOrder.id == order_id))
+        raise HTTPException(status_code=409, detail={"code": "status_conflict",
+                                                     "current_status": current})
+    db.add(models.WorkOrderHistory(order_id=order_id, from_status=body.expected_status,
                                    to_status=body.status, author=user.login,
                                    reason=body.reason, at=now_utc()))
-    row.status = body.status
     db.commit()
     publish_safe("workorder.changed", {"id": row.id, "from_status": body.expected_status,
                                         "to_status": body.status}, title=f"Заявка {row.id}", db=db)

@@ -25,11 +25,12 @@ cookie в браузере.
 1. Войдите как `admin`.
 2. При наличии реальных CSV поместите их в `data/raw/` и вызовите `POST /api/v1/reference/sync`.
 3. Вызовите `POST /api/v1/admin/run-daily` с датой демонстрационного окна.
-4. Откройте `GET /api/v1/forecasts`, затем карточку `GET /api/v1/forecasts/{id}`.
-5. Сохраните решение `POST /api/v1/forecasts/{id}/decision`; причина должна быть допустима для
-   выбранного действия, что можно проверить через `GET /api/v1/reason-codes`.
-6. Создайте черновик заявки и меняйте статус через `POST /api/v1/work-orders/{id}/transition`,
-   передавая текущий `expected_status`.
+4. Откройте `GET /api/v1/forecasts`, затем карточку `GET /api/v1/forecasts/{forecast_id}`.
+5. Сохраните решение `POST /api/v1/forecasts/{forecast_id}/decisions`; причина должна быть
+   допустима для выбранного действия, что можно проверить через `GET /api/v1/reason-codes`.
+6. Создайте черновик заявки `POST /api/v1/work-orders` и меняйте статус через
+   `PATCH /api/v1/work-orders/{order_id}`, передавая текущий `expected_status`
+   (раздел «Жизненный цикл заявки»).
 
 События можно загрузить JSON-пачкой (`POST /api/v1/ingest/events`) или CSV/XLSX
 (`POST /api/v1/ingest/events/upload`).
@@ -37,6 +38,52 @@ cookie в браузере.
 безопасна. Результат каждой загрузки показывает принятые, повторные, отклонённые и вышедшие за
 демонстрационное окно строки. С `?notify=false` (загрузка истории) события сохраняются и
 получают класс, но уведомления `event.alarm` и сообщения SSE по ним не создаются.
+
+## Жизненный цикл заявки
+
+Граф статусов — `work_order_transitions` в `contracts/vocabularies.json`:
+
+```
+draft → confirmed → in_progress → completed
+draft, confirmed, in_progress → cancelled
+```
+
+Из `completed` и `cancelled` переходов нет. Право на переход зависит от целевого статуса
+(`work_order_transition_perm` там же): `confirmed` и `cancelled` требуют `work_order_manage`
+(dispatcher, manager, admin), `in_progress` и `completed` — `work_order_progress` (technician,
+admin, integration).
+
+**Создание.** `POST /api/v1/work-orders` с телом `{"forecast_ids": [...]}`, право
+`work_order_manage`. Прогнозы должны относиться к одному сценарию и одному объекту, иначе
+`422 work_order_requires_one_scenario_and_object`; неизвестный прогноз — `404`. Ответ — карточка
+заявки с кодом `201`. На прогноз допускается одна незакрытая заявка (`draft`, `confirmed`,
+`in_progress`): если хотя бы один прогноз из запроса уже входит в такую, например в черновик
+дневного расчёта (`created_by: system`), ответ вернёт её и новую не создаст. Ключ ручной
+заявки `WO-…` вычисляется из набора прогнозов, поэтому повтор запроса, в том числе
+одновременный, возвращает ту же заявку. Закрытая заявка дневного расчёта не мешает завести
+ручную; закрытая ручная на тот же набор прогнозов вернётся сама, новая не появится.
+
+**Переход.** `PATCH /api/v1/work-orders/{order_id}` с телом
+`{"expected_status": "draft", "status": "confirmed", "reason": "..."}`. `reason` необязателен,
+до 2000 символов. Автор перехода берётся из сессии (для `X-API-Key` — `integration`), в теле
+его нет. Проверки идут в таком порядке:
+
+| Код | `detail` | Когда |
+|---|---|---|
+| `404` | `work_order_not_found` | заявки нет |
+| `409` | `{"code": "status_conflict", "current_status": "..."}` | статус уже не `expected_status`: заявку изменили раньше |
+| `422` | `work_order_transition_not_allowed` | перехода нет в графе |
+| `403` | `forbidden` | у роли нет права на целевой статус |
+
+Роль без обоих прав (`analyst`) получает `403` до всех проверок таблицы, запрос без сессии — `401`.
+
+Сравнение с `expected_status` и запись статуса выполняются одним `UPDATE … WHERE status =
+expected_status`: из двух одновременных запросов с одним `expected_status` пройдёт первый,
+второй получит `409` с текущим статусом. Интерфейс в этом случае перечитывает заявку.
+
+История (`history` в карточке) хранит только выполненные переходы. Первая запись —
+`null → draft` с автором `system` для черновика дневного расчёта или логином для ручного.
+Отказы `409`, `422` и `403` в историю не попадают.
 
 ## Локальный запуск без Docker
 
