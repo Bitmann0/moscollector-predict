@@ -1,4 +1,4 @@
-"""Independent D/A_link audit. Does not change or publish production artifacts.
+"""D/A_link audit. rule_head reuses build_outcomes and select_threshold to pick the production D threshold.
 
 Outcomes carry their observation date. Dispatch selection never reads outcomes;
 unknown results still consume budget. Equipment negatives require a report on

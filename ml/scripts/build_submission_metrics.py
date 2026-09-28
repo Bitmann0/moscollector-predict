@@ -646,9 +646,11 @@ def holdout() -> dict:
     last = re.findall(r"^\| (\d{4}-\d\d-\d\dT\d\d:\d\d) \|", text, flags=re.M)[-1]
     return {"period": ["2026-01-01", "2026-06-30"], "views": views, "code_states": states,
             "last_entry": last,
-            "not_counted": "счётчик пишет только scripts/final_eval.py; eval_a_link_policy.py, "
-                           "audit_second_ml.py, eval_a_link_operating_point.py и "
-                           "exp_a_link_ensemble.py тоже считают январь–июнь 2026, "
+            "not_counted": "счётчик пишут scripts/final_eval.py и "
+                           "scripts/exp_temperature_episode.py; eval_a_link_policy.py, "
+                           "audit_second_ml.py, eval_a_link_operating_point.py, "
+                           "exp_a_link_ensemble.py, eval_d_live_policy.py и "
+                           "eval_fire_flood_product.py тоже считают январь–июнь 2026, "
                            "но в счётчик не пишут",
             "source": "reports/holdout_uses.md", "command": "python scripts/holdout_uses.py"}
 

@@ -1,4 +1,3 @@
-import duckdb
 import pytest
 
 from conftest import insert_day

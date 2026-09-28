@@ -1,5 +1,7 @@
 # A_link: ручной пилот диагностики связи
 
+> **Политика 0,50 из этого отчёта заменена 28.09 на 0,70** ([A_LINK_OPERATING_POINT.md](A_LINK_OPERATING_POINT.md)). Охват эпизодов 5,0% завышен: поймано эпизодов больше, чем попаданий ([SUBMISSION_METRICS.md](SUBMISSION_METRICS.md), раздел A_link).
+
 25.09.2026. [Машинный отчёт](a_link_live_policy_temporal.json),
 воспроизведение:
 `python scripts/eval_a_link_policy.py --end-date 2026-06-29`.

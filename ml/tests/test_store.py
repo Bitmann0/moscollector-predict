@@ -1,7 +1,6 @@
 import datetime as dt
 
 import duckdb
-import pytest
 
 from conftest import PANEL_SCHEMA, insert_day
 from mkl import store

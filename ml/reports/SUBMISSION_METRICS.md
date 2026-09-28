@@ -287,10 +287,12 @@ B и E. Запросы шли по одному из контейнера api, �
    данные: ремонты, оборудование, сварочные работы»). Unknown не считается ни
    попаданием, ни промахом, поэтому основное число — нижняя граница.
 4. Проверочные периоды просматривались. Счётчик
-   [holdout_uses.md](holdout_uses.md): январь–июнь 2026 открыт 38 раз на 7
-   состояниях кода, последняя запись 23.09.2026. Счётчик пишет только
-   `scripts/final_eval.py`; `eval_a_link_policy.py`, `audit_second_ml.py`,
-   `eval_a_link_operating_point.py` и `exp_a_link_ensemble.py` тоже считают
-   этот период, но в счётчик не попадают. Числа реестра валидационные, а не
+   [holdout_uses.md](holdout_uses.md): январь–июнь 2026 открыт 40 раз на 8
+   состояниях кода, последняя запись 25.09.2026. Счётчик пишут
+   `scripts/final_eval.py` и `scripts/exp_temperature_episode.py`;
+   `eval_a_link_policy.py`, `audit_second_ml.py`,
+   `eval_a_link_operating_point.py`, `exp_a_link_ensemble.py`,
+   `eval_d_live_policy.py` и `eval_fire_flood_product.py` тоже считают этот
+   период, но в счётчик не попадают. Числа реестра валидационные, а не
    результат запечатанного теста. Первые непросмотренные данные — недели
    после 30.06.2026 с решениями диспетчера.

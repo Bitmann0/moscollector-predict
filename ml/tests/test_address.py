@@ -102,6 +102,8 @@ def test_describe_prefers_channel_over_object(ref):
     assert got["obj_name"] == "объект Альфа", "канал точнее объекта"
 
 
+@pytest.mark.skipif(not (address.PATHS.interim / "channels.parquet").exists(),
+                    reason="нужен справочник каналов из данных заказчика")
 def test_real_reference_has_a_name_for_every_object():
     """Проверка на настоящих данных: адрес обязан находиться для всех."""
     df = address.channels()
