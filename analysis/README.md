@@ -52,4 +52,4 @@ python -m pip install -r analysis/requirements.txt
 
 - [experiments/pump-signal-v1](experiments/pump-signal-v1/README.md) — PR #3: запись «Неисправен» у насоса в следующие сутки. На 01–06.2026 Precision 0,368 при Recall 0,226, цель 0,7 / 0,5 не достигнута.
 - [experiments/pump-validation-review](experiments/pump-validation-review/README.md) — PR #6: побайтное воспроизведение PR #3; сигнал через 24–48 ч без сигнала в первые сутки (Precision 0,103, Recall 0,147); аудит совместных состояний насосов: в 41 851 из 41 952 секунд с «Неисправен» у канала есть и другое значение.
-- [experiments/annual-ingestion](experiments/annual-ingestion/README.md) — PR #4: импорт годовых CSV в DuckDB. Хранилище не перенесено: оно совпадает с parquet приёма строка в строку, это проверяет `ml/scripts/verify_ingest.py`. В отчёте есть карта колонок хранилища для переноса PR #5–#9.
+- [experiments/annual-ingestion](experiments/annual-ingestion/README.md) — PR #4: импорт годовых CSV в DuckDB. Хранилище не перенесено; что в parquet приёма за каждый год столько же событий, проверяет `ml/scripts/verify_ingest.py`. В отчёте есть карта колонок хранилища для переноса PR #5–#9.
