@@ -27,6 +27,7 @@ import hashlib
 import json
 import sys
 from collections import Counter, defaultdict
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
@@ -37,6 +38,8 @@ from app.services import semantics
 from app.services.helpers import MSK
 
 WEEKDAYS = ("пн", "вт", "ср", "чт", "пт", "сб", "вс")
+# Проверка рабочего времени выключена: любые часы любого дня.
+ANY_TIME = dict(work_hours=(0, 24), work_days=frozenset(range(7)))
 
 
 def load(path: Path) -> list[dict]:
@@ -49,20 +52,16 @@ def load(path: Path) -> list[dict]:
     return rows
 
 
-def series(rows: list[dict], group: str, *, working_time: bool) -> list[list[dict]]:
+def series(rows: list[dict], group: str, *, working_time: bool,
+           rules: semantics.Rules = semantics.DEFAULT_RULES) -> list[list[dict]]:
     """Серии группы: события с подсказкой одного ключа подряд, разрыв не больше 10 минут."""
     events = [semantics.SeriesEvent(ref=n, group=group,
                                     key=semantics.series_key(group, r["obj_id"] or None,
                                                              r["parent_id"] or None),
                                     channel_id=r["channel_id"], ts=r["ts"])
               for n, r in enumerate(rows) if r["group"] == group]
-    original = semantics._working_time
-    if not working_time:
-        semantics._working_time = lambda ts: True
-    try:
-        hinted = semantics.series_hints(events)
-    finally:
-        semantics._working_time = original
+    hinted = semantics.series_hints(events, rules if working_time
+                                    else replace(rules, **ANY_TIME))
     by_key: dict[str, list[dict]] = defaultdict(list)
     for event in events:
         if event.ref in hinted:
@@ -115,22 +114,19 @@ def fire_report(rows: list[dict]) -> dict:
 
 
 def gas_report(rows: list[dict]) -> dict:
-    original = dict(semantics.SERIES_MIN)
     table = []
-    try:
-        for threshold in (2, 3, 4, 5, 6):
-            semantics.SERIES_MIN["gas"] = threshold
-            chains = series(rows, "gas", working_time=True)
-            table.append({
-                "threshold": threshold, "series": len(chains),
-                "events": sum(len(c) for c in chains),
-                "series_on_fewer_pickets_than_threshold": sum(
-                    1 for c in chains if len({r["picket"] for r in c}) < threshold),
-                "series_on_at_most_two_pickets": sum(
-                    1 for c in chains if len({r["picket"] for r in c}) <= 2),
-            })
-    finally:
-        semantics.SERIES_MIN.update(original)
+    for threshold in (2, 3, 4, 5, 6):
+        rules = replace(semantics.DEFAULT_RULES,
+                        series_min={**semantics.SERIES_MIN, "gas": threshold})
+        chains = series(rows, "gas", working_time=True, rules=rules)
+        table.append({
+            "threshold": threshold, "series": len(chains),
+            "events": sum(len(c) for c in chains),
+            "series_on_fewer_pickets_than_threshold": sum(
+                1 for c in chains if len({r["picket"] for r in c}) < threshold),
+            "series_on_at_most_two_pickets": sum(
+                1 for c in chains if len({r["picket"] for r in c}) <= 2),
+        })
     chains = series(rows, "gas", working_time=True)
     any_time = series(rows, "gas", working_time=False)
     return {"threshold": semantics.SERIES_MIN["gas"],

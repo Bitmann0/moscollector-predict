@@ -16,6 +16,22 @@
    отдельно от ручного исхода.
 6. После commit: alert.new на каждый новый прогноз в бюджете, run.finished на прогон.
 
+Лимит показа (ML2-13, экран «Настройки», parameters.limit_by_head). В бюджете остаются
+первые N рекомендаций ML по рангу у каждой головы, остальные сохраняются с
+in_budget=false и extra.cut_by_limit=true: их не видно в журнале, по ним нет alert.new,
+черновика заявки и запроса факта. N не выше проверенного: 20 у A_link, 3 у D, 4 у
+недельной очереди (schemas/parameters.py, VERIFIED_LIMITS).
+
+Журнал выданного пишется после лимита, то есть из показанного. От него зависит пауза
+в 7 дней: ML не выдаёт повторно канал, выданный за 7 суток до asof. Если бы журнал брал
+всю выдачу ML, рекомендации с ранга N+1 до 20 ушли бы на паузу, хотя диспетчер их не
+видел, и риск по этим каналам молчал бы неделю. С журналом показанного такие каналы
+завтра снова конкурируют за место в выдаче. Точность top-N при паузе по показанному
+отдельно не замерялась: ML проверял top-20 с паузой по своей выдаче из 20.
+Недельная очередь журнала выданного не читает: паузу в 14 суток ML восстанавливает
+по своей выдаче из 4 объектов (ml/src/mkl/guard_weekly.py, replay). Объект, срезанный
+лимитом, для ML всё равно выдан и две недели в очередь не вернётся.
+
 weekly_only=True не вызывает /score: прогон kind=weekly_guard пишет только недельную
 очередь и её черновики, журнал выданного не меняется. Так прелоад проходит понедельники
 января–мая, не считая на них A_link и D.
@@ -42,6 +58,7 @@ from ..schemas.ml import (
     WeeklyResponse,
     WorkOrderOut,
 )
+from . import parameters
 from .helpers import assume_msk, msk_midnight, now_utc, to_db
 from .ml_client import MlClient, MlUnavailable, get_ml_client
 from .notifications import publish_safe
@@ -119,7 +136,9 @@ class _Saver:
         self.upserted += 1
         return row
 
-    def alert(self, alert: AlertOut, source: str) -> models.Forecast | None:
+    def alert(self, alert: AlertOut, source: str, *,
+              cut: bool = False) -> models.Forecast | None:
+        """cut — рекомендация в бюджете ML, но за лимитом показа: in_budget=false."""
         scenario = vocab.scenario_by_head(alert.head)
         if scenario is None:
             log.warning("alert %s: голова %s вне словаря scenario", alert.alert_id, alert.head)
@@ -135,29 +154,32 @@ class _Saver:
             "horizon_hours": alert.horizon_hours, "score_type": scenario["score_type"],
             "risk": alert.risk if probability else None,
             "priority_score": None if probability else alert.risk, "rank": alert.rank,
-            "in_budget": alert.in_budget, "obj_id": alert.address.obj,
+            "in_budget": alert.in_budget and not cut, "obj_id": alert.address.obj,
             "channel_id": alert.address.channel,
             "address": alert.address.model_dump(mode="json"),
             "factors": [f.model_dump(mode="json") for f in alert.factors],
             "extra": {"title": alert.title, "status_note": alert.status_note,
                       "model_version": alert.model_version,
-                      "above_threshold": alert.above_threshold},
+                      "above_threshold": alert.above_threshold,
+                      **({"cut_by_limit": True} if cut else {})},
             "data_status": alert.status, "case_key": alert.case_key, "source": source,
         }
         return self.upsert(fields, alert.model_dump(mode="json", exclude={"factors"}))
 
-    def weekly(self, resp: WeeklyResponse) -> int:
+    def weekly(self, resp: WeeklyResponse, kept: set[str]) -> int:
+        """kept — recommendation_id в лимите показа; остальные сохраняются вне бюджета."""
         source = _source(resp.source)
         valid_from = to_db(msk_midnight(resp.valid_from))
         valid_to = to_db(msk_midnight(resp.valid_to))
         for p in resp.priorities:
+            cut = p.recommendation_id not in kept
             fields = {
                 "id": p.recommendation_id, "kind": "weekly_recommendation",
                 "scenario": "guard_weekly", "head": WEEKLY_HEAD, "asof": resp.asof,
                 "valid_from": valid_from, "valid_to": valid_to,
                 "horizon_hours": WEEKLY_HORIZON_HOURS, "score_type": "relative_priority",
                 "risk": None, "priority_score": p.priority_score, "rank": p.rank,
-                "in_budget": True, "obj_id": p.obj, "channel_id": None,
+                "in_budget": not cut, "obj_id": p.obj, "channel_id": None,
                 "address": {"obj": p.obj, "obj_name": p.obj_name,
                             "obj_parent_name": p.obj_parent_name,
                             "address_known": p.address_known},
@@ -165,15 +187,64 @@ class _Saver:
                 "extra": {"evidence": p.evidence, "recent_alarm_days_7": p.recent_alarm_days_7,
                           "recent_alarm_days_30": p.recent_alarm_days_30,
                           "guard_state_age_days": p.guard_state_age_days,
-                          "model_version": resp.model_version},
+                          "model_version": resp.model_version,
+                          **({"cut_by_limit": True} if cut else {})},
                 "data_status": "ok", "case_key": p.case_key, "source": source,
             }
             self.upsert(fields, p.model_dump(mode="json"))
-        return len(resp.priorities)
+        return len(kept)
 
 
-def _log_issued(db: Session, asof: date, alerts: list[AlertOut], scored: set[str]) -> None:
-    """Повтор расчёта заменяет выдачу за день только у голов, которые посчитались.
+def cut_by_limit(alerts: list[AlertOut], limits: dict[str, int]) -> set[str]:
+    """alert_id рекомендаций в бюджете ML за лимитом показа своей головы: ранг после N-го."""
+    by_head: dict[str, list[AlertOut]] = {}
+    for alert in alerts:
+        if alert.in_budget:
+            by_head.setdefault(alert.head, []).append(alert)
+    cut: set[str] = set()
+    for head, items in by_head.items():
+        limit = limits.get(head)
+        if limit is not None:
+            cut.update(a.alert_id for a in sorted(items, key=lambda a: a.rank)[limit:])
+    return cut
+
+
+def _trim_orders(orders: list[WorkOrderOut], alerts: list[AlertOut],
+                 cut: set[str]) -> list[WorkOrderOut]:
+    """Черновики заявок без рекомендаций за лимитом. Заявка, в которой не осталось ни
+    одной рекомендации, не создаётся; в остальных каналы, пикеты и число алертов
+    пересчитываются по оставшимся. rationale ML не пересобирается."""
+    if not cut:
+        return orders
+    by_id = {a.alert_id: a for a in alerts}
+    out = []
+    for order in orders:
+        kept = [i for i in order.alert_ids if i not in cut]
+        if not kept:
+            continue
+        if len(kept) == len(order.alert_ids):
+            out.append(order)
+            continue
+        items = [by_id[i] for i in kept if i in by_id]
+        out.append(order.model_copy(update={
+            "alert_ids": kept,
+            "case_keys": [a.case_key for a in items],
+            "n_alerts": len(kept),
+            "channels": sorted({a.address.channel for a in items
+                                if a.address.channel is not None}),
+            "pickets": sorted({a.address.picket for a in items
+                               if a.address.picket is not None}),
+            "max_risk": max((a.risk for a in items), default=order.max_risk),
+        }))
+    return out
+
+
+def _log_issued(db: Session, asof: date, alerts: list[AlertOut], scored: set[str],
+                cut: set[str] = frozenset()) -> None:
+    """Журнал выданного — показанное диспетчеру: in_budget ML без срезанного лимитом (cut).
+    Почему так — в docstring модуля, «Лимит показа».
+
+    Повтор расчёта заменяет выдачу за день только у голов, которые посчитались.
 
     Голова с result_status=error алертов не вернула: если стереть её прежнюю выдачу,
     пропадёт пауза в 7 дней, и завтра она выдаст те же каналы повторно.
@@ -184,8 +255,8 @@ def _log_issued(db: Session, asof: date, alerts: list[AlertOut], scored: set[str
     existing: set[tuple[str, str]] = set()
     for alert in alerts:
         key = entity_key(alert.address.channel, alert.address.obj)
-        if (not alert.in_budget or alert.head not in scored or key is None
-                or (alert.head, key) in existing):
+        if (not alert.in_budget or alert.alert_id in cut or alert.head not in scored
+                or key is None or (alert.head, key) in existing):
             continue
         existing.add((alert.head, key))
         db.add(models.IssuedLog(head=alert.head, asof=asof, entity_key=key,
@@ -278,7 +349,7 @@ def _error_state(detail: str) -> dict:
 
 
 def _score(db: Session, saver: _Saver, asof: date, ml: MlClient,
-           heads: dict, raw: dict) -> int:
+           heads: dict, raw: dict, limits: dict[str, int]) -> int:
     request = score_request(db, asof)
     try:
         resp: ScoreResponse = ml.score(request)
@@ -289,20 +360,25 @@ def _score(db: Session, saver: _Saver, asof: date, ml: MlClient,
         raw["score_error"] = detail
         return 0
     source = _source(resp.source)
+    cut = cut_by_limit(resp.alerts, limits)
     in_budget: dict[str, int] = {}
     for alert in resp.alerts:
-        if saver.alert(alert, source) is not None and alert.in_budget:
+        shown = alert.in_budget and alert.alert_id not in cut
+        if saver.alert(alert, source, cut=alert.alert_id in cut) is not None and shown:
             in_budget[alert.head] = in_budget.get(alert.head, 0) + 1
     scored = {h for h, status in resp.heads.items() if status.result_status != "error"}
-    _log_issued(db, asof, resp.alerts, scored)
-    orders = _save_work_orders(db, resp.work_orders, source)
+    _log_issued(db, asof, resp.alerts, scored, cut)
+    orders = _save_work_orders(db, _trim_orders(resp.work_orders, resp.alerts, cut), source)
+    if cut:
+        raw["cut_by_limit"] = sorted(cut)
     for head, status in resp.heads.items():
         heads[head] = _head_state(status, in_budget.get(head, 0))
     raw["score"] = resp.model_dump(mode="json", exclude={"alerts", "work_orders"})
     return orders
 
 
-def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> int:
+def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict,
+            limit: int | None) -> int:
     try:
         resp = ml.weekly(asof)
     except ML_ERRORS as exc:
@@ -310,11 +386,15 @@ def _weekly(saver: _Saver, asof: date, ml: MlClient, heads: dict, raw: dict) -> 
         heads[WEEKLY_HEAD] = _error_state(detail)
         raw["weekly_error"] = detail
         return 0
-    n = saver.weekly(resp)
+    ranked = sorted(resp.priorities, key=lambda p: p.rank)
+    kept = {p.recommendation_id for p in (ranked if limit is None else ranked[:limit])}
+    n = saver.weekly(resp, kept)
     heads[WEEKLY_HEAD] = {"result_status": resp.result_status, "detail": None,
                           "alerts_in_budget": n}
     raw["weekly"] = resp.model_dump(mode="json", exclude={"priorities"})
-    return _save_work_orders(saver.db, _weekly_orders(resp), _source(resp.source))
+    shown = resp.model_copy(update={"priorities": [p for p in ranked
+                                                   if p.recommendation_id in kept]})
+    return _save_work_orders(saver.db, _weekly_orders(shown), _source(resp.source))
 
 
 def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
@@ -384,11 +464,12 @@ def _run_daily(db: Session, asof: date, ml: MlClient, weekly_only: bool) -> RunD
     db.flush()
     saver = _Saver(db, run)
     heads: dict[str, dict] = {}
-    raw: dict = {}
+    limits = parameters.current(db).limit_by_head()
+    raw: dict = {"limits": limits}
     _refresh_outcomes(db, asof, ml, raw)
-    orders = 0 if weekly_only else _score(db, saver, asof, ml, heads, raw)
+    orders = 0 if weekly_only else _score(db, saver, asof, ml, heads, raw, limits)
     if asof.weekday() == 0:
-        orders += _weekly(saver, asof, ml, heads, raw)
+        orders += _weekly(saver, asof, ml, heads, raw, limits.get(WEEKLY_HEAD))
     run.heads = heads
     run.raw = raw
     run.finished_at = now_utc()

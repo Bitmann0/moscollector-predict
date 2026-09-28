@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from app import models, vocab
 from app.config import get_settings
+from app.services.parameters import VERIFIED
 from conftest import DEMO_PASSWORD, ROLES
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -139,6 +140,10 @@ GUARDED = [
     ("GET", "/export/report.pdf", None, ["export"]),
     ("GET", "/audit", None, ["admin"]),
     ("PUT", "/settings", {"replay_speed": 90}, ["admin"]),
+    ("PUT", "/settings/parameters",
+     {"expected_version": 0, "values": VERIFIED.model_dump(mode="json")}, ["admin"]),
+    ("POST", "/admin/reclassify-events", {"date_from": "2026-06-30", "date_to": "2026-06-30"},
+     ["admin"]),
     ("POST", "/reference/sync", None, ["admin"]),
     ("POST", "/admin/run-daily", {"asof": "2026-06-16"}, ["admin"]),
 ]

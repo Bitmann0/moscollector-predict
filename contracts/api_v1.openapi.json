@@ -26,6 +26,19 @@
             "title": "Path",
             "type": "string"
           },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Что изменилось, если обработчик это записал: у PUT /settings/parameters — поля «было, стало»",
+            "title": "Payload"
+          },
           "role": {
             "anyOf": [
               {
@@ -80,6 +93,24 @@
           "file"
         ],
         "title": "Body_ingest_file_api_v1_ingest_events_upload_post",
+        "type": "object"
+      },
+      "Bound": {
+        "properties": {
+          "max": {
+            "title": "Max",
+            "type": "number"
+          },
+          "min": {
+            "title": "Min",
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ],
+        "title": "Bound",
         "type": "object"
       },
       "CalendarInfo": {
@@ -212,6 +243,36 @@
           "basis"
         ],
         "title": "ChecklistOut",
+        "type": "object"
+      },
+      "ClassChange": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "new": {
+            "title": "New",
+            "type": "string"
+          },
+          "old": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Old"
+          }
+        },
+        "required": [
+          "old",
+          "new",
+          "count"
+        ],
+        "title": "ClassChange",
         "type": "object"
       },
       "DashboardSummary": {
@@ -1235,6 +1296,31 @@
         "title": "ForecastWeek",
         "type": "object"
       },
+      "GasThresholds": {
+        "description": "Метан по доле объёма: от alarm_pct — тревога, от critical_pct — критическое.",
+        "properties": {
+          "alarm_pct": {
+            "description": "Тревога от этой доли метана, % объёма",
+            "maximum": 5.0,
+            "minimum": 0.1,
+            "title": "Alarm Pct",
+            "type": "number"
+          },
+          "critical_pct": {
+            "description": "Критическое от этой доли метана, % объёма",
+            "maximum": 10.0,
+            "minimum": 0.2,
+            "title": "Critical Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "alarm_pct",
+          "critical_pct"
+        ],
+        "title": "GasThresholds",
+        "type": "object"
+      },
       "GeoFeature": {
         "properties": {
           "geometry": {
@@ -1570,6 +1656,36 @@
         "title": "LastRun",
         "type": "object"
       },
+      "LimitParams": {
+        "description": "Сколько рекомендаций ML в бюджете показывать и уведомлять: первые N по рангу.",
+        "properties": {
+          "equipment_diag": {
+            "description": "В сутки; проверено 3",
+            "minimum": 1.0,
+            "title": "Equipment Diag",
+            "type": "integer"
+          },
+          "guard_weekly": {
+            "description": "В неделю; проверено 4",
+            "minimum": 1.0,
+            "title": "Guard Weekly",
+            "type": "integer"
+          },
+          "sensor_link": {
+            "description": "В сутки; проверено 20",
+            "minimum": 1.0,
+            "title": "Sensor Link",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sensor_link",
+          "equipment_diag",
+          "guard_weekly"
+        ],
+        "title": "LimitParams",
+        "type": "object"
+      },
       "LoginIn": {
         "properties": {
           "login": {
@@ -1692,6 +1808,42 @@
           "title"
         ],
         "title": "NotificationItem",
+        "type": "object"
+      },
+      "NotifyParams": {
+        "description": "event.alarm создаёт событие класса из classes. Событие с группой аварии — ещё и\nтолько если группа в groups; событие без группы уведомляет по классу.",
+        "properties": {
+          "classes": {
+            "items": {
+              "enum": [
+                "alarm",
+                "critical"
+              ],
+              "type": "string"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "groups": {
+            "items": {
+              "enum": [
+                "fire",
+                "flood",
+                "gas",
+                "intrusion",
+                "temperature"
+              ],
+              "type": "string"
+            },
+            "title": "Groups",
+            "type": "array"
+          }
+        },
+        "required": [
+          "classes",
+          "groups"
+        ],
+        "title": "NotifyParams",
         "type": "object"
       },
       "ObjectRef": {
@@ -2160,6 +2312,113 @@
         "title": "Page[WorkOrderItem]",
         "type": "object"
       },
+      "Parameters": {
+        "properties": {
+          "gas": {
+            "$ref": "#/components/schemas/GasThresholds"
+          },
+          "gas_window": {
+            "$ref": "#/components/schemas/TimeWindow",
+            "description": "«Обнаружен газ» в эти часы — подсказка «вероятно, ППР или ТО»"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/LimitParams"
+          },
+          "notify": {
+            "$ref": "#/components/schemas/NotifyParams"
+          },
+          "series": {
+            "$ref": "#/components/schemas/SeriesParams"
+          }
+        },
+        "required": [
+          "gas",
+          "gas_window",
+          "series",
+          "notify",
+          "limits"
+        ],
+        "title": "Parameters",
+        "type": "object"
+      },
+      "ParametersIn": {
+        "properties": {
+          "expected_version": {
+            "description": "version из последнего GET; другой — 409",
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "values": {
+            "$ref": "#/components/schemas/Parameters"
+          }
+        },
+        "required": [
+          "expected_version",
+          "values"
+        ],
+        "title": "ParametersIn",
+        "type": "object"
+      },
+      "ParametersOut": {
+        "properties": {
+          "bounds": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Bound"
+            },
+            "description": "Допустимый диапазон поля: ключ — путь поля через точку, например gas.alarm_pct",
+            "title": "Bounds",
+            "type": "object"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By"
+          },
+          "values": {
+            "$ref": "#/components/schemas/Parameters"
+          },
+          "verified": {
+            "$ref": "#/components/schemas/Parameters"
+          },
+          "version": {
+            "description": "0 — параметры не менялись, действуют проверенные",
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "values",
+          "verified",
+          "bounds",
+          "locked",
+          "version"
+        ],
+        "title": "ParametersOut",
+        "type": "object"
+      },
       "QualityOut": {
         "properties": {
           "base_rate": {
@@ -2355,6 +2614,80 @@
         "title": "ReasonCodeOut",
         "type": "object"
       },
+      "ReclassifyIn": {
+        "description": "Сутки МСК, границы включены, не больше RECLASSIFY_MAX_DAYS суток.",
+        "properties": {
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to"
+        ],
+        "title": "ReclassifyIn",
+        "type": "object"
+      },
+      "ReclassifyOut": {
+        "properties": {
+          "changed": {
+            "title": "Changed",
+            "type": "integer"
+          },
+          "classes": {
+            "items": {
+              "$ref": "#/components/schemas/ClassChange"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "groups_changed": {
+            "title": "Groups Changed",
+            "type": "integer"
+          },
+          "hints_changed": {
+            "title": "Hints Changed",
+            "type": "integer"
+          },
+          "rows": {
+            "title": "Rows",
+            "type": "integer"
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "rows",
+          "changed",
+          "classes",
+          "hints_changed",
+          "groups_changed",
+          "seconds"
+        ],
+        "title": "ReclassifyOut",
+        "type": "object"
+      },
       "ResetDayOut": {
         "properties": {
           "day": {
@@ -2467,6 +2800,43 @@
           "open_forecasts"
         ],
         "title": "ScenarioKpi",
+        "type": "object"
+      },
+      "SeriesParams": {
+        "description": "Серия ППР/ТО: не меньше N разных извещателей за окно, первое — в рабочее время.",
+        "properties": {
+          "fire_min": {
+            "description": "Пожарных извещателей одного объекта",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Fire Min",
+            "type": "integer"
+          },
+          "gas_min": {
+            "description": "Газоанализаторов одного комплекса",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Gas Min",
+            "type": "integer"
+          },
+          "window_min": {
+            "description": "Окно серии, минут",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Window Min",
+            "type": "integer"
+          },
+          "work": {
+            "$ref": "#/components/schemas/TimeWindow"
+          }
+        },
+        "required": [
+          "window_min",
+          "fire_min",
+          "gas_min",
+          "work"
+        ],
+        "title": "SeriesParams",
         "type": "object"
       },
       "SeriesPoint": {
@@ -2648,6 +3018,44 @@
           "heads"
         ],
         "title": "SystemStatus",
+        "type": "object"
+      },
+      "TimeWindow": {
+        "description": "Часы МСК [hour_from, hour_to) по дням недели: 9 и 15 — с 9:00 до 14:59.",
+        "properties": {
+          "days": {
+            "items": {
+              "description": "0 — понедельник, 6 — воскресенье",
+              "maximum": 6.0,
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "maxItems": 7,
+            "minItems": 1,
+            "title": "Days",
+            "type": "array"
+          },
+          "hour_from": {
+            "description": "Первый час окна, МСК",
+            "maximum": 23.0,
+            "minimum": 0.0,
+            "title": "Hour From",
+            "type": "integer"
+          },
+          "hour_to": {
+            "description": "Час, с которого окно закрыто: 15 — до 14:59",
+            "maximum": 24.0,
+            "minimum": 1.0,
+            "title": "Hour To",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "hour_from",
+          "hour_to",
+          "days"
+        ],
+        "title": "TimeWindow",
         "type": "object"
       },
       "TreeNode": {
@@ -3242,6 +3650,65 @@
           }
         ],
         "summary": "Clear Issued Log",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reclassify-events": {
+      "post": {
+        "description": "Класс, подсказка и группа принятых событий за сутки МСК [date_from, date_to] по\nтекущим параметрам. До 31 суток за вызов; всю историю — scripts/reclassify_events.py.\nУведомления по пересчитанным событиям не создаются.",
+        "operationId": "reclassify_events_api_v1_admin_reclassify_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReclassifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReclassifyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "нет права admin или settings_locked на стенде"
+          },
+          "409": {
+            "description": "reclassify_running: идёт другой пересчёт"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Reclassify Events",
         "tags": [
           "admin"
         ]
@@ -5462,6 +5929,99 @@
           }
         ],
         "summary": "Put Settings",
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/api/v1/settings/parameters": {
+      "get": {
+        "description": "Настраиваемые параметры (ТЗ §18): действующие, проверенные и диапазоны полей.",
+        "operationId": "get_parameters_api_v1_settings_parameters_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParametersOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Get Parameters",
+        "tags": [
+          "settings"
+        ]
+      },
+      "put": {
+        "description": "Новые события классифицируются по новым параметрам сразу, принятые раньше — после\nPOST /admin/reclassify-events. Лимиты действуют со следующего дневного расчёта.\nЛимит выше проверенного — 422 limit_above_verified.",
+        "operationId": "put_parameters_api_v1_settings_parameters_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParametersIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParametersOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "нет права admin или settings_locked на стенде"
+          },
+          "409": {
+            "description": "parameters_version_conflict: параметры уже изменил другой администратор"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Put Parameters",
         "tags": [
           "settings"
         ]

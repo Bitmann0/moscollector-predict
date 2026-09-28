@@ -44,6 +44,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reclassify-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reclassify Events
+         * @description Класс, подсказка и группа принятых событий за сутки МСК [date_from, date_to] по
+         *     текущим параметрам. До 31 суток за вызов; всю историю — scripts/reclassify_events.py.
+         *     Уведомления по пересчитанным событиям не создаются.
+         */
+        post: operations["reclassify_events_api_v1_admin_reclassify_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/run-daily": {
         parameters: {
             query?: never;
@@ -578,6 +600,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/parameters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Parameters
+         * @description Настраиваемые параметры (ТЗ §18): действующие, проверенные и диапазоны полей.
+         */
+        get: operations["get_parameters_api_v1_settings_parameters_get"];
+        /**
+         * Put Parameters
+         * @description Новые события классифицируются по новым параметрам сразу, принятые раньше — после
+         *     POST /admin/reclassify-events. Лимиты действуют со следующего дневного расчёта.
+         *     Лимит выше проверенного — 422 limit_above_verified.
+         */
+        put: operations["put_parameters_api_v1_settings_parameters_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stream": {
         parameters: {
             query?: never;
@@ -671,6 +719,13 @@ export interface components {
             method: string;
             /** Path */
             path: string;
+            /**
+             * Payload
+             * @description Что изменилось, если обработчик это записал: у PUT /settings/parameters — поля «было, стало»
+             */
+            payload?: {
+                [key: string]: unknown;
+            } | null;
             /** Role */
             role?: string | null;
             /** Status */
@@ -687,6 +742,13 @@ export interface components {
         Body_ingest_file_api_v1_ingest_events_upload_post: {
             /** File */
             file: string;
+        };
+        /** Bound */
+        Bound: {
+            /** Max */
+            max: number;
+            /** Min */
+            min: number;
         };
         /** CalendarInfo */
         CalendarInfo: {
@@ -728,6 +790,15 @@ export interface components {
             items: string[];
             /** Note */
             note?: string | null;
+        };
+        /** ClassChange */
+        ClassChange: {
+            /** Count */
+            count: number;
+            /** New */
+            new: string;
+            /** Old */
+            old: string | null;
         };
         /** DashboardSummary */
         DashboardSummary: {
@@ -1125,6 +1196,22 @@ export interface components {
              */
             week_start: string;
         };
+        /**
+         * GasThresholds
+         * @description Метан по доле объёма: от alarm_pct — тревога, от critical_pct — критическое.
+         */
+        GasThresholds: {
+            /**
+             * Alarm Pct
+             * @description Тревога от этой доли метана, % объёма
+             */
+            alarm_pct: number;
+            /**
+             * Critical Pct
+             * @description Критическое от этой доли метана, % объёма
+             */
+            critical_pct: number;
+        };
         /** GeoFeature */
         GeoFeature: {
             /** Geometry */
@@ -1258,6 +1345,27 @@ export interface components {
             /** Run Id */
             run_id: number;
         };
+        /**
+         * LimitParams
+         * @description Сколько рекомендаций ML в бюджете показывать и уведомлять: первые N по рангу.
+         */
+        LimitParams: {
+            /**
+             * Equipment Diag
+             * @description В сутки; проверено 3
+             */
+            equipment_diag: number;
+            /**
+             * Guard Weekly
+             * @description В неделю; проверено 4
+             */
+            guard_weekly: number;
+            /**
+             * Sensor Link
+             * @description В сутки; проверено 20
+             */
+            sensor_link: number;
+        };
         /** LoginIn */
         LoginIn: {
             /** Login */
@@ -1306,6 +1414,17 @@ export interface components {
              * Format: date-time
              */
             ts: string;
+        };
+        /**
+         * NotifyParams
+         * @description event.alarm создаёт событие класса из classes. Событие с группой аварии — ещё и
+         *     только если группа в groups; событие без группы уведомляет по классу.
+         */
+        NotifyParams: {
+            /** Classes */
+            classes: ("alarm" | "critical")[];
+            /** Groups */
+            groups: ("fire" | "flood" | "gas" | "intrusion" | "temperature")[];
         };
         /** ObjectRef */
         ObjectRef: {
@@ -1446,6 +1565,47 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** Parameters */
+        Parameters: {
+            gas: components["schemas"]["GasThresholds"];
+            /** @description «Обнаружен газ» в эти часы — подсказка «вероятно, ППР или ТО» */
+            gas_window: components["schemas"]["TimeWindow"];
+            limits: components["schemas"]["LimitParams"];
+            notify: components["schemas"]["NotifyParams"];
+            series: components["schemas"]["SeriesParams"];
+        };
+        /** ParametersIn */
+        ParametersIn: {
+            /**
+             * Expected Version
+             * @description version из последнего GET; другой — 409
+             */
+            expected_version: number;
+            values: components["schemas"]["Parameters"];
+        };
+        /** ParametersOut */
+        ParametersOut: {
+            /**
+             * Bounds
+             * @description Допустимый диапазон поля: ключ — путь поля через точку, например gas.alarm_pct
+             */
+            bounds: {
+                [key: string]: components["schemas"]["Bound"];
+            };
+            /** Locked */
+            locked: boolean;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Updated By */
+            updated_by?: string | null;
+            values: components["schemas"]["Parameters"];
+            verified: components["schemas"]["Parameters"];
+            /**
+             * Version
+             * @description 0 — параметры не менялись, действуют проверенные
+             */
+            version: number;
+        };
         /** QualityOut */
         QualityOut: {
             /**
@@ -1518,6 +1678,47 @@ export interface components {
             /** Title */
             title: string;
         };
+        /**
+         * ReclassifyIn
+         * @description Сутки МСК, границы включены, не больше RECLASSIFY_MAX_DAYS суток.
+         */
+        ReclassifyIn: {
+            /**
+             * Date From
+             * Format: date
+             */
+            date_from: string;
+            /**
+             * Date To
+             * Format: date
+             */
+            date_to: string;
+        };
+        /** ReclassifyOut */
+        ReclassifyOut: {
+            /** Changed */
+            changed: number;
+            /** Classes */
+            classes: components["schemas"]["ClassChange"][];
+            /**
+             * Date From
+             * Format: date
+             */
+            date_from: string;
+            /**
+             * Date To
+             * Format: date
+             */
+            date_to: string;
+            /** Groups Changed */
+            groups_changed: number;
+            /** Hints Changed */
+            hints_changed: number;
+            /** Rows */
+            rows: number;
+            /** Seconds */
+            seconds: number;
+        };
         /** ResetDayOut */
         ResetDayOut: {
             /**
@@ -1572,6 +1773,28 @@ export interface components {
             scenario: "sensor_link" | "equipment_diag" | "guard_weekly";
             /** Title */
             title: string;
+        };
+        /**
+         * SeriesParams
+         * @description Серия ППР/ТО: не меньше N разных извещателей за окно, первое — в рабочее время.
+         */
+        SeriesParams: {
+            /**
+             * Fire Min
+             * @description Пожарных извещателей одного объекта
+             */
+            fire_min: number;
+            /**
+             * Gas Min
+             * @description Газоанализаторов одного комплекса
+             */
+            gas_min: number;
+            /**
+             * Window Min
+             * @description Окно серии, минут
+             */
+            window_min: number;
+            work: components["schemas"]["TimeWindow"];
         };
         /** SeriesPoint */
         SeriesPoint: {
@@ -1640,6 +1863,24 @@ export interface components {
             mode: "archive" | "replay";
             /** Settings Locked */
             settings_locked: boolean;
+        };
+        /**
+         * TimeWindow
+         * @description Часы МСК [hour_from, hour_to) по дням недели: 9 и 15 — с 9:00 до 14:59.
+         */
+        TimeWindow: {
+            /** Days */
+            days: number[];
+            /**
+             * Hour From
+             * @description Первый час окна, МСК
+             */
+            hour_from: number;
+            /**
+             * Hour To
+             * @description Час, с которого окно закрыто: 15 — до 14:59
+             */
+            hour_to: number;
         };
         /** TreeNode */
         TreeNode: {
@@ -1904,6 +2145,60 @@ export interface operations {
             };
             /** @description У роли нет требуемого права */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reclassify_events_api_v1_admin_reclassify_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReclassifyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReclassifyOut"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description нет права admin или settings_locked на стенде */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description reclassify_running: идёт другой пересчёт */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3195,6 +3490,94 @@ export interface operations {
             };
             /** @description У роли нет требуемого права */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_parameters_api_v1_settings_parameters_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParametersOut"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description У роли нет требуемого права */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    put_parameters_api_v1_settings_parameters_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParametersIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParametersOut"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description нет права admin или settings_locked на стенде */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description parameters_version_conflict: параметры уже изменил другой администратор */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -117,7 +117,7 @@ class ForecastVersion(Base):
 
 
 class IssuedLog(Base):
-    """Журнал выданного для пауз ML (C1): все строки ответа /score с in_budget=true."""
+    """Журнал выданного для пауз ML (C1): строки /score с in_budget=true в лимите показа."""
     __tablename__ = "issued_log"
     __table_args__ = (UniqueConstraint("head", "asof", "entity_key"),)
     id: Mapped[int] = mapped_column(BigIntPK, primary_key=True, autoincrement=True)

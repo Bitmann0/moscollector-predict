@@ -27,6 +27,7 @@ def list_audit(db: Session, *, user_login: str | None, date_from: date | None,
     rows = db.scalars(stmt.order_by(models.AuditRecord.ts.desc(), models.AuditRecord.id.desc())
                       .offset((page - 1) * page_size).limit(page_size))
     items = [AuditItem(id=r.id, ts=from_db(r.ts), user_login=r.user_login, role=r.role,
-                       method=r.method, path=r.path, status=r.status, entity=r.entity)
+                       method=r.method, path=r.path, status=r.status, entity=r.entity,
+                       payload=r.payload)
              for r in rows]
     return page_of(AuditItem, items, total, page, page_size)
