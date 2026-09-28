@@ -6,7 +6,7 @@ import { useLoad } from "../api/useLoad";
 import { SourceBadge } from "../components/common";
 import { PageHeader } from "../components/PageHeader";
 import { Loaded, StateView } from "../components/StateView";
-import { fmtNumber, fmtPercent } from "../format";
+import { entityText, fmtNumber, fmtPercent } from "../format";
 
 type Collection = Schemas["FeatureCollection"];
 type Feature = Collection["features"][number];
@@ -499,7 +499,7 @@ function Passport({ feature, isComplex, count, complex, members, forecasts, risk
       {withoutPicket > 0 && <div><dt>Без пикета</dt><dd>{fmtNumber(withoutPicket)} — места на схеме у них нет</dd></div>}
       <div><dt>Открытые прогнозы</dt><dd>{count === null ? "—" : fmtNumber(count)}</dd></div>
     </dl>
-    {forecasts.length > 0 && <div className="object-panel__forecasts"><strong>Открытые прогнозы</strong>{forecasts.slice(0, 5).map((item) => <Link key={item.id} to={`/forecasts/${encodeURIComponent(item.id)}`}><span><span className="object-panel__title">{item.scenario_title}</span><small>{[isComplex ? item.object.name : null, item.channel?.picket_label, item.channel?.name].filter(Boolean).join(" · ") || "объект целиком"}</small></span><span className="object-panel__rank" title="Место в очереди дня">№ {item.rank} →</span></Link>)}{forecasts.length > 5 && <small>Показаны первые 5 из {fmtNumber(forecasts.length)}</small>}</div>}
+    {forecasts.length > 0 && <div className="object-panel__forecasts"><strong>Открытые прогнозы</strong>{forecasts.slice(0, 5).map((item) => <Link key={item.id} to={`/forecasts/${encodeURIComponent(item.id)}`}><span><span className="object-panel__title">{item.scenario_title}</span><small>{[isComplex ? item.object.name : null, entityText(item)].filter(Boolean).join(" · ")}</small></span><span className="object-panel__rank" title="Место в очереди дня">№ {item.rank} →</span></Link>)}{forecasts.length > 5 && <small>Показаны первые 5 из {fmtNumber(forecasts.length)}</small>}</div>}
     {count !== null && count > 0 && forecasts.length === 0 && riskState !== "ok" && <p className="object-panel__hint">{riskState === "loading" ? "Загружаем список прогнозов…" : "Список прогнозов не загрузился: «Повторить» — над схемой."}</p>}
     <div className="object-panel__actions">
       {!isComplex && id && <Link className="button" to={`/forecasts?obj=${encodeURIComponent(id)}`}>История прогнозов</Link>}
