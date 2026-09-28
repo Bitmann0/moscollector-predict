@@ -1,0 +1,258 @@
+{
+  "experiment": "gas-alarm-next24h",
+  "target": "At least one source alarm=true event on a gas channel in the next local calendar day",
+  "minimum_lead_hours": 0,
+  "evaluation_status": "exploratory reuse of previously inspected calendar holdout",
+  "horizon_hours": 24,
+  "target_window_hours": 24,
+  "physical_failure_metrics_available": false,
+  "timezone_assumption": "Europe/Moscow",
+  "quality": {
+    "channel_days": 482448,
+    "eligible_at_prediction": 183569,
+    "unknown_future": 16059,
+    "evaluated_samples": 167510,
+    "positive_samples": 1016
+  },
+  "selected_model": "hist_gradient_boosting",
+  "model_selection_validation_ap": {
+    "logistic_regression": 0.013240264540869698,
+    "hist_gradient_boosting": 0.057400458523767364
+  },
+  "threshold": 0.10482899749424275,
+  "threshold_rule": "fallback_f0.5_precision_constraint_unmet",
+  "features": [
+    "events_1d",
+    "events_7d",
+    "alarms_1d",
+    "alarms_7d",
+    "faults_1d",
+    "faults_7d",
+    "undefined_1d",
+    "undefined_7d",
+    "power_loss_1d",
+    "power_loss_7d",
+    "running_1d",
+    "running_7d",
+    "ambiguous_seconds_1d",
+    "ambiguous_seconds_7d",
+    "days_since_fault",
+    "weekday_sin",
+    "weekday_cos"
+  ],
+  "train_base_rate": 0.004225972120322817,
+  "splits": {
+    "train": {
+      "samples": 68150,
+      "positives": 288,
+      "as_of_min": "2024-01-08 00:00:00",
+      "as_of_max": "2024-12-31 00:00:00",
+      "label_end_max": "2025-01-01 00:00:00"
+    },
+    "validation": {
+      "samples": 53182,
+      "positives": 173,
+      "as_of_min": "2025-01-01 00:00:00",
+      "as_of_max": "2025-09-30 00:00:00",
+      "label_end_max": "2025-10-01 00:00:00"
+    },
+    "threshold": {
+      "samples": 15053,
+      "positives": 244,
+      "as_of_min": "2025-10-01 00:00:00",
+      "as_of_max": "2025-12-31 00:00:00",
+      "label_end_max": "2026-01-01 00:00:00"
+    },
+    "test": {
+      "samples": 31125,
+      "positives": 311,
+      "as_of_min": "2026-01-01 00:00:00",
+      "as_of_max": "2026-06-30 00:00:00",
+      "label_end_max": "2026-07-01 00:00:00"
+    }
+  },
+  "threshold_holdout": {
+    "samples": 15053,
+    "positives": 244,
+    "alerts": 151,
+    "precision": 0.12582781456953643,
+    "recall": 0.0778688524590164,
+    "average_precision": 0.04124078807023719,
+    "brier_score": 0.016351780096967958,
+    "false_alerts_per_100_observed_channel_days": 0.8769016142961535,
+    "confusion_matrix": {
+      "tn": 14677,
+      "fp": 132,
+      "fn": 225,
+      "tp": 19
+    }
+  },
+  "test": {
+    "samples": 31125,
+    "positives": 311,
+    "alerts": 117,
+    "precision": 0.008547008547008548,
+    "recall": 0.003215434083601286,
+    "average_precision": 0.009100256975696663,
+    "brier_score": 0.010536820812978848,
+    "false_alerts_per_100_observed_channel_days": 0.37269076305220883,
+    "confusion_matrix": {
+      "tn": 30698,
+      "fp": 116,
+      "fn": 310,
+      "tp": 1
+    }
+  },
+  "constant_baseline_test": {
+    "samples": 31125,
+    "positives": 311,
+    "alerts": 0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "average_precision": 0.009991967871485943,
+    "brier_score": 0.009925375156543566,
+    "false_alerts_per_100_observed_channel_days": 0.0,
+    "confusion_matrix": {
+      "tn": 30814,
+      "fp": 0,
+      "fn": 311,
+      "tp": 0
+    }
+  },
+  "recent_fault_rule_test": {
+    "samples": 31125,
+    "positives": 311,
+    "alerts": 1321,
+    "precision": 0.10900832702498107,
+    "recall": 0.4630225080385852,
+    "average_precision": 0.05583877082358658,
+    "brier_score": 0.04318072289156626,
+    "false_alerts_per_100_observed_channel_days": 3.781526104417671,
+    "confusion_matrix": {
+      "tn": 29637,
+      "fp": 1177,
+      "fn": 167,
+      "tp": 144
+    }
+  },
+  "test_by_month": {
+    "2026-01": {
+      "samples": 4916,
+      "positives": 11,
+      "alerts": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "average_precision": 0.004115108116805057,
+      "brier_score": 0.0023720072057683127,
+      "false_alerts_per_100_observed_channel_days": 0.22375915378356387,
+      "confusion_matrix": {
+        "tn": 4894,
+        "fp": 11,
+        "fn": 11,
+        "tp": 0
+      }
+    },
+    "2026-02": {
+      "samples": 4709,
+      "positives": 56,
+      "alerts": 9,
+      "precision": 0.0,
+      "recall": 0.0,
+      "average_precision": 0.008323432068656895,
+      "brier_score": 0.011992620176104191,
+      "false_alerts_per_100_observed_channel_days": 0.19112338076024635,
+      "confusion_matrix": {
+        "tn": 4644,
+        "fp": 9,
+        "fn": 56,
+        "tp": 0
+      }
+    },
+    "2026-03": {
+      "samples": 5424,
+      "positives": 4,
+      "alerts": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "average_precision": 0.0017484305001411312,
+      "brier_score": 0.0009045384888731253,
+      "false_alerts_per_100_observed_channel_days": 0.18436578171091444,
+      "confusion_matrix": {
+        "tn": 5410,
+        "fp": 10,
+        "fn": 4,
+        "tp": 0
+      }
+    },
+    "2026-04": {
+      "samples": 5281,
+      "positives": 98,
+      "alerts": 8,
+      "precision": 0.0,
+      "recall": 0.0,
+      "average_precision": 0.028432652034871567,
+      "brier_score": 0.018521186678904396,
+      "false_alerts_per_100_observed_channel_days": 0.15148646089755727,
+      "confusion_matrix": {
+        "tn": 5175,
+        "fp": 8,
+        "fn": 98,
+        "tp": 0
+      }
+    },
+    "2026-05": {
+      "samples": 6311,
+      "positives": 85,
+      "alerts": 71,
+      "precision": 0.0,
+      "recall": 0.0,
+      "average_precision": 0.011185862812401368,
+      "brier_score": 0.015819250310157424,
+      "false_alerts_per_100_observed_channel_days": 1.1250198066867374,
+      "confusion_matrix": {
+        "tn": 6155,
+        "fp": 71,
+        "fn": 85,
+        "tp": 0
+      }
+    },
+    "2026-06": {
+      "samples": 4484,
+      "positives": 57,
+      "alerts": 8,
+      "precision": 0.125,
+      "recall": 0.017543859649122806,
+      "average_precision": 0.015293323874755977,
+      "brier_score": 0.012772662722745222,
+      "false_alerts_per_100_observed_channel_days": 0.15611061552185548,
+      "confusion_matrix": {
+        "tn": 4420,
+        "fp": 7,
+        "fn": 56,
+        "tp": 1
+      }
+    }
+  },
+  "test_inference_seconds": 0.10741699999925913,
+  "experiment_seconds": 12.464404399997875,
+  "versions": {
+    "python": "3.12.14",
+    "sklearn": "1.9.1",
+    "pandas": "2.3.3",
+    "numpy": "2.5.3"
+  },
+  "input_sha256": {
+    "pump_daily.csv": "9a0068ce8883ca26cfb0bcd486c197db37f5df8b2e6ee80a806dfd4f6e088194",
+    "coverage.csv": "4b45c4119b751339ef777515edeaf0eadd24502f42f6a77b969f331d4e4c8b63"
+  },
+  "limitations": [
+    "Weak target is message presence, not confirmed physical failure or episode onset.",
+    "Same-second states remain unordered; Неисправен may coexist with Норма.",
+    "24-hour global coverage is a heuristic; source and channel completeness unverified.",
+    "Evaluation requires future channel telemetry; excludes silence, potentially informative.",
+    "Current catalog is applied to history without equipment versioning.",
+    "Scores are uncalibrated; lead constraints concern records, not physical failures.",
+    "A single held-out period; exploratory results need independent confirmation."
+  ],
+  "user_precision_recall_targets_met": false
+}

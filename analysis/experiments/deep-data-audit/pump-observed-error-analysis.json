@@ -1,0 +1,281 @@
+{
+  "experiment": "pump-signal-lead-0d-observation-True",
+  "threshold": 0.19998330421969238,
+  "overall": {
+    "samples": 5849,
+    "positives": 646,
+    "alerts": 366,
+    "precision": 0.37158469945355194,
+    "recall": 0.21052631578947367,
+    "average_precision": 0.27147254840299206,
+    "brier_score": 0.09190334208796157,
+    "false_alerts_per_100_observed_channel_days": 3.9322961189947,
+    "confusion_matrix": {
+      "tn": 4973,
+      "fp": 230,
+      "fn": 510,
+      "tp": 136
+    }
+  },
+  "subgroups": {
+    "target_day_contains_multi_state_second": {
+      "samples": 791,
+      "positives": 646,
+      "alerts": 161,
+      "precision": 0.84472049689441,
+      "recall": 0.21052631578947367,
+      "average_precision": 0.8456457875108941,
+      "brier_score": 0.6204807557804,
+      "false_alerts_per_100_observed_channel_days": 3.1605562579013906,
+      "confusion_matrix": {
+        "tn": 120,
+        "fp": 25,
+        "fn": 510,
+        "tp": 136
+      }
+    },
+    "target_day_has_no_multi_state_second": {
+      "samples": 5058,
+      "positives": 0,
+      "alerts": 205,
+      "precision": 0.0,
+      "recall": 0.0,
+      "average_precision": 0.0,
+      "brier_score": 0.009241275217515024,
+      "false_alerts_per_100_observed_channel_days": 4.052985369711348,
+      "confusion_matrix": {
+        "tn": 4853,
+        "fp": 205,
+        "fn": 0,
+        "tp": 0
+      }
+    },
+    "fault_recorded_in_previous_7_days": {
+      "samples": 2053,
+      "positives": 339,
+      "alerts": 225,
+      "precision": 0.3688888888888889,
+      "recall": 0.2448377581120944,
+      "average_precision": 0.3177194872514016,
+      "brier_score": 0.1320987022127375,
+      "false_alerts_per_100_observed_channel_days": 6.9167072576717,
+      "confusion_matrix": {
+        "tn": 1572,
+        "fp": 142,
+        "fn": 256,
+        "tp": 83
+      }
+    },
+    "no_fault_recorded_in_previous_7_days": {
+      "samples": 3796,
+      "positives": 307,
+      "alerts": 141,
+      "precision": 0.375886524822695,
+      "recall": 0.17263843648208468,
+      "average_precision": 0.217354090896066,
+      "brier_score": 0.07016438678338702,
+      "false_alerts_per_100_observed_channel_days": 2.3182297154899896,
+      "confusion_matrix": {
+        "tn": 3401,
+        "fp": 88,
+        "fn": 254,
+        "tp": 53
+      }
+    },
+    "ambiguous_state_in_previous_7_days": {
+      "samples": 2328,
+      "positives": 357,
+      "alerts": 234,
+      "precision": 0.3547008547008547,
+      "recall": 0.23249299719887956,
+      "average_precision": 0.30283992506842883,
+      "brier_score": 0.12416512254186689,
+      "false_alerts_per_100_observed_channel_days": 6.486254295532646,
+      "confusion_matrix": {
+        "tn": 1820,
+        "fp": 151,
+        "fn": 274,
+        "tp": 83
+      }
+    },
+    "no_ambiguous_state_in_previous_7_days": {
+      "samples": 3521,
+      "positives": 289,
+      "alerts": 132,
+      "precision": 0.4015151515151515,
+      "recall": 0.18339100346020762,
+      "average_precision": 0.23083396717779125,
+      "brier_score": 0.07057263351179244,
+      "false_alerts_per_100_observed_channel_days": 2.24368077250781,
+      "confusion_matrix": {
+        "tn": 3153,
+        "fp": 79,
+        "fn": 236,
+        "tp": 53
+      }
+    },
+    "observation_gap_before_prediction": {
+      "samples": 441,
+      "positives": 136,
+      "alerts": 178,
+      "precision": 0.4550561797752809,
+      "recall": 0.5955882352941176,
+      "average_precision": 0.49927785654329404,
+      "brier_score": 0.2049824482402462,
+      "false_alerts_per_100_observed_channel_days": 21.99546485260771,
+      "confusion_matrix": {
+        "tn": 208,
+        "fp": 97,
+        "fn": 55,
+        "tp": 81
+      }
+    },
+    "continuous_daily_observation_before_prediction": {
+      "samples": 5408,
+      "positives": 510,
+      "alerts": 188,
+      "precision": 0.2925531914893617,
+      "recall": 0.10784313725490197,
+      "average_precision": 0.1948249812665881,
+      "brier_score": 0.08268220935623867,
+      "false_alerts_per_100_observed_channel_days": 2.459319526627219,
+      "confusion_matrix": {
+        "tn": 4765,
+        "fp": 133,
+        "fn": 455,
+        "tp": 55
+      }
+    }
+  },
+  "concentration": {
+    "positive_targets": {
+      "events": 646,
+      "channels": 137,
+      "top_1_channel_share": 0.06656346749226007,
+      "top_5_channels_share": 0.17956656346749225,
+      "top_10_channels_share": 0.29721362229102166
+    },
+    "alerts": {
+      "events": 366,
+      "channels": 125,
+      "top_1_channel_share": 0.060109289617486336,
+      "top_5_channels_share": 0.16393442622950818,
+      "top_10_channels_share": 0.26229508196721313
+    },
+    "true_positives": {
+      "events": 136,
+      "channels": 84,
+      "top_1_channel_share": 0.0661764705882353,
+      "top_5_channels_share": 0.19117647058823528,
+      "top_10_channels_share": 0.3088235294117647
+    },
+    "false_positives": {
+      "events": 230,
+      "channels": 89,
+      "top_1_channel_share": 0.08695652173913043,
+      "top_5_channels_share": 0.2,
+      "top_10_channels_share": 0.3130434782608696
+    },
+    "false_negatives": {
+      "events": 510,
+      "channels": 108,
+      "top_1_channel_share": 0.07647058823529412,
+      "top_5_channels_share": 0.20588235294117646,
+      "top_10_channels_share": 0.3352941176470588
+    }
+  },
+  "score_deciles": [
+    {
+      "bin": 1,
+      "samples": 585,
+      "score_min": 0.0102035835879945,
+      "score_max": 0.0241434797142831,
+      "mean_score": 0.019612970025035724,
+      "observed_rate": 0.05299145299145299
+    },
+    {
+      "bin": 2,
+      "samples": 587,
+      "score_min": 0.0241764778530332,
+      "score_max": 0.0306604632060301,
+      "mean_score": 0.027482183594219695,
+      "observed_rate": 0.05281090289608177
+    },
+    {
+      "bin": 3,
+      "samples": 583,
+      "score_min": 0.0306699862443795,
+      "score_max": 0.0372799321078536,
+      "mean_score": 0.03382855457569496,
+      "observed_rate": 0.0548885077186964
+    },
+    {
+      "bin": 4,
+      "samples": 585,
+      "score_min": 0.0372936983308344,
+      "score_max": 0.0458367625540517,
+      "mean_score": 0.04132244254102463,
+      "observed_rate": 0.08205128205128205
+    },
+    {
+      "bin": 5,
+      "samples": 585,
+      "score_min": 0.045852002469691,
+      "score_max": 0.0562247328524403,
+      "mean_score": 0.050690952068166095,
+      "observed_rate": 0.07863247863247863
+    },
+    {
+      "bin": 6,
+      "samples": 584,
+      "score_min": 0.056228509704396,
+      "score_max": 0.0693375095769723,
+      "mean_score": 0.06246713125659792,
+      "observed_rate": 0.059931506849315065
+    },
+    {
+      "bin": 7,
+      "samples": 585,
+      "score_min": 0.0693394542891763,
+      "score_max": 0.0853950603033112,
+      "mean_score": 0.07746406035184182,
+      "observed_rate": 0.09743589743589744
+    },
+    {
+      "bin": 8,
+      "samples": 585,
+      "score_min": 0.0854402486785149,
+      "score_max": 0.1092130752716593,
+      "mean_score": 0.09617782926982474,
+      "observed_rate": 0.1094017094017094
+    },
+    {
+      "bin": 9,
+      "samples": 585,
+      "score_min": 0.1092833094358671,
+      "score_max": 0.1582192428346938,
+      "mean_score": 0.13031525046619521,
+      "observed_rate": 0.19316239316239317
+    },
+    {
+      "bin": 10,
+      "samples": 585,
+      "score_min": 0.1583570201328064,
+      "score_max": 0.7381941028316519,
+      "mean_score": 0.26802003295109095,
+      "observed_rate": 0.3230769230769231
+    }
+  ],
+  "channel_summary": {
+    "evaluated_channels": 150,
+    "channels_with_positive_target": 137,
+    "channels_with_alert": 125,
+    "median_samples_per_channel": 12.0
+  },
+  "privacy": "Only aggregate counts are published; channel identifiers and predictions are excluded.",
+  "limitations": [
+    "Subgroups are descriptive on the already inspected 2026 holdout.",
+    "A target is a recorded signal, not a confirmed physical failure.",
+    "Target-day ambiguity means at least one second that day has multiple states without reliable order; it need not be the target timestamp."
+  ]
+}
