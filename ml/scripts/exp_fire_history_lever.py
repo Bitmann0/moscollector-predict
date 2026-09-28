@@ -15,21 +15,27 @@ import sys
 
 from mkl import db, store
 
-src = sys.argv[1]
-con = db.connect()
-con.execute(f"""
-CREATE OR REPLACE TABLE feat_segment AS
-SELECT s.*,
-       sum(CAST(n_fire > 0 AS INTEGER)) OVER w AS fire_days_to_date,
-       CAST(sum(CAST(n_fire > 0 AS INTEGER)) OVER w AS DOUBLE)
-         / count(*) OVER w AS fire_rate_to_date,
-       date_diff('day',
-         max(CASE WHEN n_fire > 0 THEN day END) OVER w, day)
-         AS days_since_fire
-FROM read_parquet('{src}') s
-WINDOW w AS (PARTITION BY obj, seg ORDER BY day
-             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
-""")
-dst = store.write(con, "feat_segment", "segment")
-print(dst, con.execute("SELECT count(*), max(fire_days_to_date) FROM feat_segment").fetchone())
-con.close()
+
+def main() -> None:
+    src = sys.argv[1]
+    con = db.connect()
+    con.execute(f"""
+    CREATE OR REPLACE TABLE feat_segment AS
+    SELECT s.*,
+           sum(CAST(n_fire > 0 AS INTEGER)) OVER w AS fire_days_to_date,
+           CAST(sum(CAST(n_fire > 0 AS INTEGER)) OVER w AS DOUBLE)
+             / count(*) OVER w AS fire_rate_to_date,
+           date_diff('day',
+             max(CASE WHEN n_fire > 0 THEN day END) OVER w, day)
+             AS days_since_fire
+    FROM read_parquet('{src}') s
+    WINDOW w AS (PARTITION BY obj, seg ORDER BY day
+                 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+    """)
+    dst = store.write(con, "feat_segment", "segment")
+    print(dst, con.execute("SELECT count(*), max(fire_days_to_date) FROM feat_segment").fetchone())
+    con.close()
+
+
+if __name__ == "__main__":
+    main()
