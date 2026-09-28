@@ -15,12 +15,14 @@ const PAGE_SIZE = 50;
 type Order = Schemas["WorkOrderItem"];
 type OrderCard = Schemas["WorkOrderCard"];
 type Forecast = Schemas["ForecastItem"];
+type Checklist = Schemas["ChecklistOut"];
 type Status = Order["status"];
 type Priority = Order["priority"];
 const STATUSES: Status[] = ["draft", "confirmed", "in_progress", "completed", "cancelled"];
 const PRIORITIES: Priority[] = ["urgent", "planned", "watch"];
 const FILTERS = ["status", "priority", "scenario"] as const;
 const FORECASTS_SHOWN = 5;
+const CHECKLIST_CHANNELS_SHOWN = 4;
 function statusOf(value: string | null): Status | undefined { return STATUSES.find((item) => item === value); }
 function priorityOf(value: string | null): Priority | undefined { return PRIORITIES.find((item) => item === value); }
 
@@ -124,6 +126,7 @@ function OrderDrawer({ id, onClose, onChanged }: { id: string; onClose: () => vo
     const place = pickets.length ? picketsText(pickets) : null;
     return <><span className="panel__eyebrow">Карточка заявки</span><h2>{order.id} <SourceBadge source={order.source} /></h2><div className="drawer-tags"><span className={`priority priority--${order.priority}`}>{title("work_order_priority", order.priority)}</span><span className={`order-status order-status--${order.status}`}>{title("work_order_status", order.status)}</span></div>{success && <p ref={successRef} className="form-ok drawer-feedback" role="status" tabIndex={-1}>{success}</p>}{message && <p ref={messageRef} className="form-error drawer-feedback drawer-feedback--error" role="alert" tabIndex={-1}>{message}</p>}<h3>{order.work_type}</h3><p className="drawer-object">{order.object.name ?? order.object.id ?? "—"}</p>
       <dl className="drawer-fields"><div><dt>Срок</dt><dd>до {fmtDateTime(order.due_by)}</dd></div><div><dt>Сценарий</dt><dd>{title("scenario", order.scenario)}</dd></div>{place && <div><dt>{pickets.length > 1 ? "Пикеты" : "Пикет"}</dt><dd>{place}</dd></div>}<div><dt>Создал</dt><dd>{authorTitle(order.created_by)}, {fmtDateTime(order.created_at)}</dd></div></dl>
+      {(order.checklist ?? []).map((group) => <ChecklistBlock key={group.equipment} group={group} />)}
       {order.rationale?.length ? <div className="rationale"><strong>Что повлияло на прогноз</strong><ul>{order.rationale.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
       {order.forecast_ids.length > 0 && <LinkedForecasts key={order.id} order={order} />}
       {permitted.length > 0 && <div className="transition-box"><strong>Следующее действие</strong><textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Причина или комментарий к переходу" placeholder="Причина или комментарий — попадёт в историю заявки" maxLength={2000} disabled={load.status !== "ok" || busy} /><div>{permitted.map((next) => <button key={next} type="button" className={`button ${next !== "cancelled" ? "button--primary" : ""}`} disabled={busy || load.status !== "ok"} onClick={() => void transition(order.status, next)}>{TRANSITION_VERB[next] ?? title("work_order_status", next)}</button>)}</div></div>}
@@ -131,6 +134,22 @@ function OrderDrawer({ id, onClose, onChanged }: { id: string; onClose: () => vo
       {available.length > 0 && permitted.length === 0 && <div className="transition-box transition-box--readonly"><strong>Следующее действие</strong><p>{whoActs(available)}</p></div>}
       <h3 className="history-title">История</h3><ol className="order-history">{(order.history ?? []).map((item, index) => <li key={`${item.at}-${index}`}><i /><div><strong>{title("work_order_status", item.to_status)}</strong><span>{fmtDateTime(item.at)} · {authorTitle(item.author)}</span>{item.reason && <p>{item.reason}</p>}</div></li>)}</ol></>; }}</Loaded></aside></div>;
 }
+
+/** «Что проверить»: каналы, к которым относится перечень, с расшифровкой названия, и сам перечень. Backend присылает перечень только там, где его подтвердил заказчик, — сейчас по фидерам. */
+function ChecklistBlock({ group }: { group: Checklist }) {
+  const [expanded, setExpanded] = useState(false);
+  const collapsed = group.channels.length > CHECKLIST_CHANNELS_SHOWN + 1 && !expanded;
+  const channels = collapsed ? group.channels.slice(0, CHECKLIST_CHANNELS_SHOWN) : group.channels;
+  return <section className="drawer-checklist" aria-label={`Что проверить: ${group.equipment.toLowerCase()}`}><strong>Что проверить</strong>
+    <ul className="drawer-checklist__channels">{channels.map((channel) => <li key={channel.id}><b>{channel.name?.trim() || `Канал ${channel.id}`}</b>{channel.name_decoded && <small>{capitalize(channel.name_decoded)}</small>}</li>)}</ul>
+    {group.channels.length > CHECKLIST_CHANNELS_SHOWN + 1 && <button type="button" className="drawer-forecasts__more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>{expanded ? "Свернуть список" : `Показать ещё ${group.channels.length - CHECKLIST_CHANNELS_SHOWN}`}</button>}
+    <ul className="drawer-checklist__items">{group.items.map((item) => <li key={item}>{item}</li>)}</ul>
+    {group.note && <p>{group.note}</p>}
+    <p className="drawer-checklist__basis">{group.basis}</p>
+  </section>;
+}
+
+function capitalize(text: string): string { return text.charAt(0).toUpperCase() + text.slice(1); }
 
 /** Связанные прогнозы: вместо шестнадцатеричных id — место, окно и оценка. Один запрос по объекту и сценарию заявки; не ответил — остаются id. */
 function LinkedForecasts({ order }: { order: OrderCard }) {

@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from .. import models
 from ..config import get_settings
 from ..schemas.common import ChannelRef, ObjectRef, Page
+from .phase_channels import decode_channel
 
 MSK = timezone(timedelta(hours=3), "MSK")
 
@@ -116,9 +117,10 @@ class Refs:
         picket = address.get("picket")
         if picket is None and row is not None:
             picket = row.picket
+        name = address.get("sensor_name") or (row.name if row else None)
+        sensor_type = address.get("sensor_type") or (row.sensor_type if row else None)
         return ChannelRef(
-            id=channel_id,
-            name=address.get("sensor_name") or (row.name if row else None),
-            sensor_type=address.get("sensor_type") or (row.sensor_type if row else None),
+            id=channel_id, name=name, sensor_type=sensor_type,
             picket_label=address.get("picket_label") or picket_label(picket),
+            name_decoded=decode_channel(sensor_type, name),
         )
