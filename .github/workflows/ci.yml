@@ -60,16 +60,12 @@ jobs:
           python -m pip install -r ml/requirements.lock
           python -m pip install --no-deps -e ml
           python -m pip install pytest httpx
-      # Три теста требуют данных заказчика, в CI их нет.
+      # Тесты на данных заказчика сами пропускаются (skipif), если данных нет.
       # python -m pytest, а не pytest: тесты CAML импортируют пакет scripts из ml/,
       # и только запуск через -m кладёт текущий каталог в sys.path.
       - name: Tests
         working-directory: ml
-        run: >-
-          python -m pytest -q
-          --deselect tests/test_address.py
-          --deselect tests/test_config.py::test_paths_exist
-          --deselect tests/test_db.py
+        run: python -m pytest -q
 
   frontend:
     runs-on: ubuntu-latest

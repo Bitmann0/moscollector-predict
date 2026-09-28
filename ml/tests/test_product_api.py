@@ -1,4 +1,4 @@
-"""Контракт C1 на заглушке: форма ответов, бюджеты, паузы, no_data, real → 501.
+"""Контракт C1 на заглушке: форма ответов, бюджеты, паузы, no_data, неизвестный режим.
 
 Тест формы для владельцев ML1-03, ML1-04, ML1-05b, ML1-07: real-режим заменяет
 _real_* в mkl.product_api, а эти проверки stub-режима остаются зелёными.
@@ -178,7 +178,9 @@ def test_object_head_repeats_without_cooldown(client, head):
 
 def test_incomplete_journal_is_reported(client):
     resp = _score(client)
-    assert all("журнал выданного неполон" in h.detail for h in resp.heads.values())
+    # У A_link и D пауза 7 суток, у B и E паузы нет, и журнал им не нужен.
+    assert all("журнал выданного неполон" in resp.heads[h].detail for h in ("A_link", "D"))
+    assert resp.heads["B"].detail is None and resp.heads["E"].detail is None
 
 
 def test_no_data_day(client):

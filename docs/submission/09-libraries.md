@@ -144,8 +144,9 @@ cd frontend && npm ci && npm ls --all --omit=dev
 Требование `xgboost>=3.0` из `ml/pyproject.toml` в образе закрывает пакет `xgboost-cpu`
 3.4.1: модуль тот же (`import xgboost`), но без CUDA. По комментарию в
 `ml/requirements.lock`, пакет `xgboost` на Linux тянет `nvidia-nccl-cu13` (290 МБ), а GPU в
-контейнере нет. В venv разработчика ML стоит `xgboost` 3.4.1; `ml/README.md` описывает
-обучение как XGBoost на CUDA. Остальные пакеты этого venv, кроме dev-зависимостей и их
+контейнере нет. В venv разработчика ML стоит `xgboost` 3.4.1 с CUDA; продуктовые модели
+обучаются LightGBM (`--backend lgbm` по умолчанию, `ml/README.md`), XGBoost и CatBoost
+на GPU использовались в экспериментах, например в ансамбле A_link. Остальные пакеты этого venv, кроме dev-зависимостей и их
 транзитивных, в `ml/pyproject.toml` не значатся и в перечень не включены.
 
 Группа `schedules` (`openpyxl`) в lock-файл и образ не входит: она нужна только скрипту

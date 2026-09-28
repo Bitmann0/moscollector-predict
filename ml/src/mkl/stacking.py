@@ -9,7 +9,7 @@ import numpy as np
 import polars as pl
 
 from . import train
-from .cv import Split, walk_forward
+from .cv import Split
 
 
 def oof_predictions(head: str, features: pl.DataFrame, labels: pl.DataFrame,
