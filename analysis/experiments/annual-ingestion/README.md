@@ -25,7 +25,7 @@ PR #4 (ветка `feature/annual-ingestion`, последний коммит `3
 
 ## Почему хранилище не перенесено
 
-По решению D8 второе хранилище DuckDB на 6,27 ГБ отклонено: оно дублирует parquet приёма строка в строку. `ml/scripts/verify_ingest.py` это подтверждает. На локальной копии `data/interim` (файлы от 20.09.2026) годовые `events_year=2019…2026.parquet` содержат по каждому году ровно столько событий, сколько `accepted_rows` в `ingest_report.json`. В `daily_channel.parquet` 4 273 083 строки по 12 627 каналам, сумма `n_events` — 312 982 076. Это `daily_channel_source_rows`, `observed_channels` и `accepted_rows` из `warehouse_verification.json`. Результат лежит в [ml/reports/ingest_reconciliation.json](../../../ml/reports/ingest_reconciliation.json).
+По решению D8 второе хранилище DuckDB на 6,27 ГБ отклонено: оно дублирует parquet приёма строка в строку. `ml/scripts/verify_ingest.py` сверяет это по счётчикам, а не построчно. На локальной копии `data/interim` (файлы от 20.09.2026) годовые `events_year=2019…2026.parquet` содержат по каждому году ровно столько событий, сколько `accepted_rows` в `ingest_report.json`. В `daily_channel.parquet` 4 273 083 строки по 12 627 каналам, сумма `n_events` — 312 982 076. Это `daily_channel_source_rows`, `observed_channels` и `accepted_rows` из `warehouse_verification.json`. Результат лежит в [ml/reports/ingest_reconciliation.json](../../../ml/reports/ingest_reconciliation.json).
 
 ## Чем на main покрыто каждое свойство импортёра
 
