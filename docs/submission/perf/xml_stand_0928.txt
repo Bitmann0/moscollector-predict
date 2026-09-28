@@ -1,0 +1,28 @@
+-- XML в REST API (ТЗ §7) на данных стенда mkinteg, 28.09.2026 21:36 МСК.
+-- «ветка» — uvicorn с кодом feat/api-xml на коммите a17592e (рабочая копия без правок) на 127.0.0.1:8030, контейнер из образа
+-- mkinteg-api в сети стенда, та же БД PostgreSQL, что у api стенда; «main» — api стенда на 127.0.0.1:8010, образ из main без правки.
+-- Только GET под сессией dispatcher; данные стенда не менялись. Каждый ответ XML проверен по contracts/xml/api_v1_responses.xsd
+-- (xmlschema) и сверен с JSON того же запроса поле за полем (tests/test_xml_api.py::assert_same); json=main — JSON ветки байт в байт
+-- равен JSON образа main. Размеры — байты тела ответа.
+-- В БД: прогнозов в журнале 154, заявок 65, событий 10428318.
+
+GET /forecasts?page_size=100
+    корень Page_ForecastItem_, строк 100, json 104741, xml 156527, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /forecasts?page_size=50&scenario=guard_weekly
+    корень Page_ForecastItem_, строк 14, json 12545, xml 18900, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /forecasts/summary
+    корень ForecastSummary, строк -, json 1384, xml 2979, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /forecasts/4825f66169ed0af0
+    корень ForecastCard, строк -, json 4366, xml 8347, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /work-orders?page_size=100
+    корень Page_WorkOrderItem_, строк 65, json 31679, xml 48895, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /work-orders/WO-3F622350EA59
+    корень WorkOrderCard, строк -, json 1042, xml 1536, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /events?page_size=1000&from=2026-06-30&to=2026-06-30
+    корень Page_EventItem_, строк 1000, json 465599, xml 769748, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /system/status
+    корень SystemStatus, строк -, json 658, xml 1259, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /quality?scenario=sensor_link
+    корень QualityOut, строк -, json 1131, xml 1661, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»
+GET /quality?scenario=guard_weekly
+    корень QualityOut, строк -, json 1045, xml 1629, xsd ok, поля ok, json=main True, Content-Type «application/xml; charset=utf-8», Vary «Accept»

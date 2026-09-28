@@ -7,16 +7,17 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
 Пути даны от корня репозитория. После снятия перечня `pandas>=2.2` стал прямой
 зависимостью ML (`ml/pyproject.toml`, PR #34, температурный бэктест); версия в
 `ml/requirements.lock` та же, 3.0.5, поэтому состав образа ml не изменился — пакет
-перенесён из транзитивных в прямые. Позже backend получил прямую зависимость `fpdf2` (отчёт
-руководству в PDF, PR #55) и dev-зависимость `pypdf`: версии `fpdf2` и трёх
-его транзитивных пакетов сняты с образа api этой ветки, собранного 28.09.2026 в 21:26 МСК,
-версия `pypdf` — с venv разработчика.
+перенесён из транзитивных в прямые. Позже backend получил прямые зависимости `fpdf2` (отчёт
+руководству в PDF, PR #55) и `defusedxml` (разбор XML при приёме, PR #56), а также dev-зависимости
+`pypdf` и `xmlschema`. `defusedxml` раньше приходил в образ транзитивно через `fpdf2`, теперь он прямой.
+Версии `fpdf2` и его транзитивных пакетов сняты с образа api ветки PR #55, собранного 28.09.2026
+в 21:26 МСК; версии `defusedxml`, `pypdf` и `xmlschema` — с venv разработчика.
 
 ## Сводка
 
 | Компонент | Где исполняется | Прямых | Транзитивных | Лицензии пакетов, попадающих в образ или сборку |
 |---|---|---|---|---|
-| backend | контейнер api | 11 и 3 dev | 26 | MIT — 18, BSD-3-Clause — 10, LGPL-3.0-only — 3, PSF-2.0 — 2, Apache-2.0, MPL-2.0, MIT-CMU, «MIT или Apache-2.0» — по 1 |
+| backend | контейнер api | 12 и 4 dev | 25 | MIT — 18, BSD-3-Clause — 10, LGPL-3.0-only — 3, PSF-2.0 — 2, Apache-2.0, MPL-2.0, MIT-CMU, «MIT или Apache-2.0» — по 1 |
 | ML | контейнеры ml и replay | 12, 1 в группе `schedules` и 2 dev | 34 | MIT — 21, BSD-3-Clause — 15, Apache-2.0 — 3, ещё 7 — PSF-2.0, MIT-CMU, лицензия Matplotlib и составные (таблицы ниже) |
 | frontend, браузерная сборка | браузер пользователя | 5 | 6 | MIT — 10, OFL-1.1 — 1 (шрифт) |
 | frontend, инструменты сборки | стадия сборки образа api, `npm run dev` | 6 | 136 | MIT — 128, ISC — 7, Apache-2.0 — 3, BSD-3-Clause, Python-2.0, CC-BY-4.0, «MIT или CC0-1.0» — по 1 |
@@ -91,10 +92,12 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `python-multipart` | `python-multipart>=0.0.9` | 0.0.32 | Apache-2.0 | разбор multipart/form-data для загрузки файлов (`UploadFile` в `backend/app/routers/ingest.py`) |
 | `httpx` | `httpx>=0.27,<1` | 0.28.1 | BSD-3-Clause | HTTP-клиент к ML-сервису C1 (`backend/app/services/ml_client.py`) |
 | `openpyxl` | `openpyxl>=3.1,<4` | 3.1.5 | MIT | выгрузка в XLSX (`backend/app/services/export.py`) и приём XLSX (`backend/app/services/ingest.py`) |
+| `defusedxml` | `defusedxml>=0.7,<1` | 0.7.1 (venv) | PSF-2.0² | разбор XML-пачек приёма с запретом DTD, сущностей и внешних ссылок (`backend/app/xml_api.py`) |
 | `fpdf2` | `fpdf2>=2.8,<3` | 2.8.8 | LGPL-3.0-only | отчёт руководству в PDF (`backend/app/services/report_pdf.py`) |
 | `pytest` (dev) | `pytest>=8,<9` | 8.4.2 (venv; в образ не входит) | MIT | тесты `tests/` (`make test-backend`, CI) |
 | `ruff` (dev) | `ruff>=0.6,<1` | 0.16.9 (venv; в образ не входит) | MIT | линтер (`make lint`, CI) |
 | `pypdf` (dev) | `pypdf>=6,<7` | 6.19.0 (venv; в образ не входит) | BSD-3-Clause | текст PDF отчёта в `tests/test_report_pdf.py` |
+| `xmlschema` (dev) | `xmlschema>=3,<5` | 4.3.2 (venv; в образ не входит) | MIT | проверка ответов XML по XSD в `tests/test_xml_api.py` |
 
 ### Транзитивные зависимости
 
@@ -105,7 +108,6 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `anyio` | 4.15.1 | MIT | httpx, starlette, watchfiles |
 | `certifi` | 2026.7.22 | MPL-2.0 | httpcore, httpx |
 | `click` | 8.5.0 | BSD-3-Clause | uvicorn |
-| `defusedxml` | 0.7.1 | PSF-2.0² | fpdf2 |
 | `et_xmlfile` | 2.0.0 | MIT | openpyxl |
 | `fonttools` | 4.66.0 | MIT | fpdf2 |
 | `h11` | 0.16.0 | MIT | httpcore, uvicorn |

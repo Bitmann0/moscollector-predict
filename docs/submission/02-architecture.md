@@ -1,6 +1,6 @@
 # Функциональная и компонентная архитектура
 
-Описание сверено с кодом `main` на коммите `b4af088` (28.09.2026, после PR #44); рядом с утверждениями указаны файлы, в которых их можно проверить. Номер вида #37 — pull request в репозитории `Bitmann0/moscollector-predict`. Пути даны от корня репозитория. Пометка «замер 28.09» относится к сборке на машине разработчика: Windows, Docker Desktop, стек `compose.yaml` + `compose.real.yaml` из `main`, ML-сервис в режиме `real` на бандле `bundle-20260928-3` с моделями A_link 0,70 (PR #30). Условия замеров — `docs/submission/08-performance.md`, сырые результаты — `docs/submission/perf/`. Число, снятое раньше, на моделях 0,50, помечено на месте.
+Описание сверено с кодом `main` на коммите `b4af088` (28.09.2026, после PR #44), раздел 8 «Форматы JSON и XML» — с #56; рядом с утверждениями указаны файлы, в которых их можно проверить. Номер вида #37 — pull request в репозитории `Bitmann0/moscollector-predict`. Пути даны от корня репозитория. Пометка «замер 28.09» относится к сборке на машине разработчика: Windows, Docker Desktop, стек `compose.yaml` + `compose.real.yaml` из `main`, ML-сервис в режиме `real` на бандле `bundle-20260928-3` с моделями A_link 0,70 (PR #30). Условия замеров — `docs/submission/08-performance.md`, сырые результаты — `docs/submission/perf/`. Число, снятое раньше, на моделях 0,50, помечено на месте.
 
 ## Главное
 
@@ -207,7 +207,7 @@ sequenceDiagram
 
 Признаки для ML берутся из предрасчитанного фичестора бандла, а не из пришедших событий: инкрементального расчёта признаков нет (план команды, раздел 3, «Ограничение»). Поток событий наполняет журнал событий, уведомления о тревогах и динамику в карточке прогноза; прогнозы от него не меняются.
 
-1. **Вход.** `POST /api/v1/ingest/events` принимает JSON-пачку до 5 000 строк — так шлёт `scripts/replay.py`. `POST /api/v1/ingest/events/upload` принимает файл: CSV в формате `журнал_событий_пример.csv` или XLSX (первый лист), до 200 МБ. Поля строки: `ид_события`, `ид_канала_данных`, `дата`, `время`, `тревожное`, `значение_датчика` (`EventRowIn` в `backend/app/schemas/events.py`). Нужно право `ingest`. XML, названный в ТЗ §7, не принимается; в трассировке плана команды (раздел 10) он записан как расширение.
+1. **Вход.** `POST /api/v1/ingest/events` принимает JSON-пачку до 5 000 строк — так шлёт `scripts/replay.py`. `POST /api/v1/ingest/events/upload` принимает файл: CSV в формате `журнал_событий_пример.csv` или XLSX (первый лист), до 200 МБ. Поля строки: `ид_события`, `ид_канала_данных`, `дата`, `время`, `тревожное`, `значение_датчика` (`EventRowIn` в `backend/app/schemas/events.py`). Нужно право `ingest`. Та же пачка принимается в XML: `Content-Type: application/xml`, корень `EventRowInList`, строки `EventRowIn` с теми же именами полей (раздел 8, «Форматы JSON и XML»). Файл — только CSV или XLSX.
 2. **Отсев до разбора.** `BodyLimitMiddleware` (`backend/app/limits.py`) стоит самым внешним слоем: запрос к `/api/v1/ingest/` без cookie сессии и без `X-API-Key` получает 401 до чтения тела, тело больше предела — 413.
 3. **Разбор строки.** Время без пояса — МСК. `тревожное` принимает `t`, `f`, `true`, `false`, `1`, `0`, `да`, `нет` без учёта регистра. Значение сохраняется строкой и числом, запятая читается как десятичный разделитель. Строка, которую не удалось разобрать, считается отклонённой; строка с датой позже демо-даты — `outside_demo_window`.
 4. **Дедупликация** — по SHA-256 кортежа «ид события | канал | время | флаг | значение» после нормализации, уникальный столбец `events.row_hash`. По одному `ид_события` дубли не ищутся: в 2021–2023 годах идентификатор переиспользуется, и такая дедупликация удаляла 1 669 268 настоящих событий (план команды, контракт C5). Повторная загрузка того же файла безопасна: все строки уйдут в `duplicates`.
@@ -216,7 +216,7 @@ sequenceDiagram
 7. **Сохранение и уведомление.** На каждое событие `alarm` или `critical` в той же транзакции создаётся уведомление `event.alarm` с `event_id`, `channel_id`, `event_class` и `incident_group` в `payload`; у `warning` уведомления нет; после commit оно уходит в SSE. С `?notify=false` (загрузка истории, догрузка дня при старте `replay`) события сохраняются, классифицируются и размечаются сериями без уведомлений: иначе прошлые тревоги пришли бы диспетчеру как новые. События, загруженные до этих правил, пересчитывает `scripts/reclassify_events.py` (раздел 7).
 8. **Итог партии** — строка `ingest_batches`: всего строк, принято, дублей, отклонено, вне окна; статус `accepted`, если отклонённых нет, `partial`, если есть и принятые, и отклонённые, `rejected`, если есть отклонённые и не принято ничего (`backend/app/services/ingest.py`). Партия, где все строки оказались дублями, получает `accepted`.
 
-Журнал ОДС принимает `POST /api/v1/ingest/ods-journal`: JSON-массив до 5 000 записей с временем, объектом, типом записи, решением и причиной; точный повтор записи считается дублем (`ingest_ods`). `DELETE /api/v1/ingest/day/{day}` удаляет события одних суток МСК — так `replay` начинает день заново.
+Журнал ОДС принимает `POST /api/v1/ingest/ods-journal`: массив в JSON или XML (корень `OdsRowInList`) до 5 000 записей с временем, объектом, типом записи, решением и причиной; точный повтор записи считается дублем (`ingest_ods`). `DELETE /api/v1/ingest/day/{day}` удаляет события одних суток МСК — так `replay` начинает день заново.
 
 ### 4.3. Уведомления и поток SSE
 
@@ -283,7 +283,7 @@ ML возвращает `unknown`, если день нельзя было на�
 | Контракт | Стороны | Где лежит | Что ловит расхождение |
 |---|---|---|---|
 | C1. ML → backend | `ml` → дневной расчёт `api` | `ml/src/mkl/product_contract.py` (pydantic, `SCHEMA_VERSION = "1.0"`) → `contracts/ml_v1.schema.json`; зеркало на стороне backend — `backend/app/schemas/ml.py`; фикстуры `contracts/fixtures/ml_score_2026-06-15.json`, `ml_guard_weekly_2026-06-15.json`, `ml_outcomes.json` | `tests/test_contract_layer.py`: `test_ml_mirror_matches_ml_contract`, `test_ml_fixtures_validate_against_mirror` |
-| C2. Backend → frontend и внешние клиенты | `api` → браузер, скрипты, интеграции | pydantic-модели `backend/app/schemas/` → `contracts/api_v1.openapi.json`, 36 операций; типы фронта `frontend/src/api/schema.d.ts` (`npm run gen:api`); фикстуры `contracts/fixtures/api_*.json` | job `contracts`; job `frontend` падает, если `schema.d.ts` не совпадает с `api_v1.openapi.json`; `tests/test_contract_layer.py::test_openapi_documents_cookie_and_integration_auth` |
+| C2. Backend → frontend и внешние клиенты | `api` → браузер, скрипты, интеграции | pydantic-модели `backend/app/schemas/` → `contracts/api_v1.openapi.json`, 36 операций; типы фронта `frontend/src/api/schema.d.ts` (`npm run gen:api`); фикстуры `contracts/fixtures/api_*.json`; XSD ответов и приёма в XML — `contracts/xml/api_v1_responses.xsd`, `contracts/xml/api_v1_ingest.xsd` | job `contracts`; job `frontend` падает, если `schema.d.ts` не совпадает с `api_v1.openapi.json`; `tests/test_contract_layer.py::test_openapi_documents_cookie_and_integration_auth`; `tests/test_xml_api.py::test_committed_xsd_match_models` |
 | C3. Словари | все | `contracts/vocabularies.json`: 17 словарей — сценарии, виды записей, типы оценки, источники, действия, причины, итоги ручные и автоматические, статусы расчёта, статусы заявок, граф и права переходов, приоритеты заявок, классы событий, группы аварий, роли, права. Читают `backend/app/vocab.py` и `frontend/src/vocab.ts` (импорт при сборке); причины `seed` переносит в таблицу `reason_codes` | `tests/test_contract_layer.py`: коды словарей совпадают с перечислениями схем, права ссылаются на известные роли, причины — на известные действия, граф переходов замкнут |
 | C4. Бандл данных | сборка ML → `ml`, `replay`, `api` | состав: модель `A_link`, фичестор, метки для факта, v2-кэш охранной очереди, события 2026 года, справочники объектов и каналов. Обязательные файлы — словарь `REQUIRED`, необязательные — `OPTIONAL` и шаблон датированных моделей `models/A_link@*.pkl` в `ml/scripts/build_bundle.py`; контрольные суммы — `MANIFEST.sha256`; проверка и распаковка — `scripts/fetch_bundle.sh` и `scripts/fetch_bundle.ps1`; раскладка томов — `compose.real.yaml`, `compose.stand.yaml` | `fetch_bundle` сверяет `MANIFEST.sha256` и раскладку каталогов; `build_bundle.py` отказывается собирать бандл без v2-кэша (`version` 2 в `reports/intrusion_eventtime_v2_build.json`). Замер 28.09: `build_bundle.py` собрал 15 файлов на 2 128 МБ, `fetch_bundle.sh` подтвердил 15 контрольных сумм; сборка v2-кэша заняла 7 с, счётчики совпали с `ml/reports/intrusion_eventtime_v2_build.json` |
 | C5. Приём событий и семантика | СМВУ или `replay` → `api` | формат строки — `EventRowIn` в `backend/app/schemas/events.py`; дедупликация — `backend/app/services/ingest.py`; классы событий, группы аварий и серии ППР/ТО — `backend/app/services/semantics.py` | `tests/test_backend_flows.py::test_gas_ppr_hint_only_in_weekday_window`, `tests/test_incident_groups.py`, `tests/test_endpoints_shape.py::test_upload_rejects_only_bad_rows_and_deduplicates` |
@@ -400,6 +400,30 @@ erDiagram
 | 422 | ошибка валидации; причина не подходит к действию; недопустимый переход заявки; прогнозы ручной заявки из разных сценариев или объектов; демо-дата вне 01.06–30.06 |
 | 429 | превышен предел неудачных входов |
 
+### Форматы JSON и XML
+
+JSON — формат по умолчанию. XML (ТЗ §7) отдают и принимают маршруты из таблицы ниже. Выбор формата, запись и разбор XML — один слой `XmlMiddleware` в `backend/app/xml_api.py`, роутеры о XML не знают; перечень маршрутов — словарь `XML_ROUTES` там же.
+
+| Направление | Маршруты | Заголовок |
+|---|---|---|
+| ответ | `GET /api/v1/forecasts`, `/forecasts/summary`, `/forecasts/{forecast_id}`, `/work-orders`, `/work-orders/{order_id}`, `/events`, `/system/status`, `/quality`; ответ 201 обоих маршрутов приёма | `Accept: application/xml` или `text/xml` |
+| запрос | `POST /api/v1/ingest/events`, `POST /api/v1/ingest/ods-journal` | `Content-Type: application/xml` или `text/xml` |
+
+- **Выбор формата.** XML уходит, если в `Accept` у `application/xml` или `text/xml` вес больше, чем у явно названного `application/json`. Без `Accept`, с `*/*` и при равных весах ответ — JSON, байт в байт прежний: `tests/test_xml_api.py::test_json_stays_default_and_unchanged` сверяет его с приложением без слоя XML. Ответы этих маршрутов несут `Vary: Accept`. Ошибки (коды не 2xx) остаются JSON `{"detail": …}`.
+- **Отображение.** Слой берёт готовый JSON-ответ FastAPI и перекладывает его в элементы, поэтому значения совпадают с JSON по построению: даты и время — те же строки ISO 8601, числа — те же лексемы. Корень — имя схемы модели в OpenAPI (`Page_ForecastItem_`, `ForecastCard`, `SystemStatus`); поле — дочерний элемент с именем поля, в порядке полей модели; список — элемент с именем поля, повторённый по разу на значение; `null` — пустой элемент с `xsi:nil="true"`. Кодировка UTF-8, кириллица записана символами, а не ссылками `&#…;`. Управляющие символы, кроме табуляции, перевода строки и возврата каретки, в XML 1.0 запрещены и заменяются на U+FFFD.
+- **Приём.** Корень `EventRowInList` или `OdsRowInList`, в нём до 5 000 элементов `EventRowIn` или `OdsRowIn`, внутри — элементы с именами ключей JSON; у событий это `ид_события`, `ид_канала_данных`, `дата`, `время`, `тревожное`, `значение_датчика`. Слой превращает строки в JSON-массив, и дальше запрос идёт путём JSON: та же проверка pydantic с пределом `Body(max_length=5000)`, та же дедупликация в `backend/app/services/ingest.py`. Отпечаток строки от формата не зависит: те же строки, повторённые в JSON после XML, уходят в дубли (`test_xml_events_give_json_counters_and_same_rows`).
+- **Защита разбора.** Тело разбирает `defusedxml` с запретом DTD, сущностей и внешних ссылок: XXE, внешний DTD, параметрическая сущность и «billion laughs» получают 400 `xml_forbidden`, партия приёма не создаётся. Неразборчивый XML — 400 `xml_malformed`; чужой корень, вложенное поле, повтор поля — 422 с кодом `xml_…`. Предел 10 МБ держит `BodyLimitMiddleware` до разбора: тело больше — 413. Разбор идёт раньше проверки ключа, как разбор JSON в FastAPI, поэтому отклонённая попытка попадает в аудит с кодом ответа, но без логина.
+- **Схемы.** XSD ответов — `contracts/xml/api_v1_responses.xsd`, приёма — `contracts/xml/api_v1_ingest.xsd`. Обе собирает из pydantic-моделей `scripts/export_contracts.py`, и job `contracts` сверяет их с кодом, как OpenAPI. В OpenAPI у этих маршрутов `application/xml` стоит рядом с `application/json`.
+- **Замер 28.09 на данных стенда**: uvicorn из ветки на той же БД, что и `api` из образа `main` (`docs/submission/perf/xml_stand_0928.txt`). Каждый из 10 запросов в XML прошёл проверку по XSD и совпал с JSON поле за полем, а JSON совпал с ответом образа `main` байт в байт. Журнал событий на 1 000 строк — 465 599 байт в JSON и 769 748 в XML.
+
+Пачка событий из `scripts/examples/ingest_events.xml` с ответом в XML:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/ingest/events?notify=false" \
+  -H "X-API-Key: $INTEGRATION_API_KEY" -H "Content-Type: application/xml" \
+  -H "Accept: application/xml" --data-binary @scripts/examples/ingest_events.xml
+```
+
 ### Сводная таблица эндпоинтов
 
 36 операций `contracts/api_v1.openapi.json`. В столбце «Право» — право из матрицы раздела 2; «—» — без аутентификации.
@@ -424,10 +448,10 @@ erDiagram
 | POST | `/api/v1/work-orders` | `work_order_manage` | черновик заявки по списку прогнозов одного сценария и объекта; если прогноз уже в незакрытой заявке — возвращает её |
 | PATCH | `/api/v1/work-orders/{order_id}` | `work_order_manage` или `work_order_progress` по целевому статусу | переход статуса с `expected_status`; 409, если статус уже сменили |
 | GET | `/api/v1/events` | `view` | журнал событий: фильтры `from`, `to`, `obj` (id или часть названия), `sensor_type` (подстрока), `event_class`, `q`, `hide_normal_gas` |
-| POST | `/api/v1/ingest/events` | `ingest` | JSON-пачка журнала СМВУ до 5 000 строк; `?notify=false` — без уведомлений |
+| POST | `/api/v1/ingest/events` | `ingest` | пачка журнала СМВУ до 5 000 строк в JSON или XML; `?notify=false` — без уведомлений |
 | POST | `/api/v1/ingest/events/upload` | `ingest` | файл журнала СМВУ, CSV или XLSX, до 200 МБ; `?notify=false` — без уведомлений |
 | DELETE | `/api/v1/ingest/day/{day}` | `integration` или `admin` | удалить события одних суток МСК |
-| POST | `/api/v1/ingest/ods-journal` | `ingest` | записи журнала ОДС, до 5 000 в запросе |
+| POST | `/api/v1/ingest/ods-journal` | `ingest` | записи журнала ОДС в JSON или XML, до 5 000 в запросе |
 | GET | `/api/v1/ingest/batches` | `ingest` | история загрузок со счётчиками |
 | GET | `/api/v1/schema.geojson` | `view` | условная схема в GeoJSON; каналы — только с фильтром `complex` |
 | GET | `/api/v1/schema.wkt` | `view` | та же схема в WKT |
