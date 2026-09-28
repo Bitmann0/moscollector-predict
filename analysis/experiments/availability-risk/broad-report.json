@@ -1,0 +1,591 @@
+{
+  "experiment": "telemetry-availability-active-7-of-30-recovery-30d",
+  "target": "No telemetry on the next globally covered calendar day after at least 7 observed days in the previous 30, with telemetry recovery within 30 days",
+  "positive_semantics": "availability incident, not a confirmed physical sensor failure",
+  "target_manifest": {
+    "target": "No telemetry on the next globally covered calendar day after at least 7 observed days in the previous 30, with telemetry recovery within 30 days",
+    "target_name": "temporary_telemetry_outage_onset",
+    "positive_semantics": "availability incident, not a confirmed physical sensor failure",
+    "recovery_days": 30,
+    "min_active_days_previous_30d": 7,
+    "rows": 2483963,
+    "positives": 630441,
+    "positive_rate": 0.2538045051395693,
+    "channels": 9843,
+    "positive_channels": 9720,
+    "date_min": "2019-01-08",
+    "date_max": "2026-06-29",
+    "calendar_days": 2738,
+    "usable_global_days": 2280,
+    "calendar_min": "2019-01-01 00:00:00",
+    "calendar_max": "2026-06-30 00:00:00",
+    "global_coverage_rule": "observed channels >= 50% of trailing 30-day median",
+    "excluded_feature_dates": [
+      "2021-04-01",
+      "2021-08-01"
+    ],
+    "input_sha256": "d5978b0c858b5adf779214c6a11248d480875e23cf22e4fc1b5dc45a1e8cc336",
+    "limitations": [
+      "Recovery confirms a temporary telemetry outage, not its physical cause.",
+      "Daily features use the current channel catalog on historical records.",
+      "Outages longer than the recovery window are censored as unknown."
+    ]
+  },
+  "physical_failure_metrics_available": false,
+  "evaluation_status": "retrospective walk-forward; no claim of untouched holdout",
+  "features": [
+    "event_count",
+    "alarm_count",
+    "alarm_fraction",
+    "days_since_previous",
+    "observed_days_previous_30d",
+    "events_previous_30d",
+    "median_events_previous_30d",
+    "alarms_previous_30d",
+    "observed_days_previous_7d",
+    "events_previous_7d",
+    "activity_ratio_to_past",
+    "events_vs_median_30d",
+    "events_accel_7d_30d",
+    "weekday_sin",
+    "weekday_cos",
+    "year_sin",
+    "year_cos",
+    "sensor_type_unknown",
+    "sensor_type_Газовый датчик",
+    "sensor_type_Датчик движения",
+    "sensor_type_Датчик дыма",
+    "sensor_type_Датчик затопления",
+    "sensor_type_Датчик температуры",
+    "sensor_type_ИБП",
+    "sensor_type_КД АВ",
+    "sensor_type_КД Дверь",
+    "sensor_type_КД Люк",
+    "sensor_type_Переключатель",
+    "sensor_type_Ручной извещатель",
+    "sensor_type_Состояние УИР-Р",
+    "sensor_type_Состояние вентилятора",
+    "sensor_type_Состояние насоса",
+    "sensor_type_Состояние охраны",
+    "sensor_type_Состояние фазы",
+    "sensor_type_Стекло",
+    "sensor_type_Тепловой датчик"
+  ],
+  "protocols": {
+    "temporal_all_channels": {
+      "folds": [
+        {
+          "fold": "test-2024h1",
+          "status": "ok",
+          "unseen_channels": false,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.5695464408223323,
+            "hist_gradient_boosting": 0.6148716101160288,
+            "current_cadence_rule": 0.28033556839064255
+          },
+          "threshold": 0.6077586577193528,
+          "threshold_rule": "precision_constraint",
+          "splits": {
+            "train": {
+              "samples": 1375097,
+              "positives": 337957
+            },
+            "validation": {
+              "samples": 141380,
+              "positives": 36018
+            },
+            "threshold": {
+              "samples": 165584,
+              "positives": 39365
+            },
+            "test": {
+              "samples": 135359,
+              "positives": 33033
+            }
+          },
+          "threshold_holdout": {
+            "samples": 165584,
+            "positives": 39365,
+            "alerts": 15731,
+            "precision": 0.7052952768419045,
+            "recall": 0.2818493585672552,
+            "average_precision": 0.6197655260582087,
+            "brier_score": 0.1275173434500365,
+            "false_alerts_per_100_observed_channel_days": 2.7997874190743066,
+            "confusion_matrix": {
+              "tn": 121583,
+              "fp": 4636,
+              "fn": 28270,
+              "tp": 11095
+            }
+          },
+          "test": {
+            "samples": 135359,
+            "positives": 33033,
+            "alerts": 14971,
+            "precision": 0.6966802484803954,
+            "recall": 0.31574486119940665,
+            "average_precision": 0.6170692538913936,
+            "brier_score": 0.13142626800195056,
+            "false_alerts_per_100_observed_channel_days": 3.3547824673645636,
+            "confusion_matrix": {
+              "tn": 97785,
+              "fp": 4541,
+              "fn": 22603,
+              "tp": 10430
+            },
+            "average_precision_lift": 2.5285586273570413
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.627951184275558,
+            "alerts_at_50pct_recall": 26303,
+            "daily_budget_1": {
+              "alerts": 144,
+              "precision": 0.7916666666666666,
+              "recall": 0.0034510943601852692,
+              "calendar_days": 144
+            },
+            "daily_budget_3": {
+              "alerts": 432,
+              "precision": 0.7870370370370371,
+              "recall": 0.010292737565464838,
+              "calendar_days": 144
+            }
+          }
+        },
+        {
+          "fold": "test-2025h1",
+          "status": "ok",
+          "unseen_channels": false,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.5737005062075617,
+            "hist_gradient_boosting": 0.6206162392976972,
+            "current_cadence_rule": 0.2716182184578083
+          },
+          "threshold": 0.5709719559725887,
+          "threshold_rule": "precision_constraint",
+          "splits": {
+            "train": {
+              "samples": 1682061,
+              "positives": 413340
+            },
+            "validation": {
+              "samples": 135359,
+              "positives": 33033
+            },
+            "threshold": {
+              "samples": 157609,
+              "positives": 39578
+            },
+            "test": {
+              "samples": 147331,
+              "positives": 38410
+            }
+          },
+          "threshold_holdout": {
+            "samples": 157609,
+            "positives": 39578,
+            "alerts": 21278,
+            "precision": 0.7007237522323526,
+            "recall": 0.3767244428723028,
+            "average_precision": 0.6388334517000935,
+            "brier_score": 0.13243485740847694,
+            "false_alerts_per_100_observed_channel_days": 4.040378404786528,
+            "confusion_matrix": {
+              "tn": 111663,
+              "fp": 6368,
+              "fn": 24668,
+              "tp": 14910
+            }
+          },
+          "test": {
+            "samples": 147331,
+            "positives": 38410,
+            "alerts": 22998,
+            "precision": 0.7216714496912775,
+            "recall": 0.4321010153605832,
+            "average_precision": 0.6824682244703193,
+            "brier_score": 0.12576117121135671,
+            "false_alerts_per_100_observed_channel_days": 4.344638942245692,
+            "confusion_matrix": {
+              "tn": 102520,
+              "fp": 6401,
+              "fn": 21813,
+              "tp": 16597
+            },
+            "average_precision_lift": 2.6177746935547153
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.6968938239349735,
+            "alerts_at_50pct_recall": 27558,
+            "daily_budget_1": {
+              "alerts": 157,
+              "precision": 0.7834394904458599,
+              "recall": 0.0032022910700338454,
+              "calendar_days": 157
+            },
+            "daily_budget_3": {
+              "alerts": 471,
+              "precision": 0.7622080679405521,
+              "recall": 0.00934652434261911,
+              "calendar_days": 157
+            }
+          }
+        },
+        {
+          "fold": "test-2026h1",
+          "status": "ok",
+          "unseen_channels": false,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.6368501454874103,
+            "hist_gradient_boosting": 0.6837148055326467,
+            "current_cadence_rule": 0.28668399026388497
+          },
+          "threshold": 0.5167304608928405,
+          "threshold_rule": "precision_constraint",
+          "splits": {
+            "train": {
+              "samples": 1975029,
+              "positives": 485951
+            },
+            "validation": {
+              "samples": 147331,
+              "positives": 38410
+            },
+            "threshold": {
+              "samples": 186220,
+              "positives": 52091
+            },
+            "test": {
+              "samples": 167426,
+              "positives": 51760
+            }
+          },
+          "threshold_holdout": {
+            "samples": 186220,
+            "positives": 52091,
+            "alerts": 42831,
+            "precision": 0.7000070042726063,
+            "recall": 0.5755696761436716,
+            "average_precision": 0.727450978746922,
+            "brier_score": 0.126451069237825,
+            "false_alerts_per_100_observed_channel_days": 6.899903340135324,
+            "confusion_matrix": {
+              "tn": 121280,
+              "fp": 12849,
+              "fn": 22109,
+              "tp": 29982
+            }
+          },
+          "test": {
+            "samples": 167426,
+            "positives": 51760,
+            "alerts": 38925,
+            "precision": 0.6854206807964034,
+            "recall": 0.5154559505409583,
+            "average_precision": 0.7049855210245574,
+            "brier_score": 0.14065620955550737,
+            "false_alerts_per_100_observed_channel_days": 7.313678879027152,
+            "confusion_matrix": {
+              "tn": 103421,
+              "fp": 12245,
+              "fn": 25080,
+              "tp": 26680
+            },
+            "average_precision_lift": 2.2803884436448523
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.6880782728916304,
+            "alerts_at_50pct_recall": 37612,
+            "daily_budget_1": {
+              "alerts": 139,
+              "precision": 0.7482014388489209,
+              "recall": 0.002009273570324575,
+              "calendar_days": 139
+            },
+            "daily_budget_3": {
+              "alerts": 417,
+              "precision": 0.7434052757793765,
+              "recall": 0.005989180834621329,
+              "calendar_days": 139
+            }
+          }
+        }
+      ],
+      "mean_test": {
+        "precision": 0.7012574596560254,
+        "recall": 0.4211006090336493,
+        "average_precision": 0.6681743331287567,
+        "average_precision_lift": 2.4755739215188695,
+        "false_alerts_per_100_observed_channel_days": 5.004366762879136
+      }
+    },
+    "unseen_channel_20pct": {
+      "folds": [
+        {
+          "fold": "test-2024h1",
+          "status": "ok",
+          "unseen_channels": true,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.564945021483444,
+            "hist_gradient_boosting": 0.6061840421706598,
+            "current_cadence_rule": 0.2822037932475498
+          },
+          "threshold": 0.6080842613661255,
+          "threshold_rule": "precision_constraint",
+          "splits": {
+            "train": {
+              "samples": 1118088,
+              "positives": 275238
+            },
+            "validation": {
+              "samples": 27638,
+              "positives": 7138
+            },
+            "threshold": {
+              "samples": 32454,
+              "positives": 7923
+            },
+            "test": {
+              "samples": 26577,
+              "positives": 6645
+            }
+          },
+          "threshold_holdout": {
+            "samples": 32454,
+            "positives": 7923,
+            "alerts": 3246,
+            "precision": 0.7051756007393716,
+            "recall": 0.28890571753123817,
+            "average_precision": 0.6226188492772575,
+            "brier_score": 0.1308163402192579,
+            "false_alerts_per_100_observed_channel_days": 2.94878905527824,
+            "confusion_matrix": {
+              "tn": 23574,
+              "fp": 957,
+              "fn": 5634,
+              "tp": 2289
+            }
+          },
+          "test": {
+            "samples": 26577,
+            "positives": 6645,
+            "alerts": 2928,
+            "precision": 0.6974043715846995,
+            "recall": 0.3072987208427389,
+            "average_precision": 0.6151867762800683,
+            "brier_score": 0.1351190624793226,
+            "false_alerts_per_100_observed_channel_days": 3.3337095985250405,
+            "confusion_matrix": {
+              "tn": 19046,
+              "fp": 886,
+              "fn": 4603,
+              "tp": 2042
+            },
+            "average_precision_lift": 2.4604693684266934
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.6287606433301798,
+            "alerts_at_50pct_recall": 5285,
+            "daily_budget_1": {
+              "alerts": 144,
+              "precision": 0.7777777777777778,
+              "recall": 0.016854778028592927,
+              "calendar_days": 144
+            },
+            "daily_budget_3": {
+              "alerts": 432,
+              "precision": 0.7453703703703703,
+              "recall": 0.04845748683220467,
+              "calendar_days": 144
+            }
+          }
+        },
+        {
+          "fold": "test-2025h1",
+          "status": "ok",
+          "unseen_channels": true,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.5707764054060664,
+            "hist_gradient_boosting": 0.6215850286982476,
+            "current_cadence_rule": 0.2774435145208829
+          },
+          "threshold": 0.5713781970039683,
+          "threshold_rule": "precision_constraint",
+          "splits": {
+            "train": {
+              "samples": 1364960,
+              "positives": 335560
+            },
+            "validation": {
+              "samples": 26577,
+              "positives": 6645
+            },
+            "threshold": {
+              "samples": 30721,
+              "positives": 7926
+            },
+            "test": {
+              "samples": 28855,
+              "positives": 7729
+            }
+          },
+          "threshold_holdout": {
+            "samples": 30721,
+            "positives": 7926,
+            "alerts": 4305,
+            "precision": 0.7036004645760743,
+            "recall": 0.38215997981327277,
+            "average_precision": 0.6485041399551127,
+            "brier_score": 0.13421711429441638,
+            "false_alerts_per_100_observed_channel_days": 4.153510627909248,
+            "confusion_matrix": {
+              "tn": 21519,
+              "fp": 1276,
+              "fn": 4897,
+              "tp": 3029
+            }
+          },
+          "test": {
+            "samples": 28855,
+            "positives": 7729,
+            "alerts": 4591,
+            "precision": 0.7225005445436724,
+            "recall": 0.4291628930003881,
+            "average_precision": 0.685129988271253,
+            "brier_score": 0.12871404087886523,
+            "false_alerts_per_100_observed_channel_days": 4.415179345000866,
+            "confusion_matrix": {
+              "tn": 19852,
+              "fp": 1274,
+              "fn": 4412,
+              "tp": 3317
+            },
+            "average_precision_lift": 2.5578245324837634
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.7027272727272728,
+            "alerts_at_50pct_recall": 5500,
+            "daily_budget_1": {
+              "alerts": 157,
+              "precision": 0.7070063694267515,
+              "recall": 0.01436149566567473,
+              "calendar_days": 157
+            },
+            "daily_budget_3": {
+              "alerts": 471,
+              "precision": 0.732484076433121,
+              "recall": 0.044637081123043085,
+              "calendar_days": 157
+            }
+          }
+        },
+        {
+          "fold": "test-2026h1",
+          "status": "ok",
+          "unseen_channels": true,
+          "selected_model": "hist_gradient_boosting",
+          "validation_average_precision": {
+            "logistic_regression": 0.6422574410591002,
+            "hist_gradient_boosting": 0.6875727385386448,
+            "current_cadence_rule": 0.2907087696057083
+          },
+          "threshold": 0.5118085233512336,
+          "threshold_rule": "precision_constraint",
+          "splits": {
+            "train": {
+              "samples": 1600630,
+              "positives": 393600
+            },
+            "validation": {
+              "samples": 28855,
+              "positives": 7729
+            },
+            "threshold": {
+              "samples": 37124,
+              "positives": 10938
+            },
+            "test": {
+              "samples": 33868,
+              "positives": 10772
+            }
+          },
+          "threshold_holdout": {
+            "samples": 37124,
+            "positives": 10938,
+            "alerts": 8912,
+            "precision": 0.7026481149012568,
+            "recall": 0.5724995428780398,
+            "average_precision": 0.7225002517178012,
+            "brier_score": 0.13272440316434653,
+            "false_alerts_per_100_observed_channel_days": 7.138239413856265,
+            "confusion_matrix": {
+              "tn": 23536,
+              "fp": 2650,
+              "fn": 4676,
+              "tp": 6262
+            }
+          },
+          "test": {
+            "samples": 33868,
+            "positives": 10772,
+            "alerts": 7116,
+            "precision": 0.7033445756042721,
+            "recall": 0.46463052357965096,
+            "average_precision": 0.6999610094501117,
+            "brier_score": 0.14776610666542211,
+            "false_alerts_per_100_observed_channel_days": 6.233022321955828,
+            "confusion_matrix": {
+              "tn": 20985,
+              "fp": 2111,
+              "fn": 5767,
+              "tp": 5005
+            },
+            "average_precision_lift": 2.2007314767969164
+          },
+          "test_ranking": {
+            "precision_at_50pct_recall": 0.6841102502222787,
+            "alerts_at_50pct_recall": 7873,
+            "daily_budget_1": {
+              "alerts": 139,
+              "precision": 0.7194244604316546,
+              "recall": 0.00928332714444857,
+              "calendar_days": 139
+            },
+            "daily_budget_3": {
+              "alerts": 417,
+              "precision": 0.7146282973621103,
+              "recall": 0.02766431489045674,
+              "calendar_days": 139
+            }
+          }
+        }
+      ],
+      "mean_test": {
+        "precision": 0.7077498305775479,
+        "recall": 0.4003640458075927,
+        "average_precision": 0.6667592580004778,
+        "average_precision_lift": 2.4063417925691244,
+        "false_alerts_per_100_observed_channel_days": 4.660637088493911
+      }
+    }
+  },
+  "input_sha256": "3cf2b063bfdc0b429555cb3938c3139f5e70b966234403d7e556173fe0573c51",
+  "versions": {
+    "python": "3.12.14",
+    "pandas": "2.3.3",
+    "numpy": "2.5.3",
+    "sklearn": "1.9.1",
+    "duckdb": "1.5.5"
+  },
+  "limitations": [
+    "The label measures telemetry availability, not physical failure or repair demand.",
+    "Recovery within seven days censors long outages and decommissioned channels.",
+    "The 2026 period has already been inspected and is retrospective evidence only."
+  ]
+}
