@@ -486,6 +486,412 @@
           "command": "python scripts/build_intrusion_eventtime_labels.py; python scripts/exp_guard_weekly_repeats.py"
         }
       ]
+    },
+    {
+      "code": "fire_risk",
+      "title": "Пожар: риск пожарной или газовой тревоги на участке",
+      "head": "B",
+      "in_product": "LightGBM на участок объекта (10 пикетов), top-10 участков в сутки по риску, без порога точности и без паузы",
+      "target": "текстовое пожарное или газовое тревожное состояние (дым, газ, температура выше 40 °C) на участке в следующие сутки; подтверждённых пожаров в данных нет",
+      "label": "label_fire (src/mkl/labels.py); в факте продукта сутки без данных участка — unknown (src/mkl/outcomes.py)",
+      "horizon_hours": 24,
+      "limit_per_day": 10,
+      "cooldown_days": 0,
+      "config": "configs/heads.yaml",
+      "evaluations": [
+        {
+          "id": "monthly_refresh_2025_2026",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "days": 364,
+          "method": "temporal",
+          "method_note": "модель на каждый месяц обучена по данным до его начала; политика (лимит, пауза) выбрана на том же периоде из шести вариантов — ретроспективно",
+          "alerts": 2769,
+          "hits": 238,
+          "unknown": 883,
+          "precision_lower_bound": 0.086,
+          "precision_known_only": 0.1262,
+          "new_hits": 83,
+          "recall": 0.1558,
+          "recall_new": 0.0666,
+          "per_day": 7.61,
+          "positives": 1528,
+          "positives_new": 1246,
+          "recall_unit": "положительные строки метки за период",
+          "by_month": {
+            "2025-07": {
+              "recommendations": 272,
+              "hits": 7,
+              "unknown": 63,
+              "precision_lower": 0.0257
+            },
+            "2025-08": {
+              "recommendations": 209,
+              "hits": 8,
+              "unknown": 55,
+              "precision_lower": 0.0383
+            },
+            "2025-09": {
+              "recommendations": 214,
+              "hits": 21,
+              "unknown": 52,
+              "precision_lower": 0.0981
+            },
+            "2025-10": {
+              "recommendations": 310,
+              "hits": 9,
+              "unknown": 90,
+              "precision_lower": 0.029
+            },
+            "2025-11": {
+              "recommendations": 193,
+              "hits": 11,
+              "unknown": 45,
+              "precision_lower": 0.057
+            },
+            "2025-12": {
+              "recommendations": 270,
+              "hits": 26,
+              "unknown": 97,
+              "precision_lower": 0.0963
+            },
+            "2026-01": {
+              "recommendations": 145,
+              "hits": 7,
+              "unknown": 59,
+              "precision_lower": 0.0483
+            },
+            "2026-02": {
+              "recommendations": 246,
+              "hits": 27,
+              "unknown": 83,
+              "precision_lower": 0.1098
+            },
+            "2026-03": {
+              "recommendations": 277,
+              "hits": 37,
+              "unknown": 100,
+              "precision_lower": 0.1336
+            },
+            "2026-04": {
+              "recommendations": 254,
+              "hits": 34,
+              "unknown": 90,
+              "precision_lower": 0.1339
+            },
+            "2026-05": {
+              "recommendations": 183,
+              "hits": 24,
+              "unknown": 77,
+              "precision_lower": 0.1311
+            },
+            "2026-06": {
+              "recommendations": 196,
+              "hits": 27,
+              "unknown": 72,
+              "precision_lower": 0.1378
+            }
+          },
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        }
+      ],
+      "comparison": [
+        {
+          "what": "правило «тревоги участка за 7 суток» (n_alarms_w7), те же 10 в сутки, без паузы",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 3630,
+          "hits": 114,
+          "unknown": 739,
+          "precision_lower_bound": 0.0314,
+          "precision_known_only": 0.0394,
+          "new_hits": 54,
+          "recall": 0.0746,
+          "recall_new": 0.0433,
+          "per_day": 9.97,
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        },
+        {
+          "what": "та же модель с паузой 7 суток по объекту",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 1179,
+          "hits": 71,
+          "unknown": 419,
+          "precision_lower_bound": 0.0602,
+          "precision_known_only": 0.0934,
+          "new_hits": 16,
+          "recall": 0.0465,
+          "recall_new": 0.0128,
+          "per_day": 3.24,
+          "source": "reports/fire_flood_product_cooldown7.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --cooldown 7 --output reports/fire_flood_product_cooldown7.json"
+        },
+        {
+          "what": "та же модель, до 3 в сутки",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 961,
+          "hits": 113,
+          "unknown": 334,
+          "precision_lower_bound": 0.1176,
+          "precision_known_only": 0.1802,
+          "new_hits": 21,
+          "recall": 0.074,
+          "recall_new": 0.0169,
+          "per_day": 2.64,
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        },
+        {
+          "what": "та же модель, до 5 в сутки",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 1527,
+          "hits": 159,
+          "unknown": 514,
+          "precision_lower_bound": 0.1041,
+          "precision_known_only": 0.157,
+          "new_hits": 37,
+          "recall": 0.1041,
+          "recall_new": 0.0297,
+          "per_day": 4.2,
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        }
+      ],
+      "base_rate": [
+        {
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "positives": 1528,
+          "candidates": 169926,
+          "rate_with_unknown": 0.009,
+          "known": 122428,
+          "known_positives": 1528,
+          "rate_known": 0.0125,
+          "note": "rate_with_unknown — доля положительных среди строк метки, сутки без данных считаются отрицательными, как в обучении; rate_known — только строки с данными за следующие сутки",
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        }
+      ]
+    },
+    {
+      "code": "flood_risk",
+      "title": "Подтопление: риск затопления насосной на объекте",
+      "head": "E",
+      "in_product": "LightGBM на объект с насосами, top-5 объектов в сутки по риску, без порога точности и без паузы",
+      "target": "состояние «Затоплен» с каналов насосов объекта в следующие сутки",
+      "label": "label_flood (src/mkl/labels.py), только объекты с насосами; в факте продукта сутки без данных объекта — unknown",
+      "horizon_hours": 24,
+      "limit_per_day": 5,
+      "cooldown_days": 0,
+      "config": "configs/heads.yaml",
+      "evaluations": [
+        {
+          "id": "monthly_refresh_2025_2026",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "days": 364,
+          "method": "temporal",
+          "method_note": "модель на каждый месяц обучена по данным до его начала; политика (лимит, пауза) выбрана на том же периоде из шести вариантов — ретроспективно",
+          "alerts": 1637,
+          "hits": 358,
+          "unknown": 34,
+          "precision_lower_bound": 0.2187,
+          "precision_known_only": 0.2233,
+          "new_hits": 149,
+          "recall": 0.6226,
+          "recall_new": 0.4331,
+          "per_day": 4.5,
+          "positives": 575,
+          "positives_new": 344,
+          "recall_unit": "положительные строки метки за период",
+          "by_month": {
+            "2025-07": {
+              "recommendations": 137,
+              "hits": 32,
+              "unknown": 0,
+              "precision_lower": 0.2336
+            },
+            "2025-08": {
+              "recommendations": 155,
+              "hits": 32,
+              "unknown": 0,
+              "precision_lower": 0.2065
+            },
+            "2025-09": {
+              "recommendations": 114,
+              "hits": 28,
+              "unknown": 0,
+              "precision_lower": 0.2456
+            },
+            "2025-10": {
+              "recommendations": 134,
+              "hits": 16,
+              "unknown": 3,
+              "precision_lower": 0.1194
+            },
+            "2025-11": {
+              "recommendations": 100,
+              "hits": 11,
+              "unknown": 5,
+              "precision_lower": 0.11
+            },
+            "2025-12": {
+              "recommendations": 144,
+              "hits": 20,
+              "unknown": 7,
+              "precision_lower": 0.1389
+            },
+            "2026-01": {
+              "recommendations": 117,
+              "hits": 25,
+              "unknown": 8,
+              "precision_lower": 0.2137
+            },
+            "2026-02": {
+              "recommendations": 140,
+              "hits": 20,
+              "unknown": 5,
+              "precision_lower": 0.1429
+            },
+            "2026-03": {
+              "recommendations": 155,
+              "hits": 49,
+              "unknown": 1,
+              "precision_lower": 0.3161
+            },
+            "2026-04": {
+              "recommendations": 149,
+              "hits": 45,
+              "unknown": 0,
+              "precision_lower": 0.302
+            },
+            "2026-05": {
+              "recommendations": 155,
+              "hits": 39,
+              "unknown": 5,
+              "precision_lower": 0.2516
+            },
+            "2026-06": {
+              "recommendations": 137,
+              "hits": 41,
+              "unknown": 0,
+              "precision_lower": 0.2993
+            }
+          },
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        }
+      ],
+      "comparison": [
+        {
+          "what": "правило «Затоплен сегодня» (n_flood за сутки расчёта), те же 5 в сутки, без паузы",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 1815,
+          "hits": 295,
+          "unknown": 87,
+          "precision_lower_bound": 0.1625,
+          "precision_known_only": 0.1707,
+          "new_hits": 67,
+          "recall": 0.513,
+          "recall_new": 0.1948,
+          "per_day": 4.99,
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        },
+        {
+          "what": "та же модель с паузой 7 суток по объекту",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 424,
+          "hits": 70,
+          "unknown": 12,
+          "precision_lower_bound": 0.1651,
+          "precision_known_only": 0.1699,
+          "new_hits": 32,
+          "recall": 0.1217,
+          "recall_new": 0.093,
+          "per_day": 1.16,
+          "source": "reports/fire_flood_product_cooldown7.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --cooldown 7 --output reports/fire_flood_product_cooldown7.json"
+        },
+        {
+          "what": "та же модель, до 2 в сутки",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 701,
+          "hits": 202,
+          "unknown": 23,
+          "precision_lower_bound": 0.2882,
+          "precision_known_only": 0.2979,
+          "new_hits": 57,
+          "recall": 0.3513,
+          "recall_new": 0.1657,
+          "per_day": 1.93,
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        },
+        {
+          "what": "та же модель, до 3 в сутки",
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "alerts": 1032,
+          "hits": 257,
+          "unknown": 30,
+          "precision_lower_bound": 0.249,
+          "precision_known_only": 0.2565,
+          "new_hits": 85,
+          "recall": 0.447,
+          "recall_new": 0.2471,
+          "per_day": 2.84,
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        }
+      ],
+      "base_rate": [
+        {
+          "period": [
+            "2025-07-01",
+            "2026-06-29"
+          ],
+          "positives": 575,
+          "candidates": 6120,
+          "rate_with_unknown": 0.094,
+          "known": 5955,
+          "known_positives": 575,
+          "rate_known": 0.0966,
+          "note": "rate_with_unknown — доля положительных среди строк метки, сутки без данных считаются отрицательными, как в обучении; rate_known — только строки с данными за следующие сутки",
+          "source": "reports/fire_flood_product.json",
+          "command": "MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json"
+        }
+      ]
     }
   ],
   "runtime": [
@@ -527,34 +933,6 @@
     "command": "python scripts/holdout_uses.py"
   },
   "rejected_setups": [
-    {
-      "id": "B_fire",
-      "what": "пожарный риск участка: текстовое пожарное или газовое тревожное состояние на участке завтра",
-      "limit_per_day": 10,
-      "results": [
-        {
-          "period": [
-            "2025-04-06",
-            "2025-12-31"
-          ],
-          "precision_daily": 0.0637,
-          "note": "среднее трёх окон 2025 года",
-          "source": "reports/fire_history_ablation.json (history)",
-          "command": "python scripts/exp_fire_history.py"
-        },
-        {
-          "period": [
-            "2026-01-01",
-            "2026-06-29"
-          ],
-          "precision_daily": 0.095,
-          "base_rate": 0.0093,
-          "note": "просмотренный период; train_latest.py B при 0,70 порога не нашёл",
-          "source": "reports/fire_2026_check.json",
-          "command": "python scripts/exp_fire_2026_check.py"
-        }
-      ]
-    },
     {
       "id": "C_daily_guard",
       "what": "дневная охранная очередь: записанный охранный сигнал при охране завтра",
@@ -607,26 +985,6 @@
           "rule_precision_daily": 0.0148,
           "source": "reports/a_strict_top1.json",
           "command": "python scripts/exp_a_strict_top1.py"
-        }
-      ]
-    },
-    {
-      "id": "E_flood",
-      "what": "риск подтопления объекта (состояние «Затоплен»)",
-      "limit_per_day": 5,
-      "results": [
-        {
-          "period": [
-            "2026-01-01",
-            "2026-06-30"
-          ],
-          "precision": 0.2552,
-          "recall": 0.6364,
-          "roc_auc": 0.7658,
-          "base_rate": 0.1165,
-          "note": "прежний офлайн-протокол с глобальным бюджетом на период; на текущем коде не перепроверялось",
-          "source": "reports/final_metrics.csv (E); reports/final.md:47",
-          "command": "python scripts/final_eval.py"
         }
       ]
     },
@@ -813,6 +1171,20 @@
       "period": "01.02.2023–22.06.2026, понедельники",
       "source": "ml/reports/GUARD_WEEKLY_INSPECTIONS.md",
       "note": "Очередь сама является правилом. Обученная модель на тех же условиях дала 39 из 50, правило — 39 из 50. База считается от всех объект-недель, включая неизвестный исход."
+    },
+    "fire_risk": {
+      "base_rate": 0.012,
+      "rule_precision": 0.039,
+      "period": "01.07.2025–29.06.2026, модель на каждый месяц",
+      "source": "ml/reports/FIRE_FLOOD_PRODUCT.md",
+      "note": "Простое правило «тревоги участка за 7 суток» с тем же лимитом 10 в сутки, без паузы. Обе величины — по известным исходам: сутки, за которые участок не прислал данных, не входят."
+    },
+    "flood_risk": {
+      "base_rate": 0.097,
+      "rule_precision": 0.171,
+      "period": "01.07.2025–29.06.2026, модель на каждый месяц",
+      "source": "ml/reports/FIRE_FLOOD_PRODUCT.md",
+      "note": "Простое правило «Затоплен сегодня» с тем же лимитом 5 в сутки, без паузы. Обе величины — по известным исходам: сутки, за которые объект не прислал данных, не входят."
     }
   }
 }

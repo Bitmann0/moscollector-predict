@@ -6,9 +6,11 @@ train_latest.refresh по данным на конец суток перед M: 
 задержка модели доходит до 31 суток, а в продукте она не больше 8
 (max_model_lag_days); оценка поэтому не завышена свежестью модели.
 
-Выдача — как в сервисе: top-k за сутки по риску, порог артефакта, пауза 7 суток
-по объекту из собственной выдачи (serve._apply_budget и
-serve.apply_issued_cooldown). Освободившееся место не добирается.
+Выдача — как в сервисе: top-k за сутки по риску, порог артефакта и пауза по
+объекту из собственной выдачи (serve._apply_budget и
+serve.apply_issued_cooldown). В продукте паузы нет (heads.yaml,
+cooldown_days: 0); --cooldown 7 считает вариант с паузой для сравнения.
+Освободившееся место не добирается.
 
 Исход рекомендации (obj[, seg], d) — по суткам d+1, как в mkl.outcomes:
 hit — событие метки (n_fire > 0 на участке у B, n_flood > 0 на объекте у E);
@@ -23,6 +25,7 @@ miss — сущность прислала данные в d+1, события �
 «Затоплен» за сутки расчёта (n_flood).
 
     python scripts/eval_fire_flood_product.py --output reports/fire_flood_product.json
+    python scripts/eval_fire_flood_product.py --cooldown 7 --output reports/fire_flood_product_cooldown7.json
 """
 import argparse
 import datetime as dt
@@ -42,7 +45,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 RULES = {"B": "n_alarms_w7", "E": "n_flood"}
 EVENT = {"B": "n_fire", "E": "n_flood"}
 BUDGETS = {"B": (3, 5, 10), "E": (2, 3, 5)}
-COOLDOWN_DAYS = 7
+COOLDOWN_DAYS = 0
 
 
 def _train_latest():
@@ -185,10 +188,20 @@ def run_head(head: str, first: dt.date, last: dt.date, tl) -> dict:
     today = lab.join(fact.rename({"event": "event_today"}), on=[*ent, "day"], how="left")
     positives_new = int(today.filter((pl.col("y") == 1) &
                                      ~pl.col("event_today").fill_null(False)).height)
+    # База по известным: строки метки, у которых в d+1 есть данные сущности, —
+    # тот же знаменатель, что у точности по известным на экране «Качество».
+    nxt = (lab.with_columns((pl.col("day") + pl.duration(days=1)).alias("t"))
+           .join(fact.rename({"day": "t"}), on=[*ent, "t"], how="left"))
+    known_rows = nxt.filter(pl.col("event").is_not_null())
+    base_known = (round(int(known_rows["y"].sum()) / known_rows.height, 4)
+                  if known_rows.height else None)
     out = {"head": head, "period": [str(first), str(last)], "days": days,
            "label_rows": lab.height, "positives": positives,
            "base_rate": round(positives / lab.height, 4) if lab.height else None,
            "positives_new": positives_new,
+           "known_label_rows": known_rows.height,
+           "known_positives": int(known_rows["y"].sum()),
+           "base_rate_known": base_known,
            "panel_last_day": str(panel_last), "months": months,
            "budgets": {}}
     for budget in BUDGETS[head]:
