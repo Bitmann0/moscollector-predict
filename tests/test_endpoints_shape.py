@@ -197,8 +197,10 @@ def test_notifications_read_flag(seeded, admin):
     assert admin.post(f"{API}/notifications/999999/read").status_code == 404
 
 
-def test_work_order_manual_create_and_transition(admin, ids):
-    forecast = ids["forecast_id"]
+def test_work_order_manual_create_and_transition(admin, ran):
+    # Прогноз без заявки: на прогноз из ML-черновика POST вернёт сам черновик.
+    forecast = next(f["id"] for f in admin.get(f"{API}/forecasts").json()["items"]
+                    if f["work_order_id"] is None)
     first = admin.post(f"{API}/work-orders", json={"forecast_ids": [forecast]})
     assert first.status_code == 201
     card = first.json()
