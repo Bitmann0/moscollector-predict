@@ -30,7 +30,8 @@ function scenarioParam(value: string | null): Scenario | undefined { return SCEN
 function oneOf<T extends string>(value: string | null, values: readonly T[]): T | undefined { return values.find((item) => item === value); }
 function objectKey(item: Forecast): string { return item.object.id ?? item.object.name ?? `unknown:${item.id}`; }
 function decisionLabel(code: string): string { return DECISION_LABEL[code] ?? title("action", code); }
-function scoreValue(item: Forecast): string { if (item.score_type !== "probability") return fmtNumber(item.priority_score); return item.risk === null || item.risk === undefined ? "—" : PROBABILITY.format(item.risk); }
+// Приоритет — тем же форматом с двумя знаками, что и вероятность: колонка «Оценка» одна.
+function scoreValue(item: Forecast): string { const value = item.score_type === "probability" ? item.risk : item.priority_score; return value === null || value === undefined ? "—" : PROBABILITY.format(value); }
 
 /** Понедельник недели строки, как его считает backend. Дата без часового пояса браузера: asof — день по МСК. */
 function weekStart(asof: string): string {

@@ -1,5 +1,5 @@
 /**
- * Единый показ состояний экрана и сценария. Отдельные экраны сценариев — FE-10.
+ * Единый показ состояний экрана и сценария.
  *
  * Коды результата расчёта (ok, empty_valid, no_data, stale, error) и их заголовки —
  * из vocabularies.json → result_status. threshold_infeasible — голова, у которой
@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 import type { Load } from "../api/useLoad";
 import { title, type ResultStatus } from "../vocab";
 
-export type ViewState =
+type ViewState =
   | ResultStatus
   | "threshold_infeasible"
   | "not_run"

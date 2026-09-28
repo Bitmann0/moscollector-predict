@@ -108,6 +108,8 @@ export function Events() {
   useReloadOn(["alert.new", "event.alarm"], load.reload, { enabled: auto });
   const filtered = Boolean(from || to || obj || sensorType || cls || group || q);
   function update(key: string, value?: string | number) {
+    // Уход фокуса из поля без правки не должен сбрасывать страницу журнала.
+    if (key !== "page" && (value === undefined ? "" : String(value)) === (params.get(key) ?? "")) return;
     const next = new URLSearchParams(params);
     if (!value || (key === "page" && value === 1)) next.delete(key); else next.set(key, String(value));
     if (key !== "page") next.delete("page");

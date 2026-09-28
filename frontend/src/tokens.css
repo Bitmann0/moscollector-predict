@@ -87,8 +87,6 @@
   --warn-bg: var(--warn-tint);     --warn-text: var(--warn-ink);
   --bad-bg: var(--crit-tint);      --bad-text: var(--crit-ink);
   --muted-bg: var(--surface-sunken); --muted-text: var(--text-2);
-  --topbar: var(--nav-bg);         --topbar-text: var(--nav-text);
-  --blue: var(--data);             --mint: var(--positive);
 }
 
 /* Тёмная тема: своя ступень тех же тонов, а не инверсия. Действует по системной

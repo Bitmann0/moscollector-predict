@@ -29,7 +29,7 @@ export function ToastCenter() {
   // Стабильная ссылка: иначе каждое новое событие потока перезапускало таймеры всех тостов.
   const dismiss = useCallback((seq: number) => setVisible((items) => items.filter((item) => item.seq !== seq)), []);
 
-  if (!visible.length) return null;
+  // Живая область стоит в DOM всегда: появившуюся вместе с первым тостом скринридер не озвучивает.
   return <div className="toast-stack" aria-live="polite">{visible.map((event) => <Toast key={event.seq} event={event} dismiss={dismiss} />)}</div>;
 }
 

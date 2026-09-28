@@ -99,7 +99,7 @@ function WeeklyPrecision({ weeks, base }: { weeks: Week[]; base: number | null }
         const empty = week.issued === 0 ? "нет прогнозов" : "исходы неизвестны";
         const detail = [...(week.precision != null ? [`точность ${fmtPercent(week.precision)}`, `${count(week.hit, "попадание", "попадания", "попаданий")}, ${count(week.miss, "промах", "промаха", "промахов")}`] : [empty]), ...(week.unknown > 0 ? [`${fmtNumber(week.unknown)} неизвестно`] : [])];
         // Подсказка встаёт сбоку от столбца, к середине графика: не закрывает столбец и не вылезает за край экрана.
-        return <div key={week.week_start} className={`quality-bars__slot${index >= weeks.length / 2 ? " quality-bars__slot--end" : ""}`} tabIndex={0} aria-label={`${range}: ${detail.join(", ")}`}>
+        return <div key={week.week_start} className={`quality-bars__slot${index >= weeks.length / 2 ? " quality-bars__slot--end" : ""}`} tabIndex={0} role="img" aria-label={`${range}: ${detail.join(", ")}`}>
           {week.precision != null ? <b className="quality-bars__bar" style={{ height: `${week.precision * 100}%` }}><span>{fmtPercent(week.precision)}</span></b> : <em>{empty}</em>}
           <span className="quality-bars__tip" aria-hidden="true"><strong>{range}</strong>{detail.map((line) => <span key={line}>{line}</span>)}</span>
         </div>;

@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState, type DependencyList } from "r
 
 import { errorText } from "./client";
 
-export type LoadState<T> =
+type LoadState<T> =
   | { status: "loading"; data?: T }
   | { status: "error"; message: string; data?: T }
   | { status: "ok"; data: T };
