@@ -35,7 +35,6 @@ export function Layout() {
   const location = useLocation();
   const mobileMore = useRef<HTMLDetailsElement>(null);
   const { unread, connection } = useStream();
-  const connected = connection === "open";
   const status = useLoad(() => api.GET("/api/v1/system/status"), []);
   useReloadOn(["run.finished", "alert.new"], status.reload);
   const closeMore = () => { if (mobileMore.current) mobileMore.current.open = false; };
@@ -50,7 +49,9 @@ export function Layout() {
     document.addEventListener("pointerdown", onPointer);
     return () => document.removeEventListener("pointerdown", onPointer);
   }, []);
-  const connectionText = connected ? "Поток данных подключён" : "Переподключение…";
+  // Та же точка и тот же текст, что в строке статуса: иначе при переподключении
+  // шапка говорила «переподключается» жёлтым, а меню — другими словами.
+  const live = liveState(status.data, status.status === "error" && !status.data, connection);
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand-lockup"><div className="brand-mark"><Icon name="activity" /></div><div><strong>Москоллектор</strong><span>Рабочее место ОДС</span></div></div>
@@ -61,7 +62,7 @@ export function Layout() {
         </NavLink>)}
       </nav>
       <div className="sidebar__footer">
-        <div className={`connection ${connected ? "connection--ok" : ""}`} title={connectionText}><i /><span>{connectionText}</span></div>
+        <div className={`connection connection--${live.tone}`} title={live.text}><i /><span>{live.text}</span></div>
         {user && <div className="profile"><div className="avatar" title={`${user.name} · ${title("roles", user.role)}`}>{user.name.slice(0, 1).toUpperCase()}</div><div><strong>{user.name}</strong><span>{title("roles", user.role)}</span></div><button type="button" onClick={() => void logout()} title="Выйти" aria-label="Выйти"><Icon name="logout" /></button></div>}
       </div>
     </aside>

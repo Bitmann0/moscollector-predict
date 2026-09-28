@@ -48,4 +48,4 @@ def weekly(db: Session, scenario: str) -> QualityOut:
                       rule_precision=ref.get("rule_precision"),
                       reference_period=ref.get("period"), reference_source=ref.get("source"),
                       reference_note=ref.get("note"),
-                      note="Автоматические исходы СМВУ; unknown не считается промахом.", source="live")
+                      note="Исходы определены автоматически по журналу СМВУ; «неизвестно» не считается промахом.", source="live")
