@@ -1,8 +1,11 @@
 """Пересобирает содержимое contracts/ из кода. Живое.
 
     python scripts/export_contracts.py                 # схемы и фикстуры
-    python scripts/export_contracts.py --schemas-only  # только схемы
+    python scripts/export_contracts.py --schemas-only  # только схемы (OpenAPI, C1, XSD)
     python scripts/export_contracts.py --strict        # CI: неготовая заглушка — ошибка
+
+XSD ответов и приёма в XML (ТЗ §7) — contracts/xml/api_v1_responses.xsd и
+api_v1_ingest.xsd, из тех же pydantic-моделей (backend/app/xml_api.py).
 
 CI запускает скрипт и падает, если после него `git diff contracts/` не пуст:
 поменял схему — перегенерируй и закоммить, потребитель увидит изменение в PR.
@@ -84,6 +87,15 @@ def write_fixture(name: str, data) -> None:
 def export_openapi() -> None:
     from app.main import create_app
     write_json(CONTRACTS / "api_v1.openapi.json", create_app().openapi())
+
+
+def export_xml_schemas() -> None:
+    from app import xml_api
+    for name, content in [(xml_api.RESPONSES_XSD, xml_api.response_xsd()),
+                          (xml_api.INGEST_XSD, xml_api.ingest_xsd())]:
+        path = ROOT / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
 
 
 def export_ml_schema() -> None:
@@ -226,7 +238,8 @@ def main() -> int:
     args = parser.parse_args()
     export_openapi()
     export_ml_schema()
-    print("схемы: contracts/api_v1.openapi.json, contracts/ml_v1.schema.json")
+    export_xml_schemas()
+    print("схемы: contracts/api_v1.openapi.json, contracts/ml_v1.schema.json, contracts/xml/*.xsd")
     if args.schemas_only:
         return 0
 

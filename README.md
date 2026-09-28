@@ -224,6 +224,26 @@ p50 и p95 каждого запроса — колонки «50%» и «95%» �
 разработчика: медиана ответа 64 мс, p95 400 мс, одна ошибка из 4 339 запросов
 ([docs/submission/08-performance.md](docs/submission/08-performance.md), «Нагрузка»).
 
+## XML в API
+
+JSON — формат по умолчанию. Журнал прогнозов, заявки, события, `/system/status` и
+`/quality` отдают XML по заголовку `Accept: application/xml`; `POST /api/v1/ingest/events`
+и `/ingest/ods-journal` принимают XML с `Content-Type: application/xml`. Правила
+отображения — [docs/submission/02-architecture.md](docs/submission/02-architecture.md),
+раздел 8 «Форматы JSON и XML»; схемы XSD — `contracts/xml/`.
+
+```bash
+# пачка событий из примера, ответ тоже в XML
+curl -X POST "http://127.0.0.1:8000/api/v1/ingest/events?notify=false" \
+  -H "X-API-Key: $INTEGRATION_API_KEY" -H "Content-Type: application/xml" \
+  -H "Accept: application/xml" --data-binary @scripts/examples/ingest_events.xml
+# журнал прогнозов в XML: у integration нет права view, читает демо-пользователь
+curl -c /tmp/mk.cookies -H "Content-Type: application/json" \
+  -d "{\"login\": \"dispatcher\", \"password\": \"$DEMO_PASSWORD\"}" \
+  http://127.0.0.1:8000/api/v1/auth/login
+curl -b /tmp/mk.cookies -H "Accept: application/xml" "http://127.0.0.1:8000/api/v1/forecasts?page_size=2"
+```
+
 ## Режим разработки
 
 Python 3.12, Node 22. Для запуска без Docker добавьте в `.env` две строки — compose их

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified">
+  <xs:annotation>
+    <xs:documentation>Тела POST /api/v1/ingest/events и /api/v1/ingest/ods-journal в XML (Content-Type: application/xml). Имена элементов — ключи JSON-пачки. Файл собирает scripts/export_contracts.py; разбор — backend/app/xml_api.py.</xs:documentation>
+  </xs:annotation>
+  <xs:element name="EventRowInList">
+    <xs:annotation>
+      <xs:documentation>POST /api/v1/ingest/events</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="EventRowIn" type="EventRowIn" minOccurs="0" maxOccurs="5000" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OdsRowInList">
+    <xs:annotation>
+      <xs:documentation>POST /api/v1/ingest/ods-journal</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="OdsRowIn" type="OdsRowIn" minOccurs="0" maxOccurs="5000" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="EventRowIn">
+    <xs:all>
+      <xs:element name="ид_события" type="xs:long" />
+      <xs:element name="ид_канала_данных" type="xs:long" />
+      <xs:element name="дата" type="xs:string" />
+      <xs:element name="время" type="xs:string" />
+      <xs:element name="тревожное" type="xs:string" />
+      <xs:element name="значение_датчика" minOccurs="0" nillable="true" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="OdsRowIn">
+    <xs:all>
+      <xs:element name="ts" type="xs:dateTime" />
+      <xs:element name="obj_id" minOccurs="0" nillable="true" type="xs:string" />
+      <xs:element name="record_type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="decision" minOccurs="0" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="64" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="reason" minOccurs="0" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="2000" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+</xs:schema>

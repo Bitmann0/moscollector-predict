@@ -12,3 +12,5 @@ Caddyfile text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
 *.ttf binary
+*.xml text eol=lf
+*.xsd text eol=lf
