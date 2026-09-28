@@ -180,6 +180,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forecasts/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Summary */
+        get: operations["summary_api_v1_forecasts_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/forecasts/{forecast_id}": {
         parameters: {
             query?: never;
@@ -994,6 +1011,39 @@ export interface components {
             valid_to: string;
             /** Work Order Id */
             work_order_id?: string | null;
+        };
+        /** ForecastSummary */
+        ForecastSummary: {
+            /**
+             * Weeks
+             * @description Итог журнала по неделям при тех же фильтрах и группировке, что у GET /forecasts, по всем строкам, а не по странице. По возрастанию week_start; недели без строк не возвращаются
+             */
+            weeks: components["schemas"]["ForecastWeek"][];
+        };
+        /** ForecastWeek */
+        ForecastWeek: {
+            /**
+             * Decided
+             * @description Прогнозы с принятым решением диспетчера
+             */
+            decided: number;
+            /** Hit */
+            hit: number;
+            /** Issued */
+            issued: number;
+            /** Miss */
+            miss: number;
+            /**
+             * Unknown
+             * @description Исход unknown или ещё не определён (окно не закрыто) — как на экране «Качество»
+             */
+            unknown: number;
+            /**
+             * Week Start
+             * Format: date
+             * @description Понедельник недели. Неделя — по asof, дате расчёта по МСК, с понедельника по воскресенье
+             */
+            week_start: string;
         };
         /** GeoFeature */
         GeoFeature: {
@@ -2095,6 +2145,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_ForecastItem_"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description У роли нет требуемого права */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summary_api_v1_forecasts_summary_get: {
+        parameters: {
+            query?: {
+                scenario?: ("sensor_link" | "equipment_diag" | "guard_weekly") | null;
+                from?: string | null;
+                to?: string | null;
+                decision?: ("none" | "any" | "dispatch_crew" | "remote_check" | "defer" | "reject") | null;
+                outcome?: ("hit" | "miss" | "unknown") | null;
+                obj?: string | null;
+                group_by?: ("obj" | "case_key") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForecastSummary"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */

@@ -1,5 +1,7 @@
-"""Фильтруемый журнал прогнозов и карточка с историей, событиями и решениями."""
+"""Журнал прогнозов, его итог по неделям и карточка с историей, событиями и решениями."""
+from collections.abc import Iterable
 from datetime import date, timedelta
+from operator import attrgetter
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -13,8 +15,11 @@ from ..schemas.forecasts import (
     FactorItem,
     ForecastCard,
     ForecastItem,
+    ForecastSummary,
+    ForecastWeek,
     VersionItem,
 )
+from . import quality
 from .helpers import Refs, count, from_db, msk_midnight, page_of, to_db
 
 WEEKDAYS_RU = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота",
@@ -74,48 +79,91 @@ def _items(db: Session, rows: list[models.Forecast]) -> list[ForecastItem]:
     return items
 
 
-def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
-                   date_to: date | None, decision: str | None, outcome: str | None,
-                   obj: str | None, group_by: str | None, page: int,
-                   page_size: int) -> Page[ForecastItem]:
-    stmt = select(models.Forecast).where(models.Forecast.in_budget.is_(True))
+def _filters(*, scenario: str | None, date_from: date | None, date_to: date | None,
+             decision: str | None, outcome: str | None, obj: str | None) -> list:
+    """Условия журнала: одни на список и на итог, чтобы итог считал ровно строки списка."""
+    clauses = [models.Forecast.in_budget.is_(True)]
     if scenario is not None:
-        stmt = stmt.where(models.Forecast.scenario == scenario)
+        clauses.append(models.Forecast.scenario == scenario)
     if date_from is not None:
-        stmt = stmt.where(models.Forecast.asof >= date_from)
+        clauses.append(models.Forecast.asof >= date_from)
     if date_to is not None:
-        stmt = stmt.where(models.Forecast.asof <= date_to)
+        clauses.append(models.Forecast.asof <= date_to)
     if obj is not None:
-        stmt = stmt.where(models.Forecast.obj_id == obj)
+        clauses.append(models.Forecast.obj_id == obj)
     if decision == "none":
-        stmt = stmt.where(~models.Forecast.id.in_(select(models.Decision.forecast_id)))
+        clauses.append(~models.Forecast.id.in_(select(models.Decision.forecast_id)))
     elif decision == "any":
-        stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id)))
+        clauses.append(models.Forecast.id.in_(select(models.Decision.forecast_id)))
     elif decision is not None:
         # Фильтр по последнему решению — тому, что строка журнала показывает в колонке.
         # Решения пишутся по порядку, поэтому последнее — с наибольшим id.
         latest = select(func.max(models.Decision.id)).group_by(models.Decision.forecast_id)
-        stmt = stmt.where(models.Forecast.id.in_(select(models.Decision.forecast_id).where(
+        clauses.append(models.Forecast.id.in_(select(models.Decision.forecast_id).where(
             models.Decision.id.in_(latest), models.Decision.action == decision)))
     if outcome is not None:
-        stmt = stmt.where(models.Forecast.id.in_(select(models.Outcome.forecast_id).where(
+        clauses.append(models.Forecast.id.in_(select(models.Outcome.forecast_id).where(
             (models.Outcome.outcome_auto == outcome) | (models.Outcome.outcome_manual == outcome))))
-    ordered = stmt.order_by(models.Forecast.asof.desc(), models.Forecast.rank,
-                            models.Forecast.id)
+    return clauses
+
+
+JOURNAL_ORDER = (models.Forecast.asof.desc(), models.Forecast.rank, models.Forecast.id)
+
+
+def _first_per_group(rows: Iterable, group_by: str | None) -> list:
+    """Группировка журнала: первая строка группы в порядке JOURNAL_ORDER — последний прогноз."""
+    if not group_by:
+        return list(rows)
+    key = attrgetter("obj_id" if group_by == "obj" else "case_key")
+    out, seen = [], set()
+    for row in rows:
+        if key(row) not in seen:
+            out.append(row)
+            seen.add(key(row))
+    return out
+
+
+def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
+                   date_to: date | None, decision: str | None, outcome: str | None,
+                   obj: str | None, group_by: str | None, page: int,
+                   page_size: int) -> Page[ForecastItem]:
+    stmt = select(models.Forecast).where(*_filters(
+        scenario=scenario, date_from=date_from, date_to=date_to, decision=decision,
+        outcome=outcome, obj=obj))
+    ordered = stmt.order_by(*JOURNAL_ORDER)
     if group_by:
-        grouped: list[models.Forecast] = []
-        seen: set[str | None] = set()
-        for row in db.scalars(ordered):
-            key = row.obj_id if group_by == "obj" else row.case_key
-            if key not in seen:
-                grouped.append(row)
-                seen.add(key)
+        grouped = _first_per_group(db.scalars(ordered), group_by)
         total = len(grouped)
         rows = grouped[(page - 1) * page_size:page * page_size]
     else:
         total = count(db, stmt)
         rows = list(db.scalars(ordered.offset((page - 1) * page_size).limit(page_size)))
     return page_of(ForecastItem, _items(db, rows), total, page, page_size)
+
+
+def summary(db: Session, *, scenario: str | None, date_from: date | None,
+            date_to: date | None, decision: str | None, outcome: str | None,
+            obj: str | None, group_by: str | None) -> ForecastSummary:
+    """Итог журнала по неделям: строки те же, что у list_forecasts, но все, а не страница.
+
+    Неделя — понедельник–воскресенье по asof. asof — дата расчёта по МСК (C1), поэтому
+    пояса пересчитывать не нужно. Попадания, промахи и неизвестные считает quality.tally,
+    как на экране «Качество». Недели без строк не возвращаются: журнал их не покажет.
+    """
+    stmt = (select(models.Forecast.asof, models.Forecast.obj_id, models.Forecast.case_key,
+                   models.Outcome.outcome_auto,
+                   models.Forecast.id.in_(select(models.Decision.forecast_id)).label("decided"))
+            .outerjoin(models.Outcome, models.Outcome.forecast_id == models.Forecast.id)
+            .where(*_filters(scenario=scenario, date_from=date_from, date_to=date_to,
+                             decision=decision, outcome=outcome, obj=obj))
+            .order_by(*JOURNAL_ORDER))
+    weeks: dict[date, list] = {}
+    for row in _first_per_group(db.execute(stmt), group_by):
+        weeks.setdefault(quality.monday(row.asof), []).append(row)
+    return ForecastSummary(weeks=[
+        ForecastWeek(week_start=start, **quality.tally(r.outcome_auto for r in rows),
+                     decided=sum(bool(r.decided) for r in rows))
+        for start, rows in sorted(weeks.items())])
 
 
 def _dynamics(db: Session, row: models.Forecast) -> list[DynamicsPoint]:

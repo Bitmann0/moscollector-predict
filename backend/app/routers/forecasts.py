@@ -11,6 +11,7 @@ from ..schemas.forecasts import (
     DecisionOut,
     ForecastCard,
     ForecastItem,
+    ForecastSummary,
     OutcomeIn,
     OutcomeOut,
 )
@@ -39,6 +40,23 @@ def list_forecasts(
     return forecasts.list_forecasts(db, scenario=scenario, date_from=date_from, date_to=date_to,
                                     decision=decision, outcome=outcome, obj=obj,
                                     group_by=group_by, page=page, page_size=page_size)
+
+
+# Объявлен раньше /forecasts/{forecast_id}, иначе «summary» уйдёт в карточку как id прогноза.
+@router.get("/forecasts/summary", response_model=ForecastSummary,
+            dependencies=[Depends(require_perm("view"))])
+def summary(
+    scenario: Scenario | None = None,
+    date_from: date | None = Query(None, alias="from"),
+    date_to: date | None = Query(None, alias="to"),
+    decision: DecisionFilter | None = None,
+    outcome: OutcomeAuto | None = None,
+    obj: str | None = None,
+    group_by: Literal["obj", "case_key"] | None = None,
+    db: Session = Depends(get_db),
+) -> ForecastSummary:
+    return forecasts.summary(db, scenario=scenario, date_from=date_from, date_to=date_to,
+                             decision=decision, outcome=outcome, obj=obj, group_by=group_by)
 
 
 @router.get("/forecasts/{forecast_id}", response_model=ForecastCard,

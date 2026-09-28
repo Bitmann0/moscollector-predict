@@ -8,6 +8,7 @@
 | `dashboard.py` | `summary(db) -> DashboardSummary` | живое | BE-05 |
 | `forecasts.py` | `list_forecasts(db, *, scenario, date_from, date_to, decision, outcome, obj, group_by, page, page_size) -> Page[ForecastItem]` | живое | BE-05 |
 | `forecasts.py` | `get_card(db, forecast_id) -> ForecastCard \| None` | живое | BE-05 |
+| `forecasts.py` | `summary(db, *, scenario, date_from, date_to, decision, outcome, obj, group_by) -> ForecastSummary` | живое | FE-03 |
 | `decisions.py` | `create(db, forecast_id, body: DecisionIn, user) -> DecisionOut` | живое | BE-06 |
 | `decisions.py` | `set_outcome(db, forecast_id, body: OutcomeIn, user) -> OutcomeOut` | живое | BE-06 |
 | `reference.py` | `reason_codes(db) -> list[ReasonCodeOut]` | живое | BE-03 |
