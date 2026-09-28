@@ -237,6 +237,8 @@ button, input, select, textarea { font-family: inherit; }
 .filter-panel>*,.orders-filters>*{min-width:0}
 .field input,.field select,.field textarea{width:100%;min-width:0;max-width:100%}
 .page-head__actions .button{white-space:nowrap}
+/* Три кнопки дашборда («Отчёт PDF», «Обновить», «Открыть очередь») на 390 px шире экрана: переносим строкой ниже. */
+.page-head__actions{flex-wrap:wrap;max-width:100%}
 .page-head>div:first-child{min-width:0}
 
 /* Планшет: подвал бокового меню сжат до точки потока, аватара и выхода — иначе выйти было нечем */
@@ -253,7 +255,8 @@ button, input, select, textarea { font-family: inherit; }
   .statusbar__main>*{flex:none}
   .statusbar__main>.statusbar__mode{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 }
-@media(max-width:1280px){
+/* Пять сценариев в строке статуса занимают около 1 100 px: до 1680 px они идут второй строкой, иначе на 1440 обрезаются. */
+@media(max-width:1680px){
   .statusbar{flex-wrap:wrap;row-gap:8px}
   .statusbar__heads{order:3;width:100%;margin-left:0;overflow:visible;flex-wrap:wrap;row-gap:6px}
   .statusbar>.theme-toggle{margin-left:auto}
