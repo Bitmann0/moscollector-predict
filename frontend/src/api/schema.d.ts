@@ -2063,6 +2063,9 @@ export interface operations {
                 hide_normal_gas?: boolean;
                 /** @description Группа аварии: пожар, наводнение, газ, проникновение, аномальная температура */
                 incident_group?: ("fire" | "flood" | "gas" | "intrusion" | "temperature") | null;
+                /** @description Колонка: время, объект, тип датчика, событие датчика, тип события. Кроме ts — только при from и to не шире 7 суток, иначе 422 sort_needs_range */
+                sort?: "ts" | "object" | "sensor_type" | "sensor_event" | "event_class";
+                order?: "asc" | "desc";
             };
             header?: never;
             path?: never;
