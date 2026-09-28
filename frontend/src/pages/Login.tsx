@@ -7,6 +7,7 @@ import { useState, type FormEvent } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 import { useAuth, type LoginRedirectState } from "../auth/AuthContext";
+import { Icon } from "../components/Icons";
 import { StateView } from "../components/StateView";
 
 export function Login() {
@@ -39,7 +40,7 @@ export function Login() {
   return (
     <div className="login">
       <form className="login__form" onSubmit={(event) => void submit(event)}>
-        <div className="login__brand"><span>МК</span><div><h1>Москоллектор</h1><small>Рабочее место ОДС</small></div></div>
+        <div className="login__brand"><span><Icon name="activity" /></span><div><h1>Москоллектор</h1><small>Рабочее место ОДС</small></div></div>
         <p className="muted">Единое рабочее место предиктивной эксплуатации инженерной инфраструктуры</p>
         <label className="field">
           <span>Логин</span>

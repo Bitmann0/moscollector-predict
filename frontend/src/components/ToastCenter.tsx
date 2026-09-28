@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { fmtDateTime } from "../format";
-import { useStream, type StreamEvent } from "../stream/useStream";
+import { KIND_TITLES, useStream, type StreamEvent } from "../stream/useStream";
 import { Icon } from "./Icons";
 
 function linkOf(event: StreamEvent): string | null {
@@ -36,6 +36,7 @@ function Toast({ event, dismiss }: { event: StreamEvent; dismiss: (seq: number) 
   const close = () => dismiss(event.seq);
   useEffect(() => { const timer = window.setTimeout(() => dismiss(event.seq), event.severity === "critical" ? 10000 : 6500); return () => window.clearTimeout(timer); }, [dismiss, event.seq, event.severity]);
   const link = linkOf(event);
-    const body = <><div className="toast__icon"><Icon name={event.kind === "workorder.changed" ? "wrench" : event.kind === "alert.new" ? "forecast" : "bell"} /></div><div><span>{fmtDateTime(event.ts)}</span><strong>{event.title}</strong><small>{event.severity === "critical" ? "Требует немедленного внимания" : "Новое событие системы"}</small></div></>;
+  // Подпись — вид события: заголовок сервера («Заявка WO-…», «Расчёт за …») сам не говорит, что случилось.
+  const body = <><div className="toast__icon"><Icon name={event.kind === "workorder.changed" ? "wrench" : event.kind === "alert.new" ? "forecast" : "bell"} /></div><div><span>{fmtDateTime(event.ts)}</span><strong>{event.title}</strong><small>{event.severity === "critical" ? "Требует немедленного внимания" : KIND_TITLES[event.kind]}</small></div></>;
   return <article className={`toast toast--${event.severity}`}>{link ? <Link to={link} onClick={close}>{body}</Link> : <div className="toast__body">{body}</div>}<button type="button" onClick={close} aria-label="Закрыть">×</button></article>;
 }
