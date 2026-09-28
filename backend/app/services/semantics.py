@@ -245,10 +245,6 @@ def series_key(group: str | None, obj_id: str | None, complex_id: str | None) ->
     return None
 
 
-def series_hint(group: str, detectors: int, rules: Rules = DEFAULT_RULES) -> str:
-    return rules.series_hint(group, detectors)
-
-
 def _working_time(ts: datetime, rules: Rules = DEFAULT_RULES) -> bool:
     local = ts.astimezone(MSK)
     start, end = rules.work_hours

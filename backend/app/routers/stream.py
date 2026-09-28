@@ -53,7 +53,7 @@ async def stream(request: Request) -> StreamingResponse:
                 try:
                     event = await asyncio.wait_for(queue.get(), timeout=HEARTBEAT_S)
                 except TimeoutError:
-                    # Событие, а не SSE-комментарий: фронт его видит и ловит зависшее соединение.
+                    # Событие, а не SSE-комментарий: поток не простаивает, прокси его не рвёт. Фронт ping не слушает.
                     yield _frame("ping", {})
                     continue
                 yield _frame(event["kind"], event)

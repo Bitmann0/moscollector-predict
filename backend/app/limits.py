@@ -3,8 +3,9 @@
 FastAPI читает тело раньше, чем проверяет вход: без предела анонимный клиент
 может загрузить гигабайты во временные файлы и память до ответа 401. Поэтому
 предел стоит самым внешним ASGI-слоем: 413 по Content-Length сразу, а для
-chunked-передачи — как только счётчик байтов превысит предел. На стенде тот же
-предел повторяет Caddy (deploy/Caddyfile: request_body max_size).
+chunked-передачи — как только счётчик байтов превысит предел. На стенде Caddy
+отсекает раньше: request_body max_size 200MB — это 200 000 000 байт, а
+UPLOAD_MAX_BYTES — 209 715 200 (deploy/Caddyfile).
 """
 import json
 
@@ -13,10 +14,6 @@ UPLOAD_MAX_BYTES = 200 * 1024 * 1024   # файл журнала СМВУ (route
 DEFAULT_MAX_BYTES = 10 * 1024 * 1024   # всё остальное: JSON-пачки до 5 000 строк
 INGEST_PREFIX = "/api/v1/ingest/"
 SESSION_COOKIE = "mk_session"
-
-
-class BodyTooLarge(Exception):
-    pass
 
 
 def limit_for(path: str) -> int:
@@ -77,9 +74,6 @@ class BodyLimitMiddleware:
 
         try:
             await self.app(scope, limited_receive, guarded_send)
-        except BodyTooLarge:  # на случай, если слой ниже всё же пробросит переполнение
-            if not started and not rejected:
-                await _send_json(send, 413, "request_too_large")
         except Exception:
             if not rejected:
                 raise

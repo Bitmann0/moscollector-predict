@@ -1,6 +1,6 @@
-# Сигнатуры сервисов backend (для задачи 3)
+# Сигнатуры сервисов backend
 
-Роутеры (`backend/app/routers/*.py`) уже вызывают эти функции. Задача 3 заменяет `raise NotImplementedError` заглушкой или живым минимумом по таблице спецификации. **Сигнатуры не менять.**
+Роутеры (`backend/app/routers/*.py`) вызывают эти функции. Таблица осталась от каркаса (PR #10); с тех пор все функции живые. **Сигнатуры не менять:** на них опираются роутеры и тесты.
 
 | Модуль | Функция | Уровень | Владелец |
 |---|---|---|---|
@@ -21,15 +21,17 @@
 | `events.py` | `list_events(db, *, date_from, date_to, obj, sensor_type, event_class, q, page, page_size, hide_normal_gas=False, incident_group=None, sort="ts", order="desc") -> Page[EventItem]` — `sort` кроме `ts` роутер пускает только при `sort_range_ok` | живое | ML2-03 |
 | `ingest.py` | `ingest_rows(db, rows: list[EventRowIn], user, *, notify: bool = True) -> IngestBatchOut` | живое | ML2-03 |
 | `ingest.py` | `ingest_file(db, filename: str, content: bytes, user, *, notify: bool = True) -> IngestBatchOut` | живое | ML2-03 |
-| `ingest.py` | `mark_series(db, fresh: list[Event], channels: dict[int, ChannelInfo]) -> int` — подсказка серии ППР/ТО новым событиям пачки до `db.add` и UPDATE уже записанных; возвращает число обновлённых | живое | ML2-01 |
+| `ingest.py` | `mark_series(db, fresh: list[Event], channels: dict[int, ChannelInfo], rules=DEFAULT_RULES) -> int` — подсказка серии ППР/ТО новым событиям пачки до `db.add` и UPDATE уже записанных; возвращает число обновлённых | живое | ML2-01 |
 | `ingest.py` | `reset_day(db, day: date, user) -> ResetDayOut` | живое | ML2-03 |
 | `ingest.py` | `ingest_ods(db, rows: list[OdsRowIn], user) -> IngestBatchOut` | живое | BE-06 |
 | `ingest.py` | `list_batches(db, page, page_size) -> Page[IngestBatchOut]` | живое | ML2-03 |
-| `semantics.py` | `classify(sensor_type, val_raw, val_num, alarm, *, ts=None) -> Verdict` — (event_class, hint, incident_group); `ts` нужен для подсказки «вероятно, ППР или ТО» о газе в рабочие часы | живое | ML2-01 |
-| `semantics.py` | `series_hints(events: Iterable[SeriesEvent]) -> dict[ref, str]` — подсказка серии ППР/ТО по событиям групп `fire` и `gas` | живое | ML2-01 |
+| `semantics.py` | `classify(sensor_type, val_raw, val_num, alarm, *, ts=None, rules=DEFAULT_RULES) -> Verdict` — (event_class, hint, incident_group); `ts` нужен для подсказки «вероятно, ППР или ТО» о газе в рабочие часы | живое | ML2-01 |
+| `semantics.py` | `series_hints(events: Iterable[SeriesEvent], rules=DEFAULT_RULES) -> dict[ref, str]` — подсказка серии ППР/ТО по событиям групп `fire` и `gas` | живое | ML2-01 |
 | `geo.py` | `schema_geojson(db, complex_id) -> FeatureCollection` | живое | ML1-11 |
 | `geo.py` | `schema_wkt(db, complex_id) -> str` | живое | ML1-11 |
 | `quality.py` | `weekly(db, scenario) -> QualityOut` | живое | BE-05 |
+| `parameters.py` | `load(db, *, for_update=False) -> State`, `out(state) -> ParametersOut`, `put(db, body: ParametersIn, login) -> (ParametersOut, dict)` — параметры «Настроек» | живое | ML2-13 |
+| `reclassify.py` | `reclassify_period(db, body: ReclassifyIn) -> ReclassifyOut` — пересчёт классов событий за период после смены параметров | живое | ML2-13 |
 | `notifications.py` | `list_notifications(db, user, page, page_size) -> Page[NotificationItem]` | живое | BE-08 |
 | `notifications.py` | `mark_read(db, notification_id, user) -> None` | живое | BE-08 |
 | `export.py` | `forecasts_xlsx(db, date_from, date_to) -> bytes` | живое | BE-11 |

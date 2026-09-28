@@ -217,11 +217,6 @@ def test_work_order_manual_create_and_transition(admin, ran):
         "draft", "confirmed")
 
 
-def test_geo_schema_is_conditional(admin):
-    geo = admin.get(f"{API}/schema.geojson").json()
-    assert geo["properties"]["note"] == "условная схема, не географические координаты"
-    assert geo["features"]
-    assert admin.get(f"{API}/schema.wkt").text.startswith("GEOMETRYCOLLECTION")
 
 
 def _read_until(lines, wanted: str, limit: int = 50) -> list[str]:

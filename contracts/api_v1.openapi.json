@@ -683,10 +683,14 @@
             "title": "Значение Датчика"
           },
           "ид_канала_данных": {
+            "exclusiveMaximum": 9.223372036854776e+18,
+            "minimum": -9.223372036854776e+18,
             "title": "Ид Канала Данных",
             "type": "integer"
           },
           "ид_события": {
+            "exclusiveMaximum": 9.223372036854776e+18,
+            "minimum": -9.223372036854776e+18,
             "title": "Ид События",
             "type": "integer"
           },
@@ -1969,6 +1973,7 @@
           "obj_id": {
             "anyOf": [
               {
+                "maxLength": 32,
                 "type": "string"
               },
               {
@@ -2012,6 +2017,8 @@
           "channel": {
             "anyOf": [
               {
+                "exclusiveMaximum": 9.223372036854776e+18,
+                "minimum": -9.223372036854776e+18,
                 "type": "integer"
               },
               {
@@ -6500,7 +6507,7 @@
     },
     {
       "description": "Журнал, карточки, решения и исходы рекомендаций.",
-      "name": "forecast"
+      "name": "forecasts"
     },
     {
       "description": "Идемпотентная загрузка СМВУ и журнала ОДС.",

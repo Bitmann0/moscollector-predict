@@ -2984,7 +2984,7 @@
       "threshold_feasible": true
     },
     "B": {
-      "detail": "журнал выданного неполон: нужны issued_histories[B] и history_complete_from ≤ 2026-06-15. Заглушка считает без него; mkl.service.alerts_for_head в real-режиме голову не посчитает",
+      "detail": null,
       "model_lag_days": 7,
       "model_version": "stub-B-v0",
       "result_status": "ok",
@@ -3000,7 +3000,7 @@
       "threshold_feasible": true
     },
     "E": {
-      "detail": "журнал выданного неполон: нужны issued_histories[E] и history_complete_from ≤ 2026-06-15. Заглушка считает без него; mkl.service.alerts_for_head в real-режиме голову не посчитает",
+      "detail": null,
       "model_lag_days": 7,
       "model_version": "stub-E-v0",
       "result_status": "ok",

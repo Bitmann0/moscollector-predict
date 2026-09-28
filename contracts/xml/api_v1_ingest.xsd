@@ -36,7 +36,13 @@
   <xs:complexType name="OdsRowIn">
     <xs:all>
       <xs:element name="ts" type="xs:dateTime" />
-      <xs:element name="obj_id" minOccurs="0" nillable="true" type="xs:string" />
+      <xs:element name="obj_id" minOccurs="0" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="32" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
       <xs:element name="record_type">
         <xs:simpleType>
           <xs:restriction base="xs:string">
