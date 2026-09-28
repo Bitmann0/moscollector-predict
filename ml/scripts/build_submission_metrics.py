@@ -590,7 +590,28 @@ def rejected_levers() -> list[dict]:
          "source": "reports/laya_typed_d_decisions.json; reports/LAYA_TYPED_DECISIONS.md",
          "command": "python scripts/eval_laya_typed_decisions.py"},
         fire_history_lever(),
+        fire_per_object_lever(),
     ]
+
+
+def fire_per_object_lever() -> dict:
+    base = _load("fire_flood_product.json")["heads"]["B"]["budgets"]["10"]["model"]
+    po = _load("fire_per_object_lever.json")["heads"]["B"]["budgets"]["10"]["model"]
+
+    def block(x: dict) -> dict:
+        return {**_counts(x["recommendations"], x["hits"], x["unknown"]),
+                "new_hits": x["new_hits"], "recall": x["recall"]}
+
+    return {"id": "fire_per_object", "what": "B: лимит 10 участков раздаётся по объектам по "
+                                              "кругу (budget_per_object), а не по общему риску",
+            "period": _load("fire_per_object_lever.json")["heads"]["B"]["period"],
+            "global": block(base), "per_object": block(po),
+            "criterion": "нижняя граница точности не ниже, чем у общего лимита; записан до прогона",
+            "decision": "не принят",
+            "source": "reports/fire_per_object_lever.json; reports/fire_flood_product.json",
+            "command": "MKL_ROOT=<корень с budget_per_object: true у B в configs/heads.yaml> "
+                       "python scripts/eval_fire_flood_product.py B "
+                       "--output reports/fire_per_object_lever.json"}
 
 
 def fire_history_lever() -> dict:
