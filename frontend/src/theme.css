@@ -59,7 +59,7 @@ button, input, select, textarea { font-family: inherit; }
 .side-nav__link:focus-visible,.profile button:focus-visible,.mobile-logout:focus-visible,.mobile-nav a:focus-visible,.mobile-more summary:focus-visible,.password-input button:focus-visible{outline:2px solid var(--nav-marker);outline-offset:2px}
 .toolbar,.filter-panel{padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}.filter-panel{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px;margin-bottom:14px}.field{margin:0}.field>span{color:var(--muted);font-weight:500}.field input,.field select,.field textarea{min-height:36px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);background:var(--surface-raised);font-size:13px}.table-wrap{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}.table{font-size:13px;background:var(--surface)}.table th{padding:10px 12px;color:var(--muted);background:var(--surface-sunken);font-weight:600}.table td{padding:10px 12px;border-color:var(--border)}.table th{border-color:var(--border)}.table td,.table .num{font-variant-numeric:tabular-nums}.table tbody tr{transition:background-color .15s}.table tbody tr:hover{background:var(--surface-sunken)}.chip{padding:3px 8px;border-radius:var(--radius-sm)}.badge{border-radius:var(--radius-sm)}.pager{justify-content:flex-end;color:var(--muted)}.state{border-radius:var(--radius);font-size:13px}.state__hint{font-size:13px}
 .section-summary{display:flex;gap:8px;margin-bottom:12px}.summary-pill{padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);background:var(--surface);font-size:13px}.summary-pill strong{color:var(--text);font-variant-numeric:tabular-nums}
-.filter-reset{align-self:end;gap:6px}.filter-reset svg{width:14px}.cell-sub{display:block;margin-top:3px;color:var(--muted);font-size:12px}.object-link{color:var(--text);font-weight:500;text-decoration:none}.object-link:hover{color:var(--link);text-decoration:underline}.rank-badge{display:grid;width:28px;height:28px;place-items:center;border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface-sunken);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}.rank-badge--hot{color:var(--link);background:var(--accent-tint)}.outcome{display:inline-flex;align-items:center;gap:6px;font-size:13px}.outcome:before{width:8px;height:8px;border-radius:50%;background:var(--border-strong);content:""}.outcome--hit:before{background:var(--positive)}.outcome--miss:before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--text-2)}.row-arrow{display:grid;width:28px;height:28px;place-items:center;border-radius:var(--radius-sm);color:var(--muted);background:var(--surface-sunken)}.row-arrow svg{width:13px}.row-arrow:hover{color:var(--accent-text);background:var(--accent)}
+.filter-reset{align-self:end;gap:6px}.filter-reset svg{width:14px}.cell-sub{display:block;margin-top:3px;color:var(--muted);font-size:12px}.object-link{color:var(--text);font-weight:500;text-decoration:none}.object-link:hover{color:var(--link);text-decoration:underline}.rank-badge{display:grid;width:28px;height:28px;place-items:center;border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface-sunken);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}.rank-badge--hot{color:var(--link);background:var(--accent-tint)}.outcome{display:inline-flex;align-items:flex-start;gap:6px;font-size:13px}.outcome:before{width:8px;height:8px;flex:none;margin-top:calc((1.45em - 8px) / 2);border-radius:50%;background:var(--border-strong);content:""}.outcome--pending{color:var(--muted)}.outcome--pending:before{background:linear-gradient(90deg,var(--border-strong) 50%,transparent 50%);box-shadow:inset 0 0 0 1.5px var(--border-strong)}.outcome--unknown:before{background:var(--muted)}.outcome--hit:before{background:var(--positive)}.outcome--miss:before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--text-2)}.row-arrow{display:grid;width:28px;height:28px;place-items:center;border-radius:var(--radius-sm);color:var(--muted);background:var(--surface-sunken)}.row-arrow svg{width:13px}.row-arrow:hover{color:var(--accent-text);background:var(--accent)}
 .live-toggle{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);background:var(--surface);font-size:13px;font-weight:500;cursor:pointer}.live-toggle input{display:none}.live-toggle i{width:7px;height:7px;border-radius:50%;background:var(--border-strong)}.live-toggle--on i{background:var(--positive)}.events-filters{grid-template-columns:repeat(6,minmax(110px,1fr))}.quiet-check{margin:0 0 12px;color:var(--muted);font-size:13px}.event-feed{overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}.event-card{position:relative;display:grid;grid-template-columns:5px 125px 1fr auto;align-items:center;gap:14px;min-height:64px;padding:10px 16px;border-bottom:1px solid var(--border)}.event-card:last-child{border:0}.event-card__marker{width:4px;height:34px;border-radius:4px;background:var(--border-strong)}.event-card time{color:var(--muted);font-variant-numeric:tabular-nums}.event-card__body strong,.event-card__body span,.event-card__body em{display:block}.event-card__body strong{font-size:14px;font-weight:500}.event-card__body span{margin-top:3px;color:var(--muted);font-size:13px}.event-card__body em{margin-top:5px;color:var(--warn-ink);font-size:12px;font-style:normal}.event-status{padding:4px 8px;border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface-sunken);font-size:12px;font-weight:600}
 .event-card--warning .event-card__marker{background:var(--warn)}.event-card--alarm .event-card__marker{background:var(--alarm)}.event-card--critical .event-card__marker{background:var(--crit)}.event-card--fault .event-card__marker{background:var(--fault)}.event-card--service .event-card__marker{background:var(--service)}
 .event-status--warning{color:var(--warn-ink);background:var(--warn-tint)}.event-status--alarm{color:var(--alarm-ink);background:var(--alarm-tint)}.event-status--critical{color:var(--crit-ink);background:var(--crit-tint)}.event-status--fault{color:var(--fault-ink);background:var(--fault-tint)}.event-status--service{color:var(--service-ink);background:var(--service-tint)}
@@ -184,8 +184,9 @@ button, input, select, textarea { font-family: inherit; }
 .dashboard-page{position:relative}.dashboard-page>.refreshing{position:absolute;right:0;margin:-14px 0 0}.dashboard-page .priority-panel{position:relative}.dashboard-page .priority-panel__body>.refreshing{position:absolute;top:32px;right:58px;margin:0}
 /* Журнал прогнозов: одна строка на прогноз */
 .forecast-table td{vertical-align:middle;white-space:nowrap}
-.forecast-table .col-object{max-width:340px}
-.forecast-table .col-object a,.forecast-table .col-object small{display:block;overflow:hidden;text-overflow:ellipsis}
+.forecast-table .col-object .object-link{display:block;overflow:hidden;text-overflow:ellipsis}
+/* Метку «эмуляция» держим вне многоточия: сокращается адрес канала, а не метка и не название объекта */
+.forecast-table .object-sub{display:flex;align-items:center;gap:6px}.forecast-table .object-sub>span{min-width:0;overflow:hidden;text-overflow:ellipsis}.forecast-table .object-sub .badge{flex:none}
 .forecast-table .col-score strong{font-variant-numeric:tabular-nums}
 .scenario-tag{display:inline-flex;align-items:center;gap:6px;font-weight:500}
 .scenario-tag:before{width:8px;height:8px;flex:none;border-radius:2px;background:var(--border-strong);content:""}
@@ -208,7 +209,6 @@ button, input, select, textarea { font-family: inherit; }
 .forecast-rank .badge{white-space:nowrap}
 .forecast-history-grid>article:only-child{grid-column:1/-1}
 .forecast-history-grid .table--narrow{width:100%;min-width:0}
-.forecast-table .col-object{max-width:260px}
 /* Поля и сетки не распирают страницу длинными подписями */
 .filter-panel>*,.orders-filters>*{min-width:0}
 .field input,.field select,.field textarea{width:100%;min-width:0;max-width:100%}
@@ -245,18 +245,20 @@ button, input, select, textarea { font-family: inherit; }
 @media(max-width:1279px){
   .forecast-table thead{display:none}
   .forecast-table,.forecast-table tbody{display:block}
-  .forecast-table tr{display:grid;grid-template-areas:"sel rank when go" "obj obj obj obj" "scen scen score score" "dec dec fact fact";grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:8px 10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+  /* Строки карточки — flex с переносом, а не общая сетка: в сетке длинный чип решения
+     раздувал автоколонки шапки, и номер с датой съезжали от карточки к карточке. */
+  /* align-content: строки карточки прижаты к верху. По умолчанию flex-линии растягиваются на высоту
+     соседней карточки, и в короткой карточке объект и оценка съезжали вниз относительно пары. */
+  .forecast-table tr{display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
   .forecast-table td{display:block;min-width:0;padding:0;border:0;white-space:normal}
-  .forecast-table .select-cell{grid-area:sel;width:auto}
-  .forecast-table .col-rank{grid-area:rank}
-  .forecast-table .col-when{grid-area:when}
-  .forecast-table .col-go{grid-area:go}
-  .forecast-table .col-object{grid-area:obj;max-width:none}
-  .forecast-table .col-scenario{grid-area:scen}
-  .forecast-table .col-score{grid-area:score;text-align:right}
-  .forecast-table .col-decision{grid-area:dec}
-  .forecast-table .col-fact{grid-area:fact}
-  .forecast-table .col-fact{text-align:right}
+  .forecast-table .select-cell{flex:none;align-self:center;width:auto}
+  .forecast-table .col-rank,.forecast-table .col-go{flex:none;align-self:center}
+  .forecast-table .col-when{flex:1 1 0}
+  .forecast-table .col-object{flex:1 1 100%}
+  .forecast-table .object-sub{display:block}.forecast-table .object-sub .badge{margin-left:6px}
+  .forecast-table .col-scenario,.forecast-table .col-score,.forecast-table .col-decision,.forecast-table .col-fact{flex:0 0 calc(50% - 5px)}
+  /* Порядок ячеек в DOM задан таблицей; карточке нужна шапка «номер · дата · стрелка», затем объект */
+  .forecast-table .col-go{order:1}.forecast-table .col-object{order:2}.forecast-table .col-scenario{order:3}.forecast-table .col-score{order:4}.forecast-table .col-decision{order:5}.forecast-table .col-fact{order:6}
   .forecast-table td[data-label]:before{display:block;margin-bottom:3px;color:var(--muted);font-size:11px;content:attr(data-label)}
   .table-wrap{overflow-x:visible}
 }
@@ -294,4 +296,16 @@ button, input, select, textarea { font-family: inherit; }
 .filter-panel.orders-filters{grid-template-columns:repeat(3,minmax(160px,240px))}
 @media(max-width:640px){.filter-panel,.filter-panel.events-filters,.filter-panel.orders-filters{grid-template-columns:1fr}}
 @media(max-width:1279px) and (min-width:641px){.forecast-table tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-table tr:nth-child(odd){border-right:1px solid var(--border)}}
-@media(max-width:1366px) and (min-width:1280px){.forecast-table .col-object{max-width:210px}.forecast-table td,.forecast-table th{padding-right:9px;padding-left:9px}}
+/* Журнал таблицей: фиксированная раскладка. Ширины колонок не прыгают от страницы к странице,
+   колонка факта и стрелка не уходят за край на 1280–1440 px; остаток ширины получает объект. */
+@media(min-width:1280px){.forecast-table{table-layout:fixed}.forecast-table .select-cell{width:40px}.forecast-table .col-rank{width:52px}.forecast-table .col-when{width:118px}.forecast-table .col-scenario{width:114px}.forecast-table .col-score{width:100px}.forecast-table .col-decision{width:166px}.forecast-table .col-fact{width:220px}.forecast-table .col-go{width:52px}.forecast-table .cell-sub{overflow:hidden;text-overflow:ellipsis}}
+@media(max-width:1366px) and (min-width:1280px){.forecast-table td,.forecast-table th{padding-right:8px;padding-left:8px}.forecast-table .select-cell{width:32px}.forecast-table .col-rank{width:44px}.forecast-table .col-when{width:110px}.forecast-table .col-scenario{width:106px}.forecast-table .col-score{width:92px}.forecast-table .col-decision{width:158px}.forecast-table .col-fact{width:212px}.forecast-table .col-go{width:44px}}
+/* Связь с заявкой в первой колонке; фильтры на телефоне — за кнопкой; сводка переносится целыми плашками */
+.order-mark{display:inline-grid;width:24px;height:24px;place-items:center;border-radius:var(--radius-sm);color:var(--muted);vertical-align:middle}.order-mark svg{width:15px}.order-mark:hover{color:var(--link);background:var(--accent-tint)}.order-mark:focus-visible,.row-arrow:focus-visible,.object-link:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Фон подсвеченной строки совпадает с фоном номера, чипа и стрелки — без этого они сливаются с ней */
+.forecast-table tbody tr:hover .rank-badge:not(.rank-badge--hot),.forecast-table tbody tr:hover .chip--muted,.forecast-table tbody tr:hover .row-arrow:not(:hover),.forecast-row--selected .rank-badge,.forecast-row--selected .chip,.forecast-row--selected .row-arrow:not(:hover){background:var(--surface-raised)}
+.filter-toggle{display:none;gap:8px}.filter-toggle[aria-expanded="true"]{border-color:var(--border-strong);background:var(--surface-sunken)}.filter-toggle svg{width:14px}.filter-toggle b{min-width:20px;padding:0 6px;border-radius:10px;color:var(--accent-text);background:var(--accent);font-size:12px;line-height:20px}
+.filter-panel.forecast-filters{grid-template-columns:repeat(4,minmax(0,1fr))}
+.forecast-summary{flex-wrap:wrap;align-items:center}.forecast-summary .summary-pill{white-space:nowrap}.summary-note{color:var(--muted);font-size:12px}
+@media(max-width:1100px){.filter-panel.forecast-filters{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}}
+@media(max-width:640px){.filter-toggle{display:inline-flex;width:100%;margin-bottom:12px}.filter-panel.forecast-filters{grid-template-columns:1fr}.filter-panel.forecast-filters:not(.forecast-filters--open){display:none}.forecast-summary .summary-pill{padding:7px 10px}}
