@@ -16,6 +16,8 @@ Use separate model heads and combine only their presentation priority.
 - Label: missing next globally covered day after at least 7 active days in the previous 30, followed
   by a return within 30 days.
 - Measured mean: precision `0.701`, recall `0.421`, AP `0.668`.
+- Source: [experiments/availability-risk](experiments/availability-risk/README.md) (PR #9, not
+  reproducible from main). Measured at 104-280 alerts per day; this is not the product A_link metric.
 - Action: background health monitoring and aggregation, not an automatic repair request.
 
 ### 2. Strict temporary outage
@@ -23,6 +25,7 @@ Use separate model heads and combine only their presentation priority.
 - Question: will a normally daily channel temporarily disappear tomorrow?
 - Label: at least 25 active days in the previous 30 and return within seven days.
 - Measured mean: precision `0.281`, recall `0.223`, AP `0.195`.
+- Source: [experiments/availability-risk](experiments/availability-risk/README.md) (PR #9).
 - Action: supporting signal only until object-level grouping improves precision.
 
 ### 3. Observable physical proxy
