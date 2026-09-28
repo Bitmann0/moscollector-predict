@@ -1,13 +1,14 @@
 """PM-09: прелоад стенда — недельная очередь без голов A_link и D, черновики недельной
 очереди, очистка журнала выданного, эмулированные решения и сам scripts/preload_demo.py."""
 import importlib
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from app import models
 from app.schemas.ml import OutcomeResult
 from app.services import daily_run, emulation
+from app.services.helpers import MSK, from_db
 from conftest import MONDAY, TUESDAY, FakeMl, alert_id
 from sqlalchemy import func, select
 
@@ -129,7 +130,7 @@ def test_emulated_decisions_follow_fact(admin, seeded):
     _matured(admin)
     out = _emulate(admin)
     assert out == {"with_fact": 2, "decisions": 2, "outcomes": 2, "created": 2, "removed": 0,
-                   "skipped_live": 0}
+                   "skipped_live": 0, "work_orders": 1}
     hit, miss = _card(admin, HIT), _card(admin, MISS)
     assert hit["decision"]["source"] == miss["decision"]["source"] == "emulated"
     assert hit["decision"]["author"] == "emulator"
@@ -146,6 +147,66 @@ def test_emulated_decisions_follow_fact(admin, seeded):
                for r in seeded.scalars(select(models.Decision)))
     outcome = seeded.get(models.Outcome, HIT)
     assert (outcome.source, outcome.author) == ("emulated", "emulator")
+
+
+def _order_of(db, forecast_id: str) -> tuple[str, list[tuple]]:
+    db.rollback()
+    order = next(o for o in db.scalars(select(models.WorkOrder))
+                 if forecast_id in o.forecast_ids)
+    history = [(h.from_status, h.to_status, h.author, h.at) for h in db.scalars(
+        select(models.WorkOrderHistory).where(models.WorkOrderHistory.order_id == order.id)
+        .order_by(models.WorkOrderHistory.id))]
+    return order.status, history
+
+
+def test_emulated_work_orders_follow_decisions(admin, seeded):
+    _matured(admin)
+    _emulate(admin)
+    status, history = _order_of(seeded, HIT)
+    assert status == "completed"
+    assert [(f, t, a) for f, t, a, _ in history] == [
+        (None, "draft", "system"), ("draft", "confirmed", "emulator"),
+        ("confirmed", "in_progress", "emulator"), ("in_progress", "completed", "emulator")]
+    decided = datetime.fromisoformat(_card(admin, HIT)["decision"]["created_at"])
+    # подтверждение — в момент решения, закрытие — к итогу проверки, всё в демо-времени
+    assert from_db(history[1][3]) == decided
+    assert history[3][3] - history[1][3] == timedelta(hours=emulation.CHECKED_AFTER_H)
+    open_order = alert_id("D", 9000016, TUESDAY)  # окно открыто: решения нет
+    assert _order_of(seeded, open_order)[0] == "draft"
+
+    again = _emulate(admin)  # повтор даёт то же состояние
+    assert again["work_orders"] == 1
+    assert [(f, t) for f, t, _, _ in _order_of(seeded, HIT)[1]] == [
+        (f, t) for f, t, _, _ in history]
+    off = _emulate(admin, share=0)  # без решений заявки возвращаются в черновик
+    assert off["work_orders"] == 0
+    assert _order_of(seeded, HIT)[0] == "draft"
+    assert [(f, t) for f, t, _, _ in _order_of(seeded, HIT)[1]] == [(None, "draft")]
+
+
+def test_order_steps_cancel_only_when_every_forecast_is_false():
+    at = datetime(2026, 6, 17, 9, tzinfo=MSK)
+    reject, defer = ("reject", at), ("defer", at)
+    assert emulation._order_steps(["a", "b"], {"a": reject, "b": reject}) == [
+        ("cancelled", at)]
+    assert emulation._order_steps(["a", "b"], {"a": reject}) == []  # у «b» решения нет
+    assert emulation._order_steps(["a", "b"], {"a": reject, "b": defer}) == []
+    steps = emulation._order_steps(["a", "b"], {"a": reject, "b": ("remote_check", at)})
+    assert [s for s, _ in steps] == ["confirmed", "in_progress", "completed"]
+
+
+def test_emulation_never_moves_orders_touched_by_people(admin, seeded):
+    _matured(admin)
+    order_id = next(o.id for o in seeded.scalars(select(models.WorkOrder))
+                    if HIT in o.forecast_ids)
+    resp = admin.patch(f"{API}/work-orders/{order_id}",
+                       json={"expected_status": "draft", "status": "cancelled",
+                             "reason": "дубль"})
+    assert resp.status_code == 200, resp.text
+    _emulate(admin)
+    status, history = _order_of(seeded, HIT)
+    assert status == "cancelled"
+    assert [a for _, _, a, _ in history] == ["system", "admin"]
 
 
 def test_emulation_is_idempotent_and_share_zero_removes_it(admin, seeded):
