@@ -1,0 +1,56 @@
+http://127.0.0.1:8010: очистка issued_log 2026-05-25…2026-06-29; недельная очередь, понедельников до окна: 21; run-daily 2026-06-01…2026-06-29, дней: 29; эмуляция решений 2026-01-05…2026-06-29
+issued_log 2026-05-25…2026-06-29: удалено 140
+2026-01-05  неделя run_id=51  guard_weekly=ok  прогнозов=1  заявок=1  0.7 с
+2026-01-12  неделя run_id=52  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.3 с
+2026-01-19  неделя run_id=53  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-01-26  неделя run_id=54  guard_weekly=ok  прогнозов=2  заявок=2  0.4 с
+2026-02-02  неделя run_id=55  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-02-09  неделя run_id=56  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-02-16  неделя run_id=57  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.3 с
+2026-02-23  неделя run_id=58  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.4 с
+2026-03-02  неделя run_id=59  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-03-09  неделя run_id=60  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-03-16  неделя run_id=61  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-03-23  неделя run_id=62  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.4 с
+2026-03-30  неделя run_id=63  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.3 с
+2026-04-06  неделя run_id=64  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-04-13  неделя run_id=65  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.4 с
+2026-04-20  неделя run_id=66  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.3 с
+2026-04-27  неделя run_id=67  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-05-04  неделя run_id=68  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.3 с
+2026-05-11  неделя run_id=69  guard_weekly=empty_valid  прогнозов=0  заявок=0  0.3 с
+2026-05-18  неделя run_id=70  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-05-25  неделя run_id=71  guard_weekly=ok  прогнозов=1  заявок=1  0.3 с
+2026-06-01  run_id=72  A_link=no_data, D=no_data, guard_weekly=no_data  прогнозов=0  заявок=0  2.0 с
+2026-06-02  run_id=73  A_link=empty_valid, D=empty_valid  прогнозов=2992  заявок=0  25.0 с
+2026-06-03  run_id=74  A_link=empty_valid, D=empty_valid  прогнозов=2694  заявок=0  17.1 с
+2026-06-04  run_id=75  A_link=empty_valid, D=empty_valid  прогнозов=2876  заявок=0  17.9 с
+2026-06-05  run_id=76  A_link=ok, D=empty_valid  прогнозов=2228  заявок=7  16.9 с
+2026-06-06  run_id=77  A_link=ok, D=empty_valid  прогнозов=1059  заявок=1  12.8 с
+2026-06-07  run_id=78  A_link=empty_valid, D=empty_valid  прогнозов=1059  заявок=0  12.3 с
+2026-06-08  run_id=79  A_link=empty_valid, D=empty_valid, guard_weekly=empty_valid  прогнозов=2062  заявок=0  17.0 с
+2026-06-09  run_id=80  A_link=empty_valid, D=empty_valid  прогнозов=2625  заявок=0  18.3 с
+2026-06-10  run_id=81  A_link=empty_valid, D=empty_valid  прогнозов=3426  заявок=0  20.6 с
+2026-06-11  run_id=82  A_link=ok, D=empty_valid  прогнозов=2246  заявок=1  17.0 с
+2026-06-12  run_id=83  A_link=ok, D=empty_valid  прогнозов=1432  заявок=5  14.1 с
+2026-06-13  run_id=84  A_link=ok, D=empty_valid  прогнозов=1366  заявок=7  13.8 с
+2026-06-14  run_id=85  A_link=empty_valid, D=empty_valid  прогнозов=931  заявок=0  12.0 с
+2026-06-15  run_id=86  A_link=empty_valid, D=empty_valid, guard_weekly=empty_valid  прогнозов=2138  заявок=0  15.5 с
+2026-06-16  run_id=87  A_link=empty_valid, D=empty_valid  прогнозов=1932  заявок=0  15.8 с
+2026-06-17  run_id=88  A_link=empty_valid, D=empty_valid  прогнозов=2314  заявок=0  16.5 с
+2026-06-18  run_id=89  A_link=ok, D=empty_valid  прогнозов=1546  заявок=1  14.7 с
+2026-06-19  run_id=90  A_link=ok, D=empty_valid  прогнозов=1944  заявок=6  13.2 с
+2026-06-20  run_id=91  A_link=ok, D=empty_valid  прогнозов=1152  заявок=6  10.0 с
+2026-06-21  run_id=92  A_link=empty_valid, D=empty_valid  прогнозов=1018  заявок=0  9.4 с
+2026-06-22  run_id=93  A_link=empty_valid, D=empty_valid, guard_weekly=ok  прогнозов=2340  заявок=1  12.3 с
+2026-06-23  run_id=94  A_link=empty_valid, D=empty_valid  прогнозов=2281  заявок=0  12.2 с
+2026-06-24  run_id=95  A_link=ok, D=empty_valid  прогнозов=3123  заявок=4  13.2 с
+2026-06-25  run_id=96  A_link=empty_valid, D=empty_valid  прогнозов=2241  заявок=0  12.8 с
+2026-06-26  run_id=97  A_link=ok, D=empty_valid  прогнозов=2172  заявок=1  12.4 с
+2026-06-27  run_id=98  A_link=ok, D=empty_valid  прогнозов=859  заявок=7  9.2 с
+2026-06-28  run_id=99  A_link=ok, D=empty_valid  прогнозов=868  заявок=1  9.7 с
+2026-06-29  run_id=100  A_link=ok, D=ok, guard_weekly=empty_valid  прогнозов=3005  заявок=4  14.9 с
+эмуляция 2026-01-05…2026-06-29: с фактом 149, решений 109 (добавлено 0, удалено 0), итогов проверки 87, заявок сдвинуто из черновика 44, решения людей не тронуты: 0
+журнал 2026-01-05…2026-06-29: прогнозов 154, с решением 109, без решения 45, заявок всего 65
+готово за 417 с, ошибок: 0
+exit=0 s=418

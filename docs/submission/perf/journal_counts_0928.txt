@@ -1,0 +1,66 @@
+-- Журнал прогнозов после scripts/preload_demo.py 28.09 (perf/preload_demo_0928.txt).
+-- После прелоада в 17:45-17:48 МСК диспетчер вручную сохранил два решения и подтвердил
+-- одну заявку, поэтому статус заявки — последняя запись истории без ручных переходов
+-- после 17:40 МСК. Порядок — по id записи: переходы эмуляции датированы демо-временем
+-- (июнь 2026), а создание черновика — настоящим, и по времени их упорядочить нельзя.
+-- Вывод psql -e, каждый запрос напечатан перед результатом. Запуск: запросы на stdin
+-- docker compose -f compose.yaml -f compose.real.yaml exec -T db psql -U moscollector -d moscollector -e
+
+select now() at time zone 'Europe/Moscow' as queried_at_msk;
+       queried_at_msk
+----------------------------
+ 2026-09-28 18:00:24.955539
+(1 row)
+
+select count(*) as forecasts_all, count(*) filter (where in_budget) as in_budget from forecasts;
+ forecasts_all | in_budget
+---------------+-----------
+         55942 |       154
+(1 row)
+
+select scenario, count(*) as in_budget from forecasts where in_budget group by scenario order by scenario;
+    scenario    | in_budget
+----------------+-----------
+ equipment_diag |         3
+ guard_weekly   |        14
+ sensor_link    |       137
+(3 rows)
+
+select to_status as status_after_preload, count(*) from (
+  select distinct on (order_id) order_id, to_status from work_order_history
+   where author in ('system', 'emulator') or at < '2026-09-28 17:40:00+03'
+   order by order_id, id desc) s
+ group by to_status order by to_status;
+ status_after_preload | count
+----------------------+-------
+ cancelled            |     8
+ completed            |    36
+ draft                |    21
+(3 rows)
+
+select source, count(*) as decisions from decisions group by source order by source;
+  source  | decisions
+----------+-----------
+ emulated |       109
+ live     |         2
+(2 rows)
+
+select count(*) filter (where outcome_auto is not null) as with_auto_fact,
+       count(*) filter (where outcome_manual is not null) as with_check_result
+  from outcomes;
+ with_auto_fact | with_check_result
+----------------+-------------------
+            149 |                87
+(1 row)
+
+select f.head, count(*) as factors_in_budget,
+       count(*) filter (where e->>'label' is null or e->>'label' = '' or e->>'label' = e->>'feature'
+                        or (e->>'label') !~ '[а-яА-ЯёЁ]') as without_russian_label
+  from forecasts f, json_array_elements(f.factors) e
+ where f.in_budget and f.asof between '2026-06-01' and '2026-06-29' and json_typeof(f.factors) = 'array'
+ group by f.head order by f.head;
+  head  | factors_in_budget | without_russian_label
+--------+-------------------+-----------------------
+ A_link |               685 |                     0
+ D      |                 3 |                     0
+(2 rows)

@@ -12,10 +12,10 @@ Python исполняются из исходников; их сборка — �
 
 Пометка «замер 28.09» означает проверку 28.09.2026 на машине разработчика: Windows, Docker
 Desktop, стек `compose.yaml` + `compose.real.yaml`, ML в режиме `real` на бандле из данных
-заказчика. `compose.stand.yaml` в этот замер не входил, замеров на Linux-ВМ в разделе нет.
-Замер сделан до PR #30 и #36 (номера pull request в `Bitmann0/moscollector-predict`):
-модели A_link выбирали порог при минимуме точности 0,50, эмуляция не двигала заявки.
-Окончательные замеры войдут в `docs/submission/08-performance.md` (задача ML2-04).
+заказчика `bundle-20260928-3` (модели A_link 0,70, PR #30; номера pull request — в
+`Bitmann0/moscollector-predict`), код из `main`. `compose.stand.yaml` в этот замер не
+входил, замеров на Linux-ВМ в разделе нет. Условия и сырые результаты —
+`docs/submission/08-performance.md` и `docs/submission/perf/`.
 
 ## Требования
 
@@ -72,7 +72,9 @@ Desktop, стек `compose.yaml` + `compose.real.yaml`, ML в режиме `real
    пользователем `app`, HEALTHCHECK опрашивает `/api/v1/health`.
 
 Старт контейнера задаёт `backend/entrypoint.sh`: `alembic upgrade head`, затем
-`python -m app.seed`, затем `uvicorn app.main:app` на порту 8000 с `--proxy-headers`.
+`python -m app.seed`, затем `uvicorn app.main:app` на порту 8000 с `--proxy-headers` и
+`--timeout-keep-alive 75`: простаивающее соединение живёт 75 с, дольше, чем его держит
+Caddy на стенде (PR #43).
 Заголовки `X-Forwarded-*` принимаются только от адресов из `FORWARDED_ALLOW_IPS` (по
 умолчанию `127.0.0.1`). Seed при каждом старте создаёт справочник причин решений и
 настройки; при `SEED_DEMO=1` — ещё демо-пользователей и, если настоящего справочника нет,
@@ -239,6 +241,10 @@ api стартует после того, как `db` и `ml` прошли healt
   (сверка `MANIFEST.sha256` двух версий). Ранние версии с текущим `main` не работают:
   в `-1` нет каталога `Materials/`, и `fetch_bundle` отклоняет раскладку; модели 0,50
   из `-2` отвергает проверка метаданных `validate_pilot_artifact`.
+- `bundle-20260928-4` — тот же `-3` плюс `data/interim/maintenance_2026.json`: графики ППР
+  и ТО от 25.09, нормализованные `ml/scripts/normalize_maintenance_schedules.py`,
+  `available_from` 2026-09-25 (сверка `MANIFEST.sha256`). В продуктовом контракте C1
+  контекста плановых работ нет, экраны с этим файлом не меняются.
 
 ### Получение и проверка бандла
 
@@ -283,12 +289,12 @@ docker compose -f compose.yaml -f compose.real.yaml up -d --build
 
 Замер 28.09:
 
-- `/score` ML-сервиса за каждый день 01–30.06 — от 1,5 до 4,4 с на день (модели A_link
-  0,50). A_link отвечает `ok` на 29 днях, на 01.06 — `no_data`: в журнале нет событий за
-  этот день. D отвечает `ok` на 29.06 и 30.06 и `empty_valid` на остальных днях. На
-  моделях 0,70 A_link в 15 из 28 суток 02–29.06 не выдаёт ни одного алерта
-  (`ml/reports/A_LINK_OPERATING_POINT.md`), и эти дни получат `empty_valid`; на стенде
-  это не замерено. Окончательный замер ML2-04 войдёт в `docs/submission/08-performance.md`.
+- `/score` ML-сервиса за каждый день 01–30.06 — 7,61 с по медиане, от 0,14 до 10,57 с.
+  0,14 с приходится на 01.06: событий за этот день нет, ML сразу отвечает `no_data`
+  (`docs/submission/08-performance.md`, `docs/submission/perf/ml_score_june.jsonl`).
+- В прелоаде за 01.06–29.06 A_link ответила `ok` на 13 днях, `empty_valid` на 15 и
+  `no_data` на 01.06; D — `ok` на 29.06 и `empty_valid` на остальных днях с данными
+  (`docs/submission/perf/preload_demo_0928.txt`).
 - Смоук — 8 шагов из 8.
 
 Backend сохраняет состояния `no_data`, `stale`, `empty_valid` и `error` как есть и не
@@ -302,7 +308,7 @@ v2.24 или новее: `ports: !reset []` снимает публикацию 
 | Что | Как |
 |---|---|
 | TLS | сервис `caddy` на портах 80 и 443 проксирует запросы на `api:8000`. Сертификат для `STAND_DOMAIN` Caddy получает сам по ACME: DNS домена должен указывать на ВМ, порты 80 и 443 открыты. Для проверки на своей машине подходит `STAND_DOMAIN=localhost`, тогда сертификат выпускает локальный CA Caddy |
-| `deploy/Caddyfile` | заголовки `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, заголовок `Server` убран; журнал доступа в JSON в stdout; тело запроса до 200 МБ, как предел загрузки журнала в `backend/app/limits.py`; `flush_interval -1`, чтобы события SSE не копились в буфере прокси |
+| `deploy/Caddyfile` | заголовки `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, заголовок `Server` убран; журнал доступа в JSON в stdout; тело запроса до 200 МБ, как предел загрузки журнала в `backend/app/limits.py`; `flush_interval -1`, чтобы события SSE не копились в буфере прокси; простаивающее соединение к api — не дольше 60 с (`keepalive 60s`), меньше 75 с на стороне api |
 | api | порт 8000 наружу закрыт; `DEMO_SETTINGS_LOCKED=1`, `COOKIE_SECURE=1`, `FORWARDED_ALLOW_IPS="*"` — api доверяет `X-Forwarded-Proto` и `X-Forwarded-For` от Caddy |
 | `replay` | поток событий 30.06 (раздел «Поток событий 30.06») |
 | `backup` | суточный дамп БД (раздел «Бэкап и восстановление») |
@@ -376,11 +382,12 @@ docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml start 
 `-U moscollector -d moscollector` — значения `POSTGRES_USER` и `POSTGRES_DB` по
 умолчанию; если в `.env` они переопределены, подставляются свои.
 
-Замер 28.09 на БД после прелоада и загрузки истории: `pg_dump -Fc` — 74 с, файл 521 МБ.
+Замер в ночь на 28.09 на БД после загрузки истории и прелоада на моделях A_link 0,50 (до
+PR #30): `pg_dump -Fc` — 74 с, файл 521 МБ.
 `pg_restore` этого файла в чистый postgres:16 занял 133 с без нагрузки и 309 с, пока
 параллельно шёл подсчёт строк в исходной базе (`README.md`, раздел «Стенд»); код возврата 0
 в обоих прогонах. После восстановления в БД 10 277 666 событий и 222 заявки — столько же,
-сколько дали загрузка истории и прелоад.
+сколько дали загрузка истории и тот прелоад (`docs/submission/perf/backup_restore_0928.txt`).
 ТЗ §11 ограничивает восстановление после сбоя 4 часами; восстановление стенда с
 пересозданием ВМ, бандла и образов не замерено.
 
@@ -421,11 +428,10 @@ run-daily), `--dry-run` (только напечатать план). 30.06 не
 `python -m app.services.daily_run --asof YYYY-MM-DD` в окружении backend
 (`docs/architecture.md`).
 
-Замер 28.09 на моделях A_link 0,50, до PR #36: 366 с; в журнале 498 прогнозов, из них 475
-с фактом, 337 эмулированных решений, 287 итогов проверки, 222 заявки. На моделях 0,70
-A_link выдаёт в июне 4,9 канала в сутки вместо 17,2 (`ml/reports/A_LINK_OPERATING_POINT.md`),
-поэтому прогнозов и заявок будет меньше; новые числа войдут в
-`docs/submission/08-performance.md`.
+Замер 28.09: 417 с, ошибок 0. В журнале 154 прогноза в бюджете — `sensor_link` 137,
+`equipment_diag` 3, `guard_weekly` 14; у 149 есть факт, 109 эмулированных решений, 87
+итогов проверки. Заявок 65: выполнено 36, отменено 8, черновиков 21, эмуляция сдвинула из
+черновика 44 (`docs/submission/perf/preload_demo_0928.txt`, `journal_counts_0928.txt`).
 
 ### История событий: `scripts/replay.py --bulk`
 
@@ -512,7 +518,9 @@ DEMO_PASSWORD=... locust -f scripts/load_test/locustfile.py --host http://127.0.
 
 p50 и p95 каждого запроса — колонки «50%» и «95%» в `data/load_test/run_stats.csv`, число
 ошибок — «Failure Count» там же, тексты ошибок — в `run_failures.csv`. Сценарий только
-читает; `LOAD_MUTATIONS=1` добавляет решения диспетчера.
+читает; `LOAD_MUTATIONS=1` добавляет решения диспетчера. Прогон 28.09 —
+`docs/submission/08-performance.md`, раздел «Нагрузка»; его CSV —
+`docs/submission/perf/locust_20users_10m_*`.
 
 ## Режим разработки без Docker
 

@@ -134,11 +134,13 @@ docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml exec -
 docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml start api replay
 ```
 
-Замер 28.09 на машине разработчика (Docker Desktop, база после прелоада и загрузки истории
-02.05–29.06): `pg_dump -Fc` — 74 с, файл 521 МБ; `pg_restore` в чистый postgres:16 — 133 с
-без нагрузки и 309 с, пока параллельно шёл подсчёт строк в исходной базе. После восстановления
-совпали счётчики: `events` 10 277 666, `forecasts` 55 942, `decisions` 338, `work_orders` 222,
-`outcomes` 475, `audit_log` 2 145. Норматив ТЗ на восстановление — 4 часа.
+Замер 28.09 на машине разработчика (Docker Desktop, база после загрузки истории 02.05–29.06
+и прелоада на моделях A_link 0,50, до PR #30): `pg_dump -Fc` — 74 с, файл 521 МБ;
+`pg_restore` в чистый postgres:16 — 133 с без нагрузки и 309 с, пока параллельно шёл подсчёт
+строк в исходной базе. После восстановления в базе `events` 10 277 666, `forecasts` 55 942,
+`decisions` 338, `work_orders` 222, `outcomes` 475, `audit_log` 2 145: столько событий дала
+загрузка истории, столько заявок — тот прелоад
+([логи](docs/submission/perf/backup_restore_0928.txt)). Норматив ТЗ на восстановление — 4 часа.
 
 ### Сборка бандла из датасета
 
@@ -218,7 +220,9 @@ DEMO_PASSWORD=... locust -f scripts/load_test/locustfile.py --host http://127.0.
 
 p50 и p95 каждого запроса — колонки «50%» и «95%» в `data/load_test/run_stats.csv`,
 число ошибок — «Failure Count» там же, тексты ошибок — в `run_failures.csv`. Прогон
-только читает; `LOAD_MUTATIONS=1` добавляет решения диспетчера.
+только читает; `LOAD_MUTATIONS=1` добавляет решения диспетчера. Прогон 28.09 на машине
+разработчика: медиана ответа 64 мс, p95 400 мс, одна ошибка из 4 339 запросов
+([docs/submission/08-performance.md](docs/submission/08-performance.md), «Нагрузка»).
 
 ## Режим разработки
 

@@ -1,7 +1,7 @@
 """Реестр метрик для сдачи: reports/SUBMISSION_METRICS.json из машинных отчётов.
 
-Числа не переписываются руками. Скрипт читает JSON и CSV из reports/, считает
-суммы по окнам и собирает один файл, где у каждого блока есть source (файл,
+Числа не переписываются руками. Скрипт читает JSON и CSV из reports/ и замер
+времени ML из ../docs/submission/perf/, считает суммы по окнам и собирает один файл, где у каждого блока есть source (файл,
 из которого взято число) и command (как пересчитать сам источник из ml/).
 Константы ниже — числа, которых нет в машинных отчётах репозитория; у каждой
 записано, откуда она и почему файла нет.
@@ -41,15 +41,13 @@ TITLES = {
 JUNE_LABELED_ROWS = 42_648
 JUNE_LABELS_SOURCE = ("выход шага labels scripts/eval_a_link_operating_point.py "
                       "(label_link за 02.06–29.06.2026); файл данных в git не кладётся")
-RUNTIME_SCORE = {
-    "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D",
-    "seconds": [1.5, 4.4],
-    "conditions": "машина разработчика, Docker, ML_MODE=real; модели A_link с минимумом "
-                  "точности 0,50, до перехода на 0,70 (PR #30)",
-    "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, "
-              "окончательный замер — задача ML2-04, docs/submission/08-performance.md",
-    "command": None,
-}
+# Замер ML2-04: сырой вывод scripts/measure_ml.py лежит вне ml/, в документации сдачи.
+RUNTIME_FILE = ROOT.parent / "docs" / "submission" / "perf" / "ml_score_june.jsonl"
+RUNTIME_CONDITIONS = ("28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, "
+                      "ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы "
+                      "по одному из контейнера api")
+RUNTIME_COMMAND = ("docker compose -f compose.yaml -f compose.real.yaml exec -T api "
+                   "python - < scripts/measure_ml.py")
 GAS_PLANNED = {
     "records_in_window": 19_307, "records_total": 21_784,
     "source": "план команды docs/superpowers/plans/2026-09-25-team-plan-to-submission.md, "
@@ -344,6 +342,23 @@ def guard_weekly() -> dict:
     }
 
 
+# --- время расчёта -------------------------------------------------------------
+
+def runtime() -> list[dict]:
+    """Время ответа ML за каждый день 01–30.06: итоговая строка вывода measure_ml.py."""
+    lines = RUNTIME_FILE.read_text(encoding="utf-8").splitlines()
+    summary = json.loads(lines[-1])["summary"]
+    what = {"score": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D, "
+                      "с факторами и пустым журналом выданного",
+            "guard_weekly": "GET /api/v1/guard-weekly-inspections, понедельники 01–29.06"}
+    return [{"what": what[kind], "calls": s["n"],
+             "seconds": {"min": s["min"], "median": s["median"], "max": s["max"]},
+             "conditions": RUNTIME_CONDITIONS,
+             "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+             "command": RUNTIME_COMMAND}
+            for kind, s in summary.items()]
+
+
 # --- отклонённые постановки и рычаги ----------------------------------------
 
 def _final_row(head: str) -> dict:
@@ -597,7 +612,7 @@ def build() -> dict:
             "retrospective": "параметры политики подобраны на тех же периодах",
         },
         "scenarios": list(scenarios.values()),
-        "runtime": [RUNTIME_SCORE],
+        "runtime": runtime(),
         "holdout": holdout(),
         "rejected_setups": rejected_setups(),
         "rejected_levers": rejected_levers(),
