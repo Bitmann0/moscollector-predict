@@ -125,23 +125,31 @@ def label_rows(head: str, first: dt.date, last: dt.date) -> pl.DataFrame:
 def score_outcomes(chosen: pl.DataFrame, keys: list[str], fact: pl.DataFrame,
                    panel_last: dt.date) -> dict:
     if chosen.is_empty():
-        return {"recommendations": 0, "hits": 0, "unknown": 0}
+        return {"recommendations": 0, "hits": 0, "new_hits": 0, "unknown": 0}
     ent = [k for k in keys if k != "day"]
     target = chosen.with_columns((pl.col("day") + pl.duration(days=1)).alias("t"))
-    joined = target.join(fact.rename({"day": "t"}), on=[*ent, "t"], how="left")
-    hits = int(joined["event"].fill_null(False).sum())
+    joined = (target.join(fact.rename({"day": "t"}), on=[*ent, "t"], how="left")
+              .join(fact.rename({"event": "event_today"}), on=[*ent, "day"], how="left"))
+    hit = pl.col("event").fill_null(False)
+    hits = int(joined.select(hit.sum()).item())
+    # Новое событие: в сутки расчёта его у сущности не было. Остальные попадания —
+    # продолжение сегодняшнего, их ловит и правило «было сегодня — будет завтра».
+    new = int(joined.select((hit & ~pl.col("event_today").fill_null(False)).sum()).item())
     unknown = int(joined.filter(pl.col("event").is_null() |
                                 (pl.col("t") > panel_last)).height)
-    return {"recommendations": chosen.height, "hits": hits, "unknown": unknown}
+    return {"recommendations": chosen.height, "hits": hits, "new_hits": new,
+            "unknown": unknown}
 
 
-def summarize(block: dict, positives: int, days: int) -> dict:
+def summarize(block: dict, positives: int, days: int, positives_new: int = 0) -> dict:
     n, hits, unknown = block["recommendations"], block["hits"], block["unknown"]
     known = n - unknown
     return {**block,
             "precision_lower": round(hits / n, 4) if n else None,
             "precision_known": round(hits / known, 4) if known else None,
             "recall": round(hits / positives, 4) if positives else None,
+            "recall_new": (round(block["new_hits"] / positives_new, 4)
+                           if positives_new else None),
             "per_day": round(n / days, 2) if days else None}
 
 
@@ -173,9 +181,14 @@ def run_head(head: str, first: dt.date, last: dt.date, tl) -> dict:
             print(f"{head} {m_first:%Y-%m}: порог {art['threshold']:.4f}", flush=True)
     scored = pl.concat(frames)
     positives = int(lab["y"].sum())
+    ent = [k for k in keys if k != "day"]
+    today = lab.join(fact.rename({"event": "event_today"}), on=[*ent, "day"], how="left")
+    positives_new = int(today.filter((pl.col("y") == 1) &
+                                     ~pl.col("event_today").fill_null(False)).height)
     out = {"head": head, "period": [str(first), str(last)], "days": days,
            "label_rows": lab.height, "positives": positives,
            "base_rate": round(positives / lab.height, 4) if lab.height else None,
+           "positives_new": positives_new,
            "panel_last_day": str(panel_last), "months": months,
            "budgets": {}}
     for budget in BUDGETS[head]:
@@ -185,9 +198,9 @@ def run_head(head: str, first: dt.date, last: dt.date, tl) -> dict:
                      budget, keys, {})
         out["budgets"][str(budget)] = {
             "model": summarize(score_outcomes(model, keys, fact, panel_last),
-                               positives, days),
+                               positives, days, positives_new),
             "rule": summarize(score_outcomes(rule, keys, fact, panel_last),
-                              positives, days),
+                              positives, days, positives_new),
             "model_by_month": {
                 m["month"]: summarize(score_outcomes(
                     model.filter(pl.col("day").dt.strftime("%Y-%m") == m["month"]),

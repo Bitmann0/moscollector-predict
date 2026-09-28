@@ -163,17 +163,17 @@ def test_issued_history_cooldown(client, days_ago, blocked):
 
 
 @pytest.mark.parametrize("head", OBJECT_HEADS)
-def test_object_head_cooldown_blocks_whole_object(client, head):
+def test_object_head_repeats_without_cooldown(client, head):
+    """У B и E паузы нет (heads.yaml, cooldown_days: 0): вчерашний объект снова в выдаче."""
+    assert product_stub.HEADS[head].cooldown_days == 0
     base = _score(client)
     target = _in_budget(base, head)[0]
     history = {**FULL_JOURNAL, head: [{"obj": target.address.obj,
-                                       "sent_day": (ASOF - dt.timedelta(days=2)).isoformat()}]}
+                                       "sent_day": (ASOF - dt.timedelta(days=1)).isoformat()}]}
     resp = _score(client, issued_histories=history,
                   history_complete_from=(ASOF - dt.timedelta(days=7)).isoformat())
-    same_obj = [a for a in resp.alerts if a.head == head and a.address.obj == target.address.obj]
-    assert same_obj and not any(a.in_budget for a in same_obj)
-    others = {a.alert_id for a in _in_budget(base, head) if a.address.obj != target.address.obj}
-    assert others <= {a.alert_id for a in _in_budget(resp, head)}
+    assert {a.alert_id for a in _in_budget(resp, head)} == {
+        a.alert_id for a in _in_budget(base, head)}
 
 
 def test_incomplete_journal_is_reported(client):

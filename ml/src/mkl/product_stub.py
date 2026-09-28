@@ -71,10 +71,10 @@ HEADS = {
                   horizon_hours=168, budget_per_day=3, cooldown_days=7,
                   budget_per_object=True, model_lag_days=14),
     "B": HeadSpec("B", "fire_risk", "Пожарный риск участка",
-                  horizon_hours=24, budget_per_day=10, cooldown_days=7,
+                  horizon_hours=24, budget_per_day=10, cooldown_days=0,
                   budget_per_object=False, model_lag_days=7),
     "E": HeadSpec("E", "flood_risk", "Риск подтопления",
-                  horizon_hours=24, budget_per_day=5, cooldown_days=7,
+                  horizon_hours=24, budget_per_day=5, cooldown_days=0,
                   budget_per_object=False, model_lag_days=7),
 }
 # Головы, у которых сущность — объект или участок объекта, а не канал.
@@ -378,7 +378,8 @@ def _unit_address(unit: dict) -> AddressOut:
 
 def _score_object_head(spec: HeadSpec, req: ScoreRequest
                        ) -> tuple[HeadStatus, list[AlertOut], CoverageOut]:
-    """B и E: top-k по риску за сутки, пауза по объекту, как serve.apply_issued_cooldown."""
+    """B и E: top-k по риску за сутки. Пауза по объекту — cooldown_days спецификации
+    (в продукте 0), как serve.apply_issued_cooldown."""
     asof = req.asof
     units = _units(spec.head)
     total = len({u["obj"]["id"] for u in units})
