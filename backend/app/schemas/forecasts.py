@@ -102,6 +102,7 @@ class CalendarInfo(BaseModel):
 
 class ForecastCard(ForecastItem):
     factors: list[FactorItem] = Field(default_factory=list)
+    maintenance_note: str | None = None
     evidence: str | None = None
     recent_alarm_days_7: int | None = None
     recent_alarm_days_30: int | None = None

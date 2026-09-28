@@ -878,6 +878,17 @@
             "title": "Kind",
             "type": "string"
           },
+          "maintenance_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Note"
+          },
           "object": {
             "$ref": "#/components/schemas/ObjectRef"
           },

@@ -161,6 +161,7 @@ class _Saver:
             "extra": {"title": alert.title, "status_note": alert.status_note,
                       "model_version": alert.model_version,
                       "above_threshold": alert.above_threshold,
+                      "maintenance_context": alert.maintenance_context,
                       **({"cut_by_limit": True} if cut else {})},
             "data_status": alert.status, "case_key": alert.case_key, "source": source,
         }

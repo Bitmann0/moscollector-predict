@@ -248,6 +248,19 @@
           "title": "In Budget",
           "type": "boolean"
         },
+        "maintenance_context": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maintenance Context"
+        },
         "model_version": {
           "anyOf": [
             {

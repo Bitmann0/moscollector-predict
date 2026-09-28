@@ -123,6 +123,9 @@ class AlertOut(BaseModel):
     model_version: str | None = None
     feature_signature: str | None = None
     factors: list[FactorOut] = Field(default_factory=list)
+    # Operational context from customer maintenance schedules. It explains an
+    # alert but never changes the model score or its validation target.
+    maintenance_context: dict | None = None
 
 
 class CoverageOut(BaseModel):

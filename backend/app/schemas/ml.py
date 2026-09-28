@@ -119,6 +119,7 @@ class AlertOut(BaseModel):
     model_version: str | None = None
     feature_signature: str | None = None
     factors: list[FactorOut] = Field(default_factory=list)
+    maintenance_context: dict | None = None
 
 
 class CoverageOut(BaseModel):

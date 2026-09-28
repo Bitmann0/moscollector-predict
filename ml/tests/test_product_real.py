@@ -24,7 +24,9 @@ def _alert() -> contract.Alert:
         asof=DAY, valid_from=dt.datetime(2026, 7, 1),
         valid_to=dt.datetime(2026, 7, 2), horizon_hours=24,
         risk=0.8, rank=1, in_budget=True, above_threshold=True,
-        address=address, factors=[{"feature": "silence_z",
+        address=address, maintenance_context={"status": "matched",
+                                              "matches": [{"kind": "ППР"}]},
+        factors=[{"feature": "silence_z",
                                   "label": "необычно долгое молчание",
                                   "contribution": 0.4}])
 
@@ -63,9 +65,38 @@ def test_real_score_isolates_failed_head_and_keeps_real_coverage(monkeypatch, tm
     assert [(c.head, c.entities_total, c.entities_scored) for c in result.coverage] == [
         ("A_link", 2, 1), ("D", 1, 0)]
     assert len(result.alerts) == 1
+    assert result.alerts[0].maintenance_context == {
+        "status": "matched", "matches": [{"kind": "ППР"}]}
     assert len(result.work_orders) == 1
     assert result.work_orders[0].obj_name == "Насосная"
     assert result.work_orders[0].obj_parent_name == "Комплекс"
+
+
+def test_real_score_keeps_head_local_rank_when_d_score_is_a_count(monkeypatch, tmp_path):
+    from dataclasses import replace
+
+    interim = tmp_path / "interim"
+    interim.mkdir()
+    pl.DataFrame({"ch": [1, 2], "stype": ["Состояние насоса", "Состояние насоса"]
+                  }).write_parquet(interim / "channels.parquet")
+    monkeypatch.setattr(config, "PATHS", SimpleNamespace(interim=interim))
+    monkeypatch.setattr(product_api, "_last_feature_day", lambda: DAY)
+    monkeypatch.setattr(product_api, "_has_feature_day", lambda day: True)
+    monkeypatch.setattr(product_api, "_pilot_artifact", lambda head, day: {
+        "metadata": {"threshold_end": "2026-06-23"},
+        "saved_at": "version-1", "threshold": 0.5})
+    link = _alert()
+    wear = replace(link, alert_id="wear-1", case_key="wear-1", head="D",
+                   direction="infrastructure_wear", risk=4.0,
+                   horizon_hours=168, rank=1, maintenance_context=None)
+    monkeypatch.setattr(service, "alerts_for_head",
+                        lambda head, *args, **kwargs: [link] if head == "A_link" else [wear])
+    resp = TestClient(create_app("real")).post("/api/v1/score", json={
+        "asof": DAY.isoformat(), "heads": ["A_link", "D"],
+        "issued_histories": {"A_link": [], "D": []},
+        "history_complete_from": "2026-06-23"})
+    assert resp.status_code == 200, resp.text
+    assert [item["head"] for item in resp.json()["alerts"]] == ["A_link", "D"]
 
 
 def test_ready_does_not_claim_day_without_features(monkeypatch, tmp_path):

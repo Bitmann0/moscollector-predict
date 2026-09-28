@@ -1,0 +1,1602 @@
+{
+  "head": "D",
+  "policy": "deployed_rule_n_bad_w7_monday_refresh",
+  "target": "recorded_equipment_bad_state_or_alarm_in_next_7_days",
+  "source_last_day": "2026-06-30",
+  "data_sha256": {
+    "daily_channel": "4de528c4039361e7046fda76b41535fefc5d6bd8dc789aca8f3267faac4fb95b",
+    "episodes": "dcd0fe259661d8ebfefe5b984a43585a793f70fa0bf80b8bb4238b566581a859",
+    "sensor_features": "c2e851f233c8362c1b34dffb20ff150e0cfc3130e675e8e707bcf5c3fc7523aa"
+  },
+  "period": {
+    "start": "2025-09-11",
+    "end": "2025-12-31",
+    "summary": {
+      "candidates": 20520,
+      "candidate_channels": 701,
+      "reference_channels": null,
+      "channels_matched_to_current_catalog": null,
+      "channels_outside_current_catalog": null,
+      "reference_coverage": null,
+      "unknown_candidates": 10786,
+      "known_positive_days": 7138,
+      "alerts": 66,
+      "hits": 47,
+      "known_misses": 2,
+      "unknown_alerts": 17,
+      "precision_lower_bound": 0.7121212121212122,
+      "precision_upper_bound": 0.9696969696969697,
+      "precision_known_only": 0.9591836734693877,
+      "recall_known_days": 0.00658447744466237,
+      "episodes_eligible": 1358,
+      "episodes_caught": 23,
+      "episode_recall": 0.016936671575846832,
+      "observed_onsets_eligible": 813,
+      "observed_onsets_caught": 20,
+      "alerts_with_new_episode": 19,
+      "repeat_episode_alerts": 0,
+      "ongoing_episode_alerts": 40,
+      "uncertain_onset_only_alerts": 3,
+      "episodes_per_100_alerts": 34.84848484848485,
+      "alerts_per_day": 0.5892857142857143,
+      "alerts_per_30_days": 17.67857142857143,
+      "days_without_alerts": 73,
+      "days_without_candidates": 0,
+      "monthly": {
+        "2025-09": {
+          "alerts": 27,
+          "hits": 17,
+          "unknown": 8
+        },
+        "2025-10": {
+          "alerts": 25,
+          "hits": 18,
+          "unknown": 7
+        },
+        "2025-11": {
+          "alerts": 7,
+          "hits": 5,
+          "unknown": 2
+        },
+        "2025-12": {
+          "alerts": 7,
+          "hits": 7,
+          "unknown": 0
+        }
+      },
+      "daily": [
+        {
+          "day": "2025-09-11",
+          "candidates": 276,
+          "alerts": 3
+        },
+        {
+          "day": "2025-09-12",
+          "candidates": 234,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-13",
+          "candidates": 80,
+          "alerts": 3
+        },
+        {
+          "day": "2025-09-14",
+          "candidates": 47,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-15",
+          "candidates": 256,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-16",
+          "candidates": 248,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-17",
+          "candidates": 274,
+          "alerts": 0
+        },
+        {
+          "day": "2025-09-18",
+          "candidates": 280,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-19",
+          "candidates": 272,
+          "alerts": 0
+        },
+        {
+          "day": "2025-09-20",
+          "candidates": 69,
+          "alerts": 2
+        },
+        {
+          "day": "2025-09-21",
+          "candidates": 56,
+          "alerts": 3
+        },
+        {
+          "day": "2025-09-22",
+          "candidates": 289,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-23",
+          "candidates": 266,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-24",
+          "candidates": 229,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-25",
+          "candidates": 313,
+          "alerts": 3
+        },
+        {
+          "day": "2025-09-26",
+          "candidates": 273,
+          "alerts": 2
+        },
+        {
+          "day": "2025-09-27",
+          "candidates": 109,
+          "alerts": 2
+        },
+        {
+          "day": "2025-09-28",
+          "candidates": 141,
+          "alerts": 1
+        },
+        {
+          "day": "2025-09-29",
+          "candidates": 271,
+          "alerts": 0
+        },
+        {
+          "day": "2025-09-30",
+          "candidates": 264,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-01",
+          "candidates": 311,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-02",
+          "candidates": 354,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-03",
+          "candidates": 314,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-04",
+          "candidates": 125,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-05",
+          "candidates": 135,
+          "alerts": 1
+        },
+        {
+          "day": "2025-10-06",
+          "candidates": 269,
+          "alerts": 1
+        },
+        {
+          "day": "2025-10-07",
+          "candidates": 282,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-08",
+          "candidates": 336,
+          "alerts": 1
+        },
+        {
+          "day": "2025-10-09",
+          "candidates": 248,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-10",
+          "candidates": 229,
+          "alerts": 1
+        },
+        {
+          "day": "2025-10-11",
+          "candidates": 114,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-12",
+          "candidates": 106,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-13",
+          "candidates": 184,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-14",
+          "candidates": 193,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-15",
+          "candidates": 224,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-16",
+          "candidates": 180,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-17",
+          "candidates": 185,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-18",
+          "candidates": 48,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-19",
+          "candidates": 92,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-20",
+          "candidates": 211,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-21",
+          "candidates": 245,
+          "alerts": 1
+        },
+        {
+          "day": "2025-10-22",
+          "candidates": 248,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-23",
+          "candidates": 195,
+          "alerts": 1
+        },
+        {
+          "day": "2025-10-24",
+          "candidates": 171,
+          "alerts": 2
+        },
+        {
+          "day": "2025-10-25",
+          "candidates": 30,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-26",
+          "candidates": 89,
+          "alerts": 3
+        },
+        {
+          "day": "2025-10-27",
+          "candidates": 217,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-28",
+          "candidates": 225,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-29",
+          "candidates": 176,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-30",
+          "candidates": 230,
+          "alerts": 0
+        },
+        {
+          "day": "2025-10-31",
+          "candidates": 271,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-01",
+          "candidates": 215,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-02",
+          "candidates": 125,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-03",
+          "candidates": 110,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-04",
+          "candidates": 82,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-05",
+          "candidates": 231,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-06",
+          "candidates": 320,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-07",
+          "candidates": 252,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-08",
+          "candidates": 74,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-09",
+          "candidates": 88,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-10",
+          "candidates": 194,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-11",
+          "candidates": 143,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-12",
+          "candidates": 172,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-13",
+          "candidates": 185,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-14",
+          "candidates": 166,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-15",
+          "candidates": 97,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-16",
+          "candidates": 83,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-17",
+          "candidates": 174,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-18",
+          "candidates": 233,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-19",
+          "candidates": 170,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-20",
+          "candidates": 177,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-21",
+          "candidates": 196,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-22",
+          "candidates": 132,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-23",
+          "candidates": 63,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-24",
+          "candidates": 201,
+          "alerts": 3
+        },
+        {
+          "day": "2025-11-25",
+          "candidates": 205,
+          "alerts": 1
+        },
+        {
+          "day": "2025-11-26",
+          "candidates": 194,
+          "alerts": 1
+        },
+        {
+          "day": "2025-11-27",
+          "candidates": 182,
+          "alerts": 1
+        },
+        {
+          "day": "2025-11-28",
+          "candidates": 247,
+          "alerts": 0
+        },
+        {
+          "day": "2025-11-29",
+          "candidates": 137,
+          "alerts": 1
+        },
+        {
+          "day": "2025-11-30",
+          "candidates": 115,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-01",
+          "candidates": 260,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-02",
+          "candidates": 301,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-03",
+          "candidates": 247,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-04",
+          "candidates": 420,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-05",
+          "candidates": 227,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-06",
+          "candidates": 133,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-07",
+          "candidates": 94,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-08",
+          "candidates": 309,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-09",
+          "candidates": 203,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-10",
+          "candidates": 230,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-11",
+          "candidates": 316,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-12",
+          "candidates": 207,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-13",
+          "candidates": 154,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-14",
+          "candidates": 27,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-15",
+          "candidates": 196,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-16",
+          "candidates": 137,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-17",
+          "candidates": 171,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-18",
+          "candidates": 291,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-19",
+          "candidates": 156,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-20",
+          "candidates": 98,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-21",
+          "candidates": 88,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-22",
+          "candidates": 158,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-23",
+          "candidates": 96,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-24",
+          "candidates": 128,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-25",
+          "candidates": 41,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-26",
+          "candidates": 45,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-27",
+          "candidates": 53,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-28",
+          "candidates": 34,
+          "alerts": 0
+        },
+        {
+          "day": "2025-12-29",
+          "candidates": 149,
+          "alerts": 3
+        },
+        {
+          "day": "2025-12-30",
+          "candidates": 68,
+          "alerts": 3
+        },
+        {
+          "day": "2025-12-31",
+          "candidates": 36,
+          "alerts": 1
+        }
+      ]
+    },
+    "refreshes": [
+      {
+        "refresh_day": "2025-09-08",
+        "threshold_end": "2025-08-31",
+        "threshold": 8.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 8.0,
+          "alerts": 33,
+          "hits": 24,
+          "unknown": 8,
+          "precision_lower_bound": 0.7272727272727273
+        }
+      },
+      {
+        "refresh_day": "2025-09-15",
+        "threshold_end": "2025-09-07",
+        "threshold": 6.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 6.0,
+          "alerts": 36,
+          "hits": 26,
+          "unknown": 9,
+          "precision_lower_bound": 0.7222222222222222
+        }
+      },
+      {
+        "refresh_day": "2025-09-22",
+        "threshold_end": "2025-09-14",
+        "threshold": 6.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 6.0,
+          "alerts": 36,
+          "hits": 27,
+          "unknown": 8,
+          "precision_lower_bound": 0.75
+        }
+      },
+      {
+        "refresh_day": "2025-09-29",
+        "threshold_end": "2025-09-21",
+        "threshold": 6.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 6.0,
+          "alerts": 37,
+          "hits": 28,
+          "unknown": 8,
+          "precision_lower_bound": 0.7567567567567568
+        }
+      },
+      {
+        "refresh_day": "2025-10-06",
+        "threshold_end": "2025-09-28",
+        "threshold": 9.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 9.0,
+          "alerts": 30,
+          "hits": 21,
+          "unknown": 9,
+          "precision_lower_bound": 0.7
+        }
+      },
+      {
+        "refresh_day": "2025-10-13",
+        "threshold_end": "2025-10-05",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-10-20",
+        "threshold_end": "2025-10-12",
+        "threshold": 8.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 8.0,
+          "alerts": 36,
+          "hits": 26,
+          "unknown": 10,
+          "precision_lower_bound": 0.7222222222222222
+        }
+      },
+      {
+        "refresh_day": "2025-10-27",
+        "threshold_end": "2025-10-19",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-11-03",
+        "threshold_end": "2025-10-26",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-11-10",
+        "threshold_end": "2025-11-02",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-11-17",
+        "threshold_end": "2025-11-09",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-11-24",
+        "threshold_end": "2025-11-16",
+        "threshold": 8.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 8.0,
+          "alerts": 30,
+          "hits": 21,
+          "unknown": 8,
+          "precision_lower_bound": 0.7
+        }
+      },
+      {
+        "refresh_day": "2025-12-01",
+        "threshold_end": "2025-11-23",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-12-08",
+        "threshold_end": "2025-11-30",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-12-15",
+        "threshold_end": "2025-12-07",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-12-22",
+        "threshold_end": "2025-12-14",
+        "threshold": null,
+        "feasible": false,
+        "selection": {
+          "feasible": false,
+          "threshold": null,
+          "reason": "no threshold satisfies full-policy gate"
+        }
+      },
+      {
+        "refresh_day": "2025-12-29",
+        "threshold_end": "2025-12-21",
+        "threshold": 5.0,
+        "feasible": true,
+        "selection": {
+          "feasible": true,
+          "threshold": 5.0,
+          "alerts": 35,
+          "hits": 26,
+          "unknown": 6,
+          "precision_lower_bound": 0.7428571428571429
+        }
+      }
+    ],
+    "folds": [
+      {
+        "start": "2025-09-11",
+        "end": "2025-10-08",
+        "summary": {
+          "candidates": 6373,
+          "candidate_channels": 613,
+          "reference_channels": null,
+          "channels_matched_to_current_catalog": null,
+          "channels_outside_current_catalog": null,
+          "reference_coverage": null,
+          "unknown_candidates": 3392,
+          "known_positive_days": 2042,
+          "alerts": 38,
+          "hits": 25,
+          "known_misses": 2,
+          "unknown_alerts": 11,
+          "precision_lower_bound": 0.6578947368421053,
+          "precision_upper_bound": 0.9473684210526315,
+          "precision_known_only": 0.9259259259259259,
+          "recall_known_days": 0.012242899118511263,
+          "episodes_eligible": 411,
+          "episodes_caught": 11,
+          "episode_recall": 0.0267639902676399,
+          "observed_onsets_eligible": 288,
+          "observed_onsets_caught": 9,
+          "alerts_with_new_episode": 10,
+          "repeat_episode_alerts": 0,
+          "ongoing_episode_alerts": 22,
+          "uncertain_onset_only_alerts": 2,
+          "episodes_per_100_alerts": 28.94736842105263,
+          "alerts_per_day": 1.3571428571428572,
+          "alerts_per_30_days": 40.714285714285715,
+          "days_without_alerts": 5,
+          "days_without_candidates": 0,
+          "monthly": {
+            "2025-09": {
+              "alerts": 27,
+              "hits": 17,
+              "unknown": 8
+            },
+            "2025-10": {
+              "alerts": 11,
+              "hits": 8,
+              "unknown": 3
+            }
+          },
+          "daily": [
+            {
+              "day": "2025-09-11",
+              "candidates": 276,
+              "alerts": 3
+            },
+            {
+              "day": "2025-09-12",
+              "candidates": 234,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-13",
+              "candidates": 80,
+              "alerts": 3
+            },
+            {
+              "day": "2025-09-14",
+              "candidates": 47,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-15",
+              "candidates": 256,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-16",
+              "candidates": 248,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-17",
+              "candidates": 274,
+              "alerts": 0
+            },
+            {
+              "day": "2025-09-18",
+              "candidates": 280,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-19",
+              "candidates": 272,
+              "alerts": 0
+            },
+            {
+              "day": "2025-09-20",
+              "candidates": 69,
+              "alerts": 2
+            },
+            {
+              "day": "2025-09-21",
+              "candidates": 56,
+              "alerts": 3
+            },
+            {
+              "day": "2025-09-22",
+              "candidates": 289,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-23",
+              "candidates": 266,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-24",
+              "candidates": 229,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-25",
+              "candidates": 313,
+              "alerts": 3
+            },
+            {
+              "day": "2025-09-26",
+              "candidates": 273,
+              "alerts": 2
+            },
+            {
+              "day": "2025-09-27",
+              "candidates": 109,
+              "alerts": 2
+            },
+            {
+              "day": "2025-09-28",
+              "candidates": 141,
+              "alerts": 1
+            },
+            {
+              "day": "2025-09-29",
+              "candidates": 271,
+              "alerts": 0
+            },
+            {
+              "day": "2025-09-30",
+              "candidates": 264,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-01",
+              "candidates": 311,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-02",
+              "candidates": 354,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-03",
+              "candidates": 314,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-04",
+              "candidates": 125,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-05",
+              "candidates": 135,
+              "alerts": 1
+            },
+            {
+              "day": "2025-10-06",
+              "candidates": 269,
+              "alerts": 1
+            },
+            {
+              "day": "2025-10-07",
+              "candidates": 282,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-08",
+              "candidates": 336,
+              "alerts": 1
+            }
+          ]
+        }
+      },
+      {
+        "start": "2025-10-09",
+        "end": "2025-11-05",
+        "summary": {
+          "candidates": 4874,
+          "candidate_channels": 555,
+          "reference_channels": null,
+          "channels_matched_to_current_catalog": null,
+          "channels_outside_current_catalog": null,
+          "reference_coverage": null,
+          "unknown_candidates": 2929,
+          "known_positive_days": 1402,
+          "alerts": 14,
+          "hits": 10,
+          "known_misses": 0,
+          "unknown_alerts": 4,
+          "precision_lower_bound": 0.7142857142857143,
+          "precision_upper_bound": 1.0,
+          "precision_known_only": 1.0,
+          "recall_known_days": 0.007132667617689016,
+          "episodes_eligible": 265,
+          "episodes_caught": 2,
+          "episode_recall": 0.007547169811320755,
+          "observed_onsets_eligible": 153,
+          "observed_onsets_caught": 2,
+          "alerts_with_new_episode": 2,
+          "repeat_episode_alerts": 0,
+          "ongoing_episode_alerts": 11,
+          "uncertain_onset_only_alerts": 0,
+          "episodes_per_100_alerts": 14.285714285714286,
+          "alerts_per_day": 0.5,
+          "alerts_per_30_days": 15.0,
+          "days_without_alerts": 20,
+          "days_without_candidates": 0,
+          "monthly": {
+            "2025-10": {
+              "alerts": 14,
+              "hits": 10,
+              "unknown": 4
+            },
+            "2025-11": {
+              "alerts": 0,
+              "hits": 0,
+              "unknown": 0
+            }
+          },
+          "daily": [
+            {
+              "day": "2025-10-09",
+              "candidates": 248,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-10",
+              "candidates": 229,
+              "alerts": 1
+            },
+            {
+              "day": "2025-10-11",
+              "candidates": 114,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-12",
+              "candidates": 106,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-13",
+              "candidates": 184,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-14",
+              "candidates": 193,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-15",
+              "candidates": 224,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-16",
+              "candidates": 180,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-17",
+              "candidates": 185,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-18",
+              "candidates": 48,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-19",
+              "candidates": 92,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-20",
+              "candidates": 211,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-21",
+              "candidates": 245,
+              "alerts": 1
+            },
+            {
+              "day": "2025-10-22",
+              "candidates": 248,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-23",
+              "candidates": 195,
+              "alerts": 1
+            },
+            {
+              "day": "2025-10-24",
+              "candidates": 171,
+              "alerts": 2
+            },
+            {
+              "day": "2025-10-25",
+              "candidates": 30,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-26",
+              "candidates": 89,
+              "alerts": 3
+            },
+            {
+              "day": "2025-10-27",
+              "candidates": 217,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-28",
+              "candidates": 225,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-29",
+              "candidates": 176,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-30",
+              "candidates": 230,
+              "alerts": 0
+            },
+            {
+              "day": "2025-10-31",
+              "candidates": 271,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-01",
+              "candidates": 215,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-02",
+              "candidates": 125,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-03",
+              "candidates": 110,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-04",
+              "candidates": 82,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-05",
+              "candidates": 231,
+              "alerts": 0
+            }
+          ]
+        }
+      },
+      {
+        "start": "2025-11-06",
+        "end": "2025-12-03",
+        "summary": {
+          "candidates": 5008,
+          "candidate_channels": 641,
+          "reference_channels": null,
+          "channels_matched_to_current_catalog": null,
+          "channels_outside_current_catalog": null,
+          "reference_coverage": null,
+          "unknown_candidates": 2579,
+          "known_positive_days": 1670,
+          "alerts": 7,
+          "hits": 5,
+          "known_misses": 0,
+          "unknown_alerts": 2,
+          "precision_lower_bound": 0.7142857142857143,
+          "precision_upper_bound": 1.0,
+          "precision_known_only": 1.0,
+          "recall_known_days": 0.0029940119760479044,
+          "episodes_eligible": 449,
+          "episodes_caught": 6,
+          "episode_recall": 0.013363028953229399,
+          "observed_onsets_eligible": 281,
+          "observed_onsets_caught": 6,
+          "alerts_with_new_episode": 3,
+          "repeat_episode_alerts": 0,
+          "ongoing_episode_alerts": 3,
+          "uncertain_onset_only_alerts": 0,
+          "episodes_per_100_alerts": 85.71428571428571,
+          "alerts_per_day": 0.25,
+          "alerts_per_30_days": 7.5,
+          "days_without_alerts": 23,
+          "days_without_candidates": 0,
+          "monthly": {
+            "2025-11": {
+              "alerts": 7,
+              "hits": 5,
+              "unknown": 2
+            },
+            "2025-12": {
+              "alerts": 0,
+              "hits": 0,
+              "unknown": 0
+            }
+          },
+          "daily": [
+            {
+              "day": "2025-11-06",
+              "candidates": 320,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-07",
+              "candidates": 252,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-08",
+              "candidates": 74,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-09",
+              "candidates": 88,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-10",
+              "candidates": 194,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-11",
+              "candidates": 143,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-12",
+              "candidates": 172,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-13",
+              "candidates": 185,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-14",
+              "candidates": 166,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-15",
+              "candidates": 97,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-16",
+              "candidates": 83,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-17",
+              "candidates": 174,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-18",
+              "candidates": 233,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-19",
+              "candidates": 170,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-20",
+              "candidates": 177,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-21",
+              "candidates": 196,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-22",
+              "candidates": 132,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-23",
+              "candidates": 63,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-24",
+              "candidates": 201,
+              "alerts": 3
+            },
+            {
+              "day": "2025-11-25",
+              "candidates": 205,
+              "alerts": 1
+            },
+            {
+              "day": "2025-11-26",
+              "candidates": 194,
+              "alerts": 1
+            },
+            {
+              "day": "2025-11-27",
+              "candidates": 182,
+              "alerts": 1
+            },
+            {
+              "day": "2025-11-28",
+              "candidates": 247,
+              "alerts": 0
+            },
+            {
+              "day": "2025-11-29",
+              "candidates": 137,
+              "alerts": 1
+            },
+            {
+              "day": "2025-11-30",
+              "candidates": 115,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-01",
+              "candidates": 260,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-02",
+              "candidates": 301,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-03",
+              "candidates": 247,
+              "alerts": 0
+            }
+          ]
+        }
+      },
+      {
+        "start": "2025-12-04",
+        "end": "2025-12-31",
+        "summary": {
+          "candidates": 4265,
+          "candidate_channels": 643,
+          "reference_channels": null,
+          "channels_matched_to_current_catalog": null,
+          "channels_outside_current_catalog": null,
+          "reference_coverage": null,
+          "unknown_candidates": 1886,
+          "known_positive_days": 2024,
+          "alerts": 7,
+          "hits": 7,
+          "known_misses": 0,
+          "unknown_alerts": 0,
+          "precision_lower_bound": 1.0,
+          "precision_upper_bound": 1.0,
+          "precision_known_only": 1.0,
+          "recall_known_days": 0.003458498023715415,
+          "episodes_eligible": 378,
+          "episodes_caught": 4,
+          "episode_recall": 0.010582010582010581,
+          "observed_onsets_eligible": 191,
+          "observed_onsets_caught": 3,
+          "alerts_with_new_episode": 4,
+          "repeat_episode_alerts": 0,
+          "ongoing_episode_alerts": 4,
+          "uncertain_onset_only_alerts": 1,
+          "episodes_per_100_alerts": 57.142857142857146,
+          "alerts_per_day": 0.25,
+          "alerts_per_30_days": 7.5,
+          "days_without_alerts": 25,
+          "days_without_candidates": 0,
+          "monthly": {
+            "2025-12": {
+              "alerts": 7,
+              "hits": 7,
+              "unknown": 0
+            }
+          },
+          "daily": [
+            {
+              "day": "2025-12-04",
+              "candidates": 420,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-05",
+              "candidates": 227,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-06",
+              "candidates": 133,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-07",
+              "candidates": 94,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-08",
+              "candidates": 309,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-09",
+              "candidates": 203,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-10",
+              "candidates": 230,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-11",
+              "candidates": 316,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-12",
+              "candidates": 207,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-13",
+              "candidates": 154,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-14",
+              "candidates": 27,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-15",
+              "candidates": 196,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-16",
+              "candidates": 137,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-17",
+              "candidates": 171,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-18",
+              "candidates": 291,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-19",
+              "candidates": 156,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-20",
+              "candidates": 98,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-21",
+              "candidates": 88,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-22",
+              "candidates": 158,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-23",
+              "candidates": 96,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-24",
+              "candidates": 128,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-25",
+              "candidates": 41,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-26",
+              "candidates": 45,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-27",
+              "candidates": 53,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-28",
+              "candidates": 34,
+              "alerts": 0
+            },
+            {
+              "day": "2025-12-29",
+              "candidates": 149,
+              "alerts": 3
+            },
+            {
+              "day": "2025-12-30",
+              "candidates": 68,
+              "alerts": 3
+            },
+            {
+              "day": "2025-12-31",
+              "candidates": 36,
+              "alerts": 1
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "caution": "Retrospective, previously inspected data. Prepared feature-store as-of integrity and the D_observed_v1 observation contract remain unverified. Compare with the old audit only on equal data hashes."
+}

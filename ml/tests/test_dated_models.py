@@ -280,6 +280,9 @@ def test_train_latest_window_plan_prints_and_trains_nothing(monkeypatch, capsys)
     import train_latest
 
     monkeypatch.setattr(train_latest, "refresh", lambda *a, **kw: pytest.fail("trained"))
+    # The CLI contract test must not depend on whether customer data happens
+    # to be mounted locally. Missing-day behavior has its own test below.
+    monkeypatch.setattr(train_latest, "_missing_panel_days", lambda *a: frozenset())
     monkeypatch.setattr(sys, "argv", ["train_latest.py", "A_link", "D", "--window-plan"])
     train_latest.main()
     out = capsys.readouterr().out.splitlines()

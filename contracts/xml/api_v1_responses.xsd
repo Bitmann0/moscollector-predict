@@ -250,6 +250,7 @@
       <xs:element name="work_order_id" nillable="true" type="xs:string" />
       <xs:element name="case_key" type="xs:string" />
       <xs:element name="factors" minOccurs="0" maxOccurs="unbounded" type="FactorItem" />
+      <xs:element name="maintenance_note" nillable="true" type="xs:string" />
       <xs:element name="evidence" nillable="true" type="xs:string" />
       <xs:element name="recent_alarm_days_7" nillable="true" type="xs:long" />
       <xs:element name="recent_alarm_days_30" nillable="true" type="xs:long" />

@@ -1,0 +1,1237 @@
+{
+  "head": "A_link",
+  "label_variant": "L9c",
+  "horizon_days": 1,
+  "evaluated_through": "2026-06-29",
+  "input": {
+    "file": "daily_channel.parquet",
+    "sha256": "4de528c4039361e7046fda76b41535fefc5d6bd8dc789aca8f3267faac4fb95b",
+    "rows": 4273083,
+    "days": [
+      "2019-01-01",
+      "2026-06-30"
+    ]
+  },
+  "label_audit": {
+    "span": [
+      "2023-01-01",
+      "2026-06-29"
+    ],
+    "test_windows": [
+      [
+        "2025-04-06",
+        "2025-07-04"
+      ],
+      [
+        "2025-07-05",
+        "2025-10-02"
+      ],
+      [
+        "2025-10-03",
+        "2025-12-31"
+      ],
+      [
+        "2026-01-01",
+        "2026-03-31"
+      ],
+      [
+        "2026-04-01",
+        "2026-06-29"
+      ]
+    ],
+    "l9c_test_window_positives_by_first_silent_weekday": {
+      "mon": 5039,
+      "tue": 14283,
+      "wed": 15074,
+      "thu": 18995,
+      "fri": 17927,
+      "sat": 33829,
+      "sun": 10218
+    },
+    "variants": {
+      "L9c": {
+        "description": "продуктовая метка A_link без дополнительной цензуры",
+        "span": {
+          "rows": 1938672,
+          "positives": 296349,
+          "positive_rate": 0.1528618559508777,
+          "censored_rows": 0,
+          "censored_positives": 0,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 0,
+            "sun": 0
+          }
+        },
+        "test_windows": {
+          "rows": 771775,
+          "positives": 115365,
+          "positive_rate": 0.149480094587153,
+          "censored_rows": 0,
+          "censored_positives": 0,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 0,
+            "sun": 0
+          }
+        }
+      },
+      "no_friday_monday": {
+        "description": "без пятничных строк, после которых канал вернулся в понедельник",
+        "span": {
+          "rows": 1861822,
+          "positives": 247525,
+          "positive_rate": 0.13294772540017252,
+          "censored_rows": 76850,
+          "censored_positives": 48824,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 48824,
+            "sun": 0
+          }
+        },
+        "test_windows": {
+          "rows": 742991,
+          "positives": 96646,
+          "positive_rate": 0.13007694575035228,
+          "censored_rows": 28784,
+          "censored_positives": 18719,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 18719,
+            "sun": 0
+          }
+        }
+      }
+    },
+    "coverage": {
+      "weekday_8w": {
+        "all": {
+          "from": "2019-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 2738,
+          "low_days": 101,
+          "low_days_by_weekday": {
+            "mon": 24,
+            "tue": 11,
+            "wed": 12,
+            "thu": 16,
+            "fri": 19,
+            "sat": 11,
+            "sun": 8
+          }
+        },
+        "since_start": {
+          "from": "2023-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 1277,
+          "low_days": 54,
+          "low_days_by_weekday": {
+            "mon": 13,
+            "tue": 6,
+            "wed": 5,
+            "thu": 9,
+            "fri": 10,
+            "sat": 8,
+            "sun": 3
+          },
+          "low_dates": [
+            "2023-01-04",
+            "2023-02-23",
+            "2023-02-24",
+            "2023-03-08",
+            "2023-05-01",
+            "2023-05-08",
+            "2023-05-09",
+            "2023-11-06",
+            "2023-12-01",
+            "2024-01-01",
+            "2024-01-04",
+            "2024-01-05",
+            "2024-02-23",
+            "2024-04-06",
+            "2024-04-07",
+            "2024-04-08",
+            "2024-04-09",
+            "2024-05-09",
+            "2024-06-12",
+            "2024-11-04",
+            "2025-01-01",
+            "2025-01-02",
+            "2025-01-06",
+            "2025-01-07",
+            "2025-05-01",
+            "2025-05-08",
+            "2025-05-09",
+            "2025-06-12",
+            "2025-06-13",
+            "2025-11-03",
+            "2025-11-04",
+            "2025-12-19",
+            "2025-12-26",
+            "2025-12-30",
+            "2026-01-01",
+            "2026-01-02",
+            "2026-01-03",
+            "2026-01-05",
+            "2026-01-06",
+            "2026-01-08",
+            "2026-01-10",
+            "2026-01-12",
+            "2026-01-31",
+            "2026-02-21",
+            "2026-02-23",
+            "2026-02-25",
+            "2026-02-28",
+            "2026-03-01",
+            "2026-03-07",
+            "2026-03-08",
+            "2026-03-14",
+            "2026-05-01",
+            "2026-05-11",
+            "2026-06-01"
+          ]
+        }
+      },
+      "zero_channel_dates": [
+        "2024-04-07",
+        "2024-04-08",
+        "2026-06-01"
+      ],
+      "median_channels_by_weekday_since_start": {
+        "mon": 1806.0,
+        "tue": 1820.0,
+        "wed": 1822.5,
+        "thu": 1778.5,
+        "fri": 1597.0,
+        "sat": 766.0,
+        "sun": 712.0
+      },
+      "trailing_30d_pr9": {
+        "all": {
+          "from": "2019-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 2738,
+          "low_days": 457,
+          "low_days_by_weekday": {
+            "mon": 14,
+            "tue": 9,
+            "wed": 10,
+            "thu": 13,
+            "fri": 18,
+            "sat": 183,
+            "sun": 210
+          }
+        },
+        "since_start": {
+          "from": "2023-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 1277,
+          "low_days": 249,
+          "low_days_by_weekday": {
+            "mon": 8,
+            "tue": 5,
+            "wed": 3,
+            "thu": 8,
+            "fri": 10,
+            "sat": 98,
+            "sun": 117
+          }
+        }
+      }
+    }
+  },
+  "policy": "daily_top_20; calibrated_prior_threshold_min_precision_0.70; cooldown_7d_no_backfill",
+  "baseline": "gap_vs_own_rhythm",
+  "variants": {
+    "L9c": {
+      "description": "продуктовая метка A_link без дополнительной цензуры",
+      "folds": [
+        {
+          "test_start": "2025-04-06",
+          "test_end": "2025-07-04",
+          "training_end": "2025-01-03",
+          "calibration": [
+            "2025-02-04",
+            "2025-03-05"
+          ],
+          "threshold_window": [
+            "2025-03-06",
+            "2025-04-04"
+          ],
+          "known_rows": 138647,
+          "unknown_rows": 2,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.4166666666666667,
+                "precision": 0.704225352112676,
+                "recall": 0.0667334000667334,
+                "k": 568
+              },
+              "model": {
+                "alerts": 1497,
+                "hits": 982,
+                "known_misses": 515,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.6559786239144957,
+                "precision_known_only": 0.6559786239144957,
+                "recall_known": 0.04578302018742132,
+                "episodes": 21449,
+                "episodes_caught": 1154,
+                "episode_recall": 0.05380204205324258,
+                "episodes_per_100_alerts": 77.0875083500334
+              },
+              "baseline_selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 0.9
+              },
+              "baseline": {
+                "alerts": 27,
+                "hits": 8,
+                "known_misses": 19,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.2962962962962963,
+                "precision_known_only": 0.2962962962962963,
+                "recall_known": 0.0003729777612009884,
+                "episodes": 21449,
+                "episodes_caught": 9,
+                "episode_recall": 0.00041959998135111196,
+                "episodes_per_100_alerts": 33.333333333333336
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1528,
+                "hits": 994,
+                "known_misses": 534,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.650523560209424,
+                "precision_known_only": 0.650523560209424,
+                "recall_known": 0.04634248682922281,
+                "episodes": 21449,
+                "episodes_caught": 1167,
+                "episode_recall": 0.05440813091519418,
+                "episodes_per_100_alerts": 76.37434554973822
+              },
+              "baseline": {
+                "alerts": 1715,
+                "hits": 630,
+                "known_misses": 1085,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.3673469387755102,
+                "precision_known_only": 0.3673469387755102,
+                "recall_known": 0.029371998694577836,
+                "episodes": 21449,
+                "episodes_caught": 876,
+                "episode_recall": 0.04084106485150823,
+                "episodes_per_100_alerts": 51.07871720116618
+              }
+            }
+          }
+        },
+        {
+          "test_start": "2025-07-05",
+          "test_end": "2025-10-02",
+          "training_end": "2025-04-03",
+          "calibration": [
+            "2025-05-05",
+            "2025-06-03"
+          ],
+          "threshold_window": [
+            "2025-06-04",
+            "2025-07-03"
+          ],
+          "known_rows": 145826,
+          "unknown_rows": 3,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.6060606060606061,
+                "precision": 0.7188264058679706,
+                "recall": 0.040340285400658614,
+                "k": 409
+              },
+              "model": {
+                "alerts": 1193,
+                "hits": 860,
+                "known_misses": 333,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.7208717518860017,
+                "precision_known_only": 0.7208717518860017,
+                "recall_known": 0.040566037735849055,
+                "episodes": 21200,
+                "episodes_caught": 970,
+                "episode_recall": 0.04575471698113207,
+                "episodes_per_100_alerts": 81.30762782900251
+              },
+              "baseline_selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 0.8888888888888888
+              },
+              "baseline": {
+                "alerts": 0,
+                "hits": 0,
+                "known_misses": 0,
+                "unknown_alerts": 0,
+                "precision_lower_bound": null,
+                "precision_known_only": null,
+                "recall_known": 0.0,
+                "episodes": 21200,
+                "episodes_caught": 0,
+                "episode_recall": 0.0,
+                "episodes_per_100_alerts": null
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1533,
+                "hits": 1015,
+                "known_misses": 518,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.6621004566210046,
+                "precision_known_only": 0.6621004566210046,
+                "recall_known": 0.04787735849056604,
+                "episodes": 21200,
+                "episodes_caught": 1173,
+                "episode_recall": 0.05533018867924528,
+                "episodes_per_100_alerts": 76.51663405088063
+              },
+              "baseline": {
+                "alerts": 1727,
+                "hits": 634,
+                "known_misses": 1093,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.36711059640995947,
+                "precision_known_only": 0.36711059640995947,
+                "recall_known": 0.029905660377358492,
+                "episodes": 21200,
+                "episodes_caught": 845,
+                "episode_recall": 0.039858490566037734,
+                "episodes_per_100_alerts": 48.92877822814128
+              }
+            }
+          }
+        },
+        {
+          "test_start": "2025-10-03",
+          "test_end": "2025-12-31",
+          "training_end": "2025-07-02",
+          "calibration": [
+            "2025-08-03",
+            "2025-09-01"
+          ],
+          "threshold_window": [
+            "2025-09-02",
+            "2025-10-01"
+          ],
+          "known_rows": 173771,
+          "unknown_rows": 28,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.6274900398406374,
+                "precision": 0.7158590308370044,
+                "recall": 0.04743140688849971,
+                "k": 454
+              },
+              "model": {
+                "alerts": 1369,
+                "hits": 1016,
+                "known_misses": 352,
+                "unknown_alerts": 1,
+                "precision_lower_bound": 0.7421475529583638,
+                "precision_known_only": 0.7426900584795322,
+                "recall_known": 0.03776109417973686,
+                "episodes": 26906,
+                "episodes_caught": 1150,
+                "episode_recall": 0.04274139597115885,
+                "episodes_per_100_alerts": 84.00292184075968
+              },
+              "baseline_selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 1.0
+              },
+              "baseline": {
+                "alerts": 0,
+                "hits": 0,
+                "known_misses": 0,
+                "unknown_alerts": 0,
+                "precision_lower_bound": null,
+                "precision_known_only": null,
+                "recall_known": 0.0,
+                "episodes": 26906,
+                "episodes_caught": 0,
+                "episode_recall": 0.0,
+                "episodes_per_100_alerts": null
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1605,
+                "hits": 1101,
+                "known_misses": 503,
+                "unknown_alerts": 1,
+                "precision_lower_bound": 0.685981308411215,
+                "precision_known_only": 0.6864089775561097,
+                "recall_known": 0.04092024083847469,
+                "episodes": 26906,
+                "episodes_caught": 1265,
+                "episode_recall": 0.04701553556827474,
+                "episodes_per_100_alerts": 78.81619937694704
+              },
+              "baseline": {
+                "alerts": 1721,
+                "hits": 690,
+                "known_misses": 1031,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.4009296920395119,
+                "precision_known_only": 0.4009296920395119,
+                "recall_known": 0.02564483758269531,
+                "episodes": 26906,
+                "episodes_caught": 930,
+                "episode_recall": 0.03456478108971976,
+                "episodes_per_100_alerts": 54.038349796629866
+              }
+            }
+          }
+        },
+        {
+          "test_start": "2026-01-01",
+          "test_end": "2026-03-31",
+          "training_end": "2025-09-30",
+          "calibration": [
+            "2025-11-01",
+            "2025-11-30"
+          ],
+          "threshold_window": [
+            "2025-12-01",
+            "2025-12-30"
+          ],
+          "known_rows": 160483,
+          "unknown_rows": 733,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.377326565143824,
+                "precision": 0.7016666666666667,
+                "recall": 0.045060473081451356,
+                "k": 600
+              },
+              "model": {
+                "alerts": 1526,
+                "hits": 954,
+                "known_misses": 569,
+                "unknown_alerts": 3,
+                "precision_lower_bound": 0.6251638269986893,
+                "precision_known_only": 0.6263952724885096,
+                "recall_known": 0.04710180705045917,
+                "episodes": 20254,
+                "episodes_caught": 1102,
+                "episode_recall": 0.054409005628517824,
+                "episodes_per_100_alerts": 72.21494102228047
+              },
+              "baseline_selection": {
+                "feasible": true,
+                "threshold": 3.9375,
+                "precision": 0.7077922077922078,
+                "recall": 0.011666488279995718,
+                "k": 154
+              },
+              "baseline": {
+                "alerts": 369,
+                "hits": 216,
+                "known_misses": 152,
+                "unknown_alerts": 1,
+                "precision_lower_bound": 0.5853658536585366,
+                "precision_known_only": 0.5869565217391305,
+                "recall_known": 0.010664560086896415,
+                "episodes": 20254,
+                "episodes_caught": 247,
+                "episode_recall": 0.012195121951219513,
+                "episodes_per_100_alerts": 66.93766937669376
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1550,
+                "hits": 965,
+                "known_misses": 582,
+                "unknown_alerts": 3,
+                "precision_lower_bound": 0.6225806451612903,
+                "precision_known_only": 0.6237879767291532,
+                "recall_known": 0.04764490964747704,
+                "episodes": 20254,
+                "episodes_caught": 1117,
+                "episode_recall": 0.05514960007899674,
+                "episodes_per_100_alerts": 72.06451612903226
+              },
+              "baseline": {
+                "alerts": 1736,
+                "hits": 634,
+                "known_misses": 1100,
+                "unknown_alerts": 2,
+                "precision_lower_bound": 0.3652073732718894,
+                "precision_known_only": 0.36562860438292966,
+                "recall_known": 0.03130245877357559,
+                "episodes": 20254,
+                "episodes_caught": 821,
+                "episode_recall": 0.04053520292287943,
+                "episodes_per_100_alerts": 47.2926267281106
+              }
+            }
+          }
+        },
+        {
+          "test_start": "2026-04-01",
+          "test_end": "2026-06-29",
+          "training_end": "2025-12-29",
+          "calibration": [
+            "2026-01-30",
+            "2026-02-28"
+          ],
+          "threshold_window": [
+            "2026-03-01",
+            "2026-03-30"
+          ],
+          "known_rows": 153048,
+          "unknown_rows": 7998,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.4523809523809524,
+                "precision": 0.7269155206286837,
+                "recall": 0.050094773896561064,
+                "k": 509
+              },
+              "model": {
+                "alerts": 1511,
+                "hits": 947,
+                "known_misses": 442,
+                "unknown_alerts": 122,
+                "precision_lower_bound": 0.6267372600926538,
+                "precision_known_only": 0.681785457163427,
+                "recall_known": 0.03705587728909063,
+                "episodes": 25556,
+                "episodes_caught": 1093,
+                "episode_recall": 0.042768821411801536,
+                "episodes_per_100_alerts": 72.33620119126407
+              },
+              "baseline_selection": {
+                "feasible": true,
+                "threshold": 4.0,
+                "precision": 0.7125,
+                "recall": 0.007717303005686434,
+                "k": 80
+              },
+              "baseline": {
+                "alerts": 381,
+                "hits": 176,
+                "known_misses": 198,
+                "unknown_alerts": 7,
+                "precision_lower_bound": 0.46194225721784776,
+                "precision_known_only": 0.47058823529411764,
+                "recall_known": 0.006886836750665206,
+                "episodes": 25556,
+                "episodes_caught": 229,
+                "episode_recall": 0.008960713726717796,
+                "episodes_per_100_alerts": 60.10498687664042
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1559,
+                "hits": 963,
+                "known_misses": 469,
+                "unknown_alerts": 127,
+                "precision_lower_bound": 0.6177036561898653,
+                "precision_known_only": 0.672486033519553,
+                "recall_known": 0.03768195335733292,
+                "episodes": 25556,
+                "episodes_caught": 1114,
+                "episode_recall": 0.043590546251369544,
+                "episodes_per_100_alerts": 71.45606157793458
+              },
+              "baseline": {
+                "alerts": 1711,
+                "hits": 634,
+                "known_misses": 1017,
+                "unknown_alerts": 60,
+                "precision_lower_bound": 0.3705435417884278,
+                "precision_known_only": 0.3840096910963053,
+                "recall_known": 0.0248082642041008,
+                "episodes": 25556,
+                "episodes_caught": 890,
+                "episode_recall": 0.03482548129597746,
+                "episodes_per_100_alerts": 52.01636469900643
+              }
+            }
+          }
+        }
+      ],
+      "totals": {
+        "min_precision_0.70": {
+          "model": {
+            "alerts": 7096,
+            "hits": 4759,
+            "unknown_alerts": 126,
+            "precision_lower_bound": 0.6706595264937993,
+            "precision_known_only": 0.6827833572453371,
+            "episodes": 115365,
+            "episodes_caught": 5469
+          },
+          "baseline": {
+            "alerts": 777,
+            "hits": 400,
+            "unknown_alerts": 8,
+            "precision_lower_bound": 0.5148005148005148,
+            "precision_known_only": 0.5201560468140443,
+            "episodes": 115365,
+            "episodes_caught": 485
+          }
+        },
+        "fixed_top_20": {
+          "model": {
+            "alerts": 7775,
+            "hits": 5038,
+            "unknown_alerts": 131,
+            "precision_lower_bound": 0.6479742765273312,
+            "precision_known_only": 0.6590790162218734,
+            "episodes": 115365,
+            "episodes_caught": 5836
+          },
+          "baseline": {
+            "alerts": 8610,
+            "hits": 3222,
+            "unknown_alerts": 62,
+            "precision_lower_bound": 0.3742160278745645,
+            "precision_known_only": 0.3769302760879738,
+            "episodes": 115365,
+            "episodes_caught": 4362
+          }
+        }
+      }
+    },
+    "no_friday_monday": {
+      "description": "без пятничных строк, после которых канал вернулся в понедельник",
+      "folds": [
+        {
+          "test_start": "2025-04-06",
+          "test_end": "2025-07-04",
+          "training_end": "2025-01-03",
+          "calibration": [
+            "2025-02-04",
+            "2025-03-05"
+          ],
+          "threshold_window": [
+            "2025-03-06",
+            "2025-04-04"
+          ],
+          "known_rows": 133211,
+          "unknown_rows": 5438,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 0.8888888888888888
+              },
+              "model": {
+                "alerts": 0,
+                "hits": 0,
+                "known_misses": 0,
+                "unknown_alerts": 0,
+                "precision_lower_bound": null,
+                "precision_known_only": null,
+                "recall_known": 0.0,
+                "episodes": 17651,
+                "episodes_caught": 0,
+                "episode_recall": 0.0,
+                "episodes_per_100_alerts": null
+              },
+              "baseline_selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 0.8571428571428571
+              },
+              "baseline": {
+                "alerts": 27,
+                "hits": 8,
+                "known_misses": 19,
+                "unknown_alerts": 0,
+                "precision_lower_bound": 0.2962962962962963,
+                "precision_known_only": 0.2962962962962963,
+                "recall_known": 0.0004532321114950994,
+                "episodes": 17651,
+                "episodes_caught": 9,
+                "episode_recall": 0.0005098861254319868,
+                "episodes_per_100_alerts": 33.333333333333336
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1544,
+                "hits": 876,
+                "known_misses": 566,
+                "unknown_alerts": 102,
+                "precision_lower_bound": 0.5673575129533679,
+                "precision_known_only": 0.6074895977808599,
+                "recall_known": 0.04962891620871339,
+                "episodes": 17651,
+                "episodes_caught": 1021,
+                "episode_recall": 0.057843748229562064,
+                "episodes_per_100_alerts": 66.12694300518135
+              },
+              "baseline": {
+                "alerts": 1715,
+                "hits": 574,
+                "known_misses": 1064,
+                "unknown_alerts": 77,
+                "precision_lower_bound": 0.3346938775510204,
+                "precision_known_only": 0.3504273504273504,
+                "recall_known": 0.032519403999773384,
+                "episodes": 17651,
+                "episodes_caught": 792,
+                "episode_recall": 0.044869979038014846,
+                "episodes_per_100_alerts": 46.180758017492714
+              }
+            }
+          },
+          "l9c_recommendations_censored": {
+            "recommendations": 147,
+            "hits": 145
+          }
+        },
+        {
+          "test_start": "2025-07-05",
+          "test_end": "2025-10-02",
+          "training_end": "2025-04-03",
+          "calibration": [
+            "2025-05-05",
+            "2025-06-03"
+          ],
+          "threshold_window": [
+            "2025-06-04",
+            "2025-07-03"
+          ],
+          "known_rows": 140293,
+          "unknown_rows": 5536,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.652405270695831,
+                "precision": 0.7068403908794788,
+                "recall": 0.036184759046189764,
+                "k": 307
+              },
+              "model": {
+                "alerts": 924,
+                "hits": 605,
+                "known_misses": 251,
+                "unknown_alerts": 68,
+                "precision_lower_bound": 0.6547619047619048,
+                "precision_known_only": 0.7067757009345794,
+                "recall_known": 0.03606772385835221,
+                "episodes": 16774,
+                "episodes_caught": 686,
+                "episode_recall": 0.04089662573029689,
+                "episodes_per_100_alerts": 74.24242424242425
+              },
+              "baseline_selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 0.8571428571428571
+              },
+              "baseline": {
+                "alerts": 0,
+                "hits": 0,
+                "known_misses": 0,
+                "unknown_alerts": 0,
+                "precision_lower_bound": null,
+                "precision_known_only": null,
+                "recall_known": 0.0,
+                "episodes": 16774,
+                "episodes_caught": 0,
+                "episode_recall": 0.0,
+                "episodes_per_100_alerts": null
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1458,
+                "hits": 872,
+                "known_misses": 519,
+                "unknown_alerts": 67,
+                "precision_lower_bound": 0.598079561042524,
+                "precision_known_only": 0.6268871315600287,
+                "recall_known": 0.0519852152140217,
+                "episodes": 16774,
+                "episodes_caught": 1022,
+                "episode_recall": 0.06092762608799332,
+                "episodes_per_100_alerts": 70.0960219478738
+              },
+              "baseline": {
+                "alerts": 1727,
+                "hits": 608,
+                "known_misses": 1075,
+                "unknown_alerts": 44,
+                "precision_lower_bound": 0.3520555877243775,
+                "precision_known_only": 0.3612596553773024,
+                "recall_known": 0.036246572075831644,
+                "episodes": 16774,
+                "episodes_caught": 785,
+                "episode_recall": 0.04679861690711816,
+                "episodes_per_100_alerts": 45.45454545454545
+              }
+            }
+          },
+          "l9c_recommendations_censored": {
+            "recommendations": 164,
+            "hits": 164
+          }
+        },
+        {
+          "test_start": "2025-10-03",
+          "test_end": "2025-12-31",
+          "training_end": "2025-07-02",
+          "calibration": [
+            "2025-08-03",
+            "2025-09-01"
+          ],
+          "threshold_window": [
+            "2025-09-02",
+            "2025-10-01"
+          ],
+          "known_rows": 167255,
+          "unknown_rows": 6544,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.9285714285714286,
+                "precision": 0.8767123287671232,
+                "recall": 0.01219047619047619,
+                "k": 73
+              },
+              "model": {
+                "alerts": 418,
+                "hits": 261,
+                "known_misses": 66,
+                "unknown_alerts": 91,
+                "precision_lower_bound": 0.6244019138755981,
+                "precision_known_only": 0.7981651376146789,
+                "recall_known": 0.01160257835074461,
+                "episodes": 22495,
+                "episodes_caught": 302,
+                "episode_recall": 0.013425205601244721,
+                "episodes_per_100_alerts": 72.2488038277512
+              },
+              "baseline_selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 1.0
+              },
+              "baseline": {
+                "alerts": 0,
+                "hits": 0,
+                "known_misses": 0,
+                "unknown_alerts": 0,
+                "precision_lower_bound": null,
+                "precision_known_only": null,
+                "recall_known": 0.0,
+                "episodes": 22495,
+                "episodes_caught": 0,
+                "episode_recall": 0.0,
+                "episodes_per_100_alerts": null
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1587,
+                "hits": 924,
+                "known_misses": 554,
+                "unknown_alerts": 109,
+                "precision_lower_bound": 0.5822306238185255,
+                "precision_known_only": 0.625169147496617,
+                "recall_known": 0.041075794621026895,
+                "episodes": 22495,
+                "episodes_caught": 1125,
+                "episode_recall": 0.050011113580795734,
+                "episodes_per_100_alerts": 70.88846880907373
+              },
+              "baseline": {
+                "alerts": 1721,
+                "hits": 667,
+                "known_misses": 1022,
+                "unknown_alerts": 32,
+                "precision_lower_bound": 0.38756536897152816,
+                "precision_known_only": 0.39490822972172884,
+                "recall_known": 0.029651033563014004,
+                "episodes": 22495,
+                "episodes_caught": 893,
+                "episode_recall": 0.03969771060235608,
+                "episodes_per_100_alerts": 51.88843695525857
+              }
+            }
+          },
+          "l9c_recommendations_censored": {
+            "recommendations": 190,
+            "hits": 190
+          }
+        },
+        {
+          "test_start": "2026-01-01",
+          "test_end": "2026-03-31",
+          "training_end": "2025-09-30",
+          "calibration": [
+            "2025-11-01",
+            "2025-11-30"
+          ],
+          "threshold_window": [
+            "2025-12-01",
+            "2025-12-30"
+          ],
+          "known_rows": 156059,
+          "unknown_rows": 5157,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": false,
+                "reason": "нет порога с Precision >= 0.7 и не менее 30 алертов",
+                "max_precision": 1.0
+              },
+              "model": {
+                "alerts": 0,
+                "hits": 0,
+                "known_misses": 0,
+                "unknown_alerts": 0,
+                "precision_lower_bound": null,
+                "precision_known_only": null,
+                "recall_known": 0.0,
+                "episodes": 18294,
+                "episodes_caught": 0,
+                "episode_recall": 0.0,
+                "episodes_per_100_alerts": null
+              },
+              "baseline_selection": {
+                "feasible": true,
+                "threshold": 3.9375,
+                "precision": 0.7012987012987013,
+                "recall": 0.013537227375282025,
+                "k": 154
+              },
+              "baseline": {
+                "alerts": 369,
+                "hits": 204,
+                "known_misses": 152,
+                "unknown_alerts": 13,
+                "precision_lower_bound": 0.5528455284552846,
+                "precision_known_only": 0.5730337078651685,
+                "recall_known": 0.011151197113807805,
+                "episodes": 18294,
+                "episodes_caught": 231,
+                "episode_recall": 0.012627090849458839,
+                "episodes_per_100_alerts": 62.60162601626016
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1555,
+                "hits": 885,
+                "known_misses": 563,
+                "unknown_alerts": 107,
+                "precision_lower_bound": 0.5691318327974276,
+                "precision_known_only": 0.6111878453038674,
+                "recall_known": 0.048376516890783865,
+                "episodes": 18294,
+                "episodes_caught": 1011,
+                "episode_recall": 0.05526402099048869,
+                "episodes_per_100_alerts": 65.016077170418
+              },
+              "baseline": {
+                "alerts": 1736,
+                "hits": 615,
+                "known_misses": 1067,
+                "unknown_alerts": 54,
+                "precision_lower_bound": 0.3542626728110599,
+                "precision_known_only": 0.36563614744351963,
+                "recall_known": 0.03361757953427353,
+                "episodes": 18294,
+                "episodes_caught": 778,
+                "episode_recall": 0.04252760467912977,
+                "episodes_per_100_alerts": 44.815668202764975
+              }
+            }
+          },
+          "l9c_recommendations_censored": {
+            "recommendations": 133,
+            "hits": 130
+          }
+        },
+        {
+          "test_start": "2026-04-01",
+          "test_end": "2026-06-29",
+          "training_end": "2025-12-29",
+          "calibration": [
+            "2026-01-30",
+            "2026-02-28"
+          ],
+          "threshold_window": [
+            "2026-03-01",
+            "2026-03-30"
+          ],
+          "known_rows": 146173,
+          "unknown_rows": 14873,
+          "policies": {
+            "min_precision_0.70": {
+              "selection": {
+                "feasible": true,
+                "threshold": 0.5219400140010065,
+                "precision": 0.7023809523809523,
+                "recall": 0.035698078959310243,
+                "k": 336
+              },
+              "model": {
+                "alerts": 1178,
+                "hits": 723,
+                "known_misses": 281,
+                "unknown_alerts": 174,
+                "precision_lower_bound": 0.6137521222410866,
+                "precision_known_only": 0.7201195219123506,
+                "recall_known": 0.03373460246360582,
+                "episodes": 21432,
+                "episodes_caught": 819,
+                "episode_recall": 0.038213885778275475,
+                "episodes_per_100_alerts": 69.52461799660442
+              },
+              "baseline_selection": {
+                "feasible": true,
+                "threshold": 4.0,
+                "precision": 0.7125,
+                "recall": 0.008621993646952049,
+                "k": 80
+              },
+              "baseline": {
+                "alerts": 381,
+                "hits": 155,
+                "known_misses": 198,
+                "unknown_alerts": 28,
+                "precision_lower_bound": 0.4068241469816273,
+                "precision_known_only": 0.43909348441926344,
+                "recall_known": 0.00723217618514371,
+                "episodes": 21432,
+                "episodes_caught": 204,
+                "episode_recall": 0.009518477043673012,
+                "episodes_per_100_alerts": 53.54330708661417
+              }
+            },
+            "fixed_top_20": {
+              "model": {
+                "alerts": 1559,
+                "hits": 868,
+                "known_misses": 494,
+                "unknown_alerts": 197,
+                "precision_lower_bound": 0.5567671584348942,
+                "precision_known_only": 0.6372980910425844,
+                "recall_known": 0.040500186636804776,
+                "episodes": 21432,
+                "episodes_caught": 1013,
+                "episode_recall": 0.04726577081000373,
+                "episodes_per_100_alerts": 64.97754971135343
+              },
+              "baseline": {
+                "alerts": 1711,
+                "hits": 582,
+                "known_misses": 997,
+                "unknown_alerts": 132,
+                "precision_lower_bound": 0.34015195791934544,
+                "precision_known_only": 0.36858771374287524,
+                "recall_known": 0.02715565509518477,
+                "episodes": 21432,
+                "episodes_caught": 810,
+                "episode_recall": 0.0377939529675252,
+                "episodes_per_100_alerts": 47.34073641145529
+              }
+            }
+          },
+          "l9c_recommendations_censored": {
+            "recommendations": 76,
+            "hits": 76
+          }
+        }
+      ],
+      "totals": {
+        "min_precision_0.70": {
+          "model": {
+            "alerts": 2520,
+            "hits": 1589,
+            "unknown_alerts": 333,
+            "precision_lower_bound": 0.6305555555555555,
+            "precision_known_only": 0.7265660722450846,
+            "episodes": 96646,
+            "episodes_caught": 1807
+          },
+          "baseline": {
+            "alerts": 777,
+            "hits": 367,
+            "unknown_alerts": 41,
+            "precision_lower_bound": 0.4723294723294723,
+            "precision_known_only": 0.4986413043478261,
+            "episodes": 96646,
+            "episodes_caught": 444
+          }
+        },
+        "fixed_top_20": {
+          "model": {
+            "alerts": 7703,
+            "hits": 4425,
+            "unknown_alerts": 582,
+            "precision_lower_bound": 0.5744515123977672,
+            "precision_known_only": 0.6214014885549782,
+            "episodes": 96646,
+            "episodes_caught": 5192
+          },
+          "baseline": {
+            "alerts": 8610,
+            "hits": 3046,
+            "unknown_alerts": 339,
+            "precision_lower_bound": 0.3537746806039489,
+            "precision_known_only": 0.3682746947164793,
+            "episodes": 96646,
+            "episodes_caught": 4058
+          }
+        },
+        "l9c_recommendations_censored": {
+          "recommendations": 710,
+          "hits": 705
+        }
+      }
+    }
+  },
+  "caution": "Validation, not a blind holdout: the 2026H1 test windows were already inspected (reports/holdout_uses.md). Censored rows stay in the ranking as unknown outcomes. The product label, heads.yaml and a_link_live_policy_temporal.json are unchanged."
+}

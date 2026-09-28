@@ -1048,6 +1048,8 @@ export interface components {
              * @enum {string}
              */
             kind: "alert" | "weekly_recommendation";
+            /** Maintenance Note */
+            maintenance_note?: string | null;
             object: components["schemas"]["ObjectRef"];
             /** Outcome Auto */
             outcome_auto?: ("hit" | "miss" | "unknown") | null;

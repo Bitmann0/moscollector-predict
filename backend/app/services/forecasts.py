@@ -229,6 +229,12 @@ def get_card(db: Session, forecast_id: str) -> ForecastCard | None:
     return ForecastCard(
         **item.model_dump(),
         factors=[FactorItem.model_validate(f) for f in row.factors or []],
+        maintenance_note=(
+            "В графике есть ППР/ТО на период прогноза; связь с объектом "
+            "предположительная, проверьте график"
+            if isinstance(extra.get("maintenance_context"), dict)
+            and extra["maintenance_context"].get("status") == "schedule_overlap_unconfirmed"
+            and extra["maintenance_context"].get("matches") else None),
         evidence=extra.get("evidence"),
         recent_alarm_days_7=extra.get("recent_alarm_days_7"),
         recent_alarm_days_30=extra.get("recent_alarm_days_30"),

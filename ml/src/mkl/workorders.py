@@ -132,5 +132,9 @@ def build(alerts: list[Alert], only_in_budget: bool = True) -> list[WorkOrder]:
             rationale=_rationale(items),
         ))
     order = {PRIORITY_URGENT: 0, PRIORITY_PLANNED: 1, PRIORITY_WATCH: 2}
-    out.sort(key=lambda w: (order.get(w.priority, 3), -w.max_risk))
+    # D uses a bad-state count while A_link uses a probability. Compare scores
+    # only inside one direction; across directions retain urgency and a stable
+    # grouping instead of treating a count of 3 as "risk 300%".
+    out.sort(key=lambda w: (order.get(w.priority, 3), w.direction,
+                            -w.max_risk, w.obj or ""))
     return out

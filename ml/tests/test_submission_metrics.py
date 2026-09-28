@@ -29,6 +29,8 @@ def _blocks(data: dict):
     for scenario in data["scenarios"]:
         for key in ("evaluations", "comparison", "base_rate"):
             yield from scenario[key]
+        if "label_sensitivity" in scenario:
+            yield scenario["label_sensitivity"]
     yield from data["runtime"]
     yield data["holdout"]
     for setup in data["rejected_setups"]:

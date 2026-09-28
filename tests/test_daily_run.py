@@ -88,6 +88,29 @@ def test_forecast_fields_follow_contract(admin, fake_ml):
     assert card["coverage_note"].startswith("Оценено 27 из 30")
 
 
+def test_maintenance_context_survives_ml_contract_and_reaches_card(
+        admin, fake_ml, monkeypatch, seeded):
+    original = fake_ml.score
+    context = {"status": "schedule_overlap_unconfirmed",
+               "matches": [{"kind": "planned_ppr_window", "mapping_status": "candidate",
+                            "planned_start": "2026-06-17"}]}
+
+    def score_with_schedule(request):
+        response = original(request)
+        link = next(a for a in response.alerts if a.head == "A_link" and a.in_budget)
+        link.maintenance_context = context
+        return response
+
+    monkeypatch.setattr(fake_ml, "score", score_with_schedule)
+    assert admin.post(f"{API}/admin/run-daily",
+                      json={"asof": TUESDAY.isoformat()}).status_code == 200
+    forecast_id = alert_id("A_link", 9000001, TUESDAY)
+    card = admin.get(f"{API}/forecasts/{forecast_id}")
+    assert card.status_code == 200
+    assert "ППР/ТО" in card.json()["maintenance_note"]
+    assert seeded.get(models.Forecast, forecast_id).extra["maintenance_context"] == context
+
+
 def test_work_orders_from_ml_are_drafts(admin, fake_ml):
     admin.post(f"{API}/admin/run-daily", json={"asof": TUESDAY.isoformat()})
     orders = admin.get(f"{API}/work-orders").json()["items"]

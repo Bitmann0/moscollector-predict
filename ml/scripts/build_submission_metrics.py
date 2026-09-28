@@ -65,12 +65,19 @@ CMD_JUNE = ("из ml/, PYTHONPATH=src: датированные модели tra
             "labels.parquet reports/a_link_operating_point_june.json")
 CMD_JUNE_LABELS = "python scripts/eval_a_link_operating_point.py labels labels.parquet"
 CMD_A_LINK_5 = "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+CMD_A_LINK_WEEKEND = ("python scripts/eval_a_link_availability_checks.py "
+                      "--end-date 2026-06-29 --variants L9c,no_friday_monday "
+                      "--out reports/a_link_weekend_full.json")
 CMD_VALIDATION = ("python scripts/audit_second_ml.py --mode historical --data-root <data> "
                   "--splits 4 --test-days 28 --end 2025-12-31 --threads 12 "
                   "--output reports/rule_vs_model_2025h2.json")
 CMD_42D = ("python scripts/audit_second_ml.py --mode historical --data-root <data> "
            "--splits 3 --test-days 14 --refresh-days 7 --threads 4 "
            "--output reports/second_ml_42d_local.json")
+CMD_D_MONDAY_2025 = ("python scripts/eval_d_rule_serving.py --end 2025-12-31 "
+                     "--splits 4 --test-days 28 --out reports/d_rule_monday_2025h2.json")
+CMD_D_MONDAY_2026 = ("python scripts/eval_d_rule_serving.py --end 2026-06-23 "
+                     "--splits 3 --test-days 14 --out reports/d_rule_monday_2026_42d.json")
 CMD_GUARD = ("python scripts/build_intrusion_eventtime_labels.py; "
              "python scripts/exp_guard_weekly_repeats.py")
 CMD_GUARD_MODEL = "python scripts/exp_guard_weekly_model.py"
@@ -131,6 +138,12 @@ def sensor_link() -> dict:
     base70 = _a_link_pool(folds, "min_precision_0.70", "baseline")
     feasible = sum(f["policies"]["min_precision_0.70"]["baseline_selection"]["feasible"]
                    for f in folds)
+    weekend = _load("a_link_weekend_full.json")["variants"]
+    old_weekend = weekend["L9c"]["totals"]["min_precision_0.70"]["model"]
+    censored = weekend["no_friday_monday"]["totals"]["l9c_recommendations_censored"]
+    retrained = weekend["no_friday_monday"]["totals"]["min_precision_0.70"]["model"]
+    if (old_weekend["alerts"], old_weekend["hits"]) != (model70["alerts"], model70["hits"]):
+        raise ValueError("weekend sensitivity and primary A_link evaluation disagree")
     return {
         "code": "sensor_link", "title": TITLES["sensor_link"], "head": "A_link",
         "in_product": "модель LightGBM, порог выбирается на прошлом 30-дневном окне "
@@ -141,6 +154,24 @@ def sensor_link() -> dict:
                  "без возврата — unknown",
         "horizon_hours": 24, "limit_per_day": 20, "cooldown_days": 7,
         "config": "configs/heads.yaml (A_link)",
+        "label_sensitivity": {
+            "what": "гипотетически неизвестный исход для пятница→понедельник",
+            "same_issued_recommendations": old_weekend["alerts"],
+            "censored_recommendations": censored["recommendations"],
+            "censored_original_hits": censored["hits"],
+            "same_policy_conservative_hits": old_weekend["hits"] - censored["hits"],
+            "same_policy_precision_lower_bound": _ratio(
+                old_weekend["hits"] - censored["hits"], old_weekend["alerts"]),
+            "retrained": _counts(retrained["alerts"], retrained["hits"],
+                                 retrained["unknown_alerts"]),
+            "retrained_silent_windows": sum(
+                f["policies"]["min_precision_0.70"]["model"]["alerts"] == 0
+                for f in weekend["no_friday_monday"]["folds"]),
+            "source": "reports/a_link_weekend_full.json",
+            "command": CMD_A_LINK_WEEKEND,
+            "note": "чувствительность к определению метки, не доказанные ложные тревоги; "
+                    "даты ранее просмотрены, продуктовая модель не заменена",
+        },
         "evaluations": [
             {"id": "june_2026", "period": june["days"], "days": june_days,
              "method": "temporal",
@@ -227,26 +258,39 @@ def _audit_base(total: dict) -> dict:
 def equipment_diag() -> dict:
     val = _audit_head(_load("rule_vs_model_2025h2.json"), "D")
     d42 = _audit_head(_load("second_ml_42d_local.json"), "D")
+    exact_2025 = _load("d_rule_monday_2025h2.json")["period"]
+    exact_2026 = _load("d_rule_monday_2026_42d.json")["period"]
     runs = [(val, "validation_2025h2", "reports/rule_vs_model_2025h2.json", CMD_VALIDATION,
-             "четыре окна по 28 суток; порог правила выбирается по прошлому окну"),
+             "четыре окна по 28 суток; аудит обновлял порог по четвергам, не как сервис"),
             (d42, "may_june_2026", "reports/second_ml_42d_local.json", CMD_42D,
-             "три окна по 14 суток; проверка уже принятого решения, новых просмотров нет")]
+             "три окна по 14 суток; аудит обновлял порог по средам, не как сервис")]
     evaluations, comparison, base = [], [], []
+    exact_runs = [(exact_2025, "validation_2025h2",
+                   "reports/d_rule_monday_2025h2.json", CMD_D_MONDAY_2025),
+                  (exact_2026, "may_june_2026",
+                   "reports/d_rule_monday_2026_42d.json", CMD_D_MONDAY_2026)]
+    for exact, key, source, command in exact_runs:
+        evaluations.append({
+            "id": key, "period": [exact["start"], exact["end"]], "method": "temporal",
+            "method_note": "точная политика C1: обновление порога по понедельникам, "
+                           "пауза 7 суток; история ранее просмотрена",
+            **_audit_eval(exact["summary"]), "source": source,
+            "command": command})
+        base.append({
+            "period": [exact["start"], exact["end"]],
+            **_audit_base(exact["summary"]),
+            "note": "доля положительных среди канало-суток оборудования",
+            "source": source, "command": command})
     for head, key, source, command, note in runs:
         period = [head["folds"][0]["start"], head["folds"][-1]["end"]]
-        evaluations.append({"id": key, "period": period, "method": "temporal",
-                            "method_note": note, **_audit_eval(head["total"]["baseline_70"]),
-                            "source": f"{source} (D, baseline_70)", "command": command})
         for policy, what in (("model_70", "модель LightGBM, минимум точности 0,70"),
                              ("model_50", "модель LightGBM, минимум точности 0,50")):
             t = head["total"][policy]
             comparison.append({"what": what, "period": period,
                                **_counts(t["alerts"], t["hits"], t["unknown_alerts"]),
                                "episodes_caught": t["episodes_caught"],
+                               "note": note + "; не прямое парное сравнение с C1",
                                "source": f"{source} (D, {policy})", "command": command})
-        base.append({"period": period, **_audit_base(head["total"]["baseline_70"]),
-                     "note": "доля положительных среди канало-суток оборудования",
-                     "source": source, "command": command})
     old = _load("d_live_policy_temporal.json")["folds"]
     old_alerts = sum(f["model"]["alerts"] for f in old)
     old_hits = sum(f["model"]["true_alerts"] for f in old)

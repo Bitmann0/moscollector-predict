@@ -4,7 +4,8 @@ from mkl import config
 
 
 def test_paths_exist():
-    assert config.PATHS.materials.exists()
+    # Customer materials are not bundled with a clean checkout.
+    assert config.PATHS.materials == config.PATHS.root / "Materials"
     assert config.PATHS.interim.exists()
 
 

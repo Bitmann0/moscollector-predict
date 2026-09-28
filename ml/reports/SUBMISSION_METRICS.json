@@ -23,6 +23,25 @@
       "limit_per_day": 20,
       "cooldown_days": 7,
       "config": "configs/heads.yaml (A_link)",
+      "label_sensitivity": {
+        "what": "гипотетически неизвестный исход для пятница→понедельник",
+        "same_issued_recommendations": 7096,
+        "censored_recommendations": 710,
+        "censored_original_hits": 705,
+        "same_policy_conservative_hits": 4054,
+        "same_policy_precision_lower_bound": 0.5713,
+        "retrained": {
+          "alerts": 2520,
+          "hits": 1589,
+          "unknown": 333,
+          "precision_lower_bound": 0.6306,
+          "precision_known_only": 0.7266
+        },
+        "retrained_silent_windows": 2,
+        "source": "reports/a_link_weekend_full.json",
+        "command": "python scripts/eval_a_link_availability_checks.py --end-date 2026-06-29 --variants L9c,no_friday_monday --out reports/a_link_weekend_full.json",
+        "note": "чувствительность к определению метки, не доказанные ложные тревоги; даты ранее просмотрены, продуктовая модель не заменена"
+      },
       "evaluations": [
         {
           "id": "june_2026",
@@ -221,23 +240,23 @@
             "2025-12-31"
           ],
           "method": "temporal",
-          "method_note": "четыре окна по 28 суток; порог правила выбирается по прошлому окну",
-          "alerts": 80,
-          "hits": 51,
-          "unknown": 25,
-          "precision_lower_bound": 0.6375,
-          "precision_known_only": 0.9273,
+          "method_note": "точная политика C1: обновление порога по понедельникам, пауза 7 суток; история ранее просмотрена",
+          "alerts": 66,
+          "hits": 47,
+          "unknown": 17,
+          "precision_lower_bound": 0.7121,
+          "precision_known_only": 0.9592,
           "positives": 7138,
-          "recall": 0.0071,
+          "recall": 0.0066,
           "recall_unit": "положительные канало-сутки",
-          "episodes_caught": 22,
+          "episodes_caught": 23,
           "episodes_eligible": 1358,
-          "episode_recall": 0.0162,
-          "alerts_per_day": 0.71,
-          "days_without_alerts": 63,
+          "episode_recall": 0.0169,
+          "alerts_per_day": 0.59,
+          "days_without_alerts": 73,
           "days": 112,
-          "source": "reports/rule_vs_model_2025h2.json (D, baseline_70)",
-          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+          "source": "reports/d_rule_monday_2025h2.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2025-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2025h2.json"
         },
         {
           "id": "may_june_2026",
@@ -246,23 +265,23 @@
             "2026-06-23"
           ],
           "method": "temporal",
-          "method_note": "три окна по 14 суток; проверка уже принятого решения, новых просмотров нет",
-          "alerts": 26,
-          "hits": 17,
-          "unknown": 7,
-          "precision_lower_bound": 0.6538,
-          "precision_known_only": 0.8947,
+          "method_note": "точная политика C1: обновление порога по понедельникам, пауза 7 суток; история ранее просмотрена",
+          "alerts": 22,
+          "hits": 16,
+          "unknown": 4,
+          "precision_lower_bound": 0.7273,
+          "precision_known_only": 0.8889,
           "positives": 4174,
-          "recall": 0.0041,
+          "recall": 0.0038,
           "recall_unit": "положительные канало-сутки",
-          "episodes_caught": 13,
+          "episodes_caught": 12,
           "episodes_eligible": 938,
-          "episode_recall": 0.0139,
-          "alerts_per_day": 0.62,
-          "days_without_alerts": 24,
+          "episode_recall": 0.0128,
+          "alerts_per_day": 0.52,
+          "days_without_alerts": 26,
           "days": 42,
-          "source": "reports/second_ml_42d_local.json (D, baseline_70)",
-          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
+          "source": "reports/d_rule_monday_2026_42d.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2026-06-23 --splits 3 --test-days 14 --out reports/d_rule_monday_2026_42d.json"
         }
       ],
       "comparison": [
@@ -278,6 +297,7 @@
           "precision_lower_bound": null,
           "precision_known_only": null,
           "episodes_caught": 0,
+          "note": "четыре окна по 28 суток; аудит обновлял порог по четвергам, не как сервис; не прямое парное сравнение с C1",
           "source": "reports/rule_vs_model_2025h2.json (D, model_70)",
           "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
         },
@@ -293,6 +313,7 @@
           "precision_lower_bound": 0.36,
           "precision_known_only": 1.0,
           "episodes_caught": 5,
+          "note": "четыре окна по 28 суток; аудит обновлял порог по четвергам, не как сервис; не прямое парное сравнение с C1",
           "source": "reports/rule_vs_model_2025h2.json (D, model_50)",
           "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
         },
@@ -308,6 +329,7 @@
           "precision_lower_bound": null,
           "precision_known_only": null,
           "episodes_caught": 0,
+          "note": "три окна по 14 суток; аудит обновлял порог по средам, не как сервис; не прямое парное сравнение с C1",
           "source": "reports/second_ml_42d_local.json (D, model_70)",
           "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
         },
@@ -323,6 +345,7 @@
           "precision_lower_bound": 0.4615,
           "precision_known_only": 1.0,
           "episodes_caught": 7,
+          "note": "три окна по 14 суток; аудит обновлял порог по средам, не как сервис; не прямое парное сравнение с C1",
           "source": "reports/second_ml_42d_local.json (D, model_50)",
           "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
         }
@@ -339,8 +362,8 @@
           "rate_known": 0.7333,
           "rate_with_unknown": 0.3479,
           "note": "доля положительных среди канало-суток оборудования",
-          "source": "reports/rule_vs_model_2025h2.json",
-          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+          "source": "reports/d_rule_monday_2025h2.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2025-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2025h2.json"
         },
         {
           "period": [
@@ -353,8 +376,8 @@
           "rate_known": 0.6373,
           "rate_with_unknown": 0.3607,
           "note": "доля положительных среди канало-суток оборудования",
-          "source": "reports/second_ml_42d_local.json",
-          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
+          "source": "reports/d_rule_monday_2026_42d.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2026-06-23 --splits 3 --test-days 14 --out reports/d_rule_monday_2026_42d.json"
         }
       ],
       "previous_protocol": {

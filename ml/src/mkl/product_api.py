@@ -229,7 +229,11 @@ def _real_score(req: ScoreRequest) -> ScoreResponse:
             entities_scored=scored, reason=reason,
             fraction=round(scored / total, 4) if total else 0.0))
 
-    alerts.sort(key=lambda a: (-a.risk, a.head, a.rank))
+    # A_link.risk is a probability; D.risk is a count of recent bad states.
+    # Their magnitudes are not comparable, so keep each head's own ranking
+    # instead of promoting every nonzero D count above A_link probabilities.
+    head_order = {head: i for i, head in enumerate(dict.fromkeys(req.heads))}
+    alerts.sort(key=lambda a: (head_order.get(a.head, len(head_order)), a.rank))
     orders = workorders.build(alerts)
     names = {a.address.obj: a.address for a in alerts if a.address.obj}
     return ScoreResponse(

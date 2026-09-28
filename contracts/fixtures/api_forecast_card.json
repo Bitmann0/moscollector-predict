@@ -216,6 +216,7 @@
   "horizon_hours": 24,
   "id": "4ec915ed398ac359",
   "kind": "alert",
+  "maintenance_note": null,
   "object": {
     "complex_id": "9200",
     "complex_name": "Комплекс-заглушка 2",
