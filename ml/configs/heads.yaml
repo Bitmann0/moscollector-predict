@@ -141,15 +141,18 @@ B:
   title: Пожарный риск участка
   # В продукте с 29.09.2026: сценарий из ТЗ, эксперты разрешили снижать
   # пороги точности с обоснованием (reports/qa_experts.csv, вопрос 9).
-  # Порога точности нет, выдаётся top по риску; числа июня — в
-  # reports/FIRE_FLOOD_PRODUCT.md.
+  # Порога точности нет, выдаётся top-10 участков по риску без паузы.
+  # 07.2025–06.2026, модель на каждый месяц по данным до него: 238/2 769 =
+  # 8,6% нижней границы точности против 3,1% у правила «тревоги участка за
+  # 7 суток», полнота 15,6%, база 0,9% (reports/FIRE_FLOOD_PRODUCT.md).
+  # Пауза 7 суток по объекту снижала точность до 6,0%.
   product_status: pilot
   product_target: recorded_fire_or_gas_alarm_on_segment_tomorrow
   product_action: manual_segment_fire_inspection
-  product_policy: top_k_per_day_no_precision_gate; cooldown_7d_per_object
+  product_policy: top_10_per_day_no_precision_gate; no_cooldown
   operating_min_precision: 0.0
   operating_min_alerts: 1
-  cooldown_days: 7
+  cooldown_days: 0
   max_model_lag_days: 8
   entity: [obj, seg, day]
   feature_set: segment
@@ -248,17 +251,22 @@ D:
 E:
   direction: flood_risk  # Подтопление, сценарий ТЗ
   title: Риск подтопления
-  # В продукте с 29.09.2026, как B: без порога точности, top по риску.
+  # В продукте с 29.09.2026, как B: без порога точности, top-5 объектов без
+  # паузы. 07.2025–06.2026, модель на каждый месяц: 358/1 637 = 21,9% нижней
+  # границы точности, полнота 62,3%, из новых подтоплений (вчера сухо) поймано
+  # 43,3%; правило «Затоплен сегодня» — 16,3%, 51,3% и 19,5%; база 9,4%
+  # (reports/FIRE_FLOOD_PRODUCT.md). Пауза 7 суток роняла полноту до 12,2%:
+  # подтопление держится днями, и повторная выдача по объекту — попадание.
   product_status: pilot
   product_target: recorded_pump_flooded_state_on_object_tomorrow
   product_action: manual_pump_and_drainage_inspection
-  product_policy: top_k_per_day_no_precision_gate; cooldown_7d
+  product_policy: top_5_per_day_no_precision_gate; no_cooldown
   # Метка определена только на объектах с насосами (labels.build_flood);
   # serve.restrict_population отсекает остальные до бюджета.
   population: pump_objects
   operating_min_precision: 0.0
   operating_min_alerts: 1
-  cooldown_days: 7
+  cooldown_days: 0
   max_model_lag_days: 8
   entity: [obj, day]
   feature_set: object

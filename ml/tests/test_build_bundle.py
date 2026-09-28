@@ -25,9 +25,9 @@ FETCH_SH = REPO / "scripts" / "fetch_bundle.sh"
 FETCH_PS1 = REPO / "scripts" / "fetch_bundle.ps1"
 VERSION = "bundle-20260928-1"
 # Файлы корня, которых в бандле быть не должно.
-EXTRA = ("data/interim/events_year=2025.parquet", "data/features/segment.parquet",
+EXTRA = ("data/interim/events_year=2025.parquet",
          "data/interim/weather.parquet", "data/raw/ext-journal-2026.csv",
-         "models/B.pkl", "models/D.pkl", "models/D@2026-05-31.pkl",
+         "models/C.pkl", "models/D.pkl", "models/D@2026-05-31.pkl",
          "reports/final.md", "configs/heads.yaml")
 
 
@@ -172,7 +172,7 @@ def test_bundle_paths_match_service_code():
     assert rel(guard_queue.BUILD_INFO) in bb.REQUIRED
     for head in bb.MODEL_HEADS:
         assert rel(serve.model_path(head)) in bb.REQUIRED
-    for name in ("sensor", "object"):
+    for name in ("sensor", "object", "segment"):
         assert rel(PATHS.features / f"{name}.parquet") in bb.REQUIRED
     for name in ("channels", "daily_channel", "episodes"):
         assert rel(PATHS.interim / f"{name}.parquet") in bb.REQUIRED
