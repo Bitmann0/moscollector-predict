@@ -1,14 +1,28 @@
-"""Качество выданных прогнозов по неделям демонстрационного окна."""
+"""Качество выданных прогнозов по неделям демонстрационного окна.
+
+Базовая частота и точность простого правила — не из БД, а из реестра метрик ML:
+contracts/quality_reference.json, копия блока quality_screen
+ml/reports/SUBMISSION_METRICS.json (совпадение проверяет тест).
+"""
+import json
 from datetime import timedelta
+from functools import lru_cache
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import models
+from ..config import get_settings
 from ..schemas.misc import QualityOut, QualityWeek
 from . import settings_store
 
 WEEKS = 4
+
+
+@lru_cache
+def reference() -> dict:
+    path = get_settings().contracts_dir / "quality_reference.json"
+    return json.loads(path.read_text(encoding="utf-8"))["scenario"]
 
 
 def weekly(db: Session, scenario: str) -> QualityOut:
@@ -29,5 +43,9 @@ def weekly(db: Session, scenario: str) -> QualityOut:
         weeks.append(QualityWeek(week_start=start, issued=issued, hit=hit, miss=miss,
                                  unknown=unknown,
                                  precision=round(hit / (hit + miss), 3) if hit + miss else None))
-    return QualityOut(scenario=scenario, weeks=weeks, base_rate=None, rule_precision=None,
+    ref = reference().get(scenario, {})
+    return QualityOut(scenario=scenario, weeks=weeks, base_rate=ref.get("base_rate"),
+                      rule_precision=ref.get("rule_precision"),
+                      reference_period=ref.get("period"), reference_source=ref.get("source"),
+                      reference_note=ref.get("note"),
                       note="Автоматические исходы СМВУ; unknown не считается промахом.", source="live")

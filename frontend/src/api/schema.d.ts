@@ -1305,11 +1305,32 @@ export interface components {
         };
         /** QualityOut */
         QualityOut: {
-            /** Base Rate */
+            /**
+             * Base Rate
+             * @description Доля положительных среди кандидатов, из реестра метрик ML
+             */
             base_rate?: number | null;
             /** Note */
             note?: string | null;
-            /** Rule Precision */
+            /**
+             * Reference Note
+             * @description Как посчитаны base_rate и rule_precision
+             */
+            reference_note?: string | null;
+            /**
+             * Reference Period
+             * @description Период, на котором посчитаны base_rate и rule_precision
+             */
+            reference_period?: string | null;
+            /**
+             * Reference Source
+             * @description Отчёт ML, из которого взяты base_rate и rule_precision
+             */
+            reference_source?: string | null;
+            /**
+             * Rule Precision
+             * @description Точность простого правила при том же лимите; null, если в продукте само правило
+             */
             rule_precision?: number | null;
             /**
              * Scenario
