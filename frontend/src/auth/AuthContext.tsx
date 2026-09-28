@@ -1,6 +1,5 @@
 /**
- * Вход, текущий пользователь и права. Живое; FE-01 и BE-09 расширяют, не меняя
- * интерфейс useAuth().
+ * Вход, текущий пользователь и права.
  *
  * При старте спрашиваем GET /api/v1/me: cookie HttpOnly, из JS её не видно, и
  * только сервер знает, жива ли сессия. Роль и permissions берём из ответа —
@@ -24,9 +23,9 @@ import { StateView } from "../components/StateView";
 import { startStream, stopStream } from "../stream/useStream";
 import type { Permission } from "../vocab";
 
-export type User = Schemas["UserOut"];
+type User = Schemas["UserOut"];
 type Status = "loading" | "anonymous" | "authenticated";
-export type LoginResult = { ok: true } | { ok: false; message: string };
+type LoginResult = { ok: true } | { ok: false; message: string };
 
 interface AuthValue {
   status: Status;

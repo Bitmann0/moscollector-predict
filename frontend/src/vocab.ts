@@ -55,7 +55,7 @@ export type Permission = keyof typeof raw.permissions;
 export type Scenario = Schemas["ForecastItem"]["scenario"];
 export type ResultStatus = NonNullable<Schemas["HeadState"]["result_status"]>;
 export type Action = Schemas["DecisionIn"]["action"];
-export type IncidentGroup = NonNullable<Schemas["EventItem"]["incident_group"]>;
+type IncidentGroup = NonNullable<Schemas["EventItem"]["incident_group"]>;
 
 type DictName = {
   [K in keyof Vocabularies]: Vocabularies[K] extends Entry[] ? K : never;

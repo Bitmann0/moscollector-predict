@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from "react";
 
-export type ThemeMode = "system" | "light" | "dark";
+type ThemeMode = "system" | "light" | "dark";
 
 const KEY = "mkl.theme";
 const ORDER: ThemeMode[] = ["system", "light", "dark"];

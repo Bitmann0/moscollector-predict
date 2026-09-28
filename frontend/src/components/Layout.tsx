@@ -86,7 +86,7 @@ export function Layout() {
   </div>;
 }
 
-/** Точка у «Демо-контур»: на планшете и телефоне подвала бокового меню нет, и живость потока видна только здесь. */
+/** Точка у «Демо-контур»: на телефоне бокового меню нет, а на планшете его подвал сжат, поэтому живость потока показана и здесь. */
 function liveState(status: Schemas["SystemStatus"] | undefined, failed: boolean, connection: Connection): { tone: string; text: string } {
   if (failed) return { tone: "bad", text: "Статус системы недоступен" };
   if (connection === "reconnecting") return { tone: "warn", text: "Поток данных переподключается" };
