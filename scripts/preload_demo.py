@@ -12,7 +12,8 @@
    очередь тем же вызовом, факт по созревшим прогнозам (ML /outcomes) run_daily
    запрашивает сам.
 4. POST /admin/emulate-decisions за --weekly-from…--to — решения и итоги проверки по
-   факту с source=emulated; решения и итоги людей не трогаются.
+   факту с source=emulated, заявки идут за решениями (подтверждена → в работе →
+   выполнена или отменена); решения, итоги и заявки людей не трогаются.
 
 Повторный запуск приводит стенд к тому же состоянию: журнал выданного переписывается,
 прогнозы и черновики обновляются по id, эмуляция сводится к тому же набору. Код выхода 1 —
@@ -110,8 +111,8 @@ def preload(api: Api, plan: Plan, timeout: float | None = None) -> int:
                            "date_to": plan.emulate_to.isoformat()})
         print(f"эмуляция {plan.emulate_from}…{plan.emulate_to}: с фактом {emu['with_fact']}, "
               f"решений {emu['decisions']} (добавлено {emu['created']}, удалено {emu['removed']}), "
-              f"итогов проверки {emu['outcomes']}, решения людей не тронуты: "
-              f"{emu['skipped_live']}")
+              f"итогов проверки {emu['outcomes']}, заявок сдвинуто из черновика "
+              f"{emu.get('work_orders', 0)}, решения людей не тронуты: {emu['skipped_live']}")
     except (ApiError, OSError) as exc:
         failed += 1
         print(f"эмуляция решений не удалась: {exc}")

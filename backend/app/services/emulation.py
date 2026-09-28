@@ -11,6 +11,14 @@
 - прогноз с решением или итогом человека (source ≠ emulated) не трогается целиком;
 - повтор сводит эмуляцию к тому же набору: совпавшее решение остаётся с прежним id,
   лишнее удаляется. Если факт сменился (stub → real), решения следуют за ним.
+
+Заявки идут за решениями, иначе к демо-дню в списке висят одни просроченные черновики:
+учётной системы нет, а emulate_helpdesk.py двигает только подтверждённые и ставит время
+запуска, а не демо-время. Если среди прогнозов заявки есть попадание — черновик
+подтверждается в момент решения, через час уходит в работу и закрыт к итогу проверки;
+если все её прогнозы решены как ложные — заявка отменяется; иначе остаётся черновиком.
+Заявка, которую двигал человек, не трогается; свою историю эмуляция при повторе
+переписывает заново.
 """
 import hashlib
 from datetime import timedelta
@@ -28,6 +36,14 @@ COMMENT = "эмуляция: решение засеяно прелоадом п
 DECIDED_FROM_H = 8      # решение — утром первого дня окна, 08:00–12:00 МСК
 DECIDED_SPREAD_MIN = 240
 CHECKED_AFTER_H = 3     # итог проверки — через 3 ч после решения
+IN_WORK_AFTER_H = 1     # заявка по подтверждённому прогнозу — в работе через час
+HIT_ACTIONS = {"dispatch_crew", "remote_check"}
+ORDER_REASON = {
+    "confirmed": "эмуляция: заявка подтверждена по решению диспетчера",
+    "in_progress": "эмуляция help desk: бригада приняла заявку в работу",
+    "completed": "эмуляция help desk: работы выполнены, заявка закрыта",
+    "cancelled": "эмуляция: все прогнозы заявки признаны ложными срабатываниями",
+}
 
 
 def _u(*parts) -> float:
@@ -68,6 +84,7 @@ def emulate(db: Session, body: EmulateDecisionsIn) -> EmulateDecisionsOut:
         decisions.setdefault(d.forecast_id, []).append(d)
 
     out = dict.fromkeys(EmulateDecisionsOut.model_fields, 0)
+    plans: dict[str, tuple[str, object]] = {}  # прогноз → (действие, время решения)
     for forecast, outcome in rows:
         mine = decisions.get(forecast.id, [])
         human_outcome = (outcome is not None and outcome.outcome_manual is not None
@@ -95,6 +112,8 @@ def emulate(db: Session, body: EmulateDecisionsIn) -> EmulateDecisionsOut:
                                    created_at=to_db(decided_at), source=SOURCE))
             out["created"] += 1
         out["decisions"] += want is not None
+        if want is not None:
+            plans[forecast.id] = (want[0], decided_at)
 
         manual = want[2] if want is not None else None
         if manual is not None:
@@ -109,5 +128,45 @@ def emulate(db: Session, body: EmulateDecisionsIn) -> EmulateDecisionsOut:
             # только автоматический факт с происхождением прогноза
             outcome.outcome_manual = outcome.comment = outcome.author = None
             outcome.source = forecast.source
+    window_ids = {forecast.id for forecast, _ in rows}
+    out["work_orders"] = _emulate_orders(db, window_ids, plans)
     db.commit()
     return EmulateDecisionsOut(**out)
+
+
+def _order_steps(forecast_ids: list, plans: dict) -> list[tuple[str, object]]:
+    """(статус, время) по решениям прогнозов заявки; пусто — заявка остаётся черновиком."""
+    decided = [plans.get(fid) for fid in forecast_ids]
+    hits = [plan[1] for plan in decided if plan is not None and plan[0] in HIT_ACTIONS]
+    if hits:
+        start = min(hits)
+        return [("confirmed", start), ("in_progress", start + timedelta(hours=IN_WORK_AFTER_H)),
+                ("completed", start + timedelta(hours=CHECKED_AFTER_H))]
+    if decided and all(plan is not None and plan[0] == "reject" for plan in decided):
+        return [("cancelled", max(plan[1] for plan in decided))]
+    return []
+
+
+def _emulate_orders(db: Session, window_ids: set[str], plans: dict) -> int:
+    """Статусы заявок окна по эмулированным решениям. Возвращает число сдвинутых заявок."""
+    moved = 0
+    for order in db.scalars(select(models.WorkOrder).order_by(models.WorkOrder.id)):
+        if not window_ids.intersection(order.forecast_ids or []):
+            continue
+        history = list(db.scalars(select(models.WorkOrderHistory)
+                                  .where(models.WorkOrderHistory.order_id == order.id)
+                                  .order_by(models.WorkOrderHistory.id)))
+        steps = [h for h in history if h.from_status is not None]
+        if any(h.author != AUTHOR for h in steps):
+            continue  # заявку двигал человек или учётная система
+        for h in steps:
+            db.delete(h)
+        status = "draft"
+        for to_status, at in _order_steps(order.forecast_ids or [], plans):
+            db.add(models.WorkOrderHistory(order_id=order.id, from_status=status,
+                                           to_status=to_status, author=AUTHOR,
+                                           reason=ORDER_REASON[to_status], at=to_db(at)))
+            status = to_status
+        order.status = status
+        moved += status != "draft"
+    return moved
