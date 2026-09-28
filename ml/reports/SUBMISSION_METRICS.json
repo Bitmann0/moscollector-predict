@@ -1,0 +1,799 @@
+{
+  "schema_version": 1,
+  "frozen": "2026-09-28",
+  "command": "python scripts/build_submission_metrics.py",
+  "measures": {
+    "precision_lower_bound": "попадания / все рекомендации; unknown в знаменателе",
+    "precision_known_only": "попадания / (рекомендации − unknown)",
+    "recall": "попадания / положительные единицы периода (recall_unit)",
+    "rate_known": "положительные / размеченные кандидаты",
+    "rate_with_unknown": "положительные / все кандидаты, unknown в знаменателе",
+    "temporal": "порог выбран на окне, которое кончается до проверяемого периода",
+    "retrospective": "параметры политики подобраны на тех же периодах"
+  },
+  "scenarios": [
+    {
+      "code": "sensor_link",
+      "title": "Отказ датчика: риск потери связи",
+      "head": "A_link",
+      "in_product": "модель LightGBM, порог выбирается на прошлом 30-дневном окне при минимуме точности 0,70 (operating_min_precision)",
+      "target": "начало необычного пропуска связи канала завтра",
+      "label": "L9c: канал активен не меньше 7 из 30 суток, разрыв не меньше 2 суток и больше 1,5 медианы собственного ритма; последнее сообщение канала без возврата — unknown",
+      "horizon_hours": 24,
+      "limit_per_day": 20,
+      "cooldown_days": 7,
+      "config": "configs/heads.yaml (A_link)",
+      "evaluations": [
+        {
+          "id": "june_2026",
+          "period": [
+            "2026-06-02",
+            "2026-06-29"
+          ],
+          "days": 28,
+          "method": "temporal",
+          "method_note": "каждый день оценён датированной моделью, порог выбран до дня (задержка 1–8 суток)",
+          "alerts": 137,
+          "hits": 93,
+          "unknown": 29,
+          "precision_lower_bound": 0.6788,
+          "precision_known_only": 0.8611,
+          "positives": 5832,
+          "recall": 0.0159,
+          "recall_unit": "положительные канало-сутки",
+          "alerts_per_day": 4.89,
+          "days_without_alerts": 15,
+          "source": "reports/a_link_operating_point_june.json",
+          "command": "из ml/, PYTHONPATH=src: датированные модели train_latest.py A_link --train-window в двух MKL_ROOT (operating_min_precision 0.50 и 0.70), затем MKL_ROOT=<корень 0.50> python scripts/eval_a_link_operating_point.py score a050.parquet; MKL_ROOT=<корень 0.70> python scripts/eval_a_link_operating_point.py score a070.parquet; python scripts/eval_a_link_operating_point.py labels labels.parquet; python scripts/eval_a_link_operating_point.py compare a050.parquet a070.parquet labels.parquet reports/a_link_operating_point_june.json"
+        },
+        {
+          "id": "five_windows",
+          "period": [
+            "2025-04-06",
+            "2026-06-29"
+          ],
+          "days": 450,
+          "method": "temporal",
+          "method_note": "пять 90-дневных окон; порог выбран на 30 днях до окна",
+          "alerts": 7096,
+          "hits": 4759,
+          "unknown": 126,
+          "precision_lower_bound": 0.6707,
+          "precision_known_only": 0.6828,
+          "positives": 115365,
+          "recall": 0.0413,
+          "recall_unit": "положительные канало-сутки",
+          "alerts_per_day": 15.77,
+          "windows": [
+            {
+              "period": [
+                "2025-04-06",
+                "2025-07-04"
+              ],
+              "alerts": 1497,
+              "hits": 982,
+              "unknown": 0,
+              "precision_lower_bound": 0.656,
+              "precision_known_only": 0.656
+            },
+            {
+              "period": [
+                "2025-07-05",
+                "2025-10-02"
+              ],
+              "alerts": 1193,
+              "hits": 860,
+              "unknown": 0,
+              "precision_lower_bound": 0.7209,
+              "precision_known_only": 0.7209
+            },
+            {
+              "period": [
+                "2025-10-03",
+                "2025-12-31"
+              ],
+              "alerts": 1369,
+              "hits": 1016,
+              "unknown": 1,
+              "precision_lower_bound": 0.7421,
+              "precision_known_only": 0.7427
+            },
+            {
+              "period": [
+                "2026-01-01",
+                "2026-03-31"
+              ],
+              "alerts": 1526,
+              "hits": 954,
+              "unknown": 3,
+              "precision_lower_bound": 0.6252,
+              "precision_known_only": 0.6264
+            },
+            {
+              "period": [
+                "2026-04-01",
+                "2026-06-29"
+              ],
+              "alerts": 1511,
+              "hits": 947,
+              "unknown": 122,
+              "precision_lower_bound": 0.6267,
+              "precision_known_only": 0.6818
+            }
+          ],
+          "source": "reports/a_link_live_policy_temporal.json",
+          "command": "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+        }
+      ],
+      "comparison": [
+        {
+          "what": "правило gap_vs_own_rhythm: те же 20 в сутки и пауза 7 суток, без порога",
+          "period": [
+            "2025-04-06",
+            "2026-06-29"
+          ],
+          "alerts": 8610,
+          "hits": 3222,
+          "unknown": 62,
+          "precision_lower_bound": 0.3742,
+          "precision_known_only": 0.3769,
+          "source": "reports/a_link_live_policy_temporal.json (fixed_top_20.baseline)",
+          "command": "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+        },
+        {
+          "what": "модель при тех же 20 в сутки и паузе 7 суток, без порога",
+          "period": [
+            "2025-04-06",
+            "2026-06-29"
+          ],
+          "alerts": 7775,
+          "hits": 5038,
+          "unknown": 131,
+          "precision_lower_bound": 0.648,
+          "precision_known_only": 0.6591,
+          "source": "reports/a_link_live_policy_temporal.json (fixed_top_20.model)",
+          "command": "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+        },
+        {
+          "what": "правило gap_vs_own_rhythm с тем же выбором порога при минимуме 0,70",
+          "period": [
+            "2025-04-06",
+            "2026-06-29"
+          ],
+          "alerts": 777,
+          "hits": 400,
+          "unknown": 8,
+          "precision_lower_bound": 0.5148,
+          "precision_known_only": 0.5202,
+          "threshold_found_in_windows": 2,
+          "windows": 5,
+          "note": "в окне 06.04–04.07.2025 порог не найден, но правило выдало 27 рекомендаций (second_ml_42d_local.json, inherited_evidence.infeasible_baseline_emissions)",
+          "source": "reports/a_link_live_policy_temporal.json (min_precision_0.70.baseline)",
+          "command": "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+        }
+      ],
+      "base_rate": [
+        {
+          "period": [
+            "2026-06-02",
+            "2026-06-29"
+          ],
+          "positives": 5832,
+          "known": 42648,
+          "rate_known": 0.1367,
+          "note": "доля среди размеченных канало-суток; оценка PM 28.09",
+          "source": "выход шага labels scripts/eval_a_link_operating_point.py (label_link за 02.06–29.06.2026); файл данных в git не кладётся",
+          "command": "python scripts/eval_a_link_operating_point.py labels labels.parquet"
+        },
+        {
+          "period": [
+            "2025-04-06",
+            "2026-06-29"
+          ],
+          "positives": 115365,
+          "known": 771775,
+          "unknown": 8764,
+          "rate_known": 0.1495,
+          "rate_with_unknown": 0.1478,
+          "note": "positives = hits / recall_known по окнам",
+          "source": "reports/a_link_live_policy_temporal.json",
+          "command": "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+        }
+      ]
+    },
+    {
+      "code": "equipment_diag",
+      "title": "Износ: плановая диагностика оборудования",
+      "head": "D",
+      "in_product": "правило n_bad_w7 (число плохих состояний канала за 7 суток); порог выбирается по понедельникам на прошлом 30-дневном окне при минимуме точности 0,70 и не меньше 30 рекомендаций (src/mkl/rule_head.py); обученной модели нет",
+      "target": "записанный сигнал тревоги или плохого состояния оборудования (насос, вентилятор, ИБП, люк, датчик затопления) в следующие 7 суток",
+      "label": "D_observed_v1: промах засчитывается только при телеметрии за все 7 будущих суток, иначе unknown",
+      "horizon_hours": 168,
+      "limit_per_day": 3,
+      "limit_note": "с распределением по объектам",
+      "cooldown_days": 7,
+      "config": "configs/heads.yaml (D)",
+      "evaluations": [
+        {
+          "id": "validation_2025h2",
+          "period": [
+            "2025-09-11",
+            "2025-12-31"
+          ],
+          "method": "temporal",
+          "method_note": "четыре окна по 28 суток; порог правила выбирается по прошлому окну",
+          "alerts": 80,
+          "hits": 51,
+          "unknown": 25,
+          "precision_lower_bound": 0.6375,
+          "precision_known_only": 0.9273,
+          "positives": 7138,
+          "recall": 0.0071,
+          "recall_unit": "положительные канало-сутки",
+          "episodes_caught": 22,
+          "episodes_eligible": 1358,
+          "episode_recall": 0.0162,
+          "alerts_per_day": 0.71,
+          "days_without_alerts": 63,
+          "days": 112,
+          "source": "reports/rule_vs_model_2025h2.json (D, baseline_70)",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+        },
+        {
+          "id": "may_june_2026",
+          "period": [
+            "2026-05-13",
+            "2026-06-23"
+          ],
+          "method": "temporal",
+          "method_note": "три окна по 14 суток; проверка уже принятого решения, новых просмотров нет",
+          "alerts": 26,
+          "hits": 17,
+          "unknown": 7,
+          "precision_lower_bound": 0.6538,
+          "precision_known_only": 0.8947,
+          "positives": 4174,
+          "recall": 0.0041,
+          "recall_unit": "положительные канало-сутки",
+          "episodes_caught": 13,
+          "episodes_eligible": 938,
+          "episode_recall": 0.0139,
+          "alerts_per_day": 0.62,
+          "days_without_alerts": 24,
+          "days": 42,
+          "source": "reports/second_ml_42d_local.json (D, baseline_70)",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
+        }
+      ],
+      "comparison": [
+        {
+          "what": "модель LightGBM, минимум точности 0,70",
+          "period": [
+            "2025-09-11",
+            "2025-12-31"
+          ],
+          "alerts": 0,
+          "hits": 0,
+          "unknown": 0,
+          "precision_lower_bound": null,
+          "precision_known_only": null,
+          "episodes_caught": 0,
+          "source": "reports/rule_vs_model_2025h2.json (D, model_70)",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+        },
+        {
+          "what": "модель LightGBM, минимум точности 0,50",
+          "period": [
+            "2025-09-11",
+            "2025-12-31"
+          ],
+          "alerts": 75,
+          "hits": 27,
+          "unknown": 48,
+          "precision_lower_bound": 0.36,
+          "precision_known_only": 1.0,
+          "episodes_caught": 5,
+          "source": "reports/rule_vs_model_2025h2.json (D, model_50)",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+        },
+        {
+          "what": "модель LightGBM, минимум точности 0,70",
+          "period": [
+            "2026-05-13",
+            "2026-06-23"
+          ],
+          "alerts": 0,
+          "hits": 0,
+          "unknown": 0,
+          "precision_lower_bound": null,
+          "precision_known_only": null,
+          "episodes_caught": 0,
+          "source": "reports/second_ml_42d_local.json (D, model_70)",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
+        },
+        {
+          "what": "модель LightGBM, минимум точности 0,50",
+          "period": [
+            "2026-05-13",
+            "2026-06-23"
+          ],
+          "alerts": 52,
+          "hits": 24,
+          "unknown": 28,
+          "precision_lower_bound": 0.4615,
+          "precision_known_only": 1.0,
+          "episodes_caught": 7,
+          "source": "reports/second_ml_42d_local.json (D, model_50)",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
+        }
+      ],
+      "base_rate": [
+        {
+          "period": [
+            "2025-09-11",
+            "2025-12-31"
+          ],
+          "positives": 7138,
+          "known": 9734,
+          "unknown": 10786,
+          "rate_known": 0.7333,
+          "rate_with_unknown": 0.3479,
+          "note": "доля положительных среди канало-суток оборудования",
+          "source": "reports/rule_vs_model_2025h2.json",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+        },
+        {
+          "period": [
+            "2026-05-13",
+            "2026-06-23"
+          ],
+          "positives": 4174,
+          "known": 6549,
+          "unknown": 5024,
+          "rate_known": 0.6373,
+          "rate_with_unknown": 0.3607,
+          "note": "доля положительных среди канало-суток оборудования",
+          "source": "reports/second_ml_42d_local.json",
+          "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 3 --test-days 14 --refresh-days 7 --threads 4 --output reports/second_ml_42d_local.json"
+        }
+      ],
+      "previous_protocol": {
+        "what": "модель LightGBM с порогом, до 3 в сутки, пауза 7 суток; в продукте её нет",
+        "period": [
+          "2025-03-31",
+          "2026-06-23"
+        ],
+        "alerts": 623,
+        "hits": 473,
+        "precision": 0.7592,
+        "note": "метка label_wear: сутки без сигнала считаются отрицательными и при отсутствии телеметрии (src/mkl/labels.py, _emit); модель заменена правилом по RULE_VS_MODEL_PROTOCOL.md",
+        "source": "reports/d_live_policy_temporal.json",
+        "command": "python scripts/eval_d_live_policy.py --end-date 2026-06-23"
+      }
+    },
+    {
+      "code": "guard_weekly",
+      "title": "НСД: проверка объектов с хроническими охранными тревогами",
+      "head": "guard_weekly",
+      "in_product": "правило: объект на охране, сообщение о состоянии не старше 7 суток, записанный охранный сигнал не меньше чем в 4 из 7 прошлых дней; порядок — дни с сигналом за неделю, затем за месяц, затем давность",
+      "target": "записанный сигнал СМВУ при охране в дни D+2…D+8 после понедельника D; продолжение записанной активности, не прогноз проникновения",
+      "label": "v2-разметка по состоянию охраны в момент сигнала; без телеметрии — unknown",
+      "horizon_hours": 168,
+      "limit_per_week": 4,
+      "cooldown_days": 14,
+      "config": "src/mkl/guard_weekly.py",
+      "evaluations": [
+        {
+          "id": "retrospective_2023_2026",
+          "period": [
+            "2023-02-01",
+            "2026-06-22"
+          ],
+          "weeks": 177,
+          "method": "retrospective",
+          "method_note": "порог «4 дня» и пауза 14 суток подобраны на тех же годах",
+          "alerts": 79,
+          "hits": 59,
+          "unknown": 5,
+          "precision_lower_bound": 0.7468,
+          "precision_known_only": 0.7973,
+          "positives": 1540,
+          "recall": 0.0383,
+          "recall_unit": "положительные объект-недели",
+          "alerts_per_week": 0.45,
+          "unique_objects": 20,
+          "unique_hit_episodes": 51,
+          "windows": [
+            {
+              "period": [
+                "2023-02-01",
+                "2023-12-31"
+              ],
+              "alerts": 15,
+              "hits": 13,
+              "unknown": 0,
+              "precision_lower_bound": 0.8667,
+              "precision_known_only": 0.8667
+            },
+            {
+              "period": [
+                "2024-01-01",
+                "2024-12-31"
+              ],
+              "alerts": 27,
+              "hits": 19,
+              "unknown": 3,
+              "precision_lower_bound": 0.7037,
+              "precision_known_only": 0.7917
+            },
+            {
+              "period": [
+                "2025-01-01",
+                "2025-12-31"
+              ],
+              "alerts": 23,
+              "hits": 16,
+              "unknown": 2,
+              "precision_lower_bound": 0.6957,
+              "precision_known_only": 0.7619
+            },
+            {
+              "period": [
+                "2026-01-01",
+                "2026-06-22"
+              ],
+              "alerts": 14,
+              "hits": 11,
+              "unknown": 0,
+              "precision_lower_bound": 0.7857,
+              "precision_known_only": 0.7857
+            }
+          ],
+          "source": "reports/guard_weekly_repeats.json (4 из 7, пауза 14)",
+          "command": "python scripts/build_intrusion_eventtime_labels.py; python scripts/exp_guard_weekly_repeats.py"
+        }
+      ],
+      "comparison": [
+        {
+          "what": "LightGBM против правила, обучение до 2024-12-23, те же 4 из 7 и 4 в неделю, до паузы",
+          "period": [
+            "2025-01-01",
+            "2026-06-22"
+          ],
+          "model": {
+            "alerts": 50,
+            "hits": 39
+          },
+          "rule": {
+            "alerts": 50,
+            "hits": 39
+          },
+          "source": "reports/guard_weekly_model.json",
+          "command": "python scripts/exp_guard_weekly_model.py"
+        }
+      ],
+      "base_rate": [
+        {
+          "period": [
+            "2023-02-01",
+            "2026-06-22"
+          ],
+          "positives": 1540,
+          "candidates": 5700,
+          "rate_with_unknown": 0.2702,
+          "note": "доля положительных объект-недель среди всех кандидатов; число unknown среди кандидатов в отчёте не приведено",
+          "source": "reports/guard_weekly_repeats.json",
+          "command": "python scripts/build_intrusion_eventtime_labels.py; python scripts/exp_guard_weekly_repeats.py"
+        }
+      ]
+    }
+  ],
+  "runtime": [
+    {
+      "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D",
+      "seconds": [
+        1.5,
+        4.4
+      ],
+      "conditions": "машина разработчика, Docker, ML_MODE=real",
+      "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, оформление замера — задача ML2-04",
+      "command": null
+    }
+  ],
+  "holdout": {
+    "period": [
+      "2026-01-01",
+      "2026-06-30"
+    ],
+    "views": 38,
+    "code_states": 7,
+    "last_entry": "2026-09-23T04:12",
+    "not_counted": "счётчик пишет только scripts/final_eval.py; eval_a_link_policy.py, audit_second_ml.py, eval_a_link_operating_point.py и exp_a_link_ensemble.py тоже считают январь–июнь 2026, но в счётчик не пишут",
+    "source": "reports/holdout_uses.md",
+    "command": "python scripts/holdout_uses.py"
+  },
+  "rejected_setups": [
+    {
+      "id": "B_fire",
+      "what": "пожарный риск участка: текстовое пожарное или газовое тревожное состояние на участке завтра",
+      "limit_per_day": 10,
+      "results": [
+        {
+          "period": [
+            "2025-04-06",
+            "2025-12-31"
+          ],
+          "precision_daily": 0.0637,
+          "note": "среднее трёх окон 2025 года",
+          "source": "reports/fire_history_ablation.json (history)",
+          "command": "python scripts/exp_fire_history.py"
+        },
+        {
+          "period": [
+            "2026-01-01",
+            "2026-06-29"
+          ],
+          "precision_daily": 0.095,
+          "base_rate": 0.0093,
+          "note": "просмотренный период; train_latest.py B при 0,70 порога не нашёл",
+          "source": "reports/fire_2026_check.json",
+          "command": "python scripts/exp_fire_2026_check.py"
+        }
+      ]
+    },
+    {
+      "id": "C_daily_guard",
+      "what": "дневная охранная очередь: записанный охранный сигнал при охране завтра",
+      "limit_per_day": 4,
+      "results": [
+        {
+          "period": [
+            "2025-04-05",
+            "2025-12-30"
+          ],
+          "model": "LightGBM",
+          "alerts": 1080,
+          "hits": 243,
+          "unknown": 49,
+          "precision_lower_bound": 0.225,
+          "precision_known_only": 0.2357,
+          "recall": 0.4077,
+          "base_rate": 0.0707,
+          "source": "reports/intrusion_operational_queue.json (recorded_full, all_top4)",
+          "command": "python scripts/exp_intrusion_operational_queue.py"
+        },
+        {
+          "period": [
+            "2025-04-05",
+            "2025-12-30"
+          ],
+          "model": "правило истории",
+          "alerts": 1080,
+          "hits": 237,
+          "unknown": 66,
+          "precision_lower_bound": 0.2194,
+          "precision_known_only": 0.2337,
+          "source": "reports/guard_review_queue_backtest.json",
+          "command": "python scripts/backtest_guard_review_queue.py"
+        }
+      ]
+    },
+    {
+      "id": "A_strict",
+      "what": "аномалия датчика завтра, один канал в сутки",
+      "limit_per_day": 1,
+      "results": [
+        {
+          "period": [
+            "2025-04-06",
+            "2025-12-31"
+          ],
+          "alerts": 270,
+          "precision_daily": 0.4963,
+          "rule_precision_daily": 0.0148,
+          "source": "reports/a_strict_top1.json",
+          "command": "python scripts/exp_a_strict_top1.py"
+        }
+      ]
+    },
+    {
+      "id": "E_flood",
+      "what": "риск подтопления объекта (состояние «Затоплен»)",
+      "limit_per_day": 5,
+      "results": [
+        {
+          "period": [
+            "2026-01-01",
+            "2026-06-30"
+          ],
+          "precision": 0.2552,
+          "recall": 0.6364,
+          "roc_auc": 0.7658,
+          "base_rate": 0.1165,
+          "note": "прежний офлайн-протокол с глобальным бюджетом на период; на текущем коде не перепроверялось",
+          "source": "reports/final_metrics.csv (E); reports/final.md:47",
+          "command": "python scripts/final_eval.py"
+        }
+      ]
+    },
+    {
+      "id": "temperature",
+      "what": "выход температуры за диапазон 3–40 °C за 24 часа",
+      "results": [
+        {
+          "precision": 0.354,
+          "recall": 0.439,
+          "note": "среднее трёх тестов; смысл диапазона владелец данных не подтвердил",
+          "source": "ветка origin/feature/episode-hourly-backtest, docs/experiments/temperature-episode-hourly/README.md:70; файла в main нет. В main число пересказано в analysis/MULTI_HEAD_ML_STRATEGY.md:33 и ml/docs/ML_BACKEND_HANDOFF.md:35",
+          "command": null
+        }
+      ]
+    },
+    {
+      "id": "gas_detected",
+      "what": "«Обнаружен газ» как прогнозируемое событие",
+      "results": [
+        {
+          "share_weekdays_09_15": 0.8863,
+          "records_in_window": 19307,
+          "records_total": 21784,
+          "note": "будни 9:00–14:59 МСК: плановые поверки баллонами",
+          "source": "план команды docs/superpowers/plans/2026-09-25-team-plan-to-submission.md, раздел 4, C5; подтверждение заказчика — сообщение [462] в чате. Файла с расчётом в main нет. Подсказка реализована в backend/app/services/semantics.py",
+          "command": null
+        }
+      ]
+    }
+  ],
+  "rejected_levers": [
+    {
+      "id": "ensemble",
+      "what": "A_link: среднее калиброванных вероятностей LightGBM, XGBoost и CatBoost против одной LightGBM, политика 0,70",
+      "lightgbm": {
+        "alerts": 6939,
+        "hits": 4657,
+        "precision_lower_bound": 0.6711
+      },
+      "ensemble": {
+        "alerts": 7026,
+        "hits": 4739,
+        "precision_lower_bound": 0.6745
+      },
+      "windows": 5,
+      "windows_more_hits": 3,
+      "windows_higher_precision": 2,
+      "criterion": "больше попаданий при точности не ниже, суммарно и не хуже в 4 из 5 окон",
+      "decision": "не принят",
+      "source": "reports/a_link_ensemble_experiment.json; reports/A_LINK_ENSEMBLE.md",
+      "command": "python scripts/exp_a_link_ensemble.py --end-date 2026-06-29"
+    },
+    {
+      "id": "operating_point",
+      "what": "A_link: минимум точности при выборе порога 0,50 против 0,70",
+      "june_2026": {
+        "min_precision_0.50": {
+          "alerts": 481,
+          "hits": 258,
+          "unknown": 86,
+          "precision_lower_bound": 0.5364,
+          "precision_known_only": 0.6532,
+          "alerts_per_day": 17.18,
+          "recall": 0.0442
+        },
+        "min_precision_0.70": {
+          "alerts": 137,
+          "hits": 93,
+          "unknown": 29,
+          "precision_lower_bound": 0.6788,
+          "precision_known_only": 0.8611,
+          "alerts_per_day": 4.89,
+          "recall": 0.0159
+        }
+      },
+      "five_windows": {
+        "min_precision_0.50": {
+          "alerts": 7741,
+          "hits": 5024,
+          "unknown": 131,
+          "precision_lower_bound": 0.649,
+          "precision_known_only": 0.6602
+        },
+        "min_precision_0.70": {
+          "alerts": 7096,
+          "hits": 4759,
+          "unknown": 126,
+          "precision_lower_bound": 0.6707,
+          "precision_known_only": 0.6828
+        }
+      },
+      "decision": "в продукте 0,70",
+      "source": "reports/a_link_operating_point_june.json; reports/a_link_live_policy_temporal.json; reports/A_LINK_OPERATING_POINT.md",
+      "command": "из ml/, PYTHONPATH=src: датированные модели train_latest.py A_link --train-window в двух MKL_ROOT (operating_min_precision 0.50 и 0.70), затем MKL_ROOT=<корень 0.50> python scripts/eval_a_link_operating_point.py score a050.parquet; MKL_ROOT=<корень 0.70> python scripts/eval_a_link_operating_point.py score a070.parquet; python scripts/eval_a_link_operating_point.py labels labels.parquet; python scripts/eval_a_link_operating_point.py compare a050.parquet a070.parquet labels.parquet reports/a_link_operating_point_june.json; python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+    },
+    {
+      "id": "rule_vs_model",
+      "what": "замена модели правилом по протоколу RULE_VS_MODEL_PROTOCOL.md, валидация 2025 года",
+      "period": [
+        "2025-09-11",
+        "2025-12-31"
+      ],
+      "A_link": {
+        "model_50": {
+          "alerts": 1921,
+          "hits": 1304,
+          "unknown": 1,
+          "precision_lower_bound": 0.6788,
+          "precision_known_only": 0.6792,
+          "episodes_caught": 1304
+        },
+        "rule_50": {
+          "alerts": 57,
+          "hits": 8,
+          "unknown": 0,
+          "precision_lower_bound": 0.1404,
+          "precision_known_only": 0.1404,
+          "episodes_caught": 8
+        },
+        "decision": "модель остаётся"
+      },
+      "D": {
+        "model_70": {
+          "alerts": 0,
+          "hits": 0,
+          "unknown": 0,
+          "precision_lower_bound": null,
+          "precision_known_only": null,
+          "episodes_caught": 0
+        },
+        "rule_70": {
+          "alerts": 80,
+          "hits": 51,
+          "unknown": 25,
+          "precision_lower_bound": 0.6375,
+          "precision_known_only": 0.9273,
+          "episodes_caught": 22
+        },
+        "decision": "правило n_bad_w7 вместо модели"
+      },
+      "source": "reports/rule_vs_model_2025h2.json; reports/RULE_VS_MODEL_RESULT.md",
+      "command": "python scripts/audit_second_ml.py --mode historical --data-root <data> --splits 4 --test-days 28 --end 2025-12-31 --threads 12 --output reports/rule_vs_model_2025h2.json"
+    },
+    {
+      "id": "laya_second_opinion",
+      "what": "D: языковая модель Laya typed-decisions как второе мнение к shortlist LightGBM",
+      "shortlist": 360,
+      "shortlist_precision": 0.9361,
+      "needs_review_precision": 0.9361,
+      "action_filter": {
+        "alerts": 277,
+        "hits": 257,
+        "precision": 0.9278
+      },
+      "decision": "не принят: не отделяет кандидатов лучше исходного списка",
+      "source": "reports/laya_typed_d_decisions.json; reports/LAYA_TYPED_DECISIONS.md",
+      "command": "python scripts/eval_laya_typed_decisions.py"
+    }
+  ],
+  "quality_screen": {
+    "sensor_link": {
+      "base_rate": 0.149,
+      "rule_precision": 0.377,
+      "period": "06.04.2025–29.06.2026, пять 90-дневных окон",
+      "source": "ml/reports/A_LINK_LIVE_POLICY_TEMPORAL.md",
+      "note": "Правило gap_vs_own_rhythm с теми же 20 рекомендациями в сутки и паузой 7 суток, без порога. Обе величины — по известным исходам, как недельная точность на экране."
+    },
+    "equipment_diag": {
+      "base_rate": 0.637,
+      "rule_precision": null,
+      "period": "13.05.2026–23.06.2026, три окна по 14 суток",
+      "source": "ml/reports/SECOND_ML_LOCAL_42D_AUDIT.md",
+      "note": "В продукте само правило n_bad_w7, сравнивать его не с чем: модель D при минимуме точности 0,70 в этих окнах не выдала ни одной рекомендации. База — доля положительных среди канало-суток оборудования с известным исходом."
+    },
+    "guard_weekly": {
+      "base_rate": 0.27,
+      "rule_precision": null,
+      "period": "01.02.2023–22.06.2026, понедельники",
+      "source": "ml/reports/GUARD_WEEKLY_INSPECTIONS.md",
+      "note": "Очередь сама является правилом. LightGBM на тех же условиях дала 39 из 50, правило — 39 из 50. База считается от всех объект-недель, включая неизвестный исход."
+    }
+  }
+}
