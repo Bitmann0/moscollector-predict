@@ -80,13 +80,17 @@ def model_risk(art: dict, feats: pl.DataFrame) -> pl.Series:
 
 
 def issue(df: pl.DataFrame, budget: int, keys: list[str],
-          thresholds: dict[dt.date, float | None]) -> pl.DataFrame:
-    """Суточная выдача с порогом дня и паузой по объекту из своей выдачи."""
+          thresholds: dict[dt.date, float | None],
+          per_object: bool = False) -> pl.DataFrame:
+    """Суточная выдача с порогом дня и паузой по объекту из своей выдачи.
+
+    per_object — раздача лимита по объектам по кругу, как budget_per_object
+    головы в serve.score."""
     issued: list[tuple[object, dt.date]] = []
     out = []
     for day in sorted(df["day"].unique().to_list()):
         cur = df.filter(pl.col("day") == day).select([*keys, "risk"])
-        ranked = serve._apply_budget(cur, budget)
+        ranked = serve._apply_budget(cur, budget, per_object=per_object)
         thr = thresholds.get(day)
         if thr is not None:
             ranked = ranked.with_columns(
@@ -205,10 +209,11 @@ def run_head(head: str, first: dt.date, last: dt.date, tl) -> dict:
            "panel_last_day": str(panel_last), "months": months,
            "budgets": {}}
     for budget in BUDGETS[head]:
-        model = issue(scored, budget, keys, thresholds)
+        per_object = bool(cfg.get("budget_per_object"))
+        model = issue(scored, budget, keys, thresholds, per_object)
         rule = issue(scored.with_columns(pl.col(RULES[head]).cast(pl.Float64)
                                          .fill_null(0.0).alias("risk")),
-                     budget, keys, {})
+                     budget, keys, {}, per_object)
         out["budgets"][str(budget)] = {
             "model": summarize(score_outcomes(model, keys, fact, panel_last),
                                positives, days, positives_new),

@@ -1180,6 +1180,36 @@
       "decision": "не принят",
       "source": "reports/fire_history_lever.json; reports/fire_flood_product.json",
       "command": "MKL_ROOT=<новый корень> python scripts/exp_fire_history_lever.py <segment.parquet>; MKL_ROOT=<новый корень> python scripts/eval_fire_flood_product.py B --output reports/fire_history_lever.json"
+    },
+    {
+      "id": "fire_per_object",
+      "what": "B: лимит 10 участков раздаётся по объектам по кругу (budget_per_object), а не по общему риску",
+      "period": [
+        "2025-07-01",
+        "2026-06-29"
+      ],
+      "global": {
+        "alerts": 2769,
+        "hits": 238,
+        "unknown": 883,
+        "precision_lower_bound": 0.086,
+        "precision_known_only": 0.1262,
+        "new_hits": 83,
+        "recall": 0.1558
+      },
+      "per_object": {
+        "alerts": 2594,
+        "hits": 169,
+        "unknown": 605,
+        "precision_lower_bound": 0.0652,
+        "precision_known_only": 0.085,
+        "new_hits": 62,
+        "recall": 0.1106
+      },
+      "criterion": "нижняя граница точности не ниже, чем у общего лимита; записан до прогона",
+      "decision": "не принят",
+      "source": "reports/fire_per_object_lever.json; reports/fire_flood_product.json",
+      "command": "MKL_ROOT=<корень с budget_per_object: true у B в configs/heads.yaml> python scripts/eval_fire_flood_product.py B --output reports/fire_per_object_lever.json"
     }
   ],
   "quality_screen": {
