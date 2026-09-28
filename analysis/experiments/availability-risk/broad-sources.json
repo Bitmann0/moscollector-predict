@@ -1,0 +1,29 @@
+{
+  "target": "No telemetry on the next globally covered calendar day after at least 7 observed days in the previous 30, with telemetry recovery within 30 days",
+  "target_name": "temporary_telemetry_outage_onset",
+  "positive_semantics": "availability incident, not a confirmed physical sensor failure",
+  "recovery_days": 30,
+  "min_active_days_previous_30d": 7,
+  "rows": 2483963,
+  "positives": 630441,
+  "positive_rate": 0.2538045051395693,
+  "channels": 9843,
+  "positive_channels": 9720,
+  "date_min": "2019-01-08",
+  "date_max": "2026-06-29",
+  "calendar_days": 2738,
+  "usable_global_days": 2280,
+  "calendar_min": "2019-01-01 00:00:00",
+  "calendar_max": "2026-06-30 00:00:00",
+  "global_coverage_rule": "observed channels >= 50% of trailing 30-day median",
+  "excluded_feature_dates": [
+    "2021-04-01",
+    "2021-08-01"
+  ],
+  "input_sha256": "d5978b0c858b5adf779214c6a11248d480875e23cf22e4fc1b5dc45a1e8cc336",
+  "limitations": [
+    "Recovery confirms a temporary telemetry outage, not its physical cause.",
+    "Daily features use the current channel catalog on historical records.",
+    "Outages longer than the recovery window are censored as unknown."
+  ]
+}

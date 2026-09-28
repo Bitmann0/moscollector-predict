@@ -1,0 +1,366 @@
+{
+  "head": "A_link",
+  "label_variant": "L9c",
+  "horizon_days": 1,
+  "evaluated_through": "2026-06-29",
+  "input": {
+    "file": "daily_channel.parquet",
+    "sha256": "9da7d7f3340e8098e7c81487beb7fedcfcb1f131ca1b6d0900740104493a5a37",
+    "rows": 4273083,
+    "days": [
+      "2019-01-01",
+      "2026-06-30"
+    ]
+  },
+  "label_audit": {
+    "span": [
+      "2023-01-01",
+      "2026-06-29"
+    ],
+    "test_windows": [
+      [
+        "2025-04-06",
+        "2025-07-04"
+      ],
+      [
+        "2025-07-05",
+        "2025-10-02"
+      ],
+      [
+        "2025-10-03",
+        "2025-12-31"
+      ],
+      [
+        "2026-01-01",
+        "2026-03-31"
+      ],
+      [
+        "2026-04-01",
+        "2026-06-29"
+      ]
+    ],
+    "l9c_test_window_positives_by_first_silent_weekday": {
+      "mon": 5039,
+      "tue": 14283,
+      "wed": 15074,
+      "thu": 18995,
+      "fri": 17927,
+      "sat": 33829,
+      "sun": 10218
+    },
+    "variants": {
+      "L9c": {
+        "description": "продуктовая метка A_link без дополнительной цензуры",
+        "span": {
+          "rows": 1938672,
+          "positives": 296349,
+          "positive_rate": 0.1528618559508777,
+          "censored_rows": 0,
+          "censored_positives": 0,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 0,
+            "sun": 0
+          }
+        },
+        "test_windows": {
+          "rows": 771775,
+          "positives": 115365,
+          "positive_rate": 0.149480094587153,
+          "censored_rows": 0,
+          "censored_positives": 0,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 0,
+            "sun": 0
+          }
+        }
+      },
+      "coverage_weekday": {
+        "description": "без строк, чьё окно задевает сутки с числом каналов меньше 50% медианы того же дня недели за 8 предыдущих недель",
+        "span": {
+          "rows": 1873272,
+          "positives": 279478,
+          "positive_rate": 0.14919242907596975,
+          "censored_rows": 65400,
+          "censored_positives": 16871,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 1734,
+            "tue": 1552,
+            "wed": 1717,
+            "thu": 5023,
+            "fri": 3152,
+            "sat": 3400,
+            "sun": 293
+          }
+        },
+        "test_windows": {
+          "rows": 727206,
+          "positives": 104375,
+          "positive_rate": 0.14352879376682812,
+          "censored_rows": 44569,
+          "censored_positives": 10990,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 1119,
+            "tue": 1074,
+            "wed": 365,
+            "thu": 3839,
+            "fri": 2128,
+            "sat": 2318,
+            "sun": 147
+          }
+        }
+      },
+      "coverage_30d_pr9": {
+        "description": "правило PR #9: без строк, чьё окно задевает сутки с числом каналов меньше 50% медианы за 30 предыдущих суток",
+        "span": {
+          "rows": 1634560,
+          "positives": 212257,
+          "positive_rate": 0.1298557409945184,
+          "censored_rows": 304112,
+          "censored_positives": 84092,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 1224,
+            "tue": 1308,
+            "wed": 1311,
+            "thu": 5528,
+            "fri": 3045,
+            "sat": 52470,
+            "sun": 19206
+          }
+        },
+        "test_windows": {
+          "rows": 643268,
+          "positives": 82350,
+          "positive_rate": 0.128018182157359,
+          "censored_rows": 128507,
+          "censored_positives": 33015,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 876,
+            "tue": 1074,
+            "wed": 365,
+            "thu": 4497,
+            "fri": 2303,
+            "sat": 17259,
+            "sun": 6641
+          }
+        }
+      },
+      "recovery_30d": {
+        "description": "без строк, после которых канал молчал дольше 30 суток",
+        "span": {
+          "rows": 1829077,
+          "positives": 290410,
+          "positive_rate": 0.15877407020043444,
+          "censored_rows": 109595,
+          "censored_positives": 5939,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 273,
+            "tue": 1016,
+            "wed": 1085,
+            "thu": 955,
+            "fri": 1678,
+            "sat": 704,
+            "sun": 228
+          }
+        },
+        "test_windows": {
+          "rows": 739031,
+          "positives": 112186,
+          "positive_rate": 0.15180148058741785,
+          "censored_rows": 32744,
+          "censored_positives": 3179,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 115,
+            "tue": 590,
+            "wed": 654,
+            "thu": 429,
+            "fri": 967,
+            "sat": 293,
+            "sun": 131
+          }
+        }
+      },
+      "no_friday_monday": {
+        "description": "без пятничных строк, после которых канал вернулся в понедельник",
+        "span": {
+          "rows": 1861822,
+          "positives": 247525,
+          "positive_rate": 0.13294772540017252,
+          "censored_rows": 76850,
+          "censored_positives": 48824,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 48824,
+            "sun": 0
+          }
+        },
+        "test_windows": {
+          "rows": 742991,
+          "positives": 96646,
+          "positive_rate": 0.13007694575035228,
+          "censored_rows": 28784,
+          "censored_positives": 18719,
+          "censored_positives_by_first_silent_weekday": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 18719,
+            "sun": 0
+          }
+        }
+      }
+    },
+    "coverage": {
+      "weekday_8w": {
+        "all": {
+          "from": "2019-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 2738,
+          "low_days": 101,
+          "low_days_by_weekday": {
+            "mon": 24,
+            "tue": 11,
+            "wed": 12,
+            "thu": 16,
+            "fri": 19,
+            "sat": 11,
+            "sun": 8
+          }
+        },
+        "since_start": {
+          "from": "2023-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 1277,
+          "low_days": 54,
+          "low_days_by_weekday": {
+            "mon": 13,
+            "tue": 6,
+            "wed": 5,
+            "thu": 9,
+            "fri": 10,
+            "sat": 8,
+            "sun": 3
+          },
+          "low_dates": [
+            "2023-01-04",
+            "2023-02-23",
+            "2023-02-24",
+            "2023-03-08",
+            "2023-05-01",
+            "2023-05-08",
+            "2023-05-09",
+            "2023-11-06",
+            "2023-12-01",
+            "2024-01-01",
+            "2024-01-04",
+            "2024-01-05",
+            "2024-02-23",
+            "2024-04-06",
+            "2024-04-07",
+            "2024-04-08",
+            "2024-04-09",
+            "2024-05-09",
+            "2024-06-12",
+            "2024-11-04",
+            "2025-01-01",
+            "2025-01-02",
+            "2025-01-06",
+            "2025-01-07",
+            "2025-05-01",
+            "2025-05-08",
+            "2025-05-09",
+            "2025-06-12",
+            "2025-06-13",
+            "2025-11-03",
+            "2025-11-04",
+            "2025-12-19",
+            "2025-12-26",
+            "2025-12-30",
+            "2026-01-01",
+            "2026-01-02",
+            "2026-01-03",
+            "2026-01-05",
+            "2026-01-06",
+            "2026-01-08",
+            "2026-01-10",
+            "2026-01-12",
+            "2026-01-31",
+            "2026-02-21",
+            "2026-02-23",
+            "2026-02-25",
+            "2026-02-28",
+            "2026-03-01",
+            "2026-03-07",
+            "2026-03-08",
+            "2026-03-14",
+            "2026-05-01",
+            "2026-05-11",
+            "2026-06-01"
+          ]
+        }
+      },
+      "zero_channel_dates": [
+        "2024-04-07",
+        "2024-04-08",
+        "2026-06-01"
+      ],
+      "median_channels_by_weekday_since_start": {
+        "mon": 1806.0,
+        "tue": 1820.0,
+        "wed": 1822.5,
+        "thu": 1778.5,
+        "fri": 1597.0,
+        "sat": 766.0,
+        "sun": 712.0
+      },
+      "trailing_30d_pr9": {
+        "all": {
+          "from": "2019-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 2738,
+          "low_days": 457,
+          "low_days_by_weekday": {
+            "mon": 14,
+            "tue": 9,
+            "wed": 10,
+            "thu": 13,
+            "fri": 18,
+            "sat": 183,
+            "sun": 210
+          }
+        },
+        "since_start": {
+          "from": "2023-01-01",
+          "to": "2026-06-30",
+          "calendar_days": 1277,
+          "low_days": 249,
+          "low_days_by_weekday": {
+            "mon": 8,
+            "tue": 5,
+            "wed": 3,
+            "thu": 8,
+            "fri": 10,
+            "sat": 98,
+            "sun": 117
+          }
+        }
+      }
+    }
+  },
+  "caution": "Validation, not a blind holdout: the 2026H1 test windows were already inspected (reports/holdout_uses.md). Censored rows stay in the ranking as unknown outcomes. The product label, heads.yaml and a_link_live_policy_temporal.json are unchanged."
+}
