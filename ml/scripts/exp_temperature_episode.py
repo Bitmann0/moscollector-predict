@@ -304,6 +304,7 @@ def run(features_path: Path, report_path: Path, clean_hours: int = 24,
     samples, quality = make_samples(frame, clean_hours)
     features = feature_columns()
     protocols = {}
+    views = []
     last_artifact = None
     plans = (
         ("temporal_all_channels", False, list(FOLDS)),
@@ -326,7 +327,7 @@ def run(features_path: Path, report_path: Path, clean_hours: int = 24,
                 for key in MEAN_KEYS
             },
         }
-        _log_holdout_views(protocol, clean_hours, folds, results)
+        views.append((protocol, folds, results))
     report = {
         "experiment": f"temperature-episode-hourly-clean-{clean_hours}h",
         "target": (
@@ -362,6 +363,12 @@ def run(features_path: Path, report_path: Path, clean_hours: int = 24,
         Path(model_path).parent.mkdir(parents=True, exist_ok=True)
         joblib.dump(last_artifact, model_path)
     write_json(report_path, report)
+    # Журнал пишется разом после отчёта, а не после каждого протокола.
+    # holdout_uses.py склеивает записи FINAL в один просмотр по минуте и коду:
+    # если протокол считается дольше минуты, запись после каждого протокола
+    # засчитала бы один прогон тремя просмотрами.
+    for protocol, folds, results in views:
+        _log_holdout_views(protocol, clean_hours, folds, results)
     return report
 
 

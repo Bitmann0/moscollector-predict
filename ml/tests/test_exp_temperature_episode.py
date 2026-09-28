@@ -121,13 +121,21 @@ def test_run_smoke_on_synthetic_features(ev_con, tmp_path, monkeypatch):
         exp.Fold("toy-1", "2024-01-02", "2024-02-20", "2024-02-20", "2024-03-10",
                  "2024-03-10", "2024-03-25", "2024-03-25", "2024-04-10"),
     ))
+    report_path = tmp_path / "report.json"
     # Отдельный журнал: настоящий experiments/log.jsonl лежит в git.
     logged = []
-    monkeypatch.setattr(exp.experiments, "log", logged.append)
+
+    def log(record):
+        # Записи идут пачкой после отчёта: holdout_uses.py склеивает их в один
+        # просмотр по минуте, а запись после каждого протокола могла бы разнести
+        # их по разным минутам.
+        assert report_path.exists()
+        logged.append(record)
+
+    monkeypatch.setattr(exp.experiments, "log", log)
     # Смоук-фолд лежит в 2024-м; для проверки записи сдвигаем отложенный период на него.
     monkeypatch.setattr(exp, "HOLDOUT_START", pd.Timestamp("2024-03-25").date())
     monkeypatch.setattr(exp, "HOLDOUT_END", pd.Timestamp("2024-04-30").date())
-    report_path = tmp_path / "report.json"
     report = exp.run(features, report_path, clean_hours=24)
     saved = json.loads(report_path.read_text(encoding="utf-8"))
     assert saved["quality"] == report["quality"]
