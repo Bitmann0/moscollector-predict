@@ -1,9 +1,9 @@
 """Голова-правило D: порог по окну перед днём расчёта, молчание без осуществимого порога."""
 import datetime as dt
 import math
+from types import SimpleNamespace
 
 import polars as pl
-
 from mkl import rule_head
 from mkl.config import EQUIPMENT_STYPES
 
@@ -11,7 +11,7 @@ DAY = dt.date(2026, 6, 30)
 CFG = {"serving_rule": "n_bad_w7", "budget_per_day": 3, "budget_per_object": True,
        "operating_min_precision": 0.7, "operating_min_alerts": 30, "cooldown_days": 7,
        "horizon_days": 7, "embargo_days": 37, "label": "label_wear"}
-STYPE = sorted(EQUIPMENT_STYPES)[0]
+STYPE = min(EQUIPMENT_STYPES)
 
 
 def _window(positive: bool) -> tuple[pl.DataFrame, pl.DataFrame]:
@@ -64,3 +64,27 @@ def test_threshold_is_refreshed_weekly_on_monday():
     assert rule_head.refresh_day(dt.date(2026, 6, 29)) == dt.date(2026, 6, 29)
     assert rule_head.refresh_day(dt.date(2026, 7, 5)) == dt.date(2026, 6, 29)
     assert rule_head.refresh_day(dt.date(2026, 6, 28)) == dt.date(2026, 6, 22)
+
+
+def test_weekly_artifact_cache_changes_with_features_and_config(monkeypatch, tmp_path):
+    feature = tmp_path / "sensor.parquet"
+    feature.write_bytes(b"old")
+    monkeypatch.setattr(rule_head, "PATHS", SimpleNamespace(features=tmp_path))
+    monkeypatch.setattr(rule_head, "_source_key", lambda: (1, 1))
+    builds = []
+
+    def build(head, cfg, day):
+        builds.append((cfg["operating_min_precision"], day))
+        return {"threshold": len(builds)}
+
+    monkeypatch.setattr(rule_head, "_build", build)
+    rule_head._ARTIFACTS.clear()
+    cfg = {"serving_rule": "n_bad_w7", "feature_set": "sensor",
+           "operating_min_precision": 0.7}
+    assert rule_head.artifact("D", cfg, DAY)["threshold"] == 1
+    assert rule_head.artifact("D", cfg, DAY)["threshold"] == 1
+    feature.write_bytes(b"new feature store")
+    assert rule_head.artifact("D", cfg, DAY)["threshold"] == 2
+    changed = {**cfg, "operating_min_precision": 0.8}
+    assert rule_head.artifact("D", changed, DAY)["threshold"] == 3
+    rule_head._ARTIFACTS.clear()

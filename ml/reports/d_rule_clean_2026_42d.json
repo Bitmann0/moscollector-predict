@@ -1,6 +1,6 @@
 {
   "head": "D",
-  "policy": "deployed_rule_n_bad_w7_monday_refresh",
+  "policy": "exploratory_clean_only_no_refill",
   "target": "recorded_equipment_bad_state_or_alarm_in_next_7_days",
   "source_last_day": "2026-06-30",
   "data_sha256": {
@@ -20,33 +20,33 @@
       "reference_coverage": null,
       "unknown_candidates": 5024,
       "known_positive_days": 4174,
-      "alerts": 22,
-      "hits": 16,
+      "alerts": 10,
+      "hits": 7,
       "known_misses": 2,
-      "unknown_alerts": 4,
-      "precision_lower_bound": 0.7272727272727273,
-      "precision_upper_bound": 0.9090909090909091,
-      "precision_known_only": 0.8888888888888888,
-      "recall_known_days": 0.003833253473885961,
+      "unknown_alerts": 1,
+      "precision_lower_bound": 0.7,
+      "precision_upper_bound": 0.8,
+      "precision_known_only": 0.7777777777777778,
+      "recall_known_days": 0.0016770483948251077,
       "episodes_eligible": 938,
-      "episodes_caught": 12,
-      "episode_recall": 0.01279317697228145,
+      "episodes_caught": 10,
+      "episode_recall": 0.010660980810234541,
       "observed_onsets_eligible": 640,
-      "observed_onsets_caught": 10,
-      "alerts_with_new_episode": 9,
+      "observed_onsets_caught": 8,
+      "alerts_with_new_episode": 7,
       "repeat_episode_alerts": 0,
-      "ongoing_episode_alerts": 9,
+      "ongoing_episode_alerts": 0,
       "uncertain_onset_only_alerts": 2,
-      "episodes_per_100_alerts": 54.54545454545455,
-      "alerts_per_day": 0.5238095238095238,
-      "alerts_per_30_days": 15.714285714285715,
-      "days_without_alerts": 26,
+      "episodes_per_100_alerts": 100.0,
+      "alerts_per_day": 0.23809523809523808,
+      "alerts_per_30_days": 7.142857142857142,
+      "days_without_alerts": 33,
       "days_without_candidates": 1,
       "monthly": {
         "2026-05": {
-          "alerts": 22,
-          "hits": 16,
-          "unknown": 4
+          "alerts": 10,
+          "hits": 7,
+          "unknown": 1
         },
         "2026-06": {
           "alerts": 0,
@@ -58,12 +58,12 @@
         {
           "day": "2026-05-13",
           "candidates": 263,
-          "alerts": 3
+          "alerts": 2
         },
         {
           "day": "2026-05-14",
           "candidates": 324,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2026-05-15",
@@ -78,12 +78,12 @@
         {
           "day": "2026-05-17",
           "candidates": 145,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2026-05-18",
           "candidates": 275,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2026-05-19",
@@ -93,17 +93,17 @@
         {
           "day": "2026-05-20",
           "candidates": 388,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2026-05-21",
           "candidates": 310,
-          "alerts": 2
+          "alerts": 0
         },
         {
           "day": "2026-05-22",
           "candidates": 344,
-          "alerts": 2
+          "alerts": 0
         },
         {
           "day": "2026-05-23",
@@ -113,12 +113,12 @@
         {
           "day": "2026-05-24",
           "candidates": 182,
-          "alerts": 0
+          "alerts": 1
         },
         {
           "day": "2026-05-25",
           "candidates": 277,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2026-05-26",
@@ -138,12 +138,12 @@
         {
           "day": "2026-05-29",
           "candidates": 312,
-          "alerts": 2
+          "alerts": 0
         },
         {
           "day": "2026-05-30",
           "candidates": 214,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2026-05-31",
@@ -268,20 +268,21 @@
       ]
     },
     "actionability": {
-      "issued": 22,
-      "current_bad": 15,
-      "current_clean": 7,
+      "issued": 10,
+      "current_bad": 0,
+      "current_clean": 10,
       "current_unknown": 0,
-      "current_bad_hits": 10,
-      "current_clean_hits": 6,
-      "current_bad_new_onsets": 3,
-      "current_clean_new_onsets": 6,
-      "with_future_episode_onset": 9,
-      "first_alert_for_new_episode": 9,
-      "first_alert_for_observed_new_episode": 7,
-      "new_episode_precision_lower_bound": 0.4090909090909091,
-      "observed_new_episode_precision_lower_bound": 0.3181818181818182
+      "current_bad_hits": 0,
+      "current_clean_hits": 7,
+      "current_bad_new_onsets": 0,
+      "current_clean_new_onsets": 7,
+      "with_future_episode_onset": 7,
+      "first_alert_for_new_episode": 7,
+      "first_alert_for_observed_new_episode": 5,
+      "new_episode_precision_lower_bound": 0.7,
+      "observed_new_episode_precision_lower_bound": 0.5
     },
+    "clean_only": true,
     "refreshes": [
       {
         "refresh_day": "2026-05-11",
@@ -383,45 +384,45 @@
           "reference_coverage": null,
           "unknown_candidates": 1602,
           "known_positive_days": 1812,
-          "alerts": 16,
-          "hits": 11,
+          "alerts": 7,
+          "hits": 5,
           "known_misses": 2,
-          "unknown_alerts": 3,
-          "precision_lower_bound": 0.6875,
-          "precision_upper_bound": 0.875,
-          "precision_known_only": 0.8461538461538461,
-          "recall_known_days": 0.006070640176600441,
+          "unknown_alerts": 0,
+          "precision_lower_bound": 0.7142857142857143,
+          "precision_upper_bound": 0.7142857142857143,
+          "precision_known_only": 0.7142857142857143,
+          "recall_known_days": 0.0027593818984547464,
           "episodes_eligible": 470,
-          "episodes_caught": 8,
-          "episode_recall": 0.01702127659574468,
+          "episodes_caught": 7,
+          "episode_recall": 0.014893617021276596,
           "observed_onsets_eligible": 325,
-          "observed_onsets_caught": 7,
-          "alerts_with_new_episode": 6,
+          "observed_onsets_caught": 6,
+          "alerts_with_new_episode": 5,
           "repeat_episode_alerts": 0,
-          "ongoing_episode_alerts": 7,
+          "ongoing_episode_alerts": 0,
           "uncertain_onset_only_alerts": 1,
-          "episodes_per_100_alerts": 50.0,
-          "alerts_per_day": 1.1428571428571428,
-          "alerts_per_30_days": 34.285714285714285,
-          "days_without_alerts": 2,
+          "episodes_per_100_alerts": 100.0,
+          "alerts_per_day": 0.5,
+          "alerts_per_30_days": 15.0,
+          "days_without_alerts": 8,
           "days_without_candidates": 0,
           "monthly": {
             "2026-05": {
-              "alerts": 16,
-              "hits": 11,
-              "unknown": 3
+              "alerts": 7,
+              "hits": 5,
+              "unknown": 0
             }
           },
           "daily": [
             {
               "day": "2026-05-13",
               "candidates": 263,
-              "alerts": 3
+              "alerts": 2
             },
             {
               "day": "2026-05-14",
               "candidates": 324,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2026-05-15",
@@ -436,12 +437,12 @@
             {
               "day": "2026-05-17",
               "candidates": 145,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2026-05-18",
               "candidates": 275,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2026-05-19",
@@ -451,17 +452,17 @@
             {
               "day": "2026-05-20",
               "candidates": 388,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2026-05-21",
               "candidates": 310,
-              "alerts": 2
+              "alerts": 0
             },
             {
               "day": "2026-05-22",
               "candidates": 344,
-              "alerts": 2
+              "alerts": 0
             },
             {
               "day": "2026-05-23",
@@ -471,12 +472,12 @@
             {
               "day": "2026-05-24",
               "candidates": 182,
-              "alerts": 0
+              "alerts": 1
             },
             {
               "day": "2026-05-25",
               "candidates": 277,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2026-05-26",
@@ -486,19 +487,19 @@
           ]
         },
         "actionability": {
-          "issued": 16,
-          "current_bad": 12,
-          "current_clean": 4,
+          "issued": 7,
+          "current_bad": 0,
+          "current_clean": 7,
           "current_unknown": 0,
-          "current_bad_hits": 8,
-          "current_clean_hits": 3,
-          "current_bad_new_onsets": 3,
-          "current_clean_new_onsets": 3,
-          "with_future_episode_onset": 6,
-          "first_alert_for_new_episode": 6,
-          "first_alert_for_observed_new_episode": 5,
-          "new_episode_precision_lower_bound": 0.375,
-          "observed_new_episode_precision_lower_bound": 0.3125
+          "current_bad_hits": 0,
+          "current_clean_hits": 5,
+          "current_bad_new_onsets": 0,
+          "current_clean_new_onsets": 5,
+          "with_future_episode_onset": 5,
+          "first_alert_for_new_episode": 5,
+          "first_alert_for_observed_new_episode": 4,
+          "new_episode_precision_lower_bound": 0.7142857142857143,
+          "observed_new_episode_precision_lower_bound": 0.5714285714285714
         }
       },
       {
@@ -513,32 +514,32 @@
           "reference_coverage": null,
           "unknown_candidates": 1849,
           "known_positive_days": 1334,
-          "alerts": 6,
-          "hits": 5,
+          "alerts": 3,
+          "hits": 2,
           "known_misses": 0,
           "unknown_alerts": 1,
-          "precision_lower_bound": 0.8333333333333334,
+          "precision_lower_bound": 0.6666666666666666,
           "precision_upper_bound": 1.0,
           "precision_known_only": 1.0,
-          "recall_known_days": 0.0037481259370314842,
+          "recall_known_days": 0.0014992503748125937,
           "episodes_eligible": 397,
-          "episodes_caught": 4,
-          "episode_recall": 0.010075566750629723,
+          "episodes_caught": 3,
+          "episode_recall": 0.007556675062972292,
           "observed_onsets_eligible": 289,
-          "observed_onsets_caught": 3,
-          "alerts_with_new_episode": 3,
+          "observed_onsets_caught": 2,
+          "alerts_with_new_episode": 2,
           "repeat_episode_alerts": 0,
-          "ongoing_episode_alerts": 2,
+          "ongoing_episode_alerts": 0,
           "uncertain_onset_only_alerts": 1,
-          "episodes_per_100_alerts": 66.66666666666667,
-          "alerts_per_day": 0.42857142857142855,
-          "alerts_per_30_days": 12.857142857142856,
-          "days_without_alerts": 10,
+          "episodes_per_100_alerts": 100.0,
+          "alerts_per_day": 0.21428571428571427,
+          "alerts_per_30_days": 6.428571428571428,
+          "days_without_alerts": 11,
           "days_without_candidates": 1,
           "monthly": {
             "2026-05": {
-              "alerts": 6,
-              "hits": 5,
+              "alerts": 3,
+              "hits": 2,
               "unknown": 1
             },
             "2026-06": {
@@ -561,12 +562,12 @@
             {
               "day": "2026-05-29",
               "candidates": 312,
-              "alerts": 2
+              "alerts": 0
             },
             {
               "day": "2026-05-30",
               "candidates": 214,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2026-05-31",
@@ -621,18 +622,18 @@
           ]
         },
         "actionability": {
-          "issued": 6,
-          "current_bad": 3,
+          "issued": 3,
+          "current_bad": 0,
           "current_clean": 3,
           "current_unknown": 0,
-          "current_bad_hits": 2,
-          "current_clean_hits": 3,
+          "current_bad_hits": 0,
+          "current_clean_hits": 2,
           "current_bad_new_onsets": 0,
-          "current_clean_new_onsets": 3,
-          "with_future_episode_onset": 3,
-          "first_alert_for_new_episode": 3,
-          "first_alert_for_observed_new_episode": 2,
-          "new_episode_precision_lower_bound": 0.5,
+          "current_clean_new_onsets": 2,
+          "with_future_episode_onset": 2,
+          "first_alert_for_new_episode": 2,
+          "first_alert_for_observed_new_episode": 1,
+          "new_episode_precision_lower_bound": 0.6666666666666666,
           "observed_new_episode_precision_lower_bound": 0.3333333333333333
         }
       },

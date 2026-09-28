@@ -4,11 +4,9 @@ from types import SimpleNamespace
 
 import polars as pl
 from fastapi.testclient import TestClient
-
 from mkl import config, contract, product_api, service
 from mkl.product_api import create_app
 from mkl.product_contract import ScoreResponse
-
 
 DAY = dt.date(2026, 6, 30)
 
@@ -97,6 +95,23 @@ def test_real_score_keeps_head_local_rank_when_d_score_is_a_count(monkeypatch, t
         "history_complete_from": "2026-06-23"})
     assert resp.status_code == 200, resp.text
     assert [item["head"] for item in resp.json()["alerts"]] == ["A_link", "D"]
+
+
+def test_direct_daily_alerts_does_not_compare_d_count_with_link_probability(monkeypatch):
+    from dataclasses import replace
+
+    link = _alert()
+    wear = replace(link, alert_id="wear", case_key="wear", head="D",
+                   direction="infrastructure_wear", risk=4.0,
+                   maintenance_context=None)
+    monkeypatch.setattr(service.serve, "load_heads", lambda: {
+        "A_link": {"product_status": "pilot", "cooldown_days": 0},
+        "D": {"product_status": "pilot", "cooldown_days": 0}})
+    monkeypatch.setattr(service, "alerts_for_head",
+                        lambda head, *args, **kwargs: [link] if head == "A_link" else [wear])
+    alerts = service.daily_alerts(DAY, heads=["A_link", "D"],
+                                  issued_histories={"A_link": [], "D": []})
+    assert [alert.head for alert in alerts] == ["A_link", "D"]
 
 
 def test_ready_does_not_claim_day_without_features(monkeypatch, tmp_path):

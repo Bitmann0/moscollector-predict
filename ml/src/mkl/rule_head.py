@@ -45,6 +45,12 @@ def _source_key() -> tuple[int, int]:
                  for name in ("daily_channel", "episodes"))
 
 
+def _feature_key(cfg: dict) -> tuple[int, int]:
+    """A rebuilt feature store must invalidate a cached weekly threshold."""
+    stat = (PATHS.features / f"{cfg['feature_set']}.parquet").stat()
+    return stat.st_mtime_ns, stat.st_size
+
+
 @lru_cache(maxsize=2)
 def _outcomes(head: str, source_key: tuple[int, int]) -> pl.DataFrame:
     """Исходы с датой появления; кэш сбрасывается, когда панель пересобрана."""
@@ -84,7 +90,12 @@ def artifact(head: str, cfg: dict, day: dt.date) -> dict:
     по дню и отпечатку панели.
     """
     refresh = refresh_day(day)
-    key = (head, cfg["serving_rule"], refresh, _source_key())
+    cfg_key = tuple((name, repr(cfg.get(name))) for name in (
+        "feature_set", "label", "horizon_days", "embargo_days",
+        "budget_per_day", "budget_per_object", "cooldown_days",
+        "operating_min_precision", "operating_min_alerts", "unknown_in_budget"))
+    key = (head, cfg["serving_rule"], refresh, _source_key(),
+           _feature_key(cfg), cfg_key)
     if key not in _ARTIFACTS:
         if len(_ARTIFACTS) > 64:
             _ARTIFACTS.clear()

@@ -1,6 +1,6 @@
 {
   "head": "D",
-  "policy": "deployed_rule_n_bad_w7_monday_refresh",
+  "policy": "exploratory_clean_only_no_refill",
   "target": "recorded_equipment_bad_state_or_alarm_in_next_7_days",
   "source_last_day": "2026-06-30",
   "data_sha256": {
@@ -20,47 +20,47 @@
       "reference_coverage": null,
       "unknown_candidates": 10786,
       "known_positive_days": 7138,
-      "alerts": 66,
-      "hits": 47,
-      "known_misses": 2,
-      "unknown_alerts": 17,
-      "precision_lower_bound": 0.7121212121212122,
-      "precision_upper_bound": 0.9696969696969697,
-      "precision_known_only": 0.9591836734693877,
-      "recall_known_days": 0.00658447744466237,
+      "alerts": 25,
+      "hits": 17,
+      "known_misses": 1,
+      "unknown_alerts": 7,
+      "precision_lower_bound": 0.68,
+      "precision_upper_bound": 0.96,
+      "precision_known_only": 0.9444444444444444,
+      "recall_known_days": 0.0023816195012608572,
       "episodes_eligible": 1358,
-      "episodes_caught": 23,
-      "episode_recall": 0.016936671575846832,
+      "episodes_caught": 22,
+      "episode_recall": 0.016200294550810016,
       "observed_onsets_eligible": 813,
-      "observed_onsets_caught": 20,
-      "alerts_with_new_episode": 19,
+      "observed_onsets_caught": 19,
+      "alerts_with_new_episode": 17,
       "repeat_episode_alerts": 0,
-      "ongoing_episode_alerts": 40,
+      "ongoing_episode_alerts": 0,
       "uncertain_onset_only_alerts": 3,
-      "episodes_per_100_alerts": 34.84848484848485,
-      "alerts_per_day": 0.5892857142857143,
-      "alerts_per_30_days": 17.67857142857143,
-      "days_without_alerts": 73,
+      "episodes_per_100_alerts": 88.0,
+      "alerts_per_day": 0.22321428571428573,
+      "alerts_per_30_days": 6.696428571428572,
+      "days_without_alerts": 92,
       "days_without_candidates": 0,
       "monthly": {
         "2025-09": {
-          "alerts": 27,
-          "hits": 17,
-          "unknown": 8
+          "alerts": 8,
+          "hits": 6,
+          "unknown": 1
         },
         "2025-10": {
-          "alerts": 25,
-          "hits": 18,
-          "unknown": 7
+          "alerts": 10,
+          "hits": 5,
+          "unknown": 5
         },
         "2025-11": {
-          "alerts": 7,
-          "hits": 5,
-          "unknown": 2
+          "alerts": 4,
+          "hits": 3,
+          "unknown": 1
         },
         "2025-12": {
-          "alerts": 7,
-          "hits": 7,
+          "alerts": 3,
+          "hits": 3,
           "unknown": 0
         }
       },
@@ -68,32 +68,32 @@
         {
           "day": "2025-09-11",
           "candidates": 276,
-          "alerts": 3
+          "alerts": 0
         },
         {
           "day": "2025-09-12",
           "candidates": 234,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-13",
           "candidates": 80,
-          "alerts": 3
+          "alerts": 2
         },
         {
           "day": "2025-09-14",
           "candidates": 47,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-15",
           "candidates": 256,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-16",
           "candidates": 248,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-17",
@@ -103,7 +103,7 @@
         {
           "day": "2025-09-18",
           "candidates": 280,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-19",
@@ -113,12 +113,12 @@
         {
           "day": "2025-09-20",
           "candidates": 69,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-09-21",
           "candidates": 56,
-          "alerts": 3
+          "alerts": 0
         },
         {
           "day": "2025-09-22",
@@ -133,12 +133,12 @@
         {
           "day": "2025-09-24",
           "candidates": 229,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-25",
           "candidates": 313,
-          "alerts": 3
+          "alerts": 0
         },
         {
           "day": "2025-09-26",
@@ -148,12 +148,12 @@
         {
           "day": "2025-09-27",
           "candidates": 109,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-09-28",
           "candidates": 141,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-09-29",
@@ -168,17 +168,17 @@
         {
           "day": "2025-10-01",
           "candidates": 311,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-10-02",
           "candidates": 354,
-          "alerts": 2
+          "alerts": 0
         },
         {
           "day": "2025-10-03",
           "candidates": 314,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-10-04",
@@ -193,17 +193,17 @@
         {
           "day": "2025-10-06",
           "candidates": 269,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-10-07",
           "candidates": 282,
-          "alerts": 0
+          "alerts": 1
         },
         {
           "day": "2025-10-08",
           "candidates": 336,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-10-09",
@@ -213,12 +213,12 @@
         {
           "day": "2025-10-10",
           "candidates": 229,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-10-11",
           "candidates": 114,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-10-12",
@@ -263,17 +263,17 @@
         {
           "day": "2025-10-20",
           "candidates": 211,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-10-21",
           "candidates": 245,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-10-22",
           "candidates": 248,
-          "alerts": 2
+          "alerts": 1
         },
         {
           "day": "2025-10-23",
@@ -283,7 +283,7 @@
         {
           "day": "2025-10-24",
           "candidates": 171,
-          "alerts": 2
+          "alerts": 0
         },
         {
           "day": "2025-10-25",
@@ -293,7 +293,7 @@
         {
           "day": "2025-10-26",
           "candidates": 89,
-          "alerts": 3
+          "alerts": 0
         },
         {
           "day": "2025-10-27",
@@ -438,17 +438,17 @@
         {
           "day": "2025-11-24",
           "candidates": 201,
-          "alerts": 3
+          "alerts": 2
         },
         {
           "day": "2025-11-25",
           "candidates": 205,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-11-26",
           "candidates": 194,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-11-27",
@@ -463,12 +463,12 @@
         {
           "day": "2025-11-29",
           "candidates": 137,
-          "alerts": 1
+          "alerts": 0
         },
         {
           "day": "2025-11-30",
           "candidates": 115,
-          "alerts": 0
+          "alerts": 1
         },
         {
           "day": "2025-12-01",
@@ -613,12 +613,12 @@
         {
           "day": "2025-12-29",
           "candidates": 149,
-          "alerts": 3
+          "alerts": 0
         },
         {
           "day": "2025-12-30",
           "candidates": 68,
-          "alerts": 3
+          "alerts": 2
         },
         {
           "day": "2025-12-31",
@@ -628,20 +628,21 @@
       ]
     },
     "actionability": {
-      "issued": 66,
-      "current_bad": 47,
-      "current_clean": 19,
+      "issued": 25,
+      "current_bad": 0,
+      "current_clean": 25,
       "current_unknown": 0,
-      "current_bad_hits": 35,
-      "current_clean_hits": 12,
-      "current_bad_new_onsets": 7,
-      "current_clean_new_onsets": 12,
-      "with_future_episode_onset": 19,
-      "first_alert_for_new_episode": 19,
-      "first_alert_for_observed_new_episode": 16,
-      "new_episode_precision_lower_bound": 0.2878787878787879,
-      "observed_new_episode_precision_lower_bound": 0.24242424242424243
+      "current_bad_hits": 0,
+      "current_clean_hits": 17,
+      "current_bad_new_onsets": 0,
+      "current_clean_new_onsets": 17,
+      "with_future_episode_onset": 17,
+      "first_alert_for_new_episode": 17,
+      "first_alert_for_observed_new_episode": 14,
+      "new_episode_precision_lower_bound": 0.68,
+      "observed_new_episode_precision_lower_bound": 0.56
     },
+    "clean_only": true,
     "refreshes": [
       {
         "refresh_day": "2025-09-08",
@@ -868,70 +869,70 @@
           "reference_coverage": null,
           "unknown_candidates": 3392,
           "known_positive_days": 2042,
-          "alerts": 38,
-          "hits": 25,
-          "known_misses": 2,
-          "unknown_alerts": 11,
-          "precision_lower_bound": 0.6578947368421053,
-          "precision_upper_bound": 0.9473684210526315,
-          "precision_known_only": 0.9259259259259259,
-          "recall_known_days": 0.012242899118511263,
+          "alerts": 14,
+          "hits": 10,
+          "known_misses": 1,
+          "unknown_alerts": 3,
+          "precision_lower_bound": 0.7142857142857143,
+          "precision_upper_bound": 0.9285714285714286,
+          "precision_known_only": 0.9090909090909091,
+          "recall_known_days": 0.004897159647404506,
           "episodes_eligible": 411,
-          "episodes_caught": 11,
-          "episode_recall": 0.0267639902676399,
+          "episodes_caught": 12,
+          "episode_recall": 0.029197080291970802,
           "observed_onsets_eligible": 288,
-          "observed_onsets_caught": 9,
+          "observed_onsets_caught": 10,
           "alerts_with_new_episode": 10,
           "repeat_episode_alerts": 0,
-          "ongoing_episode_alerts": 22,
+          "ongoing_episode_alerts": 0,
           "uncertain_onset_only_alerts": 2,
-          "episodes_per_100_alerts": 28.94736842105263,
-          "alerts_per_day": 1.3571428571428572,
-          "alerts_per_30_days": 40.714285714285715,
-          "days_without_alerts": 5,
+          "episodes_per_100_alerts": 85.71428571428571,
+          "alerts_per_day": 0.5,
+          "alerts_per_30_days": 15.0,
+          "days_without_alerts": 17,
           "days_without_candidates": 0,
           "monthly": {
             "2025-09": {
-              "alerts": 27,
-              "hits": 17,
-              "unknown": 8
+              "alerts": 8,
+              "hits": 6,
+              "unknown": 1
             },
             "2025-10": {
-              "alerts": 11,
-              "hits": 8,
-              "unknown": 3
+              "alerts": 6,
+              "hits": 4,
+              "unknown": 2
             }
           },
           "daily": [
             {
               "day": "2025-09-11",
               "candidates": 276,
-              "alerts": 3
+              "alerts": 0
             },
             {
               "day": "2025-09-12",
               "candidates": 234,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-13",
               "candidates": 80,
-              "alerts": 3
+              "alerts": 2
             },
             {
               "day": "2025-09-14",
               "candidates": 47,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-15",
               "candidates": 256,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-16",
               "candidates": 248,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-17",
@@ -941,7 +942,7 @@
             {
               "day": "2025-09-18",
               "candidates": 280,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-19",
@@ -951,12 +952,12 @@
             {
               "day": "2025-09-20",
               "candidates": 69,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-09-21",
               "candidates": 56,
-              "alerts": 3
+              "alerts": 0
             },
             {
               "day": "2025-09-22",
@@ -971,12 +972,12 @@
             {
               "day": "2025-09-24",
               "candidates": 229,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-25",
               "candidates": 313,
-              "alerts": 3
+              "alerts": 0
             },
             {
               "day": "2025-09-26",
@@ -986,12 +987,12 @@
             {
               "day": "2025-09-27",
               "candidates": 109,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-09-28",
               "candidates": 141,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-09-29",
@@ -1006,17 +1007,17 @@
             {
               "day": "2025-10-01",
               "candidates": 311,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-10-02",
               "candidates": 354,
-              "alerts": 2
+              "alerts": 0
             },
             {
               "day": "2025-10-03",
               "candidates": 314,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-10-04",
@@ -1031,34 +1032,34 @@
             {
               "day": "2025-10-06",
               "candidates": 269,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-10-07",
               "candidates": 282,
-              "alerts": 0
+              "alerts": 1
             },
             {
               "day": "2025-10-08",
               "candidates": 336,
-              "alerts": 1
+              "alerts": 0
             }
           ]
         },
         "actionability": {
-          "issued": 38,
-          "current_bad": 28,
-          "current_clean": 10,
+          "issued": 14,
+          "current_bad": 0,
+          "current_clean": 14,
           "current_unknown": 0,
-          "current_bad_hits": 19,
-          "current_clean_hits": 6,
-          "current_bad_new_onsets": 4,
-          "current_clean_new_onsets": 6,
+          "current_bad_hits": 0,
+          "current_clean_hits": 10,
+          "current_bad_new_onsets": 0,
+          "current_clean_new_onsets": 10,
           "with_future_episode_onset": 10,
           "first_alert_for_new_episode": 10,
           "first_alert_for_observed_new_episode": 8,
-          "new_episode_precision_lower_bound": 0.2631578947368421,
-          "observed_new_episode_precision_lower_bound": 0.21052631578947367
+          "new_episode_precision_lower_bound": 0.7142857142857143,
+          "observed_new_episode_precision_lower_bound": 0.5714285714285714
         }
       },
       {
@@ -1073,33 +1074,33 @@
           "reference_coverage": null,
           "unknown_candidates": 2929,
           "known_positive_days": 1402,
-          "alerts": 14,
-          "hits": 10,
+          "alerts": 4,
+          "hits": 1,
           "known_misses": 0,
-          "unknown_alerts": 4,
-          "precision_lower_bound": 0.7142857142857143,
+          "unknown_alerts": 3,
+          "precision_lower_bound": 0.25,
           "precision_upper_bound": 1.0,
           "precision_known_only": 1.0,
-          "recall_known_days": 0.007132667617689016,
+          "recall_known_days": 0.0007132667617689016,
           "episodes_eligible": 265,
-          "episodes_caught": 2,
-          "episode_recall": 0.007547169811320755,
+          "episodes_caught": 1,
+          "episode_recall": 0.0037735849056603774,
           "observed_onsets_eligible": 153,
-          "observed_onsets_caught": 2,
-          "alerts_with_new_episode": 2,
+          "observed_onsets_caught": 1,
+          "alerts_with_new_episode": 1,
           "repeat_episode_alerts": 0,
-          "ongoing_episode_alerts": 11,
+          "ongoing_episode_alerts": 0,
           "uncertain_onset_only_alerts": 0,
-          "episodes_per_100_alerts": 14.285714285714286,
-          "alerts_per_day": 0.5,
-          "alerts_per_30_days": 15.0,
-          "days_without_alerts": 20,
+          "episodes_per_100_alerts": 25.0,
+          "alerts_per_day": 0.14285714285714285,
+          "alerts_per_30_days": 4.285714285714286,
+          "days_without_alerts": 24,
           "days_without_candidates": 0,
           "monthly": {
             "2025-10": {
-              "alerts": 14,
-              "hits": 10,
-              "unknown": 4
+              "alerts": 4,
+              "hits": 1,
+              "unknown": 3
             },
             "2025-11": {
               "alerts": 0,
@@ -1116,12 +1117,12 @@
             {
               "day": "2025-10-10",
               "candidates": 229,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-10-11",
               "candidates": 114,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-10-12",
@@ -1166,17 +1167,17 @@
             {
               "day": "2025-10-20",
               "candidates": 211,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-10-21",
               "candidates": 245,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-10-22",
               "candidates": 248,
-              "alerts": 2
+              "alerts": 1
             },
             {
               "day": "2025-10-23",
@@ -1186,7 +1187,7 @@
             {
               "day": "2025-10-24",
               "candidates": 171,
-              "alerts": 2
+              "alerts": 0
             },
             {
               "day": "2025-10-25",
@@ -1196,7 +1197,7 @@
             {
               "day": "2025-10-26",
               "candidates": 89,
-              "alerts": 3
+              "alerts": 0
             },
             {
               "day": "2025-10-27",
@@ -1251,19 +1252,19 @@
           ]
         },
         "actionability": {
-          "issued": 14,
-          "current_bad": 11,
-          "current_clean": 3,
+          "issued": 4,
+          "current_bad": 0,
+          "current_clean": 4,
           "current_unknown": 0,
-          "current_bad_hits": 10,
-          "current_clean_hits": 0,
-          "current_bad_new_onsets": 2,
-          "current_clean_new_onsets": 0,
-          "with_future_episode_onset": 2,
-          "first_alert_for_new_episode": 2,
-          "first_alert_for_observed_new_episode": 2,
-          "new_episode_precision_lower_bound": 0.14285714285714285,
-          "observed_new_episode_precision_lower_bound": 0.14285714285714285
+          "current_bad_hits": 0,
+          "current_clean_hits": 1,
+          "current_bad_new_onsets": 0,
+          "current_clean_new_onsets": 1,
+          "with_future_episode_onset": 1,
+          "first_alert_for_new_episode": 1,
+          "first_alert_for_observed_new_episode": 1,
+          "new_episode_precision_lower_bound": 0.25,
+          "observed_new_episode_precision_lower_bound": 0.25
         }
       },
       {
@@ -1278,14 +1279,14 @@
           "reference_coverage": null,
           "unknown_candidates": 2579,
           "known_positive_days": 1670,
-          "alerts": 7,
-          "hits": 5,
+          "alerts": 4,
+          "hits": 3,
           "known_misses": 0,
-          "unknown_alerts": 2,
-          "precision_lower_bound": 0.7142857142857143,
+          "unknown_alerts": 1,
+          "precision_lower_bound": 0.75,
           "precision_upper_bound": 1.0,
           "precision_known_only": 1.0,
-          "recall_known_days": 0.0029940119760479044,
+          "recall_known_days": 0.0017964071856287425,
           "episodes_eligible": 449,
           "episodes_caught": 6,
           "episode_recall": 0.013363028953229399,
@@ -1293,18 +1294,18 @@
           "observed_onsets_caught": 6,
           "alerts_with_new_episode": 3,
           "repeat_episode_alerts": 0,
-          "ongoing_episode_alerts": 3,
+          "ongoing_episode_alerts": 0,
           "uncertain_onset_only_alerts": 0,
-          "episodes_per_100_alerts": 85.71428571428571,
-          "alerts_per_day": 0.25,
-          "alerts_per_30_days": 7.5,
-          "days_without_alerts": 23,
+          "episodes_per_100_alerts": 150.0,
+          "alerts_per_day": 0.14285714285714285,
+          "alerts_per_30_days": 4.285714285714286,
+          "days_without_alerts": 25,
           "days_without_candidates": 0,
           "monthly": {
             "2025-11": {
-              "alerts": 7,
-              "hits": 5,
-              "unknown": 2
+              "alerts": 4,
+              "hits": 3,
+              "unknown": 1
             },
             "2025-12": {
               "alerts": 0,
@@ -1406,17 +1407,17 @@
             {
               "day": "2025-11-24",
               "candidates": 201,
-              "alerts": 3
+              "alerts": 2
             },
             {
               "day": "2025-11-25",
               "candidates": 205,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-11-26",
               "candidates": 194,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-11-27",
@@ -1431,12 +1432,12 @@
             {
               "day": "2025-11-29",
               "candidates": 137,
-              "alerts": 1
+              "alerts": 0
             },
             {
               "day": "2025-11-30",
               "candidates": 115,
-              "alerts": 0
+              "alerts": 1
             },
             {
               "day": "2025-12-01",
@@ -1456,19 +1457,19 @@
           ]
         },
         "actionability": {
-          "issued": 7,
-          "current_bad": 4,
-          "current_clean": 3,
+          "issued": 4,
+          "current_bad": 0,
+          "current_clean": 4,
           "current_unknown": 0,
-          "current_bad_hits": 2,
+          "current_bad_hits": 0,
           "current_clean_hits": 3,
           "current_bad_new_onsets": 0,
           "current_clean_new_onsets": 3,
           "with_future_episode_onset": 3,
           "first_alert_for_new_episode": 3,
           "first_alert_for_observed_new_episode": 3,
-          "new_episode_precision_lower_bound": 0.42857142857142855,
-          "observed_new_episode_precision_lower_bound": 0.42857142857142855
+          "new_episode_precision_lower_bound": 0.75,
+          "observed_new_episode_precision_lower_bound": 0.75
         }
       },
       {
@@ -1483,32 +1484,32 @@
           "reference_coverage": null,
           "unknown_candidates": 1886,
           "known_positive_days": 2024,
-          "alerts": 7,
-          "hits": 7,
+          "alerts": 3,
+          "hits": 3,
           "known_misses": 0,
           "unknown_alerts": 0,
           "precision_lower_bound": 1.0,
           "precision_upper_bound": 1.0,
           "precision_known_only": 1.0,
-          "recall_known_days": 0.003458498023715415,
+          "recall_known_days": 0.0014822134387351778,
           "episodes_eligible": 378,
-          "episodes_caught": 4,
-          "episode_recall": 0.010582010582010581,
+          "episodes_caught": 3,
+          "episode_recall": 0.007936507936507936,
           "observed_onsets_eligible": 191,
-          "observed_onsets_caught": 3,
-          "alerts_with_new_episode": 4,
+          "observed_onsets_caught": 2,
+          "alerts_with_new_episode": 3,
           "repeat_episode_alerts": 0,
-          "ongoing_episode_alerts": 4,
+          "ongoing_episode_alerts": 0,
           "uncertain_onset_only_alerts": 1,
-          "episodes_per_100_alerts": 57.142857142857146,
-          "alerts_per_day": 0.25,
-          "alerts_per_30_days": 7.5,
-          "days_without_alerts": 25,
+          "episodes_per_100_alerts": 100.0,
+          "alerts_per_day": 0.10714285714285714,
+          "alerts_per_30_days": 3.214285714285714,
+          "days_without_alerts": 26,
           "days_without_candidates": 0,
           "monthly": {
             "2025-12": {
-              "alerts": 7,
-              "hits": 7,
+              "alerts": 3,
+              "hits": 3,
               "unknown": 0
             }
           },
@@ -1641,12 +1642,12 @@
             {
               "day": "2025-12-29",
               "candidates": 149,
-              "alerts": 3
+              "alerts": 0
             },
             {
               "day": "2025-12-30",
               "candidates": 68,
-              "alerts": 3
+              "alerts": 2
             },
             {
               "day": "2025-12-31",
@@ -1656,19 +1657,19 @@
           ]
         },
         "actionability": {
-          "issued": 7,
-          "current_bad": 4,
+          "issued": 3,
+          "current_bad": 0,
           "current_clean": 3,
           "current_unknown": 0,
-          "current_bad_hits": 4,
+          "current_bad_hits": 0,
           "current_clean_hits": 3,
-          "current_bad_new_onsets": 1,
+          "current_bad_new_onsets": 0,
           "current_clean_new_onsets": 3,
-          "with_future_episode_onset": 4,
-          "first_alert_for_new_episode": 4,
-          "first_alert_for_observed_new_episode": 3,
-          "new_episode_precision_lower_bound": 0.5714285714285714,
-          "observed_new_episode_precision_lower_bound": 0.42857142857142855
+          "with_future_episode_onset": 3,
+          "first_alert_for_new_episode": 3,
+          "first_alert_for_observed_new_episode": 2,
+          "new_episode_precision_lower_bound": 1.0,
+          "observed_new_episode_precision_lower_bound": 0.6666666666666666
         }
       }
     ]

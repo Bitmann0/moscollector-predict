@@ -30,7 +30,7 @@ FROZEN = "2026-09-28"
 
 TITLES = {
     "sensor_link": "Отказ датчика: риск потери связи",
-    "equipment_diag": "Износ: плановая диагностика оборудования",
+    "equipment_diag": "Плановая проверка повторяющихся сигналов оборудования",
     "guard_weekly": "НСД: проверка объектов с хроническими охранными тревогами",
 }
 
@@ -78,6 +78,10 @@ CMD_D_MONDAY_2025 = ("python scripts/eval_d_rule_serving.py --end 2025-12-31 "
                      "--splits 4 --test-days 28 --out reports/d_rule_monday_2025h2.json")
 CMD_D_MONDAY_2026 = ("python scripts/eval_d_rule_serving.py --end 2026-06-23 "
                      "--splits 3 --test-days 14 --out reports/d_rule_monday_2026_42d.json")
+CMD_D_MONDAY_2023 = ("python scripts/eval_d_rule_serving.py --end 2023-12-31 "
+                     "--splits 4 --test-days 28 --out reports/d_rule_monday_2023h2.json")
+CMD_D_MONDAY_2024 = ("python scripts/eval_d_rule_serving.py --end 2024-12-31 "
+                     "--splits 4 --test-days 28 --out reports/d_rule_monday_2024h2.json")
 CMD_GUARD = ("python scripts/build_intrusion_eventtime_labels.py; "
              "python scripts/exp_guard_weekly_repeats.py")
 CMD_GUARD_MODEL = "python scripts/exp_guard_weekly_model.py"
@@ -258,6 +262,8 @@ def _audit_base(total: dict) -> dict:
 def equipment_diag() -> dict:
     val = _audit_head(_load("rule_vs_model_2025h2.json"), "D")
     d42 = _audit_head(_load("second_ml_42d_local.json"), "D")
+    exact_2023 = _load("d_rule_monday_2023h2.json")["period"]
+    exact_2024 = _load("d_rule_monday_2024h2.json")["period"]
     exact_2025 = _load("d_rule_monday_2025h2.json")["period"]
     exact_2026 = _load("d_rule_monday_2026_42d.json")["period"]
     runs = [(val, "validation_2025h2", "reports/rule_vs_model_2025h2.json", CMD_VALIDATION,
@@ -265,7 +271,11 @@ def equipment_diag() -> dict:
             (d42, "may_june_2026", "reports/second_ml_42d_local.json", CMD_42D,
              "три окна по 14 суток; аудит обновлял порог по средам, не как сервис")]
     evaluations, comparison, base = [], [], []
-    exact_runs = [(exact_2025, "validation_2025h2",
+    exact_runs = [(exact_2023, "stress_2023h2",
+                   "reports/d_rule_monday_2023h2.json", CMD_D_MONDAY_2023),
+                  (exact_2024, "stress_2024h2",
+                   "reports/d_rule_monday_2024h2.json", CMD_D_MONDAY_2024),
+                  (exact_2025, "validation_2025h2",
                    "reports/d_rule_monday_2025h2.json", CMD_D_MONDAY_2025),
                   (exact_2026, "may_june_2026",
                    "reports/d_rule_monday_2026_42d.json", CMD_D_MONDAY_2026)]
@@ -274,7 +284,8 @@ def equipment_diag() -> dict:
             "id": key, "period": [exact["start"], exact["end"]], "method": "temporal",
             "method_note": "точная политика C1: обновление порога по понедельникам, "
                            "пауза 7 суток; история ранее просмотрена",
-            **_audit_eval(exact["summary"]), "source": source,
+            **_audit_eval(exact["summary"]),
+            "actionability": exact["actionability"], "source": source,
             "command": command})
         base.append({
             "period": [exact["start"], exact["end"]],
@@ -601,7 +612,15 @@ def quality_screen(scenarios: dict[str, dict]) -> dict:
     link = scenarios["sensor_link"]
     link_base = link["base_rate"][1]
     link_rule = link["comparison"][0]
-    wear_base = scenarios["equipment_diag"]["base_rate"][1]
+    equipment = scenarios["equipment_diag"]
+    # The quality card must use the current C1 calendar replay, not the old
+    # Wednesday audit (and not a period where the new evaluation happened to
+    # have no issued policy). Keep the conservative known-outcome precision
+    # separate from the lower-bound precision shown in the ML report.
+    wear_base = next(item for item in equipment["base_rate"]
+                     if item["period"] == ["2026-05-13", "2026-06-23"])
+    wear_eval = next(item for item in equipment["evaluations"]
+                     if item["period"] == ["2026-05-13", "2026-06-23"])
     guard_base = scenarios["guard_weekly"]["base_rate"][0]
     guard_cmp = scenarios["guard_weekly"]["comparison"][0]
 
@@ -620,14 +639,14 @@ def quality_screen(scenarios: dict[str, dict]) -> dict:
                     "по известным исходам, как недельная точность на экране."},
         "equipment_diag": {
             "base_rate": _ratio(wear_base["positives"], wear_base["known"], 3),
-            "rule_precision": None,
+            "rule_precision": _ratio(wear_eval["hits"],
+                                       wear_eval["alerts"] - wear_eval["unknown"], 3),
             "period": f"{span(wear_base['period'])}, три окна по 14 суток",
-            "source": "ml/reports/SECOND_ML_LOCAL_42D_AUDIT.md",
-            "note": "В продукте само простое правило «плохие состояния агрегата за 7 суток», "
-                    "сравнивать его не с чем: обученная модель при минимуме точности 0,70 "
-                    "в этих окнах не выдала ни одной рекомендации. "
-                    "База — доля положительных среди канало-суток оборудования с известным "
-                    "исходом."},
+            "source": "ml/reports/d_rule_monday_2026_42d.json",
+            "note": "Правило C1 «плохие состояния агрегата за 7 суток»; rule_precision "
+                    "считается по известным исходам, а нижняя граница с unknown остаётся "
+                    "в ML-реестре. Действие — редкая ручная проверка повторяющегося "
+                    "сигнала; это не подтверждённый физический износ."},
         "guard_weekly": {
             "base_rate": _ratio(guard_base["positives"], guard_base["candidates"], 3),
             "rule_precision": None,

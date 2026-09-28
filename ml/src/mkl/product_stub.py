@@ -67,7 +67,7 @@ HEADS = {
     "A_link": HeadSpec("A_link", "sensor_failure", "Потеря связи с каналом",
                        horizon_hours=24, budget_per_day=20, cooldown_days=7,
                        budget_per_object=False, model_lag_days=7),
-    "D": HeadSpec("D", "infrastructure_wear", "Износ агрегатов",
+    "D": HeadSpec("D", "infrastructure_wear", "Проверка повторяющихся сигналов оборудования",
                   horizon_hours=168, budget_per_day=3, cooldown_days=7,
                   budget_per_object=True, model_lag_days=14),
 }
@@ -83,7 +83,7 @@ EQUIPMENT_STYPES = frozenset({
 OBJ_KIND_RU = {"controlHouse": "диспетчерский пункт", "guardObject": "охранная зона"}
 WORK_TYPE = {
     "sensor_failure": "Проверка и обслуживание датчика",
-    "infrastructure_wear": "Техническое обслуживание агрегата",
+    "infrastructure_wear": "Плановая диагностика агрегата",
 }
 
 # Порог рабочей точки заглушки. В real-режиме порог лежит в артефакте модели.

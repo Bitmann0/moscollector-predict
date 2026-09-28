@@ -209,15 +209,15 @@ C:
     depth: 7
 D:
   direction: infrastructure_wear  # Износ инфраструктуры
-  title: Износ агрегатов
+  title: Проверка повторяющихся сигналов оборудования
   product_status: pilot
-  product_target: recorded_equipment_wear_signal_next_7_days
+  product_target: recorded_equipment_bad_signal_next_7_days
   product_action: manual_planned_equipment_diagnostic
   product_policy: rule_n_bad_w7_threshold_and_max_3_per_day; cooldown_7d
   # Модель заменена правилом по протоколу reports/RULE_VS_MODEL_PROTOCOL.md:
   # на валидации 2025 года модель при пороге 70 % молчала, правило поймало
   # 22 новых эпизода (reports/RULE_VS_MODEL_RESULT.md). Порог правила
-  # выбирается к каждому дню расчёта (src/mkl/rule_head.py).
+  # обновляется по понедельникам (src/mkl/rule_head.py).
   serving_rule: n_bad_w7
   cooldown_days: 7
   max_model_lag_days: 14

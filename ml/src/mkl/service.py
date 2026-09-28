@@ -13,7 +13,7 @@ import json
 
 import polars as pl
 
-from . import address, contract, explain, maintenance, serve, store, train
+from . import address, contract, explain, maintenance, serve, train
 from .config import PATHS
 from .contract import Address, Alert, Coverage
 
@@ -223,7 +223,10 @@ def daily_alerts(asof: dt.date | None = None, heads: list[str] | None = None,
             print(f"голова {head} пропущена: {exc}", flush=True)
             continue
         out.extend(a for a in got if a.in_budget or not only_in_budget)
-    out.sort(key=lambda a: (-a.risk, a.head))
+    # D returns a count of recent bad states while A_link returns a
+    # probability. Only a rank within the same head is meaningful.
+    head_order = {head: i for i, head in enumerate(dict.fromkeys(names))}
+    out.sort(key=lambda a: (head_order.get(a.head, len(head_order)), a.rank))
     return out
 
 

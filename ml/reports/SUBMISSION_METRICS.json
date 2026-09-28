@@ -222,7 +222,7 @@
     },
     {
       "code": "equipment_diag",
-      "title": "Износ: плановая диагностика оборудования",
+      "title": "Плановая проверка повторяющихся сигналов оборудования",
       "head": "D",
       "in_product": "правило n_bad_w7 (число плохих состояний канала за 7 суток); порог выбирается по понедельникам на прошлом 30-дневном окне при минимуме точности 0,70 и не меньше 30 рекомендаций (src/mkl/rule_head.py); обученной модели нет",
       "target": "записанный сигнал тревоги или плохого состояния оборудования (насос, вентилятор, ИБП, люк, датчик затопления) в следующие 7 суток",
@@ -233,6 +233,86 @@
       "cooldown_days": 7,
       "config": "configs/heads.yaml (D)",
       "evaluations": [
+        {
+          "id": "stress_2023h2",
+          "period": [
+            "2023-09-11",
+            "2023-12-31"
+          ],
+          "method": "temporal",
+          "method_note": "точная политика C1: обновление порога по понедельникам, пауза 7 суток; история ранее просмотрена",
+          "alerts": 20,
+          "hits": 14,
+          "unknown": 6,
+          "precision_lower_bound": 0.7,
+          "precision_known_only": 1.0,
+          "positives": 4479,
+          "recall": 0.0031,
+          "recall_unit": "положительные канало-сутки",
+          "episodes_caught": 8,
+          "episodes_eligible": 954,
+          "episode_recall": 0.0084,
+          "alerts_per_day": 0.18,
+          "days_without_alerts": 101,
+          "days": 112,
+          "actionability": {
+            "issued": 20,
+            "current_bad": 15,
+            "current_clean": 5,
+            "current_unknown": 0,
+            "current_bad_hits": 12,
+            "current_clean_hits": 2,
+            "current_bad_new_onsets": 4,
+            "current_clean_new_onsets": 2,
+            "with_future_episode_onset": 6,
+            "first_alert_for_new_episode": 6,
+            "first_alert_for_observed_new_episode": 5,
+            "new_episode_precision_lower_bound": 0.3,
+            "observed_new_episode_precision_lower_bound": 0.25
+          },
+          "source": "reports/d_rule_monday_2023h2.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2023-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2023h2.json"
+        },
+        {
+          "id": "stress_2024h2",
+          "period": [
+            "2024-09-11",
+            "2024-12-31"
+          ],
+          "method": "temporal",
+          "method_note": "точная политика C1: обновление порога по понедельникам, пауза 7 суток; история ранее просмотрена",
+          "alerts": 19,
+          "hits": 9,
+          "unknown": 10,
+          "precision_lower_bound": 0.4737,
+          "precision_known_only": 1.0,
+          "positives": 4156,
+          "recall": 0.0022,
+          "recall_unit": "положительные канало-сутки",
+          "episodes_caught": 1,
+          "episodes_eligible": 753,
+          "episode_recall": 0.0013,
+          "alerts_per_day": 0.17,
+          "days_without_alerts": 100,
+          "days": 112,
+          "actionability": {
+            "issued": 19,
+            "current_bad": 15,
+            "current_clean": 4,
+            "current_unknown": 0,
+            "current_bad_hits": 9,
+            "current_clean_hits": 0,
+            "current_bad_new_onsets": 1,
+            "current_clean_new_onsets": 0,
+            "with_future_episode_onset": 1,
+            "first_alert_for_new_episode": 1,
+            "first_alert_for_observed_new_episode": 1,
+            "new_episode_precision_lower_bound": 0.05263157894736842,
+            "observed_new_episode_precision_lower_bound": 0.05263157894736842
+          },
+          "source": "reports/d_rule_monday_2024h2.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2024-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2024h2.json"
+        },
         {
           "id": "validation_2025h2",
           "period": [
@@ -255,6 +335,21 @@
           "alerts_per_day": 0.59,
           "days_without_alerts": 73,
           "days": 112,
+          "actionability": {
+            "issued": 66,
+            "current_bad": 47,
+            "current_clean": 19,
+            "current_unknown": 0,
+            "current_bad_hits": 35,
+            "current_clean_hits": 12,
+            "current_bad_new_onsets": 7,
+            "current_clean_new_onsets": 12,
+            "with_future_episode_onset": 19,
+            "first_alert_for_new_episode": 19,
+            "first_alert_for_observed_new_episode": 16,
+            "new_episode_precision_lower_bound": 0.2878787878787879,
+            "observed_new_episode_precision_lower_bound": 0.24242424242424243
+          },
           "source": "reports/d_rule_monday_2025h2.json",
           "command": "python scripts/eval_d_rule_serving.py --end 2025-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2025h2.json"
         },
@@ -280,6 +375,21 @@
           "alerts_per_day": 0.52,
           "days_without_alerts": 26,
           "days": 42,
+          "actionability": {
+            "issued": 22,
+            "current_bad": 15,
+            "current_clean": 7,
+            "current_unknown": 0,
+            "current_bad_hits": 10,
+            "current_clean_hits": 6,
+            "current_bad_new_onsets": 3,
+            "current_clean_new_onsets": 6,
+            "with_future_episode_onset": 9,
+            "first_alert_for_new_episode": 9,
+            "first_alert_for_observed_new_episode": 7,
+            "new_episode_precision_lower_bound": 0.4090909090909091,
+            "observed_new_episode_precision_lower_bound": 0.3181818181818182
+          },
           "source": "reports/d_rule_monday_2026_42d.json",
           "command": "python scripts/eval_d_rule_serving.py --end 2026-06-23 --splits 3 --test-days 14 --out reports/d_rule_monday_2026_42d.json"
         }
@@ -351,6 +461,34 @@
         }
       ],
       "base_rate": [
+        {
+          "period": [
+            "2023-09-11",
+            "2023-12-31"
+          ],
+          "positives": 4479,
+          "known": 7927,
+          "unknown": 9262,
+          "rate_known": 0.565,
+          "rate_with_unknown": 0.2606,
+          "note": "доля положительных среди канало-суток оборудования",
+          "source": "reports/d_rule_monday_2023h2.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2023-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2023h2.json"
+        },
+        {
+          "period": [
+            "2024-09-11",
+            "2024-12-31"
+          ],
+          "positives": 4156,
+          "known": 6642,
+          "unknown": 7973,
+          "rate_known": 0.6257,
+          "rate_with_unknown": 0.2844,
+          "note": "доля положительных среди канало-суток оборудования",
+          "source": "reports/d_rule_monday_2024h2.json",
+          "command": "python scripts/eval_d_rule_serving.py --end 2024-12-31 --splits 4 --test-days 28 --out reports/d_rule_monday_2024h2.json"
+        },
         {
           "period": [
             "2025-09-11",
@@ -825,10 +963,10 @@
     },
     "equipment_diag": {
       "base_rate": 0.637,
-      "rule_precision": null,
+      "rule_precision": 0.889,
       "period": "13.05.2026–23.06.2026, три окна по 14 суток",
-      "source": "ml/reports/SECOND_ML_LOCAL_42D_AUDIT.md",
-      "note": "В продукте само простое правило «плохие состояния агрегата за 7 суток», сравнивать его не с чем: обученная модель при минимуме точности 0,70 в этих окнах не выдала ни одной рекомендации. База — доля положительных среди канало-суток оборудования с известным исходом."
+      "source": "ml/reports/d_rule_monday_2026_42d.json",
+      "note": "Правило C1 «плохие состояния агрегата за 7 суток»; rule_precision считается по известным исходам, а нижняя граница с unknown остаётся в ML-реестре. Действие — редкая ручная проверка повторяющегося сигнала; это не подтверждённый физический износ."
     },
     "guard_weekly": {
       "base_rate": 0.27,
