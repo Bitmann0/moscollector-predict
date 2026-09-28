@@ -10,8 +10,14 @@ A_link:
   product_status: pilot
   product_target: channel_loses_observability_tomorrow
   product_action: manual_link_diagnostics
-  product_policy: calibrated_min_precision_0_50; max_20_per_day; cooldown_7d
-  operating_min_precision: 0.50
+  product_policy: calibrated_min_precision_0_70; max_20_per_day; cooldown_7d
+  # 0.70 вместо 0.50 (28.09, reports/A_LINK_OPERATING_POINT.md). Июнь 2026 вне
+  # выборки на датированных моделях: 93/137 = 67,9% нижней границы точности
+  # против 258/481 = 53,6%, полнота 1,6% против 4,4%, 15 из 28 суток без
+  # выдачи. Пять окон eval_a_link_policy.py: 4 759/7 096 = 67,1% против
+  # 5 024/7 741 = 64,9%. Полнота 50% из ТЗ недостижима ни при каком пороге
+  # на бюджете 20 в сутки, поэтому рабочая точка выбрана по точности.
+  operating_min_precision: 0.70
   operating_min_alerts: 30
   unknown_in_budget: true
   cooldown_days: 7
