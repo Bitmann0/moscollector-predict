@@ -823,6 +823,8 @@ export interface components {
             hint?: string | null;
             /** Id */
             id: number;
+            /** Incident Group */
+            incident_group?: ("fire" | "flood" | "gas" | "intrusion" | "temperature") | null;
             object: components["schemas"]["ObjectRef"];
             /** Sensor Event */
             sensor_event?: string | null;
@@ -2055,6 +2057,8 @@ export interface operations {
                 page_size?: number;
                 /** @description Скрыть события класса normal у газовых датчиков */
                 hide_normal_gas?: boolean;
+                /** @description Группа аварии: пожар, наводнение, газ, проникновение, аномальная температура */
+                incident_group?: ("fire" | "flood" | "gas" | "intrusion" | "temperature") | null;
             };
             header?: never;
             path?: never;

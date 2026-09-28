@@ -9,6 +9,7 @@ import { Pager } from "../components/common";
 import { StateView } from "../components/StateView";
 import { fmtDateTime } from "../format";
 import { KIND_TITLES, useReloadOn, useStream, type Connection, type Severity } from "../stream/useStream";
+import { incidentGroupOf, title } from "../vocab";
 
 type Notification = Schemas["NotificationItem"];
 const CONNECTION_TEXT: Record<Connection, string> = { idle: "не подключён", connecting: "подключается", open: "на связи", reconnecting: "переподключается" };
@@ -22,7 +23,8 @@ function linkOf(kind: Notification["kind"], payload: Record<string, unknown> | u
   const id = payload?.id;
   if (kind === "alert.new" && typeof id === "string") return `/forecasts/${encodeURIComponent(id)}`;
   if (kind === "workorder.changed") return typeof id === "string" ? `/work-orders?open=${encodeURIComponent(id)}` : "/work-orders";
-  if (kind === "event.alarm") return "/events";
+  // Тревожное сообщение с группой аварии открывает журнал уже с фильтром по этой группе.
+  if (kind === "event.alarm") { const group = incidentGroupOf(payload?.incident_group); return group ? `/events?incident_group=${group}` : "/events"; }
   return null;
 }
 
@@ -113,5 +115,6 @@ export function Notifications() {
 
 function NotificationRow({ item, live, pending, onRead }: { item: Notification; live: boolean; pending: boolean; onRead: () => void }) {
   const link = linkOf(item.kind, item.payload);
-  return <article className={`notification-row notification-row--${item.severity}${item.read ? " notification-row--read" : ""}`}><div className="notification-row__icon"><Icon name={item.kind === "workorder.changed" ? "wrench" : item.kind === "alert.new" ? "forecast" : "bell"} /></div><div className="notification-row__body"><div className="notification-row__meta"><span>{KIND_TITLES[item.kind]}</span><time dateTime={item.ts}>{fmtDateTime(item.ts)}</time></div><strong>{link ? <Link to={link} onClick={onRead}>{item.title}</Link> : item.title}</strong><small>{SEVERITY_TEXT[item.severity]}{!item.read && <> · <b className="notification-row__new">новое</b></>}{live && " · пришло в этой сессии"}</small></div>{!item.read && <button type="button" disabled={pending} onClick={onRead} title="Отметить прочитанным" aria-label={`Отметить прочитанным: ${item.title}`}>✓</button>}</article>;
+  const group = item.kind === "event.alarm" ? incidentGroupOf(item.payload?.incident_group) : undefined;
+  return <article className={`notification-row notification-row--${item.severity}${item.read ? " notification-row--read" : ""}`}><div className="notification-row__icon"><Icon name={item.kind === "workorder.changed" ? "wrench" : item.kind === "alert.new" ? "forecast" : "bell"} /></div><div className="notification-row__body"><div className="notification-row__meta"><span>{KIND_TITLES[item.kind]}</span><time dateTime={item.ts}>{fmtDateTime(item.ts)}</time></div><strong>{link ? <Link to={link} onClick={onRead}>{item.title}</Link> : item.title}{group && <em className="incident-chip">{title("incident_group", group)}</em>}</strong><small>{SEVERITY_TEXT[item.severity]}{!item.read && <> · <b className="notification-row__new">новое</b></>}{live && " · пришло в этой сессии"}</small></div>{!item.read && <button type="button" disabled={pending} onClick={onRead} title="Отметить прочитанным" aria-label={`Отметить прочитанным: ${item.title}`}>✓</button>}</article>;
 }

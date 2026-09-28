@@ -42,6 +42,7 @@ interface Vocabularies {
   work_order_transition_perm: Record<string, string>;
   work_order_priority: Entry[];
   event_class: Entry[];
+  incident_group: Entry[];
   roles: Entry[];
   permissions: Record<string, string[]>;
 }
@@ -54,6 +55,7 @@ export type Permission = keyof typeof raw.permissions;
 export type Scenario = Schemas["ForecastItem"]["scenario"];
 export type ResultStatus = NonNullable<Schemas["HeadState"]["result_status"]>;
 export type Action = Schemas["DecisionIn"]["action"];
+export type IncidentGroup = NonNullable<Schemas["EventItem"]["incident_group"]>;
 
 type DictName = {
   [K in keyof Vocabularies]: Vocabularies[K] extends Entry[] ? K : never;
@@ -69,6 +71,13 @@ export function title(dict: DictName, code: string | null | undefined): string {
 // приведение типа здесь безопасно.
 export const SCENARIOS = vocab.scenario.map((s) => ({ code: s.code as Scenario, title: s.title }));
 export const ACTIONS = vocab.action.map((a) => ({ code: a.code as Action, title: a.title }));
+/** Группы аварий (ответ 2 заказчика, analysis/qa_customer_2026-09-28.md) в порядке словаря. */
+export const INCIDENT_GROUPS = vocab.incident_group.map((g) => ({ code: g.code as IncidentGroup, title: g.title }));
+
+/** Код группы из payload уведомления: там он не типизирован, поэтому сверяем со словарём. */
+export function incidentGroupOf(value: unknown): IncidentGroup | undefined {
+  return INCIDENT_GROUPS.find((item) => item.code === value)?.code;
+}
 
 /** Короткие имена сценариев для плотных мест: шапка, таблицы, метки. */
 export const SCENARIO_SHORT: Record<string, string> = {

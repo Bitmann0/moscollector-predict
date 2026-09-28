@@ -25,7 +25,7 @@ export type Severity = Schemas["NotificationItem"]["severity"];
 /** Подписи видов событий. Record ловит на typecheck новый вид в контракте. */
 export const KIND_TITLES: Record<StreamKind, string> = {
   "alert.new": "Новый прогноз",
-  "event.alarm": "Тревожное событие",
+  "event.alarm": "Тревожное сообщение",
   "run.finished": "Расчёт завершён",
   "workorder.changed": "Заявка изменена",
 };
