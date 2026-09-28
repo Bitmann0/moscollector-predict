@@ -1,0 +1,31 @@
+{"call": "guard_weekly", "asof": "2026-06-01", "seconds": 0.05, "status": "no_data", "items": 0}
+{"call": "score", "asof": "2026-06-02", "seconds": 10.57, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 2992}
+{"call": "score", "asof": "2026-06-03", "seconds": 7.35, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 2694}
+{"call": "score", "asof": "2026-06-04", "seconds": 7.46, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 2876}
+{"call": "score", "asof": "2026-06-05", "seconds": 7.8, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 2228}
+{"call": "score", "asof": "2026-06-06", "seconds": 7.19, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 1059}
+{"call": "score", "asof": "2026-06-07", "seconds": 7.28, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 1059}
+{"call": "guard_weekly", "asof": "2026-06-08", "seconds": 0.23, "status": "empty_valid", "items": 0}
+{"call": "score", "asof": "2026-06-09", "seconds": 7.23, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 2625}
+{"call": "score", "asof": "2026-06-10", "seconds": 7.33, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 3426}
+{"call": "score", "asof": "2026-06-11", "seconds": 7.62, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 2246}
+{"call": "score", "asof": "2026-06-12", "seconds": 7.92, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 1432}
+{"call": "score", "asof": "2026-06-13", "seconds": 7.7, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 1366}
+{"call": "score", "asof": "2026-06-14", "seconds": 7.66, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 931}
+{"call": "guard_weekly", "asof": "2026-06-15", "seconds": 0.22, "status": "empty_valid", "items": 0}
+{"call": "score", "asof": "2026-06-16", "seconds": 7.44, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 1932}
+{"call": "score", "asof": "2026-06-17", "seconds": 7.6, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 2314}
+{"call": "score", "asof": "2026-06-18", "seconds": 7.57, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 1546}
+{"call": "score", "asof": "2026-06-19", "seconds": 7.92, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 1944}
+{"call": "score", "asof": "2026-06-20", "seconds": 7.85, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 1152}
+{"call": "score", "asof": "2026-06-21", "seconds": 7.49, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 1018}
+{"call": "guard_weekly", "asof": "2026-06-22", "seconds": 0.23, "status": "ok", "items": 1}
+{"call": "score", "asof": "2026-06-23", "seconds": 7.45, "heads": {"A_link": "empty_valid", "D": "empty_valid"}, "alerts": 2281}
+{"call": "score", "asof": "2026-06-24", "seconds": 7.5, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 3123}
+{"call": "score", "asof": "2026-06-25", "seconds": 7.52, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 2241}
+{"call": "score", "asof": "2026-06-26", "seconds": 7.66, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 2172}
+{"call": "score", "asof": "2026-06-27", "seconds": 7.62, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 859}
+{"call": "score", "asof": "2026-06-28", "seconds": 7.28, "heads": {"A_link": "ok", "D": "empty_valid"}, "alerts": 868}
+{"call": "guard_weekly", "asof": "2026-06-29", "seconds": 0.22, "status": "empty_valid", "items": 0}
+{"call": "score", "asof": "2026-06-30", "seconds": 7.86, "heads": {"A_link": "ok", "D": "ok"}, "alerts": 3063}
+{"summary": {"score": {"n": 30, "min": 0.14, "median": 7.61, "max": 10.57}, "guard_weekly": {"n": 5, "min": 0.05, "median": 0.22, "max": 0.23}}}
