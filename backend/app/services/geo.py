@@ -19,8 +19,10 @@ picket_min и picket_max; объект без единого канала с п�
 
 open_forecasts — число открытых прогнозов по helpers.open_forecast_clauses, тому же
 правилу, что у дашборда. risk_level: "unknown" — не было ни одного расчёта, "high" —
-есть открытый прогноз, "none" — нет. Порога по risk нет: у sensor_link это
-вероятность, у equipment_diag и guard_weekly — относительный приоритет, общей шкалы нет.
+есть открытый прогноз, "none" — нет. Порога по risk нет: у sensor_link, fire_risk и
+flood_risk это вероятность, у equipment_diag и guard_weekly — относительный приоритет,
+общей шкалы нет. Прогнозы без канала (недельная очередь, пожарный риск участка,
+подтопление) считаются в open_forecasts объекта и комплекса, но не канала.
 """
 from collections import Counter, defaultdict
 

@@ -131,10 +131,17 @@ def export_ml_fixtures() -> None:
     try:
         score = stub.score(contract.ScoreRequest(asof=FIXTURE_ASOF))
         weekly = stub.weekly(FIXTURE_ASOF)
+        # Первые шесть в бюджете и по одному от голов, которых среди них нет: у B и E
+        # канала нет, запрос идёт по объекту, у B ещё и по участку (segment).
+        shown = [a for a in score.alerts if a.in_budget]
+        picked = shown[:6]
+        picked += [next(a for a in shown if a.head == head)
+                   for head in dict.fromkeys(a.head for a in shown)
+                   if head not in {a.head for a in picked}]
         queries = [contract.OutcomeQuery(id=a.alert_id, kind="alert", head=a.head,
                                          channel=a.address.channel, obj=a.address.obj,
-                                         asof=a.asof)
-                   for a in score.alerts if a.in_budget][:6]
+                                         segment=a.address.segment, asof=a.asof)
+                   for a in picked]
         queries += [contract.OutcomeQuery(id=p.recommendation_id, kind="weekly_recommendation",
                                           head="guard_weekly", obj=p.obj, asof=weekly.asof)
                     for p in weekly.priorities]

@@ -74,8 +74,10 @@ def test_get_returns_verified_values_and_bounds(admin):
     assert data["version"] == 0 and data["locked"] is False
     assert data["verified"]["gas"] == {"alarm_pct": 1.0, "critical_pct": 5.0}
     assert data["verified"]["limits"] == {"sensor_link": 20, "equipment_diag": 3,
-                                          "guard_weekly": 4}
+                                          "guard_weekly": 4, "fire_risk": 10, "flood_risk": 5}
     assert data["bounds"]["limits.sensor_link"] == {"min": 1, "max": 20}
+    assert data["bounds"]["limits.fire_risk"] == {"min": 1, "max": 10}
+    assert data["bounds"]["limits.flood_risk"] == {"min": 1, "max": 5}
     assert data["bounds"]["gas.alarm_pct"] == {"min": 0.1, "max": 5.0}
 
 
@@ -135,7 +137,26 @@ def test_verified_limits_match_ml_config():
                        .read_text(encoding="utf-8"), re.MULTILINE)
     assert VERIFIED_LIMITS == {"sensor_link": budgets["A_link"],
                                "equipment_diag": budgets["D"],
+                               "fire_risk": budgets["B"],
+                               "flood_risk": budgets["E"],
                                "guard_weekly": int(weekly.group(1))}
+
+
+def test_saved_before_new_scenarios_keeps_values(admin, db):
+    """Параметры, сохранённые до лимитов пожара и подтопления, не сбрасываются целиком:
+    новые лимиты берут проверенные значения, остальное — сохранённое."""
+    old = values(gas__alarm_pct=0.8, limits__sensor_link=7)
+    for key in ("fire_risk", "flood_risk"):
+        del old["limits"][key]
+    db.add(models.Setting(key=parameters.KEY, value={"value": old, "version": 3,
+                                                     "updated_at": None, "updated_by": "admin"}))
+    db.commit()
+    data = admin.get(URL).json()
+    assert data["version"] == 3
+    assert data["values"]["gas"]["alarm_pct"] == 0.8
+    assert data["values"]["limits"] == {**VERIFIED_LIMITS, "sensor_link": 7}
+    assert parameters.current(db).limit_by_head() == {"A_link": 7, "D": 3, "guard_weekly": 4,
+                                                      "B": 10, "E": 5}
 
 
 def test_stale_version_is_409(admin):

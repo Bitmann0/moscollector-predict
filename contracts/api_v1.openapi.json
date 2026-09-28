@@ -967,7 +967,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -983,6 +985,18 @@
             ],
             "title": "Score Type",
             "type": "string"
+          },
+          "segment_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Участок объекта из адреса ML (address.segment_label): «ПК 10–20» или «каналы без пикета». Приходит у пожарного риска (голова B), у которого канала нет; у прогноза по объекту целиком — null",
+            "title": "Segment Label"
           },
           "source": {
             "enum": [
@@ -1169,7 +1183,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -1185,6 +1201,18 @@
             ],
             "title": "Score Type",
             "type": "string"
+          },
+          "segment_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Участок объекта из адреса ML (address.segment_label): «ПК 10–20» или «каналы без пикета». Приходит у пожарного риска (голова B), у которого канала нет; у прогноза по объекту целиком — null",
+            "title": "Segment Label"
           },
           "source": {
             "enum": [
@@ -1447,7 +1475,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -1663,6 +1693,20 @@
             "description": "В сутки; проверено 3",
             "minimum": 1.0,
             "title": "Equipment Diag",
+            "type": "integer"
+          },
+          "fire_risk": {
+            "default": 10,
+            "description": "Участков объектов в сутки; проверено 10",
+            "minimum": 1.0,
+            "title": "Fire Risk",
+            "type": "integer"
+          },
+          "flood_risk": {
+            "default": 5,
+            "description": "Объектов в сутки; проверено 5",
+            "minimum": 1.0,
+            "title": "Flood Risk",
             "type": "integer"
           },
           "guard_weekly": {
@@ -2496,7 +2540,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -2784,7 +2830,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -3312,7 +3360,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -3418,7 +3468,9 @@
             "enum": [
               "sensor_link",
               "equipment_diag",
-              "guard_weekly"
+              "guard_weekly",
+              "fire_risk",
+              "flood_risk"
             ],
             "title": "Scenario",
             "type": "string"
@@ -4418,7 +4470,9 @@
                   "enum": [
                     "sensor_link",
                     "equipment_diag",
-                    "guard_weekly"
+                    "guard_weekly",
+                    "fire_risk",
+                    "flood_risk"
                   ],
                   "type": "string"
                 },
@@ -4630,7 +4684,9 @@
                   "enum": [
                     "sensor_link",
                     "equipment_diag",
-                    "guard_weekly"
+                    "guard_weekly",
+                    "fire_risk",
+                    "flood_risk"
                   ],
                   "type": "string"
                 },
@@ -5565,7 +5621,9 @@
               "enum": [
                 "sensor_link",
                 "equipment_diag",
-                "guard_weekly"
+                "guard_weekly",
+                "fire_risk",
+                "flood_risk"
               ],
               "title": "Scenario",
               "type": "string"
@@ -6167,7 +6225,9 @@
                   "enum": [
                     "sensor_link",
                     "equipment_diag",
-                    "guard_weekly"
+                    "guard_weekly",
+                    "fire_risk",
+                    "flood_risk"
                   ],
                   "type": "string"
                 },

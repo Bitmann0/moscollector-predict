@@ -2,8 +2,9 @@
 
 Хранятся строкой settings с ключом parameters: {"value": Parameters, "version": n,
 "updated_at", "updated_by"}. Строки нет — действуют проверенные значения (VERIFIED),
-version 0. Сохранённое значение, которое перестало проходить схему (поле добавили или
-сузили диапазон), тоже заменяется проверенным, с предупреждением в лог.
+version 0. Сохранённое значение, которое перестало проходить схему (добавили обязательное
+поле или сузили диапазон), тоже заменяется проверенным, с предупреждением в лог. Лимиты
+новых сценариев обязательными не делаются: у них значение по умолчанию (LimitParams).
 
 Кеш. Приём зовёт current() на каждую пачку, а не на событие, и читает БД не чаще
 раза в CACHE_TTL_S секунд. PUT в том же процессе сбрасывает кеш сразу; api работает
@@ -77,7 +78,7 @@ class State:
         return event_class in notify.classes and (group is None or group in notify.groups)
 
     def limit_by_head(self) -> dict[str, int]:
-        """Лимит по голове ML: A_link, D, guard_weekly."""
+        """Лимит по голове ML: A_link, D, B, E, guard_weekly."""
         limits = self.values.limits.model_dump()
         return {vocab.scenario(code)["head"]: n for code, n in limits.items()}
 
