@@ -99,6 +99,11 @@ def test_sensor_faults_follow_c5():
     assert semantics.classify(None, "01.01.1970 03:00:05", None, False)[0] == "fault"
     assert semantics.classify(GAS, "2", 2.0, False) == ("alarm", None)
     assert semantics.classify(GAS, "6", 6.0, True) == ("critical", None)
+    # дым без флага тревоги — предупреждение с подсказкой, а не «Норма»
+    assert semantics.classify("Датчик дыма", "Обнаружен дым", None, False) == (
+        "warning", semantics.NO_ALARM_HINT)
+    assert semantics.classify("Тепловой датчик", "Температура выше 40ºC", None, False)[0] == "warning"
+    assert semantics.classify("Датчик дыма", "Норма", None, False) == ("normal", None)
 
 
 def test_planned_check_hint_only_in_weekday_window():
