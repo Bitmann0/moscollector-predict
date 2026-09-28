@@ -490,14 +490,28 @@
   ],
   "runtime": [
     {
-      "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D",
-      "seconds": [
-        1.5,
-        4.4
-      ],
-      "conditions": "машина разработчика, Docker, ML_MODE=real; модели A_link с минимумом точности 0,50, до перехода на 0,70 (PR #30)",
-      "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, окончательный замер — задача ML2-04, docs/submission/08-performance.md",
-      "command": null
+      "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D, с факторами и пустым журналом выданного",
+      "calls": 30,
+      "seconds": {
+        "min": 0.14,
+        "median": 7.61,
+        "max": 10.57
+      },
+      "conditions": "28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы по одному из контейнера api",
+      "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+      "command": "docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < scripts/measure_ml.py"
+    },
+    {
+      "what": "GET /api/v1/guard-weekly-inspections, понедельники 01–29.06",
+      "calls": 5,
+      "seconds": {
+        "min": 0.05,
+        "median": 0.22,
+        "max": 0.23
+      },
+      "conditions": "28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы по одному из контейнера api",
+      "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+      "command": "docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < scripts/measure_ml.py"
     }
   ],
   "holdout": {

@@ -1,0 +1,30 @@
+# ML2-09: русские подписи факторов в выдаче июня, 28.09.2026.
+# /score за даты расчёта 02.06–30.06, головы A_link и D, пустой журнал выданного;
+# считаются факторы алертов в бюджете. «Без подписи» — label пуст или равен имени признака.
+# Запуск внутри контейнера api (адрес ml:8001 виден только из сети compose):
+#   docker compose -f compose.yaml -f compose.real.yaml exec -T api python - < probe.py
+# Прогоны 17:44 и 18:00 МСК, бандл bundle-20260928-4: это bundle-20260928-3 плюс
+# data/interim/maintenance_2026.json, модели и признаки те же, контекст плановых работ
+# в ответ C1 не входит. Результат обоих прогонов одинаков:
+RESULT factors 781 {'A_link': 775, 'D': 6} unlabeled 0 0.0%
+
+# probe.py:
+import datetime as dt, json, urllib.request
+from collections import Counter
+total = 0; unlabeled = Counter(); heads = Counter()
+for i in range(1, 30):
+    day = dt.date(2026, 6, 1) + dt.timedelta(days=i)
+    body = json.dumps({"asof": day.isoformat(), "heads": ["A_link", "D"], "issued_histories": {"A_link": [], "D": []}, "history_complete_from": "2026-05-25"}).encode()
+    req = urllib.request.Request("http://ml:8001/api/v1/score", data=body, headers={"Content-Type": "application/json"})
+    d = json.load(urllib.request.urlopen(req, timeout=300))
+    for a in d["alerts"]:
+        if not a["in_budget"]:
+            continue
+        for f in a.get("factors") or []:
+            total += 1; heads[a["head"]] += 1
+            if not f.get("label") or f["label"] == f["feature"]:
+                unlabeled[(a["head"], f["feature"])] += 1
+n = sum(unlabeled.values())
+print("RESULT factors", total, dict(heads), "unlabeled", n, f"{n/total:.1%}" if total else "")
+for (h, feat), k in unlabeled.most_common(40):
+    print("RESULT", h, feat, k)
