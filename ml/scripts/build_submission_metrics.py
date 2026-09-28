@@ -44,17 +44,11 @@ JUNE_LABELS_SOURCE = ("выход шага labels scripts/eval_a_link_operating_
 RUNTIME_SCORE = {
     "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D",
     "seconds": [1.5, 4.4],
-    "conditions": "машина разработчика, Docker, ML_MODE=real",
+    "conditions": "машина разработчика, Docker, ML_MODE=real; модели A_link с минимумом "
+                  "точности 0,50, до перехода на 0,70 (PR #30)",
     "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, "
-              "оформление замера — задача ML2-04",
+              "окончательный замер — задача ML2-04, docs/submission/08-performance.md",
     "command": None,
-}
-TEMPERATURE = {
-    "precision": 0.354, "recall": 0.439,
-    "source": "ветка origin/feature/episode-hourly-backtest, "
-              "docs/experiments/temperature-episode-hourly/README.md:70; файла в main нет. "
-              "В main число пересказано в analysis/MULTI_HEAD_ML_STRATEGY.md:33 и "
-              "ml/docs/ML_BACKEND_HANDOFF.md:35",
 }
 GAS_PLANNED = {
     "records_in_window": 19_307, "records_total": 21_784,
@@ -357,6 +351,22 @@ def _final_row(head: str) -> dict:
         return next(r for r in csv.DictReader(fh) if r["head"] == head)
 
 
+def _temperature() -> dict:
+    """Среднее трёх полугодовых тестов, чистое окно 24 ч, все каналы.
+
+    JSON — копия отчёта PR #8 без изменений; перенесённый код на полном датасете не
+    перезапускался (reports/TEMPERATURE_EPISODE_HOURLY.md, «Происхождение чисел»).
+    """
+    protocol = _load("temperature_episode_24h.json")["protocols"]["temporal_all_channels"]
+    folds = protocol["folds"]
+    # В отчёте PR #8 правая граница теста не включается; в реестре периоды включительные.
+    last = dt.date.fromisoformat(folds[-1]["boundaries"]["test_end"]) - dt.timedelta(days=1)
+    return {"period": [folds[0]["boundaries"]["test_start"], last.isoformat()],
+            "tests": len(folds),
+            "precision": round(protocol["mean_test"]["precision"], 3),
+            "recall": round(protocol["mean_test"]["recall"], 3)}
+
+
 def rejected_setups() -> list[dict]:
     fire25 = _load("fire_history_ablation.json")["history"]
     fire26 = _load("fire_2026_check.json")
@@ -365,6 +375,7 @@ def rejected_setups() -> list[dict]:
     rule_queue = _load("guard_review_queue_backtest.json")["pooled"]
     strict = _load("a_strict_top1.json")
     flood = _final_row("E")
+    temperature = _temperature()
     return [
         {"id": "B_fire", "what": "пожарный риск участка: текстовое пожарное или газовое "
                                   "тревожное состояние на участке завтра",
@@ -419,10 +430,17 @@ def rejected_setups() -> list[dict]:
               "source": "reports/final_metrics.csv (E); reports/final.md:47",
               "command": "python scripts/final_eval.py"}]},
         {"id": "temperature", "what": "выход температуры за диапазон 3–40 °C за 24 часа",
-         "results": [{"precision": TEMPERATURE["precision"], "recall": TEMPERATURE["recall"],
-                      "note": "среднее трёх тестов; смысл диапазона владелец данных "
-                              "не подтвердил",
-                      "source": TEMPERATURE["source"], "command": None}]},
+         "results": [{**temperature,
+                      "note": "среднее трёх полугодовых тестов 2024H1–2026H1; тест 2026H1 — "
+                              "уже просмотренный период; смысл диапазона владелец данных "
+                              "не подтвердил. Числа посчитаны кодом PR #8, перенесённый "
+                              "код на полном датасете не перезапускался",
+                      "source": "reports/temperature_episode_24h.json "
+                                "(protocols.temporal_all_channels.mean_test); "
+                                "reports/TEMPERATURE_EPISODE_HOURLY.md",
+                      "command": "python scripts/exp_temperature_episode.py features; "
+                                 "python scripts/exp_temperature_episode.py backtest "
+                                 "--clean-hours 24"}]},
         {"id": "gas_detected", "what": "«Обнаружен газ» как прогнозируемое событие",
          "results": [{"share_weekdays_09_15": _ratio(GAS_PLANNED["records_in_window"],
                                                      GAS_PLANNED["records_total"]),
