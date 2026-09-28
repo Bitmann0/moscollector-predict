@@ -14,3 +14,4 @@ Caddyfile text eol=lf
 *.ttf binary
 *.xml text eol=lf
 *.xsd text eol=lf
+deploy/ldap/** text eol=lf
