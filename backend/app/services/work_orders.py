@@ -62,23 +62,29 @@ def get(db: Session, order_id: str) -> WorkOrderCard | None:
                  for h in history])
 
 
-def order_id_for(forecast_ids: list[str]) -> str:
+def order_id_for(forecast_ids: list[str], cycle: int = 1) -> str:
+    """Ключ ручной заявки: набор прогнозов и номер цикла. У первого цикла суффикса нет,
+    поэтому ключи уже заведённых заявок не меняются."""
     key = "|".join(sorted(set(forecast_ids)))
-    return "WO-" + hashlib.sha256(key.encode()).hexdigest()[:12]
+    base = "WO-" + hashlib.sha256(key.encode()).hexdigest()[:12]
+    return base if cycle == 1 else f"{base}-{cycle}"
+
+
+def _open_statuses() -> list[str]:
+    """Незакрытые статусы — те, из которых граф C3 ещё ведёт дальше."""
+    return [s for s, targets in vocab.load()["work_order_transitions"].items() if targets]
 
 
 def _active_order_for(db: Session, forecast_ids: set[str]) -> str | None:
     """Самая ранняя незакрытая заявка, куда входит хотя бы один из прогнозов.
 
-    Незакрытые — статусы, из которых граф C3 ещё ведёт дальше. Прогнозы заявки лежат
-    JSON-списком, частичный уникальный индекс по нему одинаково на SQLite и PostgreSQL
-    не построить, поэтому проверка здесь. Заявок в демо десятки: читаем все, как
-    forecasts.work_order_ids.
+    Прогнозы заявки лежат JSON-списком, частичный уникальный индекс по нему одинаково
+    на SQLite и PostgreSQL не построить, поэтому проверка здесь. Заявок в демо десятки:
+    читаем все, как forecasts.work_order_ids.
     """
-    active = [s for s, targets in vocab.load()["work_order_transitions"].items() if targets]
     for order_id, stored_ids in db.execute(
             select(models.WorkOrder.id, models.WorkOrder.forecast_ids)
-            .where(models.WorkOrder.status.in_(active))
+            .where(models.WorkOrder.status.in_(_open_statuses()))
             .order_by(models.WorkOrder.created_at, models.WorkOrder.id)):
         if forecast_ids & set(stored_ids or []):
             return order_id
@@ -99,34 +105,42 @@ def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCa
     active_id = _active_order_for(db, {f.id for f in forecasts})
     if active_id is not None:
         return get(db, active_id)
-    order_id = order_id_for(body.forecast_ids)
-    if db.get(models.WorkOrder, order_id) is None:
-        first = forecasts[0]
-        now = now_utc()
-        pickets = sorted({(f.address or {}).get("picket") for f in forecasts} - {None})
-        db.add(models.WorkOrder(
-            id=order_id, forecast_ids=[f.id for f in forecasts], scenario=first.scenario,
-            obj_id=first.obj_id, priority=MANUAL_PRIORITY,
-            work_type=f"Проверка по прогнозу: {vocab.scenario(first.scenario)['title']}",
-            due_by=max(to_db(from_db(f.valid_to)) for f in forecasts), status="draft",
-            rationale=[f"Прогноз {f.id} от {f.asof:%d.%m.%Y}, ранг {f.rank}" for f in forecasts],
-            pickets=pickets,
-            channels=sorted({f.channel_id for f in forecasts} - {None}),
-            created_by=user.login, created_at=now, source="live"))
-        try:
-            db.flush()
-        except IntegrityError:
-            # Параллельный запрос вставил ту же заявку между проверкой и вставкой:
-            # ключ заявки детерминирован по прогнозам, значит это она и есть. Ловим на
-            # flush: INSERT уходит здесь, до commit дело не доходит.
-            db.rollback()
-            existing = get(db, order_id)
-            if existing is None:
-                raise
-            return existing
-        db.add(models.WorkOrderHistory(order_id=order_id, from_status=None, to_status="draft",
-                                       author=user.login, reason="черновик вручную", at=now))
-        db.commit()
+    # Прежние заявки на этот набор, если есть, закрыты: новая получает следующий номер
+    # цикла. Номер не хранится, а находится перебором, так что два одновременных запроса
+    # выберут один ключ и разойдутся на вставке.
+    cycle = 1
+    while (taken := db.get(models.WorkOrder, order_id_for(body.forecast_ids, cycle))) is not None:
+        if taken.status in _open_statuses():
+            # Параллельный запрос завёл эту заявку уже после проверки выше.
+            return get(db, taken.id)
+        cycle += 1
+    order_id = order_id_for(body.forecast_ids, cycle)
+    first = forecasts[0]
+    now = now_utc()
+    pickets = sorted({(f.address or {}).get("picket") for f in forecasts} - {None})
+    db.add(models.WorkOrder(
+        id=order_id, forecast_ids=[f.id for f in forecasts], scenario=first.scenario,
+        obj_id=first.obj_id, priority=MANUAL_PRIORITY,
+        work_type=f"Проверка по прогнозу: {vocab.scenario(first.scenario)['title']}",
+        due_by=max(to_db(from_db(f.valid_to)) for f in forecasts), status="draft",
+        rationale=[f"Прогноз {f.id} от {f.asof:%d.%m.%Y}, ранг {f.rank}" for f in forecasts],
+        pickets=pickets,
+        channels=sorted({f.channel_id for f in forecasts} - {None}),
+        created_by=user.login, created_at=now, source="live"))
+    try:
+        db.flush()
+    except IntegrityError:
+        # Параллельный запрос вставил ту же заявку между проверкой и вставкой: ключ
+        # детерминирован по прогнозам и циклу, значит это она и есть. Ловим на flush:
+        # INSERT уходит здесь, до commit дело не доходит.
+        db.rollback()
+        existing = get(db, order_id)
+        if existing is None:
+            raise
+        return existing
+    db.add(models.WorkOrderHistory(order_id=order_id, from_status=None, to_status="draft",
+                                   author=user.login, reason="черновик вручную", at=now))
+    db.commit()
     return get(db, order_id)
 
 

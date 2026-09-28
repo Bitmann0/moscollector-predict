@@ -1,8 +1,9 @@
 """Жизненный цикл заявки на реальном приложении: граф C3, конфликты и гонки.
 
-Гарантии перенесены из PR #1 (ветка feature/maintenance-lifecycle, SQLite): переход
-статуса — сравнение и запись одним UPDATE, конкурентное создание не падает, на прогноз
-одна активная заявка. Гонки воспроизводятся детерминированно двумя сессиями, без потоков:
+Гарантии перенесены из PR #1 (ветка feature/maintenance-lifecycle, коммит aa85ddf, SQLite):
+переход статуса — сравнение и запись одним UPDATE, конкурентное создание не падает, на
+прогноз одна активная заявка, после закрытия — новый цикл. Гонки воспроизводятся
+детерминированно двумя сессиями, без потоков:
 SQLite в тестах сериализует запись, и тест с потоками был бы нестабилен.
 """
 import pytest
@@ -145,3 +146,29 @@ def test_new_cycle_after_cancel(ran, admin):
     again = admin.post(f"{API}/work-orders", json={"forecast_ids": [forecast["id"]]}).json()
     assert again["id"] == card["id"]
     assert _active_orders_of(admin, forecast["id"]) == [card["id"]]
+
+
+def test_new_cycle_after_manual_close(ran, admin):
+    """Закрытая ручная заявка не блокирует новую: тот же набор прогнозов открывает цикл 2."""
+    forecast = next(f["id"] for f in _forecasts(admin) if f["work_order_id"] is None)
+    body = {"forecast_ids": [forecast]}
+    closed = admin.post(f"{API}/work-orders", json=body).json()["id"]
+    assert _move(admin, closed, "draft", "cancelled").status_code == 200
+    created = admin.post(f"{API}/work-orders", json=body)
+    assert created.status_code == 201, created.text
+    card = created.json()
+    assert card["id"] == f"{closed}-2" and card["status"] == "draft"
+    assert _history(admin, card["id"]) == [(None, "draft")]
+    assert admin.post(f"{API}/work-orders", json=body).json()["id"] == card["id"]
+    assert admin.get(f"{API}/work-orders/{closed}").json()["status"] == "cancelled"
+    assert _active_orders_of(admin, forecast) == [card["id"]]
+
+
+def test_order_inserted_after_active_check_is_reused(ran, admin, monkeypatch):
+    """Заявку на тот же набор завели уже после проверки активных: отдаём её, а не цикл 2."""
+    forecast = next(f["id"] for f in _forecasts(admin) if f["work_order_id"] is None)
+    body = {"forecast_ids": [forecast]}
+    first = admin.post(f"{API}/work-orders", json=body).json()["id"]
+    monkeypatch.setattr(work_orders, "_active_order_for", lambda db, forecast_ids: None)
+    assert admin.post(f"{API}/work-orders", json=body).json()["id"] == first
+    assert _active_orders_of(admin, forecast) == [first]
