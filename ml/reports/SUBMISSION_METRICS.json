@@ -495,8 +495,8 @@
         1.5,
         4.4
       ],
-      "conditions": "машина разработчика, Docker, ML_MODE=real",
-      "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, оформление замера — задача ML2-04",
+      "conditions": "машина разработчика, Docker, ML_MODE=real; модели A_link с минимумом точности 0,50, до перехода на 0,70 (PR #30)",
+      "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, окончательный замер — задача ML2-04, docs/submission/08-performance.md",
       "command": null
     }
   ],
@@ -621,11 +621,16 @@
       "what": "выход температуры за диапазон 3–40 °C за 24 часа",
       "results": [
         {
+          "period": [
+            "2024-01-01",
+            "2026-06-30"
+          ],
+          "tests": 3,
           "precision": 0.354,
           "recall": 0.439,
-          "note": "среднее трёх тестов; смысл диапазона владелец данных не подтвердил",
-          "source": "ветка origin/feature/episode-hourly-backtest, docs/experiments/temperature-episode-hourly/README.md:70; файла в main нет. В main число пересказано в analysis/MULTI_HEAD_ML_STRATEGY.md:33 и ml/docs/ML_BACKEND_HANDOFF.md:35",
-          "command": null
+          "note": "среднее трёх полугодовых тестов 2024H1–2026H1; тест 2026H1 — уже просмотренный период; смысл диапазона владелец данных не подтвердил. Числа посчитаны кодом PR #8, перенесённый код на полном датасете не перезапускался",
+          "source": "reports/temperature_episode_24h.json (protocols.temporal_all_channels.mean_test); reports/TEMPERATURE_EPISODE_HOURLY.md",
+          "command": "python scripts/exp_temperature_episode.py features; python scripts/exp_temperature_episode.py backtest --clean-hours 24"
         }
       ]
     },
