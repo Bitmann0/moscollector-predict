@@ -433,6 +433,11 @@
           "with_fact": {
             "title": "With Fact",
             "type": "integer"
+          },
+          "work_orders": {
+            "default": 0,
+            "title": "Work Orders",
+            "type": "integer"
           }
         },
         "required": [

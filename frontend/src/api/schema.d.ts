@@ -760,6 +760,11 @@ export interface components {
             skipped_live: number;
             /** With Fact */
             with_fact: number;
+            /**
+             * Work Orders
+             * @default 0
+             */
+            work_orders: number;
         };
         /**
          * EventItem
