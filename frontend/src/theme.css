@@ -49,7 +49,7 @@ button, input, select, textarea { font-family: inherit; }
 .context-line { display:flex; align-items:center; gap:8px; margin:-14px 0 16px; color:var(--muted); font-size:13px; }
 .metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:14px; }.metric-card{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}.metric-card__icon{display:grid;width:44px;height:44px;flex:none;place-items:center;border-radius:var(--radius);color:var(--text-2);background:var(--surface-sunken)}.metric-card__icon svg{width:22px}.metric-card strong,.metric-card span,.metric-card small{display:block}.metric-card strong{font-size:26px;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums}.metric-card span{margin-top:3px;font-size:13px;font-weight:500}.metric-card small{margin-top:3px;color:var(--muted)}.metric-card--amber .metric-card__icon{color:var(--alarm-ink);background:var(--alarm-tint)}
 .panel { border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); box-shadow:var(--shadow); }.panel h3{margin:3px 0 0;font-size:15px;font-weight:600}.panel>header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
-.dashboard-layout { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:14px; }.dashboard-main{min-width:0}.scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}.scenario-card{display:flex;align-items:center;justify-content:space-between;min-height:132px;padding:18px}.scenario-card p{margin:12px 0 8px;color:var(--muted);font-size:13px}.scenario-card p b{margin-right:3px;color:var(--text);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}.scenario-card .state{margin:0;padding:0;border:0;background:transparent}.donut{--progress:0deg;display:grid;width:78px;height:78px;flex:none;place-items:center;border-radius:50%;background:conic-gradient(var(--data) var(--progress),var(--surface-sunken) 0);position:relative}.donut:before{position:absolute;inset:7px;border-radius:50%;background:var(--surface);content:""}.donut>div{z-index:1;text-align:center}.donut strong,.donut span{display:block}.donut strong{font-size:15px;font-weight:600}.donut span{color:var(--muted);font-size:11px}
+.dashboard-layout { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:14px; }.dashboard-main{min-width:0}.scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.scenario-card .state{margin:0;padding:0;border:0;background:transparent}.donut{--progress:0deg;display:grid;width:78px;height:78px;flex:none;place-items:center;border-radius:50%;background:conic-gradient(var(--data) var(--progress),var(--surface-sunken) 0);position:relative}.donut:before{position:absolute;inset:7px;border-radius:50%;background:var(--surface);content:""}.donut>div{z-index:1;text-align:center}.donut strong,.donut span{display:block}.donut strong{font-size:15px;font-weight:600}.donut span{color:var(--muted);font-size:11px}
 .chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.chart-card{min-width:0}.legend{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}.legend i{width:14px;height:3px;border-radius:4px;background:var(--data)}.legend--blue i{background:var(--data)}.chart-empty{display:grid;height:190px;place-items:center;color:var(--muted);font-size:13px}
 .priority-panel{display:flex;min-height:100%;flex-direction:column;overflow:hidden}.priority-panel header a{font-size:13px;color:var(--link);text-decoration:none}.priority-list{margin:10px 0 0;padding:0 20px;list-style:none}.priority-list li{display:grid;grid-template-columns:28px minmax(0,1fr) 16px;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}.priority-list .rank{display:grid;width:26px;height:26px;place-items:center;border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface-sunken);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}.priority-list a{display:block;overflow:hidden;color:var(--text);font-weight:500;text-decoration:none;text-overflow:ellipsis;white-space:nowrap}.priority-list small{display:block;margin-top:3px;overflow:hidden;color:var(--muted);text-overflow:ellipsis;white-space:nowrap}.priority-list svg{width:14px;color:var(--muted)}.queue-footer{display:flex;gap:9px;margin-top:auto;padding:15px 20px;color:var(--muted);background:var(--surface-sunken)}.queue-footer svg{width:18px;flex:none;color:var(--data)}.system-strip{display:flex;align-items:center;gap:20px;margin-top:14px;padding:13px 18px;color:var(--muted)}.system-strip>div{display:flex;align-items:center;gap:9px;margin-right:auto;color:var(--text)}.system-strip>span{display:flex;align-items:center;gap:6px}.system-strip .state{margin:0;padding:0;border:0;background:transparent}
 
@@ -138,16 +138,41 @@ button, input, select, textarea { font-family: inherit; }
 .line-chart__tip strong{font-weight:600}
 .line-chart__tip span{display:flex;align-items:center;gap:6px;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 .line-chart__tip i{width:8px;height:8px;flex:none;border-radius:2px}
-.line-chart__x{display:flex;grid-column:2;justify-content:space-between;margin-top:8px;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.line-chart__x{position:relative;grid-column:2;height:16px;margin-top:8px;color:var(--muted);font-size:11px;line-height:16px;font-variant-numeric:tabular-nums}
+.line-chart__x span{position:absolute;top:0;white-space:nowrap;transform:translateX(-50%)}
+.line-chart__x .line-chart__x-first{left:0;transform:none}
+.line-chart__x .line-chart__x-last{right:0;transform:none}
+.line-chart__gap{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,var(--grid) 0 1px,transparent 1px 6px);pointer-events:none}
+.line-chart__band{position:absolute;top:0;bottom:0;background:var(--data-tint);opacity:.6;pointer-events:none}
 .statusbar__heads>span{display:inline-flex;align-items:center;gap:5px}
 .head-state{padding:2px 7px;border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface-sunken);font-weight:500}
 .head-state--no_data,.head-state--stale{color:var(--warn-ink);background:var(--warn-tint)}
 .head-state--error{color:var(--crit-ink);background:var(--crit-tint)}
-.scenario-card{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:12px;min-height:0;padding:18px 18px 16px;border-top:3px solid var(--border-strong)}
+/* Карточка сценария — сетка: метка расчёта идёт своей строкой и не уезжает под кольцо охвата.
+   Раскладку выбирает ширина контейнера, а не окна: рядом с очередью колонка уже экрана. */
+.dashboard-scenarios{container-type:inline-size;margin-bottom:14px}
+.scenario-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;grid-template-areas:"title title" "count donut" "state state";align-content:start;align-items:center;gap:10px 12px;min-height:0;padding:18px 18px 16px;border-top:3px solid var(--border-strong)}
 .scenario-card--sensor_link{border-top-color:var(--s-link)}.scenario-card--equipment_diag{border-top-color:var(--s-wear)}.scenario-card--guard_weekly{border-top-color:var(--s-guard)}
-.scenario-card h3{display:-webkit-box;min-height:2.6em;margin:0;overflow:hidden;font-size:15px;line-height:1.3;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.scenario-card__body{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto}
-.scenario-card__body p{margin:0 0 8px}
+.scenario-card h3{grid-area:title;align-self:start;display:-webkit-box;min-height:3.9em;margin:0;overflow:hidden;font-size:15px;line-height:1.3;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+.scenario-card__count{grid-area:count;min-width:0;margin:0;color:var(--muted);font-size:13px;line-height:1.3}.scenario-card__count b{display:block;color:var(--text);font-size:24px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums}
+.scenario-card .donut{grid-area:donut;width:64px;height:64px}.scenario-card .donut:before{inset:6px}.scenario-card .donut strong{font-size:13px}
+.scenario-card__state{grid-area:state;min-width:0}.scenario-card__state .chip{max-width:100%;white-space:normal;line-height:1.35;text-wrap:balance}
+@container (min-width:1000px){.scenario-card h3{min-height:2.6em}}
+/* Три карточки в ряд уже 720 px не помещаются: название, число и кольцо идут одной строкой. */
+@container (max-width:719px){.scenario-grid{grid-template-columns:minmax(0,1fr)}.scenario-card{grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto auto;grid-template-areas:"title count donut" "state count donut";column-gap:20px;row-gap:8px;padding:14px 18px}.scenario-card h3{min-height:0;align-self:end;-webkit-line-clamp:2}.scenario-card__state{align-self:start}.scenario-card__count{width:130px}.scenario-card .donut{width:56px;height:56px}.scenario-card .donut strong{font-size:12px}}
+@container (max-width:419px){.scenario-card{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;grid-template-areas:"title title" "count donut" "state state";row-gap:10px;padding:16px}.scenario-card h3{min-height:0;align-self:start;-webkit-line-clamp:3}.scenario-card__count{width:auto}.scenario-card .donut{width:64px;height:64px}.scenario-card .donut strong{font-size:13px}}
+/* Колонка с диаграммами тянется до низа очереди: иначе под графиками оставалась пустая полоса. */
+.dashboard-main{display:flex;flex-direction:column}.dashboard-main>.chart-grid{flex:1}.dashboard-main .chart-card{display:flex;flex-direction:column}.dashboard-main .chart-card>.line-chart{flex:1;grid-template-rows:minmax(var(--chart-h),1fr) auto}
+.dashboard-main .chart-card>header{align-items:flex-start;gap:12px}.dashboard-main .chart-card>header .legend{flex:none;margin-top:2px;white-space:nowrap}.dashboard-legend--bar i{width:10px;height:10px;border-radius:2px}
+/* Значения KPI на одной высоте, сколько бы строк ни заняло пояснение. */
+.dashboard-page .metric-card{align-items:flex-start}
+/* Строка очереди: сценарий обрезается, оценка — нет; раньше многоточие съедало само число. */
+.dashboard-page .priority-list small{display:flex;align-items:center;justify-content:space-between;gap:10px}.dashboard-page .priority-list small .scenario-tag{min-width:0;font-weight:400}.dashboard-page .priority-list small .scenario-tag>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dashboard-queue__score{flex:none;color:var(--text-2);font-variant-numeric:tabular-nums}
+/* Список короче лимита: под ним сказано, что открытых прогнозов больше нет, — пустота под списком не читается как недогрузка. */
+.dashboard-queue__all{margin:12px 0 16px;color:var(--muted);font-size:12px}
+@media(max-width:640px){.dashboard-page .priority-list a{display:-webkit-box;white-space:normal;-webkit-box-orient:vertical;-webkit-line-clamp:2}}
+/* «Обновление…» поверх, а не в потоке: при каждом перезапросе страница не прыгает на строку вниз. */
+.dashboard-page{position:relative}.dashboard-page>.refreshing{position:absolute;right:0;margin:-14px 0 0}.dashboard-page .priority-panel{position:relative}.dashboard-page .priority-panel__body>.refreshing{position:absolute;top:32px;right:58px;margin:0}
 /* Журнал прогнозов: одна строка на прогноз */
 .forecast-table td{vertical-align:middle;white-space:nowrap}
 .forecast-table .col-object{max-width:340px}
@@ -187,7 +212,6 @@ button, input, select, textarea { font-family: inherit; }
   .statusbar>.theme-toggle{margin-left:auto}
 }
 @media(max-width:1200px){
-  .scenario-grid{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
   .orders-overview{grid-template-columns:1fr}
   .orders-overview>div:nth-child(2){flex-wrap:wrap;justify-content:flex-start;overflow:visible}
   .orders-overview__all{justify-self:start}
@@ -216,8 +240,6 @@ button, input, select, textarea { font-family: inherit; }
 @media(max-width:640px){.orders-filters{grid-template-columns:1fr}}
 @media(max-width:760px){.forecast-hero{grid-template-columns:1fr}.forecast-window{border-right:0;border-bottom:1px solid var(--border)}}
 @media(max-width:640px){.forecast-actions .outcome-fields{grid-template-columns:1fr}.forecast-actions .outcome-options{grid-template-columns:1fr 1fr}}
-.scenario-card__body>div:first-child{min-width:0}
-@media(max-width:1280px){.scenario-card .donut{width:64px;height:64px}.scenario-card .donut:before{inset:6px}.scenario-card .donut strong{font-size:13px}}
 @media(max-width:640px){.mobile-top .notification-button{border-color:var(--nav-line);color:var(--nav-text);background:var(--nav-hover)}.mobile-top .notification-button b{border-color:var(--nav-bg)}}
 .statusbar__heads>a{display:inline-flex;align-items:center;gap:5px;color:var(--text-2);text-decoration:none;white-space:nowrap}
 .statusbar__heads>a:hover,.scenario-card h3 a:hover{color:var(--link)}
