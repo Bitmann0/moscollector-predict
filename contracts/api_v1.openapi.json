@@ -6500,7 +6500,19 @@
     },
     {
       "description": "Журнал, карточки, решения и исходы рекомендаций.",
-      "name": "forecast"
+      "name": "forecasts"
+    },
+    {
+      "description": "Сводка для диспетчера.",
+      "name": "dashboard"
+    },
+    {
+      "description": "Журнал принятых событий СМВУ.",
+      "name": "events"
+    },
+    {
+      "description": "Черновики и жизненный цикл заявок.",
+      "name": "work-orders"
     },
     {
       "description": "Идемпотентная загрузка СМВУ и журнала ОДС.",
@@ -6509,6 +6521,38 @@
     {
       "description": "Справочники объектов, каналов и причин решений.",
       "name": "reference"
+    },
+    {
+      "description": "Уведомления и их прочтение.",
+      "name": "notifications"
+    },
+    {
+      "description": "Поток уведомлений SSE.",
+      "name": "stream"
+    },
+    {
+      "description": "Качество выданных прогнозов.",
+      "name": "quality"
+    },
+    {
+      "description": "Условная схема расположения объектов.",
+      "name": "schema"
+    },
+    {
+      "description": "Выгрузки журналов и отчёт руководству.",
+      "name": "export"
+    },
+    {
+      "description": "Настройки демонстрации и параметров продукта.",
+      "name": "settings"
+    },
+    {
+      "description": "Пересчёт, синхронизация и обслуживание данных.",
+      "name": "admin"
+    },
+    {
+      "description": "Журнал действий пользователей.",
+      "name": "audit"
     }
   ]
 }

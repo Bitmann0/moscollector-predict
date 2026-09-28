@@ -89,7 +89,7 @@
 |---|---|---|
 | Атрибуты cookie | `HttpOnly`, `SameSite=Lax`, `Path=/`, `Max-Age=43200`; `Secure` при `COOKIE_SECURE=1`, на стенде включено | `backend/app/routers/auth.py`, `compose.stand.yaml` |
 | Срок сессии | 12 ч (`session_hours`); возраст проверяется по метке времени внутри подписи | `backend/app/config.py`, `authenticate` в `backend/app/security.py` |
-| Содержимое токена | `login` и отпечаток пароля `pw`, подписанные `itsdangerous.URLSafeTimedSerializer` на ключе `SECRET_KEY` с солью `mk-session`. Токен подписан, но не зашифрован: логин и отпечаток из cookie читаются | `issue_session`, `_serializer` |
+| Содержимое токена | `login`, отпечаток пароля `pw` и случайный идентификатор сессии `jti`, подписанные `itsdangerous.URLSafeTimedSerializer` на ключе `SECRET_KEY` с солью `mk-session`. Токен подписан, но не зашифрован: эти поля из cookie читаются | `issue_session`, `_serializer` |
 | Отпечаток пароля | первые 16 шестнадцатеричных символов HMAC-SHA256 от хеша пароля на ключе `SECRET_KEY`. После смены пароля отпечаток не совпадает, и старые сессии получают 401 | `_password_mark`; тест `test_password_change_invalidates_session` |
 | Хранение пароля | PBKDF2-HMAC-SHA256, 200 000 итераций, случайная соль 16 байт; сравнение через `hmac.compare_digest`. У сотрудника каталога пароля в БД нет, вместо хеша — отпечаток DN (раздел 5.2) | `hash_password`, `verify_password` |
 | Пустой `SECRET_KEY` | `RuntimeError` при первой выдаче или проверке сессии | `_serializer` |

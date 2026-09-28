@@ -55,9 +55,20 @@ def create_app() -> FastAPI:
         openapi_tags=[
             {"name": "auth", "description": "Вход, выход и определение роли текущей сессии."},
             {"name": "system", "description": "Готовность API и ML-контура."},
-            {"name": "forecast", "description": "Журнал, карточки, решения и исходы рекомендаций."},
+            {"name": "forecasts", "description": "Журнал, карточки, решения и исходы рекомендаций."},
+            {"name": "dashboard", "description": "Сводка для диспетчера."},
+            {"name": "events", "description": "Журнал принятых событий СМВУ."},
+            {"name": "work-orders", "description": "Черновики и жизненный цикл заявок."},
             {"name": "ingest", "description": "Идемпотентная загрузка СМВУ и журнала ОДС."},
             {"name": "reference", "description": "Справочники объектов, каналов и причин решений."},
+            {"name": "notifications", "description": "Уведомления и их прочтение."},
+            {"name": "stream", "description": "Поток уведомлений SSE."},
+            {"name": "quality", "description": "Качество выданных прогнозов."},
+            {"name": "schema", "description": "Условная схема расположения объектов."},
+            {"name": "export", "description": "Выгрузки журналов и отчёт руководству."},
+            {"name": "settings", "description": "Настройки демонстрации и параметров продукта."},
+            {"name": "admin", "description": "Пересчёт, синхронизация и обслуживание данных."},
+            {"name": "audit", "description": "Журнал действий пользователей."},
         ],
     )
     # XML (ТЗ §7) — самый внутренний слой: предел тела и аудит видят XML-запрос как есть.
