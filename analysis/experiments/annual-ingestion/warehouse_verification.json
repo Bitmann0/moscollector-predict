@@ -1,0 +1,12 @@
+{
+  "audit_row_counts_match": true,
+  "source_count": 8,
+  "raw_rows": 313546017,
+  "accepted_rows": 312982076,
+  "exact_duplicate_rows": 563940,
+  "embedded_headers": 1,
+  "rejected_source_rows": 0,
+  "daily_channel_source_rows": 4273083,
+  "observed_channels": 12627,
+  "database_bytes": 6266826752
+}
