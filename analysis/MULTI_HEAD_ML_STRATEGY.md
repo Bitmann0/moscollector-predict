@@ -30,7 +30,8 @@ Use separate model heads and combine only their presentation priority.
 - Question: will a recorded physical measurement cross an explicitly documented boundary?
 - Current implementation: first temperature excursion outside the inferred 3-40 C range after a
   24/72-hour clean period.
-- Measured 24-hour mean: precision `0.354`, recall `0.439`, AP `0.271`.
+- Measured 24-hour mean: precision `0.354`, recall `0.439`, AP `0.271`
+  ([report](../ml/reports/TEMPERATURE_EPISODE_HOURLY.md)).
 - Action: a temperature-risk card; do not label it sensor failure without owner confirmation.
 
 ### 4. Confirmed maintenance outcome
