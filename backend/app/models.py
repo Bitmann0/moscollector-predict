@@ -14,10 +14,12 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -192,8 +194,17 @@ class IngestBatch(Base):
 
 
 class Event(Base):
-    """Событие журнала СМВУ. row_hash — хеш нормализованного полного кортежа (C5)."""
+    """Событие журнала СМВУ. row_hash — хеш нормализованного полного кортежа (C5).
+
+    incident_group — группа аварии из vocabularies.json (миграция 0002). Индекс
+    частичный: группа есть у 13 637 из 10 428 318 событий стенда. count(*) по группе
+    с ним — 1,7 мс, а тот же запрос по event_class без индекса читает таблицу целиком
+    за 377 мс (docs/submission/perf/reclassify_0928.txt).
+    """
     __tablename__ = "events"
+    __table_args__ = (Index("ix_events_incident_group", "incident_group",
+                            postgresql_where=text("incident_group IS NOT NULL"),
+                            sqlite_where=text("incident_group IS NOT NULL")),)
     id: Mapped[int] = mapped_column(BigIntPK, primary_key=True, autoincrement=True)
     event_id: Mapped[int] = mapped_column(BigInteger)
     channel_id: Mapped[int] = mapped_column(BigInteger, index=True)
@@ -203,6 +214,7 @@ class Event(Base):
     val_num: Mapped[float | None] = mapped_column(Float)
     event_class: Mapped[str] = mapped_column(String(16))
     hint: Mapped[str | None] = mapped_column(String(200))
+    incident_group: Mapped[str | None] = mapped_column(String(32))
     batch_id: Mapped[int | None] = mapped_column(ForeignKey("ingest_batches.id"))
     row_hash: Mapped[str] = mapped_column(String(64), unique=True)
 

@@ -67,7 +67,7 @@ function SummaryView({ summary, queue }: { summary: Summary; queue: Load<Forecas
       <Metric icon="shield" tone="blue" value={percentText(meanCoverage)} label="Охват расчёта" detail={coverageDetail} />
       <Metric icon="wrench" tone="mint" value={activeOrders} label="Активных заявок" detail="Превентивные работы" />
       {/* Янтарь — сигнал; при нуле тревог он подсвечивал бы то, чего нет. */}
-      <Metric icon="events" tone={summary.alarms_24h > 0 ? "amber" : "neutral"} value={summary.alarms_24h} label="Тревог за 24 часа" detail={`${summary.planned_like_alarms_24h} похожи на плановые`} />
+      <Metric icon="events" tone={summary.alarms_24h > 0 ? "amber" : "neutral"} value={summary.alarms_24h} label="Тревожных сообщений за 24 часа" detail={`${summary.planned_like_alarms_24h} похожи на ППР или ТО`} />
     </div>
     <div className="dashboard-layout">
       <div className="dashboard-main">

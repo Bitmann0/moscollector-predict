@@ -9,7 +9,7 @@ import { Loaded, StateView } from "../components/StateView";
 import { fmtDate, fmtNumber, pageParam } from "../format";
 import { useReloadOn } from "../stream/useStream";
 import { usePersistentBoolean } from "../usePersistentState";
-import { title } from "../vocab";
+import { INCIDENT_GROUPS, incidentGroupOf, title } from "../vocab";
 
 type EventItem = Schemas["EventItem"];
 type TreeNode = Schemas["TreeNode"];
@@ -62,18 +62,19 @@ export function Events() {
   const page = pageParam(params.get("page"));
   const from = params.get("from") || undefined, to = params.get("to") || undefined, obj = params.get("obj") || undefined, sensorType = params.get("sensor_type") || undefined, q = params.get("q") || undefined;
   const cls = eventClass(params.get("event_class"));
+  const group = incidentGroupOf(params.get("incident_group"));
   const [auto, setAuto] = usePersistentBoolean("mkl.events.auto-refresh", true);
   const [hideNormalGas, setHideNormalGas] = usePersistentBoolean("mkl.events.hide-normal-gas", true);
-  // Выбранный тип датчика сам решает, нужен ли газ, а класс без нормы штатного газа не содержит:
-  // в обоих случаях флажок не действует. Скрывает backend, поэтому total и страницы — по всему журналу.
-  const hideApplies = !sensorType && (!cls || cls === "normal");
+  // Выбранный тип датчика сам решает, нужен ли газ, а класс без нормы и группа аварии штатного газа не содержат:
+  // в этих случаях флажок не действует. Скрывает backend, поэтому total и страницы — по всему журналу.
+  const hideApplies = !sensorType && !group && (!cls || cls === "normal");
   const hide = hideNormalGas && hideApplies;
-  const load = useLoad(() => api.GET("/api/v1/events", { params: { query: { from, to, obj, sensor_type: sensorType, event_class: cls, q, hide_normal_gas: hide || undefined, page, page_size: PAGE_SIZE } } }), [from, to, obj, sensorType, cls, q, hide, page]);
+  const load = useLoad(() => api.GET("/api/v1/events", { params: { query: { from, to, obj, sensor_type: sensorType, event_class: cls, incident_group: group, q, hide_normal_gas: hide || undefined, page, page_size: PAGE_SIZE } } }), [from, to, obj, sensorType, cls, group, q, hide, page]);
   const tree = useLoad(() => api.GET("/api/v1/reference/tree"), []);
   const status = useLoad(() => api.GET("/api/v1/system/status"), []);
   const groups = useMemo(() => objectGroups(tree.data ?? []), [tree.data]);
   useReloadOn(["alert.new", "event.alarm"], load.reload, { enabled: auto });
-  const filtered = Boolean(from || to || obj || sensorType || cls || q);
+  const filtered = Boolean(from || to || obj || sensorType || cls || group || q);
   function update(key: string, value?: string | number) { const next = new URLSearchParams(params); if (!value || (key === "page" && value === 1)) next.delete(key); else next.set(key, String(value)); if (key !== "page") next.delete("page"); setParams(next); }
   function applyText(key: string) { return { onBlur: (e: FocusEvent<HTMLInputElement>) => update(key, e.target.value.trim()), onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => { if (e.key === "Enter") { e.preventDefault(); update(key, e.currentTarget.value.trim()); } } }; }
   const knownObject = !obj || groups.some((group) => group.options.some((item) => item.id === obj));
@@ -88,10 +89,11 @@ export function Events() {
       <label className="field"><span>Объект</span><select value={obj ?? ""} onChange={(e) => update("obj", e.target.value)}><option value="">Все объекты</option>{!knownObject && <option value={obj}>Объект {obj}</option>}{groups.map((group) => <optgroup key={group.label} label={group.label}>{group.options.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup>)}</select></label>
       <label className="field"><span>Тип датчика</span><select value={sensorType ?? ""} onChange={(e) => update("sensor_type", e.target.value)}><option value="">Все типы</option>{sensorType && !SENSOR_TYPES.includes(sensorType) && <option value={sensorType}>{sensorType}</option>}{SENSOR_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
       <label className="field"><span>Класс события</span><select value={cls ?? ""} onChange={(e) => update("event_class", e.target.value)}><option value="">Все классы</option>{CLASSES.map((item) => <option key={item} value={item}>{title("event_class", item)}</option>)}</select></label>
+      <label className="field"><span>Группа аварии</span><select value={group ?? ""} onChange={(e) => update("incident_group", e.target.value)}><option value="">Все события</option>{INCIDENT_GROUPS.map((item) => <option key={item.code} value={item.code}>{item.title}</option>)}</select></label>
       <label className="field"><span>Поиск</span><input key={q ?? ""} defaultValue={q ?? ""} {...applyText("q")} placeholder="Текст события" title="Enter — применить" /></label>
     </div>
     <div className="events-toolbar">
-      <label className={`check quiet-check${hideApplies ? "" : " quiet-check--off"}`}><input type="checkbox" checked={hideNormalGas} disabled={!hideApplies} onChange={(e) => { setHideNormalGas(e.target.checked); update("page", 1); }} /><span>Скрывать штатные показания газовых датчиков{!hideApplies && <small>{sensorType ? "не действует при выбранном типе датчика" : "выбранный класс не включает норму"}</small>}</span></label>
+      <label className={`check quiet-check${hideApplies ? "" : " quiet-check--off"}`}><input type="checkbox" checked={hideNormalGas} disabled={!hideApplies} onChange={(e) => { setHideNormalGas(e.target.checked); update("page", 1); }} /><span>Скрывать штатные показания газовых датчиков{!hideApplies && <small>{sensorType ? "не действует при выбранном типе датчика" : group ? "в группе аварии штатных показаний нет" : "выбранный класс не включает норму"}</small>}</span></label>
       {load.data && <span className="events-summary">{found(load.data.total)}</span>}
       {filtered && <button type="button" className="button events-reset" onClick={() => setParams(new URLSearchParams())}>Сбросить фильтры</button>}
     </div>
@@ -103,7 +105,7 @@ export function Events() {
           <td className="events-col-object"><strong>{event.object.name ?? event.object.id ?? "Объект не указан"}</strong>{event.channel.name && <small>{event.channel.name}</small>}</td>
           <td className="events-col-type">{event.channel.sensor_type ?? "Тип не указан"}</td>
           <td className="events-col-event">{eventText(event)}{event.sensor_event?.startsWith(EPOCH) && <small className="events-raw">{event.sensor_event}</small>}{event.hint && <small className="events-hint">{event.hint}</small>}</td>
-          <td className="events-col-class"><span className={`event-status event-status--${event.event_class}`}>{event.event_class_title}</span></td>
+          <td className="events-col-class"><span className={`event-status event-status--${event.event_class}`}>{event.event_class_title}</span>{event.incident_group && <em className="incident-chip">{title("incident_group", event.incident_group)}</em>}</td>
         </tr>)}</tbody>
       </table></div>}
       <Pager page={data.page} pageSize={data.page_size} total={data.total} onPage={(value) => update("page", value)} />
