@@ -167,6 +167,16 @@ def reset_login_throttle():
 
 
 @pytest.fixture(autouse=True)
+def fresh_parameters():
+    """Кеш параметров (app/services/parameters.py) общий на процесс, а БД у теста своя."""
+    from app.services import parameters
+
+    parameters.invalidate()
+    yield
+    parameters.invalidate()
+
+
+@pytest.fixture(autouse=True)
 def fast_password_hash(monkeypatch):
     """200 000 итераций PBKDF2 — это ~0,2 с на хеш; seed в каждом тесте хеширует пять
     паролей. Число итераций хранится в самом хеше, поэтому проверка пароля не меняется."""

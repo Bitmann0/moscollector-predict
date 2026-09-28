@@ -56,6 +56,9 @@ class AuditItem(BaseModel):
     path: str
     status: int
     entity: str | None = None
+    payload: dict | None = Field(default=None, description="Что изменилось, если обработчик "
+                                                           "это записал: у PUT /settings/"
+                                                           "parameters — поля «было, стало»")
 
 
 class SettingsOut(BaseModel):

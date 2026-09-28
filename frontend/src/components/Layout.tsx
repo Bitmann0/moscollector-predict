@@ -21,9 +21,10 @@ const MENU: MenuItem[] = [
   { to: "/events", label: "События", short: "События", hint: "Поток СМВУ", icon: "events", perm: "view" },
   { to: "/schema", label: "Схема сети", short: "Схема", hint: "Объекты и комплексы", icon: "map", perm: "view" },
   { to: "/quality", label: "Качество модели", short: "Качество", hint: "Контроль точности", icon: "quality", perm: "view" },
+  { to: "/settings", label: "Настройки", short: "Настройки", hint: "Параметры продукта", icon: "sliders", perm: "admin" },
 ];
 /** Разделы, которые на телефоне живут в меню «Ещё»: при них подсвечивается сама кнопка. */
-const MORE_PATHS = ["/schema", "/quality", "/notifications"];
+const MORE_PATHS = ["/schema", "/quality", "/settings", "/notifications"];
 /** Короткие состояния для шапки: полные подписи — в title и на дашборде. */
 const SHORT_STATE: Partial<Record<string, string>> = {
   ok: "готов", empty_valid: "без кандидатов", no_data: "нет данных", stale: "устарели",
