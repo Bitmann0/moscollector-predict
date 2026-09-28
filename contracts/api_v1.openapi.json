@@ -3515,6 +3515,7 @@
     },
     "/api/v1/events": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "list_events_api_v1_events_get",
         "parameters": [
           {
@@ -3724,6 +3725,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/Page_EventItem_"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_EventItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -3920,6 +3926,7 @@
     },
     "/api/v1/forecasts": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "list_forecasts_api_v1_forecasts_get",
         "parameters": [
           {
@@ -4089,6 +4096,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/Page_ForecastItem_"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ForecastItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -4126,6 +4138,7 @@
     },
     "/api/v1/forecasts/summary": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "summary_api_v1_forecasts_summary_get",
         "parameters": [
           {
@@ -4272,6 +4285,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ForecastSummary"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastSummary"
+                }
               }
             },
             "description": "Successful Response"
@@ -4309,6 +4327,7 @@
     },
     "/api/v1/forecasts/{forecast_id}": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "get_card_api_v1_forecasts__forecast_id__get",
         "parameters": [
           {
@@ -4325,6 +4344,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastCard"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/ForecastCard"
                 }
@@ -4647,7 +4671,7 @@
     },
     "/api/v1/ingest/events": {
       "post": {
-        "description": "Пачка журнала СМВУ в JSON (до 5 000 строк) — так шлёт replay.py.",
+        "description": "Пачка журнала СМВУ в JSON (до 5 000 строк) — так шлёт replay.py.\n\nТело в XML: `Content-Type: application/xml`, корень `EventRowInList`, схема `contracts/xml/api_v1_ingest.xsd`. Ответ в XML — `Accept: application/xml`.",
         "operationId": "ingest_rows_api_v1_ingest_events_post",
         "parameters": [
           {
@@ -4674,6 +4698,23 @@
                 "title": "Rows",
                 "type": "array"
               }
+            },
+            "application/xml": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/EventRowIn",
+                  "xml": {
+                    "name": "EventRowIn"
+                  }
+                },
+                "maxItems": 5000,
+                "title": "Rows",
+                "type": "array",
+                "xml": {
+                  "name": "EventRowInList",
+                  "wrapped": true
+                }
+              }
             }
           },
           "required": true
@@ -4682,6 +4723,11 @@
           "201": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestBatchOut"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/IngestBatchOut"
                 }
@@ -4792,6 +4838,7 @@
     },
     "/api/v1/ingest/ods-journal": {
       "post": {
+        "description": "Тело в XML: `Content-Type: application/xml`, корень `OdsRowInList`, схема `contracts/xml/api_v1_ingest.xsd`. Ответ в XML — `Accept: application/xml`.",
         "operationId": "ingest_ods_api_v1_ingest_ods_journal_post",
         "requestBody": {
           "content": {
@@ -4804,6 +4851,23 @@
                 "title": "Rows",
                 "type": "array"
               }
+            },
+            "application/xml": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/OdsRowIn",
+                  "xml": {
+                    "name": "OdsRowIn"
+                  }
+                },
+                "maxItems": 5000,
+                "title": "Rows",
+                "type": "array",
+                "xml": {
+                  "name": "OdsRowInList",
+                  "wrapped": true
+                }
+              }
             }
           },
           "required": true
@@ -4812,6 +4876,11 @@
           "201": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestBatchOut"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/IngestBatchOut"
                 }
@@ -5006,6 +5075,7 @@
     },
     "/api/v1/quality": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "weekly_api_v1_quality_get",
         "parameters": [
           {
@@ -5027,6 +5097,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityOut"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/QualityOut"
                 }
@@ -5422,11 +5497,17 @@
     },
     "/api/v1/system/status": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "status_api_v1_system_status_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatus"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/SystemStatus"
                 }
@@ -5457,6 +5538,7 @@
     },
     "/api/v1/work-orders": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "list_orders_api_v1_work_orders_get",
         "parameters": [
           {
@@ -5555,6 +5637,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/Page_WorkOrderItem_"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_WorkOrderItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -5645,6 +5732,7 @@
     },
     "/api/v1/work-orders/{order_id}": {
       "get": {
+        "description": "XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.",
         "operationId": "get_order_api_v1_work_orders__order_id__get",
         "parameters": [
           {
@@ -5661,6 +5749,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderCard"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkOrderCard"
                 }

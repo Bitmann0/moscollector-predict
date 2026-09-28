@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified">
+  <xs:annotation>
+    <xs:documentation>Ответы REST API /api/v1 в XML по заголовку Accept: application/xml. Файл собирает scripts/export_contracts.py из pydantic-моделей backend/app/schemas; правила отображения JSON в XML — backend/app/xml_api.py.</xs:documentation>
+  </xs:annotation>
+  <xs:element name="ForecastCard" type="ForecastCard">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/forecasts/{forecast_id}</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="ForecastSummary" type="ForecastSummary">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/forecasts/summary</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="IngestBatchOut" type="IngestBatchOut">
+    <xs:annotation>
+      <xs:documentation>POST /api/v1/ingest/events, POST /api/v1/ingest/ods-journal</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="Page_EventItem_" type="Page_EventItem_">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/events</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="Page_ForecastItem_" type="Page_ForecastItem_">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/forecasts</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="Page_WorkOrderItem_" type="Page_WorkOrderItem_">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/work-orders</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="QualityOut" type="QualityOut">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/quality</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="SystemStatus" type="SystemStatus">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/system/status</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="WorkOrderCard" type="WorkOrderCard">
+    <xs:annotation>
+      <xs:documentation>GET /api/v1/work-orders/{order_id}</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="CalendarInfo">
+    <xs:sequence>
+      <xs:element name="weekday" type="xs:long" />
+      <xs:element name="weekday_title" type="xs:string" />
+      <xs:element name="holiday" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChannelRef">
+    <xs:sequence>
+      <xs:element name="id" type="xs:long" />
+      <xs:element name="name" nillable="true" type="xs:string" />
+      <xs:element name="sensor_type" nillable="true" type="xs:string" />
+      <xs:element name="picket_label" nillable="true" type="xs:string" />
+      <xs:element name="name_decoded" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChecklistOut">
+    <xs:sequence>
+      <xs:element name="equipment" type="xs:string" />
+      <xs:element name="channels" minOccurs="0" maxOccurs="unbounded" type="ChannelRef" />
+      <xs:element name="items" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+      <xs:element name="note" nillable="true" type="xs:string" />
+      <xs:element name="basis" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DecisionOut">
+    <xs:sequence>
+      <xs:element name="id" type="xs:long" />
+      <xs:element name="action">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="dispatch_crew" />
+            <xs:enumeration value="remote_check" />
+            <xs:enumeration value="defer" />
+            <xs:enumeration value="reject" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="reason_code">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="false_alarm" />
+            <xs:enumeration value="planned_works" />
+            <xs:enumeration value="sensor_fault" />
+            <xs:enumeration value="duplicate" />
+            <xs:enumeration value="confirmed_by_readings" />
+            <xs:enumeration value="confirmed_by_camera" />
+            <xs:enumeration value="preventive" />
+            <xs:enumeration value="no_crew" />
+            <xs:enumeration value="await_data" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="comment" nillable="true" type="xs:string" />
+      <xs:element name="author" type="xs:string" />
+      <xs:element name="created_at" type="xs:dateTime" />
+      <xs:element name="source">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="live" />
+            <xs:enumeration value="emulated" />
+            <xs:enumeration value="stub" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DynamicsPoint">
+    <xs:sequence>
+      <xs:element name="day" type="xs:date" />
+      <xs:element name="alarms" type="xs:long" />
+      <xs:element name="bad_states" type="xs:long" />
+      <xs:element name="events" type="xs:long">
+        <xs:annotation>
+          <xs:documentation>Все события канала за сутки МСК в журнале сервиса. 0 — сутки без событий: состояние неизвестно, alarms и bad_states за них не означают ноль</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="EventItem">
+    <xs:sequence>
+      <xs:element name="id" type="xs:long" />
+      <xs:element name="ts" type="xs:dateTime" />
+      <xs:element name="object" type="ObjectRef" />
+      <xs:element name="channel" type="ChannelRef" />
+      <xs:element name="sensor_event" nillable="true" type="xs:string" />
+      <xs:element name="event_class">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="normal" />
+            <xs:enumeration value="warning" />
+            <xs:enumeration value="alarm" />
+            <xs:enumeration value="critical" />
+            <xs:enumeration value="fault" />
+            <xs:enumeration value="service" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="event_class_title" type="xs:string" />
+      <xs:element name="incident_group" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="fire" />
+            <xs:enumeration value="flood" />
+            <xs:enumeration value="gas" />
+            <xs:enumeration value="intrusion" />
+            <xs:enumeration value="temperature" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="hint" nillable="true" type="xs:string" />
+      <xs:element name="alarm" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FactorItem">
+    <xs:sequence>
+      <xs:element name="feature" type="xs:string" />
+      <xs:element name="label" type="xs:string" />
+      <xs:element name="contribution" type="xs:double" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ForecastCard">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string" />
+      <xs:element name="kind">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="alert" />
+            <xs:enumeration value="weekly_recommendation" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="scenario">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sensor_link" />
+            <xs:enumeration value="equipment_diag" />
+            <xs:enumeration value="guard_weekly" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="scenario_title" type="xs:string" />
+      <xs:element name="head" type="xs:string" />
+      <xs:element name="asof" type="xs:date" />
+      <xs:element name="valid_from" type="xs:dateTime" />
+      <xs:element name="valid_to" type="xs:dateTime" />
+      <xs:element name="horizon_hours" type="xs:long" />
+      <xs:element name="score_type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="probability" />
+            <xs:enumeration value="relative_priority" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="risk" nillable="true" type="xs:double" />
+      <xs:element name="priority_score" nillable="true" type="xs:double" />
+      <xs:element name="rank" type="xs:long" />
+      <xs:element name="object" type="ObjectRef" />
+      <xs:element name="channel" nillable="true" type="ChannelRef" />
+      <xs:element name="data_status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="ok" />
+            <xs:enumeration value="no_data" />
+            <xs:enumeration value="stale" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="decision" nillable="true" type="DecisionOut" />
+      <xs:element name="outcome_auto" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="hit" />
+            <xs:enumeration value="miss" />
+            <xs:enumeration value="unknown" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="outcome_manual" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="confirmed_event" />
+            <xs:enumeration value="sensor_fault" />
+            <xs:enumeration value="normal_activation" />
+            <xs:enumeration value="no_event" />
+            <xs:enumeration value="unknown" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="source">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="live" />
+            <xs:enumeration value="emulated" />
+            <xs:enumeration value="stub" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="work_order_id" nillable="true" type="xs:string" />
+      <xs:element name="case_key" type="xs:string" />
+      <xs:element name="factors" minOccurs="0" maxOccurs="unbounded" type="FactorItem" />
+      <xs:element name="evidence" nillable="true" type="xs:string" />
+      <xs:element name="recent_alarm_days_7" nillable="true" type="xs:long" />
+      <xs:element name="recent_alarm_days_30" nillable="true" type="xs:long" />
+      <xs:element name="coverage_note" nillable="true" type="xs:string" />
+      <xs:element name="versions" minOccurs="0" maxOccurs="unbounded" type="VersionItem" />
+      <xs:element name="decisions" minOccurs="0" maxOccurs="unbounded" type="DecisionOut" />
+      <xs:element name="dynamics_30d" minOccurs="0" maxOccurs="unbounded" type="DynamicsPoint">
+        <xs:annotation>
+          <xs:documentation>30 суток МСК до asof включительно. Сутки без событий канала (events=0) не пропускаются и не означают исправность: в журнале сервиса о них нет данных. У прогноза без канала все events=0</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="calendar" nillable="true" type="CalendarInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ForecastItem">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string" />
+      <xs:element name="kind">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="alert" />
+            <xs:enumeration value="weekly_recommendation" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="scenario">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sensor_link" />
+            <xs:enumeration value="equipment_diag" />
+            <xs:enumeration value="guard_weekly" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="scenario_title" type="xs:string" />
+      <xs:element name="head" type="xs:string" />
+      <xs:element name="asof" type="xs:date" />
+      <xs:element name="valid_from" type="xs:dateTime" />
+      <xs:element name="valid_to" type="xs:dateTime" />
+      <xs:element name="horizon_hours" type="xs:long" />
+      <xs:element name="score_type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="probability" />
+            <xs:enumeration value="relative_priority" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="risk" nillable="true" type="xs:double" />
+      <xs:element name="priority_score" nillable="true" type="xs:double" />
+      <xs:element name="rank" type="xs:long" />
+      <xs:element name="object" type="ObjectRef" />
+      <xs:element name="channel" nillable="true" type="ChannelRef" />
+      <xs:element name="data_status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="ok" />
+            <xs:enumeration value="no_data" />
+            <xs:enumeration value="stale" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="decision" nillable="true" type="DecisionOut" />
+      <xs:element name="outcome_auto" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="hit" />
+            <xs:enumeration value="miss" />
+            <xs:enumeration value="unknown" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="outcome_manual" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="confirmed_event" />
+            <xs:enumeration value="sensor_fault" />
+            <xs:enumeration value="normal_activation" />
+            <xs:enumeration value="no_event" />
+            <xs:enumeration value="unknown" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="source">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="live" />
+            <xs:enumeration value="emulated" />
+            <xs:enumeration value="stub" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="work_order_id" nillable="true" type="xs:string" />
+      <xs:element name="case_key" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ForecastSummary">
+    <xs:sequence>
+      <xs:element name="weeks" minOccurs="0" maxOccurs="unbounded" type="ForecastWeek">
+        <xs:annotation>
+          <xs:documentation>Итог журнала по неделям при тех же фильтрах и группировке, что у GET /forecasts, по всем строкам, а не по странице. По возрастанию week_start; недели без строк не возвращаются</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ForecastWeek">
+    <xs:sequence>
+      <xs:element name="week_start" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Понедельник недели. Неделя — по asof, дате расчёта по МСК, с понедельника по воскресенье</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="issued" type="xs:long" />
+      <xs:element name="hit" type="xs:long" />
+      <xs:element name="miss" type="xs:long" />
+      <xs:element name="unknown" type="xs:long">
+        <xs:annotation>
+          <xs:documentation>Исход unknown или ещё не определён (окно не закрыто) — как на экране «Качество»</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="decided" type="xs:long">
+        <xs:annotation>
+          <xs:documentation>Прогнозы с принятым решением диспетчера</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="HeadState">
+    <xs:sequence>
+      <xs:element name="scenario">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sensor_link" />
+            <xs:enumeration value="equipment_diag" />
+            <xs:enumeration value="guard_weekly" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="head" type="xs:string" />
+      <xs:element name="result_status" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="ok" />
+            <xs:enumeration value="empty_valid" />
+            <xs:enumeration value="no_data" />
+            <xs:enumeration value="stale" />
+            <xs:enumeration value="error" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="model_lag_days" nillable="true" type="xs:long" />
+      <xs:element name="threshold_feasible" nillable="true" type="xs:boolean" />
+      <xs:element name="detail" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="HistoryItem">
+    <xs:sequence>
+      <xs:element name="from_status" nillable="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="draft" />
+            <xs:enumeration value="confirmed" />
+            <xs:enumeration value="in_progress" />
+            <xs:enumeration value="completed" />
+            <xs:enumeration value="cancelled" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="to_status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="draft" />
+            <xs:enumeration value="confirmed" />
+            <xs:enumeration value="in_progress" />
+            <xs:enumeration value="completed" />
+            <xs:enumeration value="cancelled" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="author" type="xs:string" />
+      <xs:element name="reason" nillable="true" type="xs:string" />
+      <xs:element name="at" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IngestBatchOut">
+    <xs:sequence>
+      <xs:element name="batch_id" type="xs:long" />
+      <xs:element name="kind">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="smvu" />
+            <xs:enumeration value="ods" />
+            <xs:enumeration value="reset" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="received_at" type="xs:dateTime" />
+      <xs:element name="rows_total" type="xs:long" />
+      <xs:element name="accepted" type="xs:long" />
+      <xs:element name="duplicates" type="xs:long" />
+      <xs:element name="rejected" type="xs:long" />
+      <xs:element name="outside_demo_window" type="xs:long" />
+      <xs:element name="status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="accepted" />
+            <xs:enumeration value="partial" />
+            <xs:enumeration value="rejected" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LastRun">
+    <xs:sequence>
+      <xs:element name="run_id" type="xs:long" />
+      <xs:element name="asof" type="xs:date" />
+      <xs:element name="kind" type="xs:string" />
+      <xs:element name="finished_at" nillable="true" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MlReady">
+    <xs:sequence>
+      <xs:element name="reachable" type="xs:boolean" />
+      <xs:element name="status" nillable="true" type="xs:string" />
+      <xs:element name="mode" nillable="true" type="xs:string" />
+      <xs:element name="data_last_day" nillable="true" type="xs:date" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ObjectRef">
+    <xs:sequence>
+      <xs:element name="id" nillable="true" type="xs:string" />
+      <xs:element name="name" nillable="true" type="xs:string" />
+      <xs:element name="complex_id" nillable="true" type="xs:string" />
+      <xs:element name="complex_name" nillable="true" type="xs:string" />
+      <xs:element name="kind_ru" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Page_EventItem_">
+    <xs:sequence>
+      <xs:element name="items" minOccurs="0" maxOccurs="unbounded" type="EventItem" />
+      <xs:element name="total" type="xs:long" />
+      <xs:element name="page" type="xs:long" />
+      <xs:element name="page_size" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Page_ForecastItem_">
+    <xs:sequence>
+      <xs:element name="items" minOccurs="0" maxOccurs="unbounded" type="ForecastItem" />
+      <xs:element name="total" type="xs:long" />
+      <xs:element name="page" type="xs:long" />
+      <xs:element name="page_size" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Page_WorkOrderItem_">
+    <xs:sequence>
+      <xs:element name="items" minOccurs="0" maxOccurs="unbounded" type="WorkOrderItem" />
+      <xs:element name="total" type="xs:long" />
+      <xs:element name="page" type="xs:long" />
+      <xs:element name="page_size" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="QualityOut">
+    <xs:sequence>
+      <xs:element name="scenario">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sensor_link" />
+            <xs:enumeration value="equipment_diag" />
+            <xs:enumeration value="guard_weekly" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="weeks" minOccurs="0" maxOccurs="unbounded" type="QualityWeek" />
+      <xs:element name="base_rate" nillable="true" type="xs:double">
+        <xs:annotation>
+          <xs:documentation>Доля положительных среди кандидатов, из реестра метрик ML</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="rule_precision" nillable="true" type="xs:double">
+        <xs:annotation>
+          <xs:documentation>Точность простого правила при том же лимите; null, если в продукте само правило</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="reference_period" nillable="true" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Период, на котором посчитаны base_rate и rule_precision</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="reference_source" nillable="true" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Отчёт ML, из которого взяты base_rate и rule_precision</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="reference_note" nillable="true" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Как посчитаны base_rate и rule_precision</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="note" nillable="true" type="xs:string" />
+      <xs:element name="source">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="live" />
+            <xs:enumeration value="emulated" />
+            <xs:enumeration value="stub" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="QualityWeek">
+    <xs:sequence>
+      <xs:element name="week_start" type="xs:date" />
+      <xs:element name="issued" type="xs:long" />
+      <xs:element name="hit" type="xs:long" />
+      <xs:element name="miss" type="xs:long" />
+      <xs:element name="unknown" type="xs:long" />
+      <xs:element name="precision" nillable="true" type="xs:double" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SystemStatus">
+    <xs:sequence>
+      <xs:element name="demo_today" type="xs:date" />
+      <xs:element name="mode">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="archive" />
+            <xs:enumeration value="replay" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="settings_locked" type="xs:boolean" />
+      <xs:element name="ml" type="MlReady" />
+      <xs:element name="heads" minOccurs="0" maxOccurs="unbounded" type="HeadState" />
+      <xs:element name="last_run" nillable="true" type="LastRun" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="VersionItem">
+    <xs:sequence>
+      <xs:element name="run_id" type="xs:long" />
+      <xs:element name="risk" nillable="true" type="xs:double" />
+      <xs:element name="rank" type="xs:long" />
+      <xs:element name="recorded_at" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="WorkOrderCard">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string" />
+      <xs:element name="scenario">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sensor_link" />
+            <xs:enumeration value="equipment_diag" />
+            <xs:enumeration value="guard_weekly" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="object" type="ObjectRef" />
+      <xs:element name="priority">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="urgent" />
+            <xs:enumeration value="planned" />
+            <xs:enumeration value="watch" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="work_type" type="xs:string" />
+      <xs:element name="due_by" type="xs:dateTime" />
+      <xs:element name="status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="draft" />
+            <xs:enumeration value="confirmed" />
+            <xs:enumeration value="in_progress" />
+            <xs:enumeration value="completed" />
+            <xs:enumeration value="cancelled" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="forecast_ids" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+      <xs:element name="created_by" type="xs:string" />
+      <xs:element name="created_at" type="xs:dateTime" />
+      <xs:element name="source">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="live" />
+            <xs:enumeration value="emulated" />
+            <xs:enumeration value="stub" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="rationale" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+      <xs:element name="pickets" minOccurs="0" maxOccurs="unbounded" type="xs:double" />
+      <xs:element name="channels" minOccurs="0" maxOccurs="unbounded" type="xs:long" />
+      <xs:element name="checklist" minOccurs="0" maxOccurs="unbounded" type="ChecklistOut" />
+      <xs:element name="history" minOccurs="0" maxOccurs="unbounded" type="HistoryItem" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="WorkOrderItem">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string" />
+      <xs:element name="scenario">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sensor_link" />
+            <xs:enumeration value="equipment_diag" />
+            <xs:enumeration value="guard_weekly" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="object" type="ObjectRef" />
+      <xs:element name="priority">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="urgent" />
+            <xs:enumeration value="planned" />
+            <xs:enumeration value="watch" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="work_type" type="xs:string" />
+      <xs:element name="due_by" type="xs:dateTime" />
+      <xs:element name="status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="draft" />
+            <xs:enumeration value="confirmed" />
+            <xs:enumeration value="in_progress" />
+            <xs:enumeration value="completed" />
+            <xs:enumeration value="cancelled" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="forecast_ids" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+      <xs:element name="created_by" type="xs:string" />
+      <xs:element name="created_at" type="xs:dateTime" />
+      <xs:element name="source">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="live" />
+            <xs:enumeration value="emulated" />
+            <xs:enumeration value="stub" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

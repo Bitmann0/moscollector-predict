@@ -20,6 +20,7 @@ dependencies = [
   "httpx>=0.27,<1",
   "openpyxl>=3.1,<4",
   "fpdf2>=2.8,<3",
+  "defusedxml>=0.7,<1",
 ]
 
 [project.optional-dependencies]
@@ -27,6 +28,7 @@ dev = [
   "pytest>=8,<9",
   "ruff>=0.6,<1",
   "pypdf>=6,<7",
+  "xmlschema>=3,<5",
 ]
 
 [tool.setuptools.packages.find]

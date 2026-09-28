@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse
 
+from . import xml_api
 from .audit import AuditMiddleware
 from .config import get_settings
 from .limits import BodyLimitMiddleware
@@ -57,6 +58,8 @@ def create_app() -> FastAPI:
             {"name": "reference", "description": "Справочники объектов, каналов и причин решений."},
         ],
     )
+    # XML (ТЗ §7) — самый внутренний слой: предел тела и аудит видят XML-запрос как есть.
+    app.add_middleware(xml_api.XmlMiddleware)
     app.add_middleware(AuditMiddleware)
     # Добавлен последним — значит, самый внешний: лишнее тело отсекается до разбора и аудита.
     app.add_middleware(BodyLimitMiddleware)
@@ -86,6 +89,7 @@ def create_app() -> FastAPI:
                         "401", {"description": "Сессия отсутствует, истекла или недействительна"})
                     operation["responses"].setdefault(
                         "403", {"description": "У роли нет требуемого права"})
+        xml_api.add_openapi(schema)
         app.openapi_schema = schema
         return schema
 

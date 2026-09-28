@@ -140,7 +140,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Events */
+        /**
+         * List Events
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["list_events_api_v1_events_get"];
         put?: never;
         post?: never;
@@ -198,7 +201,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Forecasts */
+        /**
+         * List Forecasts
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["list_forecasts_api_v1_forecasts_get"];
         put?: never;
         post?: never;
@@ -215,7 +221,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Summary */
+        /**
+         * Summary
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["summary_api_v1_forecasts_summary_get"];
         put?: never;
         post?: never;
@@ -232,7 +241,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Card */
+        /**
+         * Get Card
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["get_card_api_v1_forecasts__forecast_id__get"];
         put?: never;
         post?: never;
@@ -339,6 +351,8 @@ export interface paths {
         /**
          * Ingest Rows
          * @description Пачка журнала СМВУ в JSON (до 5 000 строк) — так шлёт replay.py.
+         *
+         *     Тело в XML: `Content-Type: application/xml`, корень `EventRowInList`, схема `contracts/xml/api_v1_ingest.xsd`. Ответ в XML — `Accept: application/xml`.
          */
         post: operations["ingest_rows_api_v1_ingest_events_post"];
         delete?: never;
@@ -379,7 +393,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ingest Ods */
+        /**
+         * Ingest Ods
+         * @description Тело в XML: `Content-Type: application/xml`, корень `OdsRowInList`, схема `contracts/xml/api_v1_ingest.xsd`. Ответ в XML — `Accept: application/xml`.
+         */
         post: operations["ingest_ods_api_v1_ingest_ods_journal_post"];
         delete?: never;
         options?: never;
@@ -445,7 +462,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Weekly */
+        /**
+         * Weekly
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["weekly_api_v1_quality_get"];
         put?: never;
         post?: never;
@@ -582,7 +602,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Status */
+        /**
+         * Status
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["status_api_v1_system_status_get"];
         put?: never;
         post?: never;
@@ -599,7 +622,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Orders */
+        /**
+         * List Orders
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["list_orders_api_v1_work_orders_get"];
         put?: never;
         /** Create Order */
@@ -617,7 +643,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Order */
+        /**
+         * Get Order
+         * @description XML: заголовок `Accept: application/xml`, схема `contracts/xml/api_v1_responses.xsd`.
+         */
         get: operations["get_order_api_v1_work_orders__order_id__get"];
         put?: never;
         post?: never;
@@ -2104,6 +2133,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_EventItem_"];
+                    "application/xml": components["schemas"]["Page_EventItem_"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -2251,6 +2281,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_ForecastItem_"];
+                    "application/xml": components["schemas"]["Page_ForecastItem_"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -2302,6 +2333,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ForecastSummary"];
+                    "application/xml": components["schemas"]["ForecastSummary"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -2347,6 +2379,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ForecastCard"];
+                    "application/xml": components["schemas"]["ForecastCard"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -2598,6 +2631,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["EventRowIn"][];
+                "application/xml": components["schemas"]["EventRowIn"][];
             };
         };
         responses: {
@@ -2608,6 +2642,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IngestBatchOut"];
+                    "application/xml": components["schemas"]["IngestBatchOut"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -2695,6 +2730,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["OdsRowIn"][];
+                "application/xml": components["schemas"]["OdsRowIn"][];
             };
         };
         responses: {
@@ -2705,6 +2741,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IngestBatchOut"];
+                    "application/xml": components["schemas"]["IngestBatchOut"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -2873,6 +2910,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QualityOut"];
+                    "application/xml": components["schemas"]["QualityOut"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -3221,6 +3259,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SystemStatus"];
+                    "application/xml": components["schemas"]["SystemStatus"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -3261,6 +3300,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_WorkOrderItem_"];
+                    "application/xml": components["schemas"]["Page_WorkOrderItem_"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
@@ -3353,6 +3393,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkOrderCard"];
+                    "application/xml": components["schemas"]["WorkOrderCard"];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */
