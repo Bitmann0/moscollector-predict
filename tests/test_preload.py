@@ -1,4 +1,4 @@
-"""PM-09: прелоад стенда — недельная очередь без голов A_link и D, черновики недельной
+"""PM-09: прелоад стенда — недельная очередь без дневных голов, черновики недельной
 очереди, очистка журнала выданного, эмулированные решения и сам scripts/preload_demo.py."""
 import importlib
 from datetime import date, datetime, timedelta
@@ -350,7 +350,7 @@ def test_preload_counts_head_errors(admin, fake_ml, preload_demo, capsys):
     plan = preload_demo.Plan.build(TUESDAY, TUESDAY, weekly_from=TUESDAY)
     assert plan.weekly == []
     assert preload_demo.preload(ClientApi(admin, preload_demo.ApiError), plan) == 1
-    assert "ОШИБКА A_link, D" in capsys.readouterr().out
+    assert "ОШИБКА A_link, B, D, E" in capsys.readouterr().out
 
 
 def test_dry_run_needs_no_password(preload_demo, monkeypatch, capsys):

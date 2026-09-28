@@ -15,7 +15,7 @@ SHEET = "Прогнозы"
 COLUMNS = [
     "ID прогноза", "Сценарий", "Дата расчёта", "Окно с", "Окно по", "Горизонт, ч",
     "Тип оценки", "Риск", "Приоритет", "Ранг", "Объект", "Комплекс", "Канал",
-    "Тип датчика", "Пикет", "Данные", "Решение", "Причина", "Итог по СМВУ",
+    "Тип датчика", "Пикет", "Участок", "Данные", "Решение", "Причина", "Итог по СМВУ",
     "Итог проверки", "Заявка", "Источник",
 ]
 
@@ -50,7 +50,9 @@ def forecasts_xlsx(db: Session, date_from: date | None, date_to: date | None) ->
                       _msk(forecast.valid_to), forecast.horizon_hours, forecast.score_type,
                       forecast.risk, forecast.priority_score, forecast.rank,
                       address.get("obj_name"), address.get("obj_parent_name"), forecast.channel_id,
-                      address.get("sensor_type"), address.get("picket"), forecast.data_status,
+                      # Участок — у пожарного риска (B): канала и пикета у него нет.
+                      address.get("sensor_type"), address.get("picket"),
+                      address.get("segment_label"), forecast.data_status,
                       decision.action if decision else None, decision.reason_code if decision else None,
                       outcome.outcome_auto if outcome else None,
                       outcome.outcome_manual if outcome else None, orders.get(forecast.id),

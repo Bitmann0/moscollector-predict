@@ -103,7 +103,8 @@ def test_issued_history_covers_seven_days_before_asof(seeded, fake_ml, published
     daily_run.run_daily(seeded, TUESDAY, fake_ml)
     daily_run.run_daily(seeded, TUESDAY + timedelta(days=2), fake_ml)
     request = fake_ml.calls[-1][1]
-    assert request.heads == ["A_link", "D"]
+    assert request.heads == ["A_link", "D", "B", "E"]
+    assert set(request.issued_histories) == {"A_link", "D", "B", "E"}
     assert request.history_complete_from == TUESDAY + timedelta(days=2) - timedelta(days=7)
     sent = {(e.channel, e.sent_day) for e in request.issued_histories["A_link"]}
     assert sent == {(9000001, TUESDAY), (9000006, TUESDAY)}
@@ -124,7 +125,7 @@ def test_ml_unavailable_gives_error_heads_not_500(admin, fake_ml, seeded):
     assert resp.status_code == 200
     body = resp.json()
     assert body["forecasts_upserted"] == 0
-    for head in ["A_link", "D"]:
+    for head in ["A_link", "D", "B", "E"]:
         assert body["heads"][head]["result_status"] == "error"
         assert "ML недоступен" in body["heads"][head]["detail"]
     run = seeded.scalars(select(models.ForecastRun)).one()
@@ -224,7 +225,10 @@ def test_run_on_ml_stub_fixture(seeded, published):
     assert out.forecasts_upserted == len(score["alerts"]) + len(weekly["priorities"])
     # недельная очередь заявок не несёт: черновик на рекомендацию собирает backend
     assert out.work_orders_upserted == len(score["work_orders"]) + len(weekly["priorities"])
-    assert _count(seeded, models.IssuedLog) == sum(a["in_budget"] for a in score["alerts"])
+    # Журнал — по каналу, а у B и E по объекту: участки одного объекта дают одну строку.
+    shown = {(a["head"], a["address"]["channel"] or a["address"]["obj"])
+             for a in score["alerts"] if a["in_budget"]}
+    assert _count(seeded, models.IssuedLog) == len(shown)
     assert {h: s.result_status for h, s in out.heads.items()} == {
         **{h: s["result_status"] for h, s in score["heads"].items()},
         "guard_weekly": weekly["result_status"]}

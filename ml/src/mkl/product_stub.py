@@ -70,7 +70,20 @@ HEADS = {
     "D": HeadSpec("D", "infrastructure_wear", "Износ агрегатов",
                   horizon_hours=168, budget_per_day=3, cooldown_days=7,
                   budget_per_object=True, model_lag_days=14),
+    "B": HeadSpec("B", "fire_risk", "Пожарный риск участка",
+                  horizon_hours=24, budget_per_day=10, cooldown_days=0,
+                  budget_per_object=False, model_lag_days=7),
+    "E": HeadSpec("E", "flood_risk", "Риск подтопления",
+                  horizon_hours=24, budget_per_day=5, cooldown_days=0,
+                  budget_per_object=False, model_lag_days=7),
 }
+# Головы, у которых сущность — объект или участок объекта, а не канал.
+OBJECT_HEADS = ("B", "E")
+PUMP_STYPE = "Состояние насоса"  # популяция E, как serve.pump_objects
+# Копия mkl.config.SEG_SIZE, SEG_UNKNOWN и подписей mkl.address.segment_label.
+SEG_SIZE = 10.0
+SEG_UNKNOWN = -1000
+NO_PICKET_SEGMENT = "каналы без пикета"
 
 # Копия mkl.config.EQUIPMENT_STYPES: цель D определена только для оборудования,
 # serve.score отбрасывает остальные каналы до отсечки бюджета.
@@ -84,13 +97,18 @@ OBJ_KIND_RU = {"controlHouse": "диспетчерский пункт", "guardOb
 WORK_TYPE = {
     "sensor_failure": "Проверка и обслуживание датчика",
     "infrastructure_wear": "Техническое обслуживание агрегата",
+    "fire_risk": "Внеплановый осмотр участка на пожарный риск",
+    "flood_risk": "Осмотр насосов и дренажа объекта",
 }
 
 # Порог рабочей точки заглушки. В real-режиме порог лежит в артефакте модели.
 STUB_THRESHOLD = 0.3
+# У B и E в продукте порога точности нет: порог артефакта — нижняя граница
+# top-k окна порога, поэтому у заглушки он низкий.
+OBJECT_THRESHOLD = {"B": 0.05, "E": 0.08}
 # Уровень риска дня: risk канала = уровень × U[0, 1). У D нижняя граница ниже
 # порога, поэтому часть дней D целиком под порогом — это empty_valid.
-RISK_LEVEL = {"A_link": (0.45, 1.0), "D": (0.15, 1.0)}
+RISK_LEVEL = {"A_link": (0.45, 1.0), "D": (0.15, 1.0), "B": (0.05, 0.45), "E": (0.08, 0.7)}
 # Доля каналов, приславших данные за сутки: остальные не скорятся и
 # уменьшают coverage.entities_scored.
 REPORT_SHARE = 0.93
@@ -105,6 +123,14 @@ FACTOR_POOL = {
           ("time_in_bad_s", "время в неисправном состоянии"),
           ("days_since_last_bad", "суток с последней неисправности"),
           ("n_battery_power", "переходы на питание от батарей")],
+    "B": [("n_alarms_w7", "тревоги за неделю"),
+          ("n_fire", "срабатывания пожарных датчиков за сутки"),
+          ("n_alarms_w30", "тревоги за месяц"),
+          ("n_alarms", "число тревог за сутки")],
+    "E": [("n_flood", "срабатывания датчиков затопления"),
+          ("n_pump_on", "включения насосов"),
+          ("pump_switches", "переключения насосов"),
+          ("precip_mm", "осадки за сутки")],
 }
 
 # Приоритеты заявок — как mkl.workorders._priority.
@@ -229,7 +255,7 @@ def _journal_note(spec: HeadSpec, req: ScoreRequest) -> str | None:
             f"него; mkl.service.alerts_for_head в real-режиме голову не посчитает")
 
 
-def _factors(head: str, asof: dt.date, ch: int) -> list[FactorOut]:
+def _factors(head: str, asof: dt.date, ch: int | str) -> list[FactorOut]:
     pool = sorted(FACTOR_POOL[head], key=lambda f: _u(asof, head, ch, f[0]))
     n = 2 + (_u(asof, head, ch, "n_factors") < 0.5)
     picked = pool[:n]
@@ -319,6 +345,97 @@ def _rationale(items: list[AlertOut], limit: int = 3) -> list[str]:
     return [k for k, _ in sorted(seen.items(), key=lambda kv: -kv[1])[:limit]]
 
 
+def _units(head: str) -> list[dict]:
+    """Сущности B и E: участки объектов (по пикетам каналов) или объекты с насосами."""
+    objects, channels = _reference()
+    if head == "E":
+        pumps = sorted({str(c["obj_id"]) for c in channels if c["sensor_type"] == PUMP_STYPE})
+        return [{"obj": objects[o], "seg": None} for o in pumps]
+    segs = sorted({(str(c["obj_id"]), SEG_UNKNOWN if c.get("picket") is None
+                    else int(float(c["picket"]) // SEG_SIZE)) for c in channels})
+    return [{"obj": objects[o], "seg": seg} for o, seg in segs]
+
+
+def _unit_key(unit: dict) -> str:
+    return f'{unit["obj"]["id"]}|{unit["seg"]}'
+
+
+def _unit_address(unit: dict) -> AddressOut:
+    """Адрес в форме service._address для сущности без канала."""
+    objects = _reference()[0]
+    obj, seg = unit["obj"], unit["seg"]
+    parent = objects.get(str(obj["parent_id"])) if obj.get("parent_id") else None
+    label = None
+    if seg is not None:
+        lo = int(seg * SEG_SIZE)
+        label = NO_PICKET_SEGMENT if seg == SEG_UNKNOWN else f"ПК {lo}–{lo + int(SEG_SIZE)}"
+    return AddressOut(
+        obj=obj["id"], obj_parent=obj.get("parent_id"), obj_kind=obj["kind"],
+        channel=None, segment=seg, picket=None,
+        obj_name=obj["name"], obj_parent_name=parent["name"] if parent else None,
+        obj_kind_ru=OBJ_KIND_RU.get(obj["kind"]), segment_label=label, address_known=True)
+
+
+def _score_object_head(spec: HeadSpec, req: ScoreRequest
+                       ) -> tuple[HeadStatus, list[AlertOut], CoverageOut]:
+    """B и E: top-k по риску за сутки. Пауза по объекту — cooldown_days спецификации
+    (в продукте 0), как serve.apply_issued_cooldown."""
+    asof = req.asof
+    units = _units(spec.head)
+    total = len({u["obj"]["id"] for u in units})
+    model_version = f"stub-{spec.head}-v0"
+    reason = ("только объекты с насосами" if spec.head == "E"
+              else "объекты по участкам 10 пикетов")
+    if not _has_data(asof):
+        return (HeadStatus(result_status="no_data", model_version=model_version,
+                           detail=_no_data_detail(asof)),
+                [],
+                CoverageOut(head=spec.head, direction=spec.direction,
+                            entities_total=total, entities_scored=0,
+                            reason="нет данных за сутки", fraction=0.0))
+    lo, hi = RISK_LEVEL[spec.head]
+    level = lo + (hi - lo) * _u(asof, spec.head, "level")
+    scored = [u for u in units if _u(asof, "report", u["obj"]["id"]) < REPORT_SHARE]
+    rows = sorted(({"unit": u, "risk": round(level * _u(asof, spec.head, _unit_key(u), "risk"), 4)}
+                   for u in scored),
+                  key=lambda r: (-r["risk"], _unit_key(r["unit"])))
+    selected = {_unit_key(r["unit"]) for r in rows[:spec.budget_per_day]}
+    blocked = {e.obj for e in req.issued_histories.get(spec.head, [])
+               if e.obj is not None and 0 < (asof - e.sent_day).days <= spec.cooldown_days}
+    threshold = OBJECT_THRESHOLD[spec.head]
+    start = dt.datetime.combine(asof + dt.timedelta(days=1), dt.time())
+    alerts: list[AlertOut] = []
+    for rank, row in enumerate(rows, start=1):
+        unit, risk = row["unit"], row["risk"]
+        oid = str(unit["obj"]["id"])
+        above = risk >= threshold
+        in_budget = _unit_key(unit) in selected and above and oid not in blocked
+        entity = {"obj": oid} if unit["seg"] is None else {"obj": oid, "seg": unit["seg"]}
+        alerts.append(AlertOut(
+            alert_id=contract.make_alert_id(spec.head, entity, asof),
+            case_key=contract.make_case_key(spec.head, entity),
+            head=spec.head, direction=spec.direction,
+            direction_title=contract.DIRECTIONS[spec.direction], title=spec.title,
+            asof=asof, valid_from=start,
+            valid_to=start + dt.timedelta(hours=spec.horizon_hours),
+            horizon_hours=spec.horizon_hours,
+            risk=risk, rank=rank, in_budget=in_budget, above_threshold=above,
+            address=_unit_address(unit), model_version=model_version,
+            factors=(_factors(spec.head, asof, _unit_key(unit))
+                     if in_budget and req.with_factors else [])))
+    status = HeadStatus(
+        result_status="ok" if any(a.in_budget for a in alerts) else "empty_valid",
+        model_version=model_version,
+        threshold_end=asof - dt.timedelta(days=spec.model_lag_days),
+        model_lag_days=spec.model_lag_days, threshold_feasible=True,
+        detail=_journal_note(spec, req))
+    n_scored = len({u["obj"]["id"] for u in scored})
+    coverage = CoverageOut(head=spec.head, direction=spec.direction,
+                           entities_total=total, entities_scored=n_scored, reason=reason,
+                           fraction=round(n_scored / total, 4) if total else 0.0)
+    return status, alerts, coverage
+
+
 def _work_orders(alerts: list[AlertOut]) -> list[WorkOrderOut]:
     """Заявки на объект по алертам в бюджете, как mkl.workorders.build."""
     groups: dict[tuple[str, str | None], list[AlertOut]] = {}
@@ -355,14 +472,16 @@ def score(req: ScoreRequest) -> ScoreResponse:
     tests/test_product_api.py должен остаться зелёным.
 
     Синтетика: у A_link скорятся все каналы справочника, у D — только
-    оборудование. Риск и ранг детерминированы по (asof, голова, канал).
+    оборудование, у B — участки объектов, у E — объекты с насосами. Риск и
+    ранг детерминированы по (asof, голова, сущность).
     Паузы из issued_histories соблюдаются, как в real-режиме.
     """
     statuses: dict[str, HeadStatus] = {}
     alerts: list[AlertOut] = []
     coverage: list[CoverageOut] = []
     for head in dict.fromkeys(req.heads):
-        status, got, cov = _score_head(HEADS[head], req)
+        fn = _score_object_head if head in OBJECT_HEADS else _score_head
+        status, got, cov = fn(HEADS[head], req)
         statuses[head] = status
         alerts.extend(got)
         coverage.append(cov)

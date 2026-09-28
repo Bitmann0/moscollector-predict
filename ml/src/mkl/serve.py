@@ -139,6 +139,33 @@ def save(head: str, model, iso, feature_names: list[str],
     return dst
 
 
+PUMP_STYPE = "Состояние насоса"
+
+
+def pump_objects() -> list[str]:
+    """Объекты с каналом насоса по справочнику: популяция метки label_flood."""
+    path = PATHS.interim / "channels.parquet"
+    if not path.exists():
+        raise FileNotFoundError(f"нет справочника каналов {path}")
+    return sorted(pl.read_parquet(path, columns=["obj", "stype"])
+                  .filter(pl.col("stype") == PUMP_STYPE)["obj"]
+                  .drop_nulls().unique().to_list())
+
+
+def restrict_population(head: str, cfg: dict, feats: pl.DataFrame) -> pl.DataFrame:
+    """Оставить сущности, на которых определена метка головы.
+
+    label_flood построена только по объектам с насосами (labels.build_flood):
+    на остальных «Затоплен» не приходит никогда, и модель, обученная на 18
+    объектах, выдавала бы риск объектам, которых не видела.
+    """
+    if cfg.get("population") == "pump_objects":
+        if "obj" not in feats.columns:
+            raise ValueError(f"{head}: популяция по объектам, а колонки obj нет")
+        return feats.filter(pl.col("obj").is_in(pump_objects()))
+    return feats
+
+
 _with_internals = False
 
 
@@ -216,6 +243,7 @@ def score(head: str, asof: dt.date | None = None) -> pl.DataFrame:
         if "stype" not in feats.columns:
             raise ValueError("D requires stype to match its target population")
         feats = feats.filter(pl.col("stype").is_in(EQUIPMENT_STYPES))
+    feats = restrict_population(head, cfg, feats)
     # Порядок и состав колонок берутся из артефакта модели, а не из фичестора:
     # так лишний признак, добавленный позже, не сдвинет вектор на инференсе.
     missing = [c for c in art["features"] if c not in feats.columns]

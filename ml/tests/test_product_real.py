@@ -51,7 +51,7 @@ def test_real_score_isolates_failed_head_and_keeps_real_coverage(monkeypatch, tm
     monkeypatch.setattr(service, "alerts_for_head", score_head)
     client = TestClient(create_app("real"))
     resp = client.post("/api/v1/score", json={
-        "asof": DAY.isoformat(),
+        "asof": DAY.isoformat(), "heads": ["A_link", "D"],
         "issued_histories": {"A_link": [{"channel": 1, "sent_day": "2026-06-29"}],
                              "D": []},
         "history_complete_from": "2026-06-23"})
