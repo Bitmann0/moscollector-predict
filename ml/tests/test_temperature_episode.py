@@ -41,10 +41,26 @@ def test_features_use_only_past_and_aggregate_same_second(ev_con, tmp_path):
     assert row.future_numeric_records == 1
 
 
+def test_record_at_prediction_midnight_belongs_to_label_not_features(ev_con, tmp_path):
+    # Окно признаков полуоткрытое [as_of - h, as_of): запись ровно в полночь
+    # as_of уже относится к метке. С «<=» она попала бы и в признаки, и в метку.
+    _temp(ev_con, 1, 1, "2024-01-01 12:00:00", "20")
+    _temp(ev_con, 2, 1, "2024-01-02 00:00:00", "41")
+    _, frame = _features(ev_con, tmp_path)
+    row = frame.iloc[0]
+    assert str(row.as_of) == "2024-01-02 00:00:00"
+    assert row.events_6h == 0
+    assert row.bad_seconds_24h == 0
+    assert row.value_max_24h == 20
+    assert row.future_bad_seconds == 1
+
+
 def test_excluded_migration_period_is_dropped_before_features(ev_con, tmp_path):
+    # Даты EXCLUDED_PERIODS включительные: 30 июня выпадает целиком, до 23:59.
     _temp(ev_con, 1, 1, "2021-05-10 12:00:00", "20")
-    _temp(ev_con, 2, 1, "2021-07-01 12:00:00", "20")
-    _temp(ev_con, 3, 1, "2021-07-02 12:00:00", "21")
+    _temp(ev_con, 2, 1, "2021-06-30 23:00:00", "20")
+    _temp(ev_con, 3, 1, "2021-07-01 12:00:00", "20")
+    _temp(ev_con, 4, 1, "2021-07-02 12:00:00", "21")
     manifest, _ = _features(ev_con, tmp_path)
     assert manifest["raw_rows"] == 2
     assert manifest["as_of_min"].startswith("2021-07-02")
