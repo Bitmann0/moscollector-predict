@@ -52,7 +52,7 @@
 | ML2-07 | сделано | `docs/submission/03-data-processing.md` | — |
 | ML2-08 | сделано | отдельной работы не понадобилось: в `bundle-20260928-3` графиков ППР и ТО нет, контекст алерта A_link — `schedule_not_loaded`; `bundle-20260928-4` добавляет `data/interim/maintenance_2026.json` (графики от 25.09, `ml/scripts/normalize_maintenance_schedules.py`), но в контракте C1 этого контекста нет, экраны не меняются (`docs/submission/03-data-processing.md`, п. 2.4) | — |
 | ML2-09 | сделано | подписи 15 признакам — #29; замер 28.09: у алертов в бюджете в ответах `/score` за 02–30.06 781 фактор, без русской подписи 0 (`docs/submission/perf/factor_labels_june.txt`). До #29 без подписи шли 37,3 % выданных факторов (описание #29) | — |
-| ML2-10 | частично | образ ML в режиме `real` работает на Docker Desktop (замер 28.09) | прогрева моделей при старте в `ml/src/mkl/product_api.py` нет, вместо него `start_period` 180 с в `compose.real.yaml`; на Linux режим `real` не проверялся: CI поднимает только `stub` |
+| ML2-10 | сделано | образ ML в режиме `real` работает на Docker Desktop (замер 28.09); прогрев при старте — `_real_warmup` в `ml/src/mkl/product_api.py`: первый `/score` после рестарта 7,63–8,45 с против 12,78–13,49 с без прогрева, второй и третий — 7,36–8,61 с (`docs/submission/08-performance.md`, «Расчёт прогноза»; `docs/submission/perf/ml_warmup_0928.txt`) | на Linux режим `real` не проверялся: CI поднимает только `stub` |
 | ML2-11 | сделано | #26 | — |
 | ML2-12 | не сделано | — | время сборки бандла из датасета не замерено: нужна отдельная Linux-ВМ (`README.md`, «Сборка бандла из датасета») |
 | ML2-13 | после сдачи | — | по плану — 16–20.10 |
