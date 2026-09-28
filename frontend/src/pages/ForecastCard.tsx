@@ -72,6 +72,8 @@ function CardView({ card }: { card: Card }) {
   // Динамика строится по одному каналу. У недельной рекомендации по объекту канала нет,
   // backend отдаёт 30 суток без событий, и график из одних «нет данных» ничего не скажет.
   const dynamics = channel ? card.dynamics_30d ?? [] : [];
+  // Нет ни одних суток с событиями — LineChart покажет пустое состояние, легенда линий там лишняя.
+  const dynamicsObserved = dynamics.some((p) => p.events > 0);
   const maxContribution = Math.max(...factors.map((item) => Math.abs(item.contribution)), 0.01);
   const score = card.score_type === "probability" ? fmtPercent(card.risk) : fmtNumber(card.priority_score);
   return (
@@ -81,7 +83,7 @@ function CardView({ card }: { card: Card }) {
       <div className="forecast-hero panel"><div className="forecast-score"><span>{title("score_type", card.score_type)}</span><strong>{score}</strong><small>{card.score_type === "probability" ? "вероятность события в окне" : "ранжирует объекты, в процентах не читается"}</small></div><div className="forecast-window"><Icon name="calendar" /><div><span>Окно прогноза · {card.horizon_hours} ч</span><strong>{fmtDateTime(card.valid_from)} — {fmtDateTime(card.valid_to)}</strong><small>{card.calendar ? `${card.calendar.weekday_title}${card.calendar.holiday ? ` · ${card.calendar.holiday}` : ""}` : "Календарный контекст не передан"}</small></div></div><div className="forecast-rank"><span>Приоритет</span><strong>№ {card.rank}</strong><SourceBadge source={card.source} /></div></div>
       <div className="forecast-layout"><div className="forecast-main">
       {card.kind === "weekly_recommendation" && <div className="weekly-evidence panel"><div><span className="panel__eyebrow">Основание рекомендации</span><h3>{evidenceText(card.evidence)}</h3>{card.coverage_note && <p>{card.coverage_note}</p>}</div><div className="alarm-stat"><strong>{card.recent_alarm_days_7 ?? "—"}</strong><span>дней с тревогами<br/>за 7 суток</span></div><div className="alarm-stat"><strong>{card.recent_alarm_days_30 ?? "—"}</strong><span>дней с тревогами<br/>за 30 суток</span></div></div>}
-      {dynamics.length > 0 && <article className="panel dynamics-card"><header><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div><div className="dynamics-legend"><span><i/>Тревоги</span><span><i/>Плохие состояния</span></div></header><DynamicsChart points={dynamics} /></article>}
+      {dynamics.length > 0 && <article className="panel dynamics-card"><header><div><span className="panel__eyebrow">Контекст</span><h3>Активность за 30 суток</h3></div>{dynamicsObserved && <div className="dynamics-legend"><span><i/>Тревоги</span><span><i/>Плохие состояния</span></div>}</header><DynamicsChart points={dynamics} /></article>}
       {card.kind !== "weekly_recommendation" && <><h2 className="section-title">Почему модель подняла риск</h2>
       {factors.length === 0 ? (
         <p className="muted">Факторы для этого прогноза не переданы.</p>
