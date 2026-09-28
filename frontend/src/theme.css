@@ -174,7 +174,7 @@ button, input, select, textarea { font-family: inherit; }
    Раскладку выбирает ширина контейнера, а не окна: рядом с очередью колонка уже экрана. */
 .dashboard-scenarios{container-type:inline-size;margin-bottom:14px}
 .scenario-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;grid-template-areas:"title title" "count donut" "state state";align-content:start;align-items:center;gap:10px 12px;min-height:0;padding:18px 18px 16px;border-top:3px solid var(--border-strong)}
-.scenario-card--sensor_link{border-top-color:var(--s-link)}.scenario-card--equipment_diag{border-top-color:var(--s-wear)}.scenario-card--guard_weekly{border-top-color:var(--s-guard)}
+.scenario-card--sensor_link{border-top-color:var(--s-link)}.scenario-card--equipment_diag{border-top-color:var(--s-wear)}.scenario-card--guard_weekly{border-top-color:var(--s-guard)}.scenario-card--fire_risk{border-top-color:var(--s-fire)}.scenario-card--flood_risk{border-top-color:var(--s-flood)}
 .scenario-card h3{grid-area:title;align-self:start;display:-webkit-box;min-height:3.9em;margin:0;overflow:hidden;font-size:15px;line-height:1.3;-webkit-box-orient:vertical;-webkit-line-clamp:3}
 .scenario-card__count{grid-area:count;min-width:0;margin:0;color:var(--muted);font-size:13px;line-height:1.3}.scenario-card__count b{display:block;color:var(--text);font-size:24px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums}
 .scenario-card .donut{grid-area:donut;width:64px;height:64px}.scenario-card .donut:before{inset:6px}.scenario-card .donut strong{font-size:13px}
@@ -203,7 +203,7 @@ button, input, select, textarea { font-family: inherit; }
 .forecast-table .col-score strong{font-variant-numeric:tabular-nums}
 .scenario-tag{display:inline-flex;align-items:center;gap:6px;font-weight:500}
 .scenario-tag:before{width:8px;height:8px;flex:none;border-radius:2px;background:var(--border-strong);content:""}
-.scenario-tag--sensor_link:before{background:var(--s-link)}.scenario-tag--equipment_diag:before{background:var(--s-wear)}.scenario-tag--guard_weekly:before{background:var(--s-guard)}
+.scenario-tag--sensor_link:before{background:var(--s-link)}.scenario-tag--equipment_diag:before{background:var(--s-wear)}.scenario-tag--guard_weekly:before{background:var(--s-guard)}.scenario-tag--fire_risk:before{background:var(--s-fire)}.scenario-tag--flood_risk:before{background:var(--s-flood)}
 /* Карточка прогноза: действия одной сеткой, метки не вылезают */
 .forecast-rank .badge{align-self:flex-start;max-width:100%;white-space:normal}
 .case-key{color:var(--muted);font-size:12px;word-break:break-all}
@@ -304,6 +304,8 @@ button, input, select, textarea { font-family: inherit; }
 .scenario-status-main--sensor_link{border-top-color:var(--s-link)}
 .scenario-status-main--equipment_diag{border-top-color:var(--s-wear)}
 .scenario-status-main--guard_weekly{border-top-color:var(--s-guard)}
+.scenario-status-main--fire_risk{border-top-color:var(--s-fire)}
+.scenario-status-main--flood_risk{border-top-color:var(--s-flood)}
 .scenario-status-main>.state{margin:14px 0 0}
 /* Здесь detail несёт пояснение к «ok», а не текст сервера: цвет как у пояснений других состояний. */
 .scenario-status-main>.state .state__detail{color:inherit}
