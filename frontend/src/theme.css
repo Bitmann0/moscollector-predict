@@ -24,10 +24,10 @@ button, input, select, textarea { font-family: inherit; }
 .side-nav__short { display:none; }
 .connection { display:flex; align-items:center; gap:8px; margin:0 6px 14px; color:var(--nav-muted); font-size:12px; }
 .connection i,.live-dot { width:7px; height:7px; border-radius:50%; background:var(--crit); }
-.connection i{background:var(--warn)}.connection--ok i,.live-dot--ok { background:var(--positive); }.live-dot{flex:none}.live-dot--warn{background:var(--warn)}.live-dot--wait{background:var(--border-strong)}
+.connection i{background:var(--muted)}.connection--warn i{background:var(--warn)}.connection--bad i{background:var(--crit)}.connection--ok i,.live-dot--ok { background:var(--positive); }.live-dot{flex:none}.live-dot--warn{background:var(--warn)}.live-dot--wait{background:var(--border-strong)}
 .profile { display:grid; grid-template-columns:38px 1fr 30px; align-items:center; gap:10px; padding:12px; border:1px solid var(--nav-line); border-radius:var(--radius); background:var(--nav-hover); }
 .avatar { display:grid; width:36px; height:36px; place-items:center; border-radius:var(--radius-sm); color:var(--nav-text); font-weight:600; background:var(--nav-active); }
-.profile strong,.profile span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.profile strong{font-size:13px;font-weight:500}.profile span{color:var(--nav-muted);font-size:12px}.profile button{padding:5px;border:0;color:var(--nav-muted);background:transparent;cursor:pointer}.profile button:hover{color:#fff}.profile svg{width:17px}
+.profile>div:not(.avatar){min-width:0}.profile strong,.profile span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.profile strong{font-size:13px;font-weight:500}.profile span{color:var(--nav-muted);font-size:12px}.profile button{padding:5px;border:0;color:var(--nav-muted);background:transparent;cursor:pointer}.profile button:hover{color:#fff}.profile svg{width:17px}
 .workspace { min-width:0; flex:1; margin-left:264px; }
 .mobile-top { display:none; }
 .mobile-nav { display:none; }

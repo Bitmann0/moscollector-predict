@@ -36,7 +36,7 @@ function textOf(state: ViewState): StateText {
     case "empty_valid":
       return {
         title: title("result_status", "empty_valid"),
-        hint: "Расчёт прошёл штатно: подходящих кандидатов на этот день нет.",
+        hint: "Расчёт прошёл штатно: подходящих кандидатов в этом расчёте нет.",
         tone: "info",
       };
     case "no_data":

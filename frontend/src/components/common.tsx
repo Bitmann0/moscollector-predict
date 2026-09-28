@@ -2,6 +2,7 @@
  * Мелкие общие элементы экранов. Живое.
  */
 import type { Schemas } from "../api/client";
+import { fmtNumber } from "../format";
 import { title } from "../vocab";
 
 type Source = Schemas["ForecastItem"]["source"];
@@ -33,7 +34,7 @@ export function Pager({ page, pageSize, total, onPage }: PagerProps) {
         Назад
       </button>
       <span>
-        {first}–{last} из {total} · страница {page} из {pages}
+        {fmtNumber(first)}–{fmtNumber(last)} из {fmtNumber(total)} · страница {fmtNumber(page)} из {fmtNumber(pages)}
       </span>
       <button type="button" className="button" disabled={page >= pages} onClick={() => onPage(page + 1)}>
         Вперёд

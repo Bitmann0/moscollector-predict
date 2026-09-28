@@ -538,16 +538,17 @@ def quality_screen(scenarios: dict[str, dict]) -> dict:
             "rule_precision": _ratio(link_rule["hits"], link_rule["alerts"] - link_rule["unknown"], 3),
             "period": f"{span(link_base['period'])}, пять 90-дневных окон",
             "source": "ml/reports/A_LINK_LIVE_POLICY_TEMPORAL.md",
-            "note": "Правило gap_vs_own_rhythm с теми же 20 рекомендациями в сутки и паузой "
-                    "7 суток, без порога. Обе величины — по известным исходам, как недельная "
-                    "точность на экране."},
+            "note": "Простое правило «канал молчит дольше своего обычного ритма» с теми же "
+                    "20 рекомендациями в сутки и паузой 7 суток, без порога. Обе величины — "
+                    "по известным исходам, как недельная точность на экране."},
         "equipment_diag": {
             "base_rate": _ratio(wear_base["positives"], wear_base["known"], 3),
             "rule_precision": None,
             "period": f"{span(wear_base['period'])}, три окна по 14 суток",
             "source": "ml/reports/SECOND_ML_LOCAL_42D_AUDIT.md",
-            "note": "В продукте само правило n_bad_w7, сравнивать его не с чем: модель D при "
-                    "минимуме точности 0,70 в этих окнах не выдала ни одной рекомендации. "
+            "note": "В продукте само простое правило «плохие состояния агрегата за 7 суток», "
+                    "сравнивать его не с чем: обученная модель при минимуме точности 0,70 "
+                    "в этих окнах не выдала ни одной рекомендации. "
                     "База — доля положительных среди канало-суток оборудования с известным "
                     "исходом."},
         "guard_weekly": {
@@ -555,7 +556,7 @@ def quality_screen(scenarios: dict[str, dict]) -> dict:
             "rule_precision": None,
             "period": f"{span(guard_base['period'])}, понедельники",
             "source": "ml/reports/GUARD_WEEKLY_INSPECTIONS.md",
-            "note": f"Очередь сама является правилом. LightGBM на тех же условиях дала "
+            "note": f"Очередь сама является правилом. Обученная модель на тех же условиях дала "
                     f"{guard_cmp['model']['hits']} из {guard_cmp['model']['alerts']}, правило — "
                     f"{guard_cmp['rule']['hits']} из {guard_cmp['rule']['alerts']}. База считается "
                     "от всех объект-недель, включая неизвестный исход."},
