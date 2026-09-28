@@ -19,8 +19,17 @@ class QualityWeek(BaseModel):
 class QualityOut(BaseModel):
     scenario: Scenario
     weeks: list[QualityWeek]
-    base_rate: float | None = None
-    rule_precision: float | None = None
+    base_rate: float | None = Field(
+        default=None, description="Доля положительных среди кандидатов, из реестра метрик ML")
+    rule_precision: float | None = Field(
+        default=None, description="Точность простого правила при том же лимите; null, если "
+                                  "в продукте само правило")
+    reference_period: str | None = Field(
+        default=None, description="Период, на котором посчитаны base_rate и rule_precision")
+    reference_source: str | None = Field(
+        default=None, description="Отчёт ML, из которого взяты base_rate и rule_precision")
+    reference_note: str | None = Field(
+        default=None, description="Как посчитаны base_rate и rule_precision")
     note: str | None = None
     source: Source
 

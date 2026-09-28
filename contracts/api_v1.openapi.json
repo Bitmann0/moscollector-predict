@@ -2025,6 +2025,7 @@
                 "type": "null"
               }
             ],
+            "description": "Доля положительных среди кандидатов, из реестра метрик ML",
             "title": "Base Rate"
           },
           "note": {
@@ -2038,6 +2039,42 @@
             ],
             "title": "Note"
           },
+          "reference_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Как посчитаны base_rate и rule_precision",
+            "title": "Reference Note"
+          },
+          "reference_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Период, на котором посчитаны base_rate и rule_precision",
+            "title": "Reference Period"
+          },
+          "reference_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Отчёт ML, из которого взяты base_rate и rule_precision",
+            "title": "Reference Source"
+          },
           "rule_precision": {
             "anyOf": [
               {
@@ -2047,6 +2084,7 @@
                 "type": "null"
               }
             ],
+            "description": "Точность простого правила при том же лимите; null, если в продукте само правило",
             "title": "Rule Precision"
           },
           "scenario": {

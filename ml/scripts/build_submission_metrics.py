@@ -1,0 +1,612 @@
+"""Реестр метрик для сдачи: reports/SUBMISSION_METRICS.json из машинных отчётов.
+
+Числа не переписываются руками. Скрипт читает JSON и CSV из reports/, считает
+суммы по окнам и собирает один файл, где у каждого блока есть source (файл,
+из которого взято число) и command (как пересчитать сам источник из ml/).
+Константы ниже — числа, которых нет в машинных отчётах репозитория; у каждой
+записано, откуда она и почему файла нет.
+
+    python scripts/build_submission_metrics.py          # записать JSON
+    python scripts/build_submission_metrics.py --check  # код 1, если JSON устарел
+
+Читаемая версия — reports/SUBMISSION_METRICS.md. Блок quality_screen копируется
+в contracts/quality_reference.json (экран «Качество прогноза»); совпадение
+проверяет tests/test_quality_reference.py в корне репозитория.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import datetime as dt
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+REPORTS = ROOT / "reports"
+OUT = REPORTS / "SUBMISSION_METRICS.json"
+FROZEN = "2026-09-28"
+
+TITLES = {
+    "sensor_link": "Отказ датчика: риск потери связи",
+    "equipment_diag": "Износ: плановая диагностика оборудования",
+    "guard_weekly": "НСД: проверка объектов с хроническими охранными тревогами",
+}
+
+# --- Числа без машинного отчёта в репозитории --------------------------------
+# Размеченные канало-сутки A_link за 02.06–29.06.2026: выход шага labels того же
+# скрипта (таблица label_link). Parquet с данными в git не кладётся. Посчитано PM
+# 28.09; пересчитано 28.09 по тому же файлу: 36 816 нулей, 5 832 единицы.
+JUNE_LABELED_ROWS = 42_648
+JUNE_LABELS_SOURCE = ("выход шага labels scripts/eval_a_link_operating_point.py "
+                      "(label_link за 02.06–29.06.2026); файл данных в git не кладётся")
+RUNTIME_SCORE = {
+    "what": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D",
+    "seconds": [1.5, 4.4],
+    "conditions": "машина разработчика, Docker, ML_MODE=real",
+    "source": "замер 28.09 по журналу прелоада; файла в репозитории нет, "
+              "оформление замера — задача ML2-04",
+    "command": None,
+}
+TEMPERATURE = {
+    "precision": 0.354, "recall": 0.439,
+    "source": "ветка origin/feature/episode-hourly-backtest, "
+              "docs/experiments/temperature-episode-hourly/README.md:70; файла в main нет. "
+              "В main число пересказано в analysis/MULTI_HEAD_ML_STRATEGY.md:33 и "
+              "ml/docs/ML_BACKEND_HANDOFF.md:35",
+}
+GAS_PLANNED = {
+    "records_in_window": 19_307, "records_total": 21_784,
+    "source": "план команды docs/superpowers/plans/2026-09-25-team-plan-to-submission.md, "
+              "раздел 4, C5; подтверждение заказчика — сообщение [462] в чате. "
+              "Файла с расчётом в main нет. Подсказка реализована в "
+              "backend/app/services/semantics.py",
+}
+
+CMD_JUNE = ("из ml/, PYTHONPATH=src: датированные модели train_latest.py A_link "
+            "--train-window в двух MKL_ROOT (operating_min_precision 0.50 и 0.70), затем "
+            "MKL_ROOT=<корень 0.50> python scripts/eval_a_link_operating_point.py score a050.parquet; "
+            "MKL_ROOT=<корень 0.70> python scripts/eval_a_link_operating_point.py score a070.parquet; "
+            "python scripts/eval_a_link_operating_point.py labels labels.parquet; "
+            "python scripts/eval_a_link_operating_point.py compare a050.parquet a070.parquet "
+            "labels.parquet reports/a_link_operating_point_june.json")
+CMD_JUNE_LABELS = "python scripts/eval_a_link_operating_point.py labels labels.parquet"
+CMD_A_LINK_5 = "python scripts/eval_a_link_policy.py --end-date 2026-06-29"
+CMD_VALIDATION = ("python scripts/audit_second_ml.py --mode historical --data-root <data> "
+                  "--splits 4 --test-days 28 --end 2025-12-31 --threads 12 "
+                  "--output reports/rule_vs_model_2025h2.json")
+CMD_42D = ("python scripts/audit_second_ml.py --mode historical --data-root <data> "
+           "--splits 3 --test-days 14 --refresh-days 7 --threads 4 "
+           "--output reports/second_ml_42d_local.json")
+CMD_GUARD = ("python scripts/build_intrusion_eventtime_labels.py; "
+             "python scripts/exp_guard_weekly_repeats.py")
+CMD_GUARD_MODEL = "python scripts/exp_guard_weekly_model.py"
+
+
+def _load(name: str) -> dict:
+    return json.loads((REPORTS / name).read_text(encoding="utf-8"))
+
+
+def _ratio(num: float, den: float, digits: int = 4) -> float | None:
+    return round(num / den, digits) if den else None
+
+
+def _days(start: str, end: str) -> int:
+    return (dt.date.fromisoformat(end) - dt.date.fromisoformat(start)).days + 1
+
+
+def _counts(alerts: int, hits: int, unknown: int) -> dict:
+    return {"alerts": alerts, "hits": hits, "unknown": unknown,
+            "precision_lower_bound": _ratio(hits, alerts),
+            "precision_known_only": _ratio(hits, alerts - unknown)}
+
+
+# --- sensor_link ---------------------------------------------------------------
+
+def _a_link_pool(folds: list[dict], policy: str, side: str) -> dict:
+    parts = [f["policies"][policy][side] for f in folds]
+    alerts = sum(p["alerts"] for p in parts)
+    hits = sum(p["hits"] for p in parts)
+    unknown = sum(p["unknown_alerts"] for p in parts)
+    return _counts(alerts, hits, unknown)
+
+
+def _a_link_positives(fold: dict) -> int:
+    """Положительные канало-сутки окна: hits / recall_known, одинаково во всех политиках."""
+    values = {round(p[side]["hits"] / p[side]["recall_known"])
+              for p in fold["policies"].values() for side in ("model", "baseline")
+              if p[side]["hits"]}
+    if len(values) != 1:
+        raise ValueError(f"разные знаменатели полноты в окне {fold['test_start']}: {values}")
+    return values.pop()
+
+
+def sensor_link() -> dict:
+    june = _load("a_link_operating_point_june.json")
+    p70 = june["policies"]["min_precision_0.70"]
+    june_days = _days(*june["days"])
+    temporal = _load("a_link_live_policy_temporal.json")
+    folds = temporal["folds"]
+    positives = sum(_a_link_positives(f) for f in folds)
+    known = sum(f["known_rows"] for f in folds)
+    unknown_rows = sum(f["unknown_rows"] for f in folds)
+    days = sum(_days(f["test_start"], f["test_end"]) for f in folds)
+    period = [folds[0]["test_start"], folds[-1]["test_end"]]
+    model70 = _a_link_pool(folds, "min_precision_0.70", "model")
+    base_top20 = _a_link_pool(folds, "fixed_top_20", "baseline")
+    model_top20 = _a_link_pool(folds, "fixed_top_20", "model")
+    base70 = _a_link_pool(folds, "min_precision_0.70", "baseline")
+    feasible = sum(f["policies"]["min_precision_0.70"]["baseline_selection"]["feasible"]
+                   for f in folds)
+    return {
+        "code": "sensor_link", "title": TITLES["sensor_link"], "head": "A_link",
+        "in_product": "модель LightGBM, порог выбирается на прошлом 30-дневном окне "
+                      "при минимуме точности 0,70 (operating_min_precision)",
+        "target": "начало необычного пропуска связи канала завтра",
+        "label": "L9c: канал активен не меньше 7 из 30 суток, разрыв не меньше 2 суток "
+                 "и больше 1,5 медианы собственного ритма; последнее сообщение канала "
+                 "без возврата — unknown",
+        "horizon_hours": 24, "limit_per_day": 20, "cooldown_days": 7,
+        "config": "configs/heads.yaml (A_link)",
+        "evaluations": [
+            {"id": "june_2026", "period": june["days"], "days": june_days,
+             "method": "temporal",
+             "method_note": "каждый день оценён датированной моделью, порог выбран до дня "
+                            "(задержка 1–8 суток)",
+             **_counts(p70["alerts"], p70["hits"], p70["unknown"]),
+             "positives": june["positives_in_period"],
+             "recall": _ratio(p70["hits"], june["positives_in_period"]),
+             "recall_unit": "положительные канало-сутки",
+             "alerts_per_day": p70["alerts_per_day_mean"],
+             "days_without_alerts": p70["days_without_alerts"],
+             "source": "reports/a_link_operating_point_june.json", "command": CMD_JUNE},
+            {"id": "five_windows", "period": period, "days": days, "method": "temporal",
+             "method_note": "пять 90-дневных окон; порог выбран на 30 днях до окна",
+             **model70, "positives": positives,
+             "recall": _ratio(model70["hits"], positives),
+             "recall_unit": "положительные канало-сутки",
+             "alerts_per_day": round(model70["alerts"] / days, 2),
+             "windows": [{"period": [f["test_start"], f["test_end"]],
+                          **_a_link_pool([f], "min_precision_0.70", "model")} for f in folds],
+             "source": "reports/a_link_live_policy_temporal.json", "command": CMD_A_LINK_5},
+        ],
+        "comparison": [
+            {"what": "правило gap_vs_own_rhythm: те же 20 в сутки и пауза 7 суток, без порога",
+             "period": period, **base_top20,
+             "source": "reports/a_link_live_policy_temporal.json (fixed_top_20.baseline)",
+             "command": CMD_A_LINK_5},
+            {"what": "модель при тех же 20 в сутки и паузе 7 суток, без порога",
+             "period": period, **model_top20,
+             "source": "reports/a_link_live_policy_temporal.json (fixed_top_20.model)",
+             "command": CMD_A_LINK_5},
+            {"what": "правило gap_vs_own_rhythm с тем же выбором порога при минимуме 0,70",
+             "period": period, **base70, "threshold_found_in_windows": feasible,
+             "windows": len(folds),
+             "note": "в окне 06.04–04.07.2025 порог не найден, но правило выдало 27 "
+                     "рекомендаций (second_ml_42d_local.json, "
+                     "inherited_evidence.infeasible_baseline_emissions)",
+             "source": "reports/a_link_live_policy_temporal.json (min_precision_0.70.baseline)",
+             "command": CMD_A_LINK_5},
+        ],
+        "base_rate": [
+            {"period": june["days"], "positives": june["positives_in_period"],
+             "known": JUNE_LABELED_ROWS,
+             "rate_known": _ratio(june["positives_in_period"], JUNE_LABELED_ROWS),
+             "note": "доля среди размеченных канало-суток; оценка PM 28.09",
+             "source": JUNE_LABELS_SOURCE, "command": CMD_JUNE_LABELS},
+            {"period": period, "positives": positives, "known": known,
+             "unknown": unknown_rows,
+             "rate_known": _ratio(positives, known),
+             "rate_with_unknown": _ratio(positives, known + unknown_rows),
+             "note": "positives = hits / recall_known по окнам",
+             "source": "reports/a_link_live_policy_temporal.json", "command": CMD_A_LINK_5},
+        ],
+    }
+
+
+# --- equipment_diag ------------------------------------------------------------
+
+def _audit_head(report: dict, head: str) -> dict:
+    return next(h for h in report["historical_metrics"] if h["head"] == head)
+
+
+def _audit_eval(total: dict) -> dict:
+    return {**_counts(total["alerts"], total["hits"], total["unknown_alerts"]),
+            "positives": total["known_positive_days"],
+            "recall": _ratio(total["hits"], total["known_positive_days"]),
+            "recall_unit": "положительные канало-сутки",
+            "episodes_caught": total["episodes_caught"],
+            "episodes_eligible": total["episodes_eligible"],
+            "episode_recall": _ratio(total["episodes_caught"], total["episodes_eligible"]),
+            "alerts_per_day": round(total["alerts_per_day"], 2),
+            "days_without_alerts": total["days_without_alerts"],
+            "days": len(total["daily"])}
+
+
+def _audit_base(total: dict) -> dict:
+    known = total["candidates"] - total["unknown_candidates"]
+    return {"positives": total["known_positive_days"], "known": known,
+            "unknown": total["unknown_candidates"],
+            "rate_known": _ratio(total["known_positive_days"], known),
+            "rate_with_unknown": _ratio(total["known_positive_days"], total["candidates"])}
+
+
+def equipment_diag() -> dict:
+    val = _audit_head(_load("rule_vs_model_2025h2.json"), "D")
+    d42 = _audit_head(_load("second_ml_42d_local.json"), "D")
+    runs = [(val, "validation_2025h2", "reports/rule_vs_model_2025h2.json", CMD_VALIDATION,
+             "четыре окна по 28 суток; порог правила выбирается по прошлому окну"),
+            (d42, "may_june_2026", "reports/second_ml_42d_local.json", CMD_42D,
+             "три окна по 14 суток; проверка уже принятого решения, новых просмотров нет")]
+    evaluations, comparison, base = [], [], []
+    for head, key, source, command, note in runs:
+        period = [head["folds"][0]["start"], head["folds"][-1]["end"]]
+        evaluations.append({"id": key, "period": period, "method": "temporal",
+                            "method_note": note, **_audit_eval(head["total"]["baseline_70"]),
+                            "source": f"{source} (D, baseline_70)", "command": command})
+        for policy, what in (("model_70", "модель LightGBM, минимум точности 0,70"),
+                             ("model_50", "модель LightGBM, минимум точности 0,50")):
+            t = head["total"][policy]
+            comparison.append({"what": what, "period": period,
+                               **_counts(t["alerts"], t["hits"], t["unknown_alerts"]),
+                               "episodes_caught": t["episodes_caught"],
+                               "source": f"{source} (D, {policy})", "command": command})
+        base.append({"period": period, **_audit_base(head["total"]["baseline_70"]),
+                     "note": "доля положительных среди канало-суток оборудования",
+                     "source": source, "command": command})
+    old = _load("d_live_policy_temporal.json")["folds"]
+    old_alerts = sum(f["model"]["alerts"] for f in old)
+    old_hits = sum(f["model"]["true_alerts"] for f in old)
+    return {
+        "code": "equipment_diag", "title": TITLES["equipment_diag"], "head": "D",
+        "in_product": "правило n_bad_w7 (число плохих состояний канала за 7 суток); порог "
+                      "выбирается по понедельникам на прошлом 30-дневном окне при минимуме "
+                      "точности 0,70 и не меньше 30 рекомендаций (src/mkl/rule_head.py); "
+                      "обученной модели нет",
+        "target": "записанный сигнал тревоги или плохого состояния оборудования "
+                  "(насос, вентилятор, ИБП, люк, датчик затопления) в следующие 7 суток",
+        "label": "D_observed_v1: промах засчитывается только при телеметрии за все 7 "
+                 "будущих суток, иначе unknown",
+        "horizon_hours": 168, "limit_per_day": 3, "limit_note": "с распределением по объектам",
+        "cooldown_days": 7, "config": "configs/heads.yaml (D)",
+        "evaluations": evaluations,
+        "comparison": comparison,
+        "base_rate": base,
+        "previous_protocol": {
+            "what": "модель LightGBM с порогом, до 3 в сутки, пауза 7 суток; в продукте её нет",
+            "period": [old[0]["test_start"], old[-1]["test_end"]],
+            "alerts": old_alerts, "hits": old_hits,
+            "precision": _ratio(old_hits, old_alerts),
+            "note": "метка label_wear: сутки без сигнала считаются отрицательными и при "
+                    "отсутствии телеметрии (src/mkl/labels.py, _emit); модель заменена "
+                    "правилом по RULE_VS_MODEL_PROTOCOL.md",
+            "source": "reports/d_live_policy_temporal.json",
+            "command": "python scripts/eval_d_live_policy.py --end-date 2026-06-23"},
+    }
+
+
+# --- guard_weekly --------------------------------------------------------------
+
+def _mondays(start: str, end: str) -> int:
+    day, last = dt.date.fromisoformat(start), dt.date.fromisoformat(end)
+    day += dt.timedelta(days=(7 - day.weekday()) % 7)
+    return (last - day).days // 7 + 1 if day <= last else 0
+
+
+def guard_weekly() -> dict:
+    report = next(r for r in _load("guard_weekly_repeats.json")["reports"]
+                  if r["min_alarm_days_in_last_7"] == 4 and r["cooldown_days"] == 14)
+    periods, pooled = report["periods"], report["pooled"]
+    period = [periods[0]["start"], periods[-1]["end"]]
+    weeks = _mondays(*period)
+    candidates = sum(p["eligible_candidate_weeks"] for p in periods)
+    positives = sum(p["eligible_positive_weeks"] for p in periods)
+    model_report = _load("guard_weekly_model.json")
+    runs = [r for r in model_report["results"] if r["min_alarm_days_in_last_7"] == 4]
+    model = {r["method"]: r["pooled"] for r in runs}
+    model_period = [runs[0]["periods"][0]["start"], runs[0]["periods"][-1]["end"]]
+    return {
+        "code": "guard_weekly", "title": TITLES["guard_weekly"], "head": "guard_weekly",
+        "in_product": "правило: объект на охране, сообщение о состоянии не старше 7 суток, "
+                      "записанный охранный сигнал не меньше чем в 4 из 7 прошлых дней; "
+                      "порядок — дни с сигналом за неделю, затем за месяц, затем давность",
+        "target": "записанный сигнал СМВУ при охране в дни D+2…D+8 после понедельника D; "
+                  "продолжение записанной активности, не прогноз проникновения",
+        "label": "v2-разметка по состоянию охраны в момент сигнала; без телеметрии — unknown",
+        "horizon_hours": 168, "limit_per_week": 4, "cooldown_days": 14,
+        "config": "src/mkl/guard_weekly.py",
+        "evaluations": [
+            {"id": "retrospective_2023_2026", "period": period, "weeks": weeks,
+             "method": "retrospective",
+             "method_note": "порог «4 дня» и пауза 14 суток подобраны на тех же годах",
+             **_counts(pooled["alerts"], pooled["hits"], pooled["unknown"]),
+             "positives": pooled["eligible_positive_weeks"],
+             "recall": _ratio(pooled["hits"], pooled["eligible_positive_weeks"]),
+             "recall_unit": "положительные объект-недели",
+             "alerts_per_week": round(pooled["alerts"] / weeks, 2),
+             "unique_objects": pooled["unique_objects"],
+             "unique_hit_episodes": pooled["unique_hit_episodes"],
+             "windows": [{"period": [p["start"], p["end"]],
+                          **_counts(p["alerts"], p["hits"], p["unknown"])} for p in periods],
+             "source": "reports/guard_weekly_repeats.json (4 из 7, пауза 14)",
+             "command": CMD_GUARD},
+        ],
+        "comparison": [
+            {"what": f"LightGBM против правила, обучение до {model_report['fit_end']}, "
+                     "те же 4 из 7 и 4 в неделю, до паузы",
+             "period": model_period,
+             "model": {"alerts": model["ml"]["alerts"], "hits": model["ml"]["hits"]},
+             "rule": {"alerts": model["rule"]["alerts"], "hits": model["rule"]["hits"]},
+             "source": "reports/guard_weekly_model.json", "command": CMD_GUARD_MODEL},
+        ],
+        "base_rate": [
+            {"period": period, "positives": positives, "candidates": candidates,
+             "rate_with_unknown": _ratio(positives, candidates),
+             "note": "доля положительных объект-недель среди всех кандидатов; число "
+                     "unknown среди кандидатов в отчёте не приведено",
+             "source": "reports/guard_weekly_repeats.json", "command": CMD_GUARD},
+        ],
+    }
+
+
+# --- отклонённые постановки и рычаги ----------------------------------------
+
+def _final_row(head: str) -> dict:
+    with (REPORTS / "final_metrics.csv").open(encoding="utf-8") as fh:
+        return next(r for r in csv.DictReader(fh) if r["head"] == head)
+
+
+def rejected_setups() -> list[dict]:
+    fire25 = _load("fire_history_ablation.json")["history"]
+    fire26 = _load("fire_2026_check.json")
+    queue = _load("intrusion_operational_queue.json")["pooled"]
+    ml_queue = queue["recorded_full"]["all_top4"]
+    rule_queue = _load("guard_review_queue_backtest.json")["pooled"]
+    strict = _load("a_strict_top1.json")
+    flood = _final_row("E")
+    return [
+        {"id": "B_fire", "what": "пожарный риск участка: текстовое пожарное или газовое "
+                                  "тревожное состояние на участке завтра",
+         "limit_per_day": 10,
+         "results": [
+             {"period": [fire25["folds"][0]["start"], fire25["folds"][-1]["end"]],
+              "precision_daily": round(fire25["mean"]["daily_precision_at_k"], 4),
+              "note": "среднее трёх окон 2025 года",
+              "source": "reports/fire_history_ablation.json (history)",
+              "command": "python scripts/exp_fire_history.py"},
+             {"period": [fire26["test_start"], fire26["test_end"]],
+              "precision_daily": round(fire26["results"]["history"]["daily_precision_at_k"], 4),
+              "base_rate": round(fire26["results"]["history"]["base_rate"], 4),
+              "note": "просмотренный период; train_latest.py B при 0,70 порога не нашёл",
+              "source": "reports/fire_2026_check.json",
+              "command": "python scripts/exp_fire_2026_check.py"}]},
+        {"id": "C_daily_guard", "what": "дневная охранная очередь: записанный охранный "
+                                         "сигнал при охране завтра",
+         "limit_per_day": 4,
+         "results": [
+             {"period": ["2025-04-05", "2025-12-30"], "model": "LightGBM",
+              **_counts(ml_queue["alerts"], ml_queue["recorded_hits"],
+                        ml_queue["unknown_outcome_alerts"]),
+              "recall": round(ml_queue["recorded_recall"], 4),
+              "base_rate": _ratio(ml_queue["positive_recorded"], ml_queue["candidates"]),
+              "source": "reports/intrusion_operational_queue.json (recorded_full, all_top4)",
+              "command": "python scripts/exp_intrusion_operational_queue.py"},
+             {"period": ["2025-04-05", "2025-12-30"], "model": "правило истории",
+              **_counts(rule_queue["alerts"], rule_queue["recorded_hits"],
+                        rule_queue["unknown_outcome_alerts"]),
+              "source": "reports/guard_review_queue_backtest.json",
+              "command": "python scripts/backtest_guard_review_queue.py"}]},
+        {"id": "A_strict", "what": "аномалия датчика завтра, один канал в сутки",
+         "limit_per_day": 1,
+         "results": [
+             {"period": [strict["folds"][0]["test_start"], strict["folds"][-1]["test_end"]],
+              "alerts": strict["pooled"]["model"]["alerts"],
+              "precision_daily": round(strict["pooled"]["model"]["daily_precision"], 4),
+              "rule_precision_daily": round(strict["pooled"]["rule"]["daily_precision"], 4),
+              "source": "reports/a_strict_top1.json",
+              "command": "python scripts/exp_a_strict_top1.py"}]},
+        {"id": "E_flood", "what": "риск подтопления объекта (состояние «Затоплен»)",
+         "limit_per_day": int(float(flood["budget_per_day"])),
+         "results": [
+             {"period": ["2026-01-01", "2026-06-30"],
+              "precision": round(float(flood["precision_at_k"]), 4),
+              "recall": round(float(flood["recall_at_k"]), 4),
+              "roc_auc": round(float(flood["roc_auc"]), 4),
+              "base_rate": round(float(flood["base_rate"]), 4),
+              "note": "прежний офлайн-протокол с глобальным бюджетом на период; на текущем "
+                      "коде не перепроверялось",
+              "source": "reports/final_metrics.csv (E); reports/final.md:47",
+              "command": "python scripts/final_eval.py"}]},
+        {"id": "temperature", "what": "выход температуры за диапазон 3–40 °C за 24 часа",
+         "results": [{"precision": TEMPERATURE["precision"], "recall": TEMPERATURE["recall"],
+                      "note": "среднее трёх тестов; смысл диапазона владелец данных "
+                              "не подтвердил",
+                      "source": TEMPERATURE["source"], "command": None}]},
+        {"id": "gas_detected", "what": "«Обнаружен газ» как прогнозируемое событие",
+         "results": [{"share_weekdays_09_15": _ratio(GAS_PLANNED["records_in_window"],
+                                                     GAS_PLANNED["records_total"]),
+                      "records_in_window": GAS_PLANNED["records_in_window"],
+                      "records_total": GAS_PLANNED["records_total"],
+                      "note": "будни 9:00–14:59 МСК: плановые поверки баллонами",
+                      "source": GAS_PLANNED["source"], "command": None}]},
+    ]
+
+
+def rejected_levers() -> list[dict]:
+    ens = _load("a_link_ensemble_experiment.json")
+    single, trio = ens["pooled"]["lgbm"], ens["pooled"]["lgbm+xgb+cat"]
+    more_hits = better_precision = 0
+    for fold in ens["folds"]:
+        a = fold["scores"]["lgbm"]["min_precision_0.70"]
+        b = fold["scores"]["lgbm+xgb+cat"]["min_precision_0.70"]
+        more_hits += b["hits"] > a["hits"]
+        better_precision += b["precision_lower_bound"] > a["precision_lower_bound"]
+    june = _load("a_link_operating_point_june.json")["policies"]
+    folds = _load("a_link_live_policy_temporal.json")["folds"]
+    val = _load("rule_vs_model_2025h2.json")
+    link, wear = _audit_head(val, "A_link")["total"], _audit_head(val, "D")["total"]
+    laya = _load("laya_typed_d_decisions.json")
+
+    def pair(total, policy):
+        t = total[policy]
+        return {**_counts(t["alerts"], t["hits"], t["unknown_alerts"]),
+                "episodes_caught": t["episodes_caught"]}
+
+    return [
+        {"id": "ensemble", "what": "A_link: среднее калиброванных вероятностей LightGBM, "
+                                    "XGBoost и CatBoost против одной LightGBM, политика 0,70",
+         "lightgbm": {k: single["min_precision_0.70"][k] for k in ("alerts", "hits",
+                                                                   "precision_lower_bound")},
+         "ensemble": {k: trio["min_precision_0.70"][k] for k in ("alerts", "hits",
+                                                                 "precision_lower_bound")},
+         "windows": len(ens["folds"]), "windows_more_hits": more_hits,
+         "windows_higher_precision": better_precision,
+         "criterion": "больше попаданий при точности не ниже, суммарно и не хуже в 4 из 5 окон",
+         "decision": "не принят",
+         "source": "reports/a_link_ensemble_experiment.json; reports/A_LINK_ENSEMBLE.md",
+         "command": "python scripts/exp_a_link_ensemble.py --end-date 2026-06-29"},
+        {"id": "operating_point", "what": "A_link: минимум точности при выборе порога 0,50 "
+                                           "против 0,70",
+         "june_2026": {name: _counts(p["alerts"], p["hits"], p["unknown"])
+                       | {"alerts_per_day": p["alerts_per_day_mean"],
+                          "recall": p["recall_known"]}
+                       for name, p in june.items()},
+         "five_windows": {name: _a_link_pool(folds, name, "model")
+                          for name in ("min_precision_0.50", "min_precision_0.70")},
+         "decision": "в продукте 0,70",
+         "source": "reports/a_link_operating_point_june.json; "
+                   "reports/a_link_live_policy_temporal.json; reports/A_LINK_OPERATING_POINT.md",
+         "command": f"{CMD_JUNE}; {CMD_A_LINK_5}"},
+        {"id": "rule_vs_model", "what": "замена модели правилом по протоколу "
+                                         "RULE_VS_MODEL_PROTOCOL.md, валидация 2025 года",
+         "period": [val["historical_metrics"][0]["folds"][0]["start"],
+                    val["historical_metrics"][0]["folds"][-1]["end"]],
+         "A_link": {"model_50": pair(link, "model_50"), "rule_50": pair(link, "baseline_50"),
+                    "decision": "модель остаётся"},
+         "D": {"model_70": pair(wear, "model_70"), "rule_70": pair(wear, "baseline_70"),
+               "decision": "правило n_bad_w7 вместо модели"},
+         "source": "reports/rule_vs_model_2025h2.json; reports/RULE_VS_MODEL_RESULT.md",
+         "command": CMD_VALIDATION},
+        {"id": "laya_second_opinion", "what": "D: языковая модель Laya typed-decisions как "
+                                               "второе мнение к shortlist LightGBM",
+         "shortlist": laya["candidate_count"],
+         "shortlist_precision": round(laya["shortlist_positive_rate"], 4),
+         "needs_review_precision": round(laya["needs_review_top_half"]["precision"], 4),
+         "action_filter": {"alerts": laya["action_manual_or_urgent"]["alerts"],
+                           "hits": laya["action_manual_or_urgent"]["hits"],
+                           "precision": round(laya["action_manual_or_urgent"]["precision"], 4)},
+         "decision": "не принят: не отделяет кандидатов лучше исходного списка",
+         "source": "reports/laya_typed_d_decisions.json; reports/LAYA_TYPED_DECISIONS.md",
+         "command": "python scripts/eval_laya_typed_decisions.py"},
+    ]
+
+
+def holdout() -> dict:
+    text = (REPORTS / "holdout_uses.md").read_text(encoding="utf-8")
+    views, states = map(int, re.search(r"\*\*(\d+) раз\*\* на \*\*(\d+) состояниях", text).groups())
+    last = re.findall(r"^\| (\d{4}-\d\d-\d\dT\d\d:\d\d) \|", text, flags=re.M)[-1]
+    return {"period": ["2026-01-01", "2026-06-30"], "views": views, "code_states": states,
+            "last_entry": last,
+            "not_counted": "счётчик пишет только scripts/final_eval.py; eval_a_link_policy.py, "
+                           "audit_second_ml.py, eval_a_link_operating_point.py и "
+                           "exp_a_link_ensemble.py тоже считают январь–июнь 2026, "
+                           "но в счётчик не пишут",
+            "source": "reports/holdout_uses.md", "command": "python scripts/holdout_uses.py"}
+
+
+def quality_screen(scenarios: dict[str, dict]) -> dict:
+    """Опорные числа экрана «Качество прогноза»: точность там считается по известным исходам.
+
+    Доли округляются из исходных счётчиков до трёх знаков: экран показывает процент
+    с одним знаком, и повторное округление 0,1495 дало бы 15% вместо 14,9%.
+    """
+    link = scenarios["sensor_link"]
+    link_base = link["base_rate"][1]
+    link_rule = link["comparison"][0]
+    wear_base = scenarios["equipment_diag"]["base_rate"][1]
+    guard_base = scenarios["guard_weekly"]["base_rate"][0]
+    guard_cmp = scenarios["guard_weekly"]["comparison"][0]
+
+    def span(period):
+        a, b = (dt.date.fromisoformat(x).strftime("%d.%m.%Y") for x in period)
+        return f"{a}–{b}"
+
+    return {
+        "sensor_link": {
+            "base_rate": _ratio(link_base["positives"], link_base["known"], 3),
+            "rule_precision": _ratio(link_rule["hits"], link_rule["alerts"] - link_rule["unknown"], 3),
+            "period": f"{span(link_base['period'])}, пять 90-дневных окон",
+            "source": "ml/reports/A_LINK_LIVE_POLICY_TEMPORAL.md",
+            "note": "Правило gap_vs_own_rhythm с теми же 20 рекомендациями в сутки и паузой "
+                    "7 суток, без порога. Обе величины — по известным исходам, как недельная "
+                    "точность на экране."},
+        "equipment_diag": {
+            "base_rate": _ratio(wear_base["positives"], wear_base["known"], 3),
+            "rule_precision": None,
+            "period": f"{span(wear_base['period'])}, три окна по 14 суток",
+            "source": "ml/reports/SECOND_ML_LOCAL_42D_AUDIT.md",
+            "note": "В продукте само правило n_bad_w7, сравнивать его не с чем: модель D при "
+                    "минимуме точности 0,70 в этих окнах не выдала ни одной рекомендации. "
+                    "База — доля положительных среди канало-суток оборудования с известным "
+                    "исходом."},
+        "guard_weekly": {
+            "base_rate": _ratio(guard_base["positives"], guard_base["candidates"], 3),
+            "rule_precision": None,
+            "period": f"{span(guard_base['period'])}, понедельники",
+            "source": "ml/reports/GUARD_WEEKLY_INSPECTIONS.md",
+            "note": f"Очередь сама является правилом. LightGBM на тех же условиях дала "
+                    f"{guard_cmp['model']['hits']} из {guard_cmp['model']['alerts']}, правило — "
+                    f"{guard_cmp['rule']['hits']} из {guard_cmp['rule']['alerts']}. База считается "
+                    "от всех объект-недель, включая неизвестный исход."},
+    }
+
+
+def build() -> dict:
+    scenarios = {s["code"]: s for s in (sensor_link(), equipment_diag(), guard_weekly())}
+    return {
+        "schema_version": 1,
+        "frozen": FROZEN,
+        "command": "python scripts/build_submission_metrics.py",
+        "measures": {
+            "precision_lower_bound": "попадания / все рекомендации; unknown в знаменателе",
+            "precision_known_only": "попадания / (рекомендации − unknown)",
+            "recall": "попадания / положительные единицы периода (recall_unit)",
+            "rate_known": "положительные / размеченные кандидаты",
+            "rate_with_unknown": "положительные / все кандидаты, unknown в знаменателе",
+            "temporal": "порог выбран на окне, которое кончается до проверяемого периода",
+            "retrospective": "параметры политики подобраны на тех же периодах",
+        },
+        "scenarios": list(scenarios.values()),
+        "runtime": [RUNTIME_SCORE],
+        "holdout": holdout(),
+        "rejected_setups": rejected_setups(),
+        "rejected_levers": rejected_levers(),
+        "quality_screen": quality_screen(scenarios),
+    }
+
+
+def render(data: dict) -> str:
+    return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("--check", action="store_true",
+                        help="не записывать, а сверить с reports/SUBMISSION_METRICS.json")
+    args = parser.parse_args()
+    text = render(build())
+    if args.check:
+        current = OUT.read_text(encoding="utf-8") if OUT.exists() else ""
+        if current != text:
+            print(f"{OUT.name} устарел: python scripts/build_submission_metrics.py",
+                  file=sys.stderr)
+            return 1
+        return 0
+    OUT.write_text(text, encoding="utf-8")
+    print(f"saved {OUT}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
