@@ -51,6 +51,16 @@ const DETAIL_TEXT: Record<string, string> = {
   forecast_not_found: "Прогноз не найден",
   work_order_not_found: "Заявка не найдена",
   settings_locked: "Настройки демо на стенде закреплены и не меняются",
+  // 10 неудачных входов за 5 минут с одного адреса на один логин (backend/app/routers/auth.py)
+  too_many_attempts: "Слишком много неудачных попыток входа. Повторите через 5 минут.",
+  csrf_rejected: "Запрос отклонён: страница открыта с другого адреса. Обновите страницу.",
+  session_invalid: "Сеанс завершён, войдите снова",
+  notification_not_found: "Уведомление не найдено",
+  work_order_transition_not_allowed: "Такой переход статуса заявки не предусмотрен",
+  work_order_requires_one_scenario_and_object: "В одну заявку можно объединить прогнозы только одного сценария и одного объекта",
+  reason_code_not_allowed_for_action: "Эта причина не подходит к выбранному действию",
+  demo_today_outside_available_window: "Демо-дата вне окна, за которое есть данные",
+  file_too_large: "Файл больше допустимых 200 МБ",
 };
 
 function detailOf(body: unknown): string | null {
@@ -74,6 +84,8 @@ export function errorText(error: unknown, response: Response | undefined): strin
   if (status === 404) return "Запись не найдена";
   if (status === 409) return "Запись уже изменил другой пользователь. Обновите страницу.";
   if (status === 422) return "Проверьте заполнение полей";
+  if (status === 413) return DETAIL_TEXT.file_too_large;
+  if (status === 429) return "Слишком много запросов. Повторите немного позже.";
   if (status >= 500) return `Ошибка сервера (${status}). Повторите позже.`;
   return detail ?? `Запрос не выполнен (${status})`;
 }
