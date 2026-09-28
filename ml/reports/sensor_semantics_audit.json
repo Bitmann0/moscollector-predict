@@ -5886,15 +5886,15 @@
     "Сверка с PR #7 сравнивает сборки разных хранилищ: normalized.duckdb PR #4 и parquet mkl."
   ],
   "runtime": {
-    "wall_seconds": 110.45908190000046,
-    "cpu_seconds": 198.1875,
+    "wall_seconds": 141.22855630000413,
+    "cpu_seconds": 234.078125,
     "memory_limit": "1500MB",
     "threads": 2,
     "duckdb": "1.5.5",
     "python": "3.12.10",
     "platform": "Windows-11-10.0.26200-SP0"
   },
-  "code_commit": "9a543f92b0a52a84c89d65b806bf5e6c97f44ebc",
+  "code_commit": "f5148d46f0a826cd8d20ada98d094b9d529f0eff",
   "code_dirty": false,
   "code_files_sha256": {
     "scripts/audit_sensor_semantics.py": "73e8a4e37612d10f8d8396abc0e7799e1deb64fbd4edd029d6f6e6ec3d35ed86",
