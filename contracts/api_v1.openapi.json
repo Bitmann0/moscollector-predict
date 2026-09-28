@@ -3453,6 +3453,18 @@
               "title": "Page Size",
               "type": "integer"
             }
+          },
+          {
+            "description": "Скрыть события класса normal у газовых датчиков",
+            "in": "query",
+            "name": "hide_normal_gas",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Скрыть события класса normal у газовых датчиков",
+              "title": "Hide Normal Gas",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
