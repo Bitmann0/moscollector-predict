@@ -20,6 +20,10 @@
    ml/reports/sensor_semantics_audit.json). Уведомлений предупреждение не создаёт.
 7. Остальное — normal.
 
+Пороги метана, окна подсказок и пороги серий настраивает администратор (ML2-13, экран
+«Настройки», backend/app/services/parameters.py): classify и series_hints получают их
+в Rules. Константы ниже — проверенные значения, они же значения Rules по умолчанию.
+
 Подсказка класс не меняет: диспетчер и дежурный инженер всегда проверяют событие сами,
 прежде чем отнести его к инцидентам, профилактическим работам или ошибкам (ответ 1).
 Все подсказки о плановых работах начинаются с PPR_HINT — по этому префиксу их считает
@@ -30,9 +34,10 @@ KPI дашборда. Их две:
   поэтому считает её приём пачки (ingest.py), а не classify.
 """
 from collections import Counter, defaultdict
-from collections.abc import Hashable, Iterable
-from dataclasses import dataclass
+from collections.abc import Hashable, Iterable, Mapping
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from functools import cached_property
 from typing import NamedTuple
 
 from .helpers import MSK
@@ -47,7 +52,9 @@ GAS_ALARM = 1.0
 GAS_CRITICAL = 5.0
 EPOCH_PREFIX = "01.01.1970 03:00:0"
 PPR_HINT = "вероятно, ППР или ТО"
-GAS_WINDOW_HINT = f"{PPR_HINT}: газ в будни с 9:00 до 14:59"
+WORKDAYS = frozenset(range(5))  # пн–пт; 0 — понедельник, как у datetime.weekday()
+# Окно газа [9, 15) — с 9:00 до 14:59 МСК; замер окна — в docstring модуля.
+GAS_WINDOW_HOURS = (9, 15)
 NO_ALARM_HINT = "в СМВУ без признака тревоги"
 HAZARD_TEXT = ("обнаружен дым", "обнаружен газ", "температура выше")
 
@@ -107,6 +114,53 @@ SERIES_NOUN = {"fire": "извещателей", "gas": "газоанализа�
 # Окно проверяется по первому событию: события до 18:10 ещё входят в окно, начатое
 # до 18:00.
 WORK_HOURS = (8, 18)
+WEEKDAY_SHORT = ("пн", "вт", "ср", "чт", "пт", "сб", "вс")
+
+
+def _plural(n: int, one: str, few: str, many: str) -> str:
+    if n % 10 == 1 and n % 100 != 11:
+        return one
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return few
+    return many
+
+
+def _days_text(days: frozenset[int]) -> str:
+    if days == WORKDAYS:
+        return "в будни"
+    if days == frozenset(range(7)):
+        return "ежедневно"
+    if days == frozenset({5, 6}):
+        return "в выходные"
+    return "в " + ", ".join(WEEKDAY_SHORT[d] for d in sorted(days))
+
+
+@dataclass(frozen=True)
+class Rules:
+    """Настраиваемая часть правил C5. Часы — [начало, конец) МСК: (9, 15) — с 9:00 до 14:59."""
+    gas_alarm: float = GAS_ALARM
+    gas_critical: float = GAS_CRITICAL
+    gas_window_hours: tuple[int, int] = GAS_WINDOW_HOURS
+    gas_window_days: frozenset[int] = WORKDAYS
+    series_window: timedelta = SERIES_WINDOW
+    series_min: Mapping[str, int] = field(default_factory=lambda: dict(SERIES_MIN))
+    work_hours: tuple[int, int] = WORK_HOURS
+    work_days: frozenset[int] = WORKDAYS
+
+    @cached_property  # текст считается один раз на набор параметров, а не на событие
+    def gas_window_hint(self) -> str:
+        start, end = self.gas_window_hours
+        return (f"{PPR_HINT}: газ {_days_text(self.gas_window_days)} "
+                f"с {start}:00 до {end - 1}:59")
+
+    def series_hint(self, group: str, detectors: int) -> str:
+        minutes = int(self.series_window.total_seconds() // 60)
+        return (f"{PPR_HINT}: серия из {detectors} {SERIES_NOUN[group]} "
+                f"за {minutes} {_plural(minutes, 'минуту', 'минуты', 'минут')}")
+
+
+DEFAULT_RULES = Rules()
+GAS_WINDOW_HINT = DEFAULT_RULES.gas_window_hint
 
 
 class Verdict(NamedTuple):
@@ -138,15 +192,17 @@ def incident_group(sensor_type: str | None, val_raw: str | None) -> str | None:
     return None
 
 
-def _gas_window(text: str, ts: datetime | None) -> bool:
+def _gas_window(text: str, ts: datetime | None, rules: Rules) -> bool:
     if ts is None or "обнаружен газ" not in text:
         return False
     local = ts.astimezone(MSK) if ts.tzinfo else ts
-    return local.weekday() < 5 and 9 <= local.hour < 15
+    start, end = rules.gas_window_hours
+    return local.weekday() in rules.gas_window_days and start <= local.hour < end
 
 
 def classify(sensor_type: str | None, val_raw: str | None, val_num: float | None,
-             alarm: bool, *, ts: datetime | None = None) -> Verdict:
+             alarm: bool, *, ts: datetime | None = None,
+             rules: Rules = DEFAULT_RULES) -> Verdict:
     """(event_class, hint, incident_group); коды — из vocabularies.json.
 
     ts — время регистрации; без него подсказка о газе в рабочие часы не ставится.
@@ -159,16 +215,16 @@ def classify(sensor_type: str | None, val_raw: str | None, val_num: float | None
     if sensor_type == GAS and val_num is not None:
         if not GAS_LIMITS[0] <= val_num <= GAS_LIMITS[1]:
             return Verdict("fault", None, None)
-        if val_num >= GAS_CRITICAL:
+        if val_num >= rules.gas_critical:
             return Verdict("critical", None, None)
-        if val_num >= GAS_ALARM:
+        if val_num >= rules.gas_alarm:
             return Verdict("alarm", None, None)
     if (sensor_type == TEMPERATURE and val_num is not None
             and not TEMPERATURE_LIMITS[0] <= val_num <= TEMPERATURE_LIMITS[1]):
         return Verdict("fault", None, None)
     if "неисправ" in lowered or "ошиб" in lowered or "fault" in lowered:
         return Verdict("fault", None, None)
-    window = GAS_WINDOW_HINT if _gas_window(lowered, ts) else None
+    window = rules.gas_window_hint if _gas_window(lowered, ts, rules) else None
     if alarm and (group := incident_group(sensor_type, text)):
         return Verdict("critical", window, group)
     if "пожар" in lowered or "затоп" in lowered:
@@ -189,31 +245,34 @@ def series_key(group: str | None, obj_id: str | None, complex_id: str | None) ->
     return None
 
 
-def series_hint(group: str, detectors: int) -> str:
-    return f"{PPR_HINT}: серия из {detectors} {SERIES_NOUN[group]} за 10 минут"
+def series_hint(group: str, detectors: int, rules: Rules = DEFAULT_RULES) -> str:
+    return rules.series_hint(group, detectors)
 
 
-def _working_time(ts: datetime) -> bool:
+def _working_time(ts: datetime, rules: Rules = DEFAULT_RULES) -> bool:
     local = ts.astimezone(MSK)
-    return local.weekday() < 5 and WORK_HOURS[0] <= local.hour < WORK_HOURS[1]
+    start, end = rules.work_hours
+    return local.weekday() in rules.work_days and start <= local.hour < end
 
 
-def series_hints(events: Iterable[SeriesEvent]) -> dict[Hashable, str]:
+def series_hints(events: Iterable[SeriesEvent],
+                 rules: Rules = DEFAULT_RULES) -> dict[Hashable, str]:
     """Подсказка каждому событию, входящему хотя бы в одно окно-серию.
 
-    Окно — события одного ключа за 10 минут, заканчивающиеся на каком-либо событии.
-    Окно — серия, если в нём не меньше SERIES_MIN разных каналов и первое событие
-    окна пришлось на рабочее время. Событию достаётся наибольшее число каналов из
-    окон-серий, в которые оно входит.
+    Окно — события одного ключа за rules.series_window (проверено 10 минут),
+    заканчивающиеся на каком-либо событии. Окно — серия, если в нём не меньше
+    rules.series_min разных каналов и первое событие окна пришлось на рабочее время.
+    Событию достаётся наибольшее число каналов из окон-серий, в которые оно входит.
 
-    Подсказка события в момент t зависит только от событий [t − 10 мин, t + 10 мин]:
-    окна, в которые оно входит, кончаются не позже t + 10 мин и начинаются не раньше
-    t − 10 мин. Поэтому она точна у тех событий, для которых вызывающий передал всё
+    Подсказка события в момент t зависит только от событий [t − окно, t + окно]:
+    окна, в которые оно входит, кончаются не позже t + окно и начинаются не раньше
+    t − окно. Поэтому она точна у тех событий, для которых вызывающий передал всё
     из этого отрезка, — на краях выборки число может оказаться меньше настоящего.
     """
+    window = rules.series_window
     by_key: dict[tuple[str, str], list[SeriesEvent]] = defaultdict(list)
     for event in events:
-        if event.group in SERIES_MIN and event.key is not None:
+        if event.group in rules.series_min and event.key is not None:
             by_key[(event.group, event.key)].append(event)
     hints: dict[Hashable, str] = {}
     for (group, _), items in by_key.items():
@@ -223,17 +282,18 @@ def series_hints(events: Iterable[SeriesEvent]) -> dict[Hashable, str]:
         start = 0
         for end, item in enumerate(items):
             channels[item.channel_id] += 1
-            while items[start].ts < item.ts - SERIES_WINDOW:
+            while items[start].ts < item.ts - window:
                 gone = items[start].channel_id
                 channels[gone] -= 1
                 if not channels[gone]:
                     del channels[gone]
                 start += 1
             detectors = len(channels)
-            if detectors >= SERIES_MIN[group] and _working_time(items[start].ts):
+            if (detectors >= rules.series_min[group]
+                    and _working_time(items[start].ts, rules)):
                 for i in range(start, end + 1):
                     best[i] = max(best[i], detectors)
         for item, detectors in zip(items, best, strict=True):
             if detectors:
-                hints[item.ref] = series_hint(group, detectors)
+                hints[item.ref] = rules.series_hint(group, detectors)
     return hints

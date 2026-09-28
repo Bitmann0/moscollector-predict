@@ -15,6 +15,7 @@ from app.main import API_PREFIX, ROUTERS, create_app
 from app.services.export import COLUMNS
 from app.services.helpers import now_utc
 from app.services.notifications import broker
+from app.services.parameters import VERIFIED
 from conftest import DEMO_PASSWORD
 from fastapi.routing import APIRoute
 from pydantic import TypeAdapter
@@ -113,6 +114,10 @@ def _mutations(ids: dict) -> list[tuple[str, str, str, dict]]:
         ("DELETE", "/ingest/day/{day}", "/ingest/day/2026-06-30", {}),
         ("POST", "/reference/sync", "/reference/sync", {}),
         ("PUT", "/settings", "/settings", {"json": {"replay_speed": 120}}),
+        ("PUT", "/settings/parameters", "/settings/parameters",
+         {"json": {"expected_version": 0, "values": VERIFIED.model_dump(mode="json")}}),
+        ("POST", "/admin/reclassify-events", "/admin/reclassify-events",
+         {"json": {"date_from": "2026-06-30", "date_to": "2026-06-30"}}),
         ("POST", "/admin/run-daily", "/admin/run-daily", {"json": {"asof": "2026-06-16"}}),
         ("DELETE", "/admin/issued-log", "/admin/issued-log",
          {"params": {"from": "2026-06-16", "to": "2026-06-16"}}),
