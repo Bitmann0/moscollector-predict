@@ -14,5 +14,8 @@ python -m app.seed
 
 # X-Forwarded-* принимаются только от адресов из FORWARDED_ALLOW_IPS.
 # Локально это 127.0.0.1; compose.stand.yaml открывает их для Caddy.
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000 \
+# keep-alive 75 с — дольше, чем Caddy держит простаивающее соединение к api (60 с в
+# deploy/Caddyfile). По умолчанию uvicorn закрывал его через 5 с, и запрос, ушедший в
+# уже закрытое соединение, падал: 1 из 4 339 в нагрузочном прогоне 28.09.
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 75 \
   --proxy-headers --forwarded-allow-ips "${FORWARDED_ALLOW_IPS:-127.0.0.1}"
