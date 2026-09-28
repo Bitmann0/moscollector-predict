@@ -1946,6 +1946,8 @@ export interface operations {
                 q?: string | null;
                 page?: number;
                 page_size?: number;
+                /** @description Скрыть события класса normal у газовых датчиков */
+                hide_normal_gas?: boolean;
             };
             header?: never;
             path?: never;
