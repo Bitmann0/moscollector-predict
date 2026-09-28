@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from .common import ObjectRef, Priority, Scenario, Source, WorkOrderStatus
+from .common import ChannelRef, ObjectRef, Priority, Scenario, Source, WorkOrderStatus
 
 
 class WorkOrderItem(BaseModel):
@@ -27,10 +27,24 @@ class HistoryItem(BaseModel):
     at: datetime
 
 
+class ChecklistOut(BaseModel):
+    """Что проверить бригаде на оборудовании одного типа из заявки.
+
+    Перечень есть только там, где его подтвердил заказчик: сейчас это фидеры, каналы
+    «Состояние фазы» (services/phase_channels.py). basis называет, кто подтвердил.
+    """
+    equipment: str
+    channels: list[ChannelRef]
+    items: list[str]
+    note: str | None = None
+    basis: str
+
+
 class WorkOrderCard(WorkOrderItem):
     rationale: list[str] = Field(default_factory=list)
     pickets: list[float] = Field(default_factory=list)
     channels: list[int] = Field(default_factory=list)
+    checklist: list[ChecklistOut] = Field(default_factory=list)
     history: list[HistoryItem] = Field(default_factory=list)
 
 

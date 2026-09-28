@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from .. import models, vocab
 from ..schemas.common import Page
 from ..schemas.work_orders import (
+    ChecklistOut,
     HistoryItem,
     WorkOrderCard,
     WorkOrderCreate,
@@ -18,6 +19,7 @@ from ..schemas.work_orders import (
 from ..security import CurrentUser
 from .helpers import Refs, count, from_db, now_utc, page_of, to_db
 from .notifications import publish_safe
+from .phase_channels import CHECKLISTS
 
 MANUAL_PRIORITY = "planned"
 
@@ -46,6 +48,26 @@ def list_orders(db: Session, *, status: str | None, priority: str | None,
     return page_of(WorkOrderItem, items, total, page, page_size)
 
 
+def checklist(channel_ids: list[int], refs: Refs) -> list[ChecklistOut]:
+    """Перечни проверок по типам датчиков заявки, в порядке каналов.
+
+    Перечень считается при чтении по справочнику каналов, а не хранится в заявке: так он
+    есть и у ручных заявок, и у черновиков, записанных до его появления. Цена — правка
+    перечня видна и в уже подтверждённых заявках.
+    """
+    groups: dict[str, list] = {}
+    for channel_id in channel_ids:
+        ref = refs.channel_ref(channel_id)
+        if ref is not None and ref.sensor_type in CHECKLISTS:
+            groups.setdefault(ref.sensor_type, []).append(ref)
+    out = []
+    for sensor_type, channels in groups.items():
+        spec = CHECKLISTS[sensor_type]
+        out.append(ChecklistOut(equipment=spec.equipment, channels=channels,
+                                items=list(spec.items), note=spec.note, basis=spec.basis))
+    return out
+
+
 def get(db: Session, order_id: str) -> WorkOrderCard | None:
     row = db.get(models.WorkOrder, order_id)
     if row is None:
@@ -53,10 +75,12 @@ def get(db: Session, order_id: str) -> WorkOrderCard | None:
     history = db.scalars(select(models.WorkOrderHistory)
                          .where(models.WorkOrderHistory.order_id == order_id)
                          .order_by(models.WorkOrderHistory.at, models.WorkOrderHistory.id))
+    channels = list(row.channels or [])
+    refs = Refs(db, set(channels))
     return WorkOrderCard(
-        **_item_fields(row, Refs(db)),
+        **_item_fields(row, refs),
         rationale=list(row.rationale or []), pickets=list(row.pickets or []),
-        channels=list(row.channels or []),
+        channels=channels, checklist=checklist(channels, refs),
         history=[HistoryItem(from_status=h.from_status, to_status=h.to_status,
                              author=h.author, reason=h.reason, at=from_db(h.at))
                  for h in history])
