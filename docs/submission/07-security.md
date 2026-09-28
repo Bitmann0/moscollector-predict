@@ -57,7 +57,7 @@
 | `work_order_manage` | `POST /work-orders`; `PATCH /work-orders/{id}` в статусы `confirmed` и `cancelled` |
 | `work_order_progress` | `PATCH /work-orders/{id}` в статусы `in_progress` и `completed` |
 | `ingest` | `POST /ingest/events`, `/ingest/events/upload`, `/ingest/ods-journal`; `GET /ingest/batches` |
-| `export` | `GET /export/forecasts.xlsx` |
+| `export` | `GET /export/forecasts.xlsx`, `/export/report.pdf` |
 | `admin` | `GET /audit`; `GET` и `PUT /settings`; `POST /reference/sync`, `/admin/run-daily`, `/admin/emulate-decisions`; `DELETE /admin/issued-log` |
 | `integration` или `admin` | `DELETE /ingest/day/{day}` — удаление событий дня из БД продукта |
 | право не нужно | `GET /me` — любой вошедший; `GET /health`, `POST /auth/login`, `POST /auth/logout`, Swagger UI `/docs` и `/openapi.json` — без входа |

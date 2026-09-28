@@ -1,0 +1,33 @@
+-- Отчёт руководству в PDF (GET /api/v1/export/report.pdf, PR #55, ветка feat/report-pdf), 28.09.2026 21:20 МСК.
+-- Данные — копия БД стенда mkinteg: pg_dump -Fc из mkinteg-db-1 в 21:06 МСК, pg_restore во временный
+-- контейнер postgres:16-alpine (shared_buffers 128MB, work_mem 4MB), ANALYZE после загрузки. Стенд не
+-- менялся: порт его БД не опубликован, поэтому отчёт строится на копии. Машина разработчика:
+-- Windows 11, Docker Desktop; uvicorn из рабочей копии ветки на хосте, Python 3.12, один процесс.
+-- SQL событий — то, что строят report._alarms и report._incidents (скомпилировано SQLAlchemy под
+-- postgresql с подставленными значениями), Execution Time из EXPLAIN ANALYZE. collect — сбор данных
+-- отчёта, render — вёрстка fpdf2 с встраиванием подмножества DejaVu Sans. HTTP — полный ответ
+-- с аутентификацией по cookie и записью аудита. med и max — по N прогонам подряд.
+-- Скрипт замера — во временной папке сессии, в репозиторий не входит.
+-- PostgreSQL 16.15  10 428 318 событий
+
+## SQL событий, EXPLAIN ANALYZE, Execution Time (N=5)
+по умолчанию, 24–30.06                     все тревожные  med    84.9 max    87.5 ms
+по умолчанию, 24–30.06                     группы аварий  med    38.7 max    43.7 ms
+самая плотная неделя событий, 20–26.05     все тревожные  med    94.5 max    97.7 ms
+самая плотная неделя событий, 20–26.05     группы аварий  med    39.0 max    39.8 ms
+июнь, 01–30.06                             все тревожные  med   304.2 max   319.4 ms
+июнь, 01–30.06                             группы аварий  med    12.6 max    13.9 ms
+полугодие, 01.01–30.06                     все тревожные  med   294.9 max   299.0 ms
+полугодие, 01.01–30.06                     группы аварий  med    17.6 max    18.0 ms
+
+## В процессе, сессия БД на каждый прогон: report.collect и report_pdf.render (N=5)
+по умолчанию, 24–30.06                     collect med   194.5 max   234.8 ms | render med   161.5 max   191.6 ms | 39430 байт
+самая плотная неделя событий, 20–26.05     collect med   146.6 max   174.0 ms | render med   155.5 max   191.9 ms | 38910 байт
+июнь, 01–30.06                             collect med   360.9 max   382.2 ms | render med   156.2 max   194.3 ms | 39610 байт
+полугодие, 01.01–30.06                     collect med   347.1 max   365.5 ms | render med   156.8 max   201.9 ms | 40190 байт
+
+## HTTP GET /api/v1/export/report.pdf, uvicorn 1 процесс, роль manager (N=5)
+по умолчанию, 24–30.06                     200 application/pdf med   366.3 max   401.7 ms
+самая плотная неделя событий, 20–26.05     200 application/pdf med   342.8 max   362.8 ms
+июнь, 01–30.06                             200 application/pdf med   551.2 max   617.9 ms
+полугодие, 01.01–30.06                     200 application/pdf med   535.6 max   585.0 ms

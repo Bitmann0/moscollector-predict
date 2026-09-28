@@ -66,7 +66,7 @@
 | BE-06 | сделано | #20; атомарный переход, одна незакрытая заявка на прогноз, новый цикл после закрытия — #37 | — |
 | BE-08 | сделано | #20 | — |
 | BE-09 | сделано | #49 | выход отзывает только свою сессию (`jti` в таблице `revoked_sessions`, миграция `0003`), неудачный вход и выход пишутся в аудит с логином, CSRF-проверка на входе и выходе; запрос без `Sec-Fetch-Site` и `Origin` пропускается намеренно — `docs/submission/07-security.md`, О2 |
-| BE-11 | сделано | #20: 22 колонки, `COLUMNS` в `backend/app/services/export.py` | — |
+| BE-11 | сделано | #20: 22 колонки, `COLUMNS` в `backend/app/services/export.py`; отчёт руководству в PDF (ТЗ §8) — #55: `GET /api/v1/export/report.pdf`, кнопка «Отчёт PDF» в центре управления, `backend/app/services/report.py` и `report_pdf.py` | — |
 | BE-13 | сделано | `docs/submission/02-architecture.md`, `06-build-install.md`, `07-security.md`, `09-libraries.md` | — |
 | BE-14 | сделано | #20 | — |
 
