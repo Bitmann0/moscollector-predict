@@ -41,8 +41,9 @@ git push -u origin feature/feedback-journal
 
 - Кто владеет каким путём — [docs/OWNERSHIP.md](docs/OWNERSHIP.md). Правка в чужом файле
   идёт через PR с ревью владельца.
-- Заглушку узнаёте по шапке «ЗАГЛУШКА — владелец <ID> (<контракт>)». Заменяя её, сохраните
-  сигнатуру и держите зелёным тест, названный в шапке; шапку удалите вместе с заменой.
+- Шапок «ЗАГЛУШКА» в коде не осталось: `git grep -l ЗАГЛУШКА -- ':!*.md'` на 28.09 пуст.
+  ML-заглушка `ML_MODE=stub` и синтетический справочник остаются для CI и машин без данных
+  заказчика.
 - Меняете схему (`backend/app/schemas/`, `ml/src/mkl/product_contract.py`), словарь
   (`contracts/vocabularies.json`) или ответ заглушки — в том же PR запустите
   `python scripts/export_contracts.py` и `cd frontend && npm run gen:api` и закоммитьте

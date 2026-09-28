@@ -1,0 +1,23 @@
+# pg_dump и pg_restore 28.09: база после загрузки истории и прелоада на моделях A_link 0,50 (до PR #30)
+# 01:54-02:00 МСК, measure.log:
+dump_s=74 size=521M
+restore_s=309 rc=0
+events|10277666
+forecasts|55942
+decisions|338
+work_orders|222
+
+# 11:14 МСК, повтор pg_restore того же дампа, verify.log (counts.sql ниже):
+restore_s=133 rc=0
+== restored
+events|10277666
+forecasts|55942
+decisions|338
+work_orders|222
+outcomes|475
+audit_log|2145
+== source
+Error response from daemon: container 84f31028abfce14138575fecd874d6db4c79a309bfdec7b7a7e98c9a7b522c5b is not running
+
+# counts.sql:
+select 'events', count(*) from events union all select 'forecasts', count(*) from forecasts union all select 'decisions', count(*) from decisions union all select 'work_orders', count(*) from work_orders union all select 'outcomes', count(*) from outcomes union all select 'audit_log', count(*) from audit_log

@@ -1,0 +1,10 @@
+[0/8] ожидание api http://127.0.0.1:8010: health ok за 0 с
+[1/8] ok   вход dispatcher, /me: права: decide, export, outcome, view, work_order_manage
+[2/8] ok   GET /system/status = 200: demo_today=2026-06-30, ML reachable=True, mode=real, status=ready
+[3/8] ok   run-daily под admin на 2026-06-29: run_id=102, головы: A_link=ok, D=ok, guard_weekly=empty_valid, прогнозов=3005
+[4/8] ok   GET /forecasts не пуст: всего 154, первый 4825f66169ed0af0
+[5/8] ok   карточка прогноза открывается: equipment_diag, объект: объект Каппа ДУ
+[6/8] ok   решение диспетчера сохраняется: решение 112: reject / false_alarm
+[7/8] ok   GET / отдаёт index.html: text/html; charset=utf-8
+[8/8] ok   GET /stream отдаёт первое событие: первое событие «hello»
+смоук пройден
