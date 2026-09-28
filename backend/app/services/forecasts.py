@@ -119,13 +119,21 @@ def list_forecasts(db: Session, *, scenario: str | None, date_from: date | None,
 
 
 def _dynamics(db: Session, row: models.Forecast) -> list[DynamicsPoint]:
-    """Наблюдаемые события канала за 30 суток по МСК, без синтетического заполнения.
+    """События канала за 30 суток по МСК: все 30 суток, у каждых — число событий.
+
+    Сутки без единого события возвращаются с events=0, а не выбрасываются и не считаются
+    исправными: состояние канала в эти сутки неизвестно. Для потери связи молчание канала
+    и есть симптом, так что alarms=0 в такие сутки не значит «тревог не было». В БД
+    попадают только события, принятые через /ingest/events и /ingest/events/upload (туда
+    же пишет replay.py), поэтому events=0 значит «нет в журнале сервиса», а не «датчик
+    молчал». У прогноза без канала (недельная рекомендация по объекту) все events=0.
 
     События хранятся в UTC, поэтому сутки режем по полуночи МСК и раскладываем в Python:
     date() в SQL дал бы сутки UTC, и событие в 01:30 МСК ушло бы в предыдущий день.
     """
     start = row.asof - timedelta(days=DYNAMICS_DAYS - 1)
-    counts = {start + timedelta(days=i): [0, 0] for i in range(DYNAMICS_DAYS)}
+    # [тревоги, плохие состояния, все события]
+    counts = {start + timedelta(days=i): [0, 0, 0] for i in range(DYNAMICS_DAYS)}
     if row.channel_id is not None:
         events = db.execute(select(models.Event.ts, models.Event.alarm, models.Event.event_class)
                             .where(models.Event.channel_id == row.channel_id,
@@ -137,8 +145,9 @@ def _dynamics(db: Session, row: models.Forecast) -> list[DynamicsPoint]:
             if day is not None:
                 day[0] += int(bool(alarm))
                 day[1] += int(event_class == "fault")
-    return [DynamicsPoint(day=day, alarms=alarms, bad_states=bad)
-            for day, (alarms, bad) in counts.items()]
+                day[2] += 1
+    return [DynamicsPoint(day=day, alarms=alarms, bad_states=bad, events=total)
+            for day, (alarms, bad, total) in counts.items()]
 
 
 def _coverage_note(db: Session, row: models.Forecast) -> str | None:
