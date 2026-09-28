@@ -8,7 +8,9 @@
 
 При SEED_DEMO=1 дополнительно:
 - по пользователю на роль dispatcher, technician, analyst, manager, admin; логин равен
-  коду роли, имя — название роли из словаря, пароль — DEMO_PASSWORD (обязателен);
+  коду роли, имя — название роли из словаря, пароль — DEMO_PASSWORD (обязателен).
+  Строку, которую занял сотрудник каталога с тем же логином (backend/app/directory.py),
+  seed не трогает;
 - синтетический справочник contracts/synthetic_reference.json, только если ref_objects и
   ref_channels пусты и настоящего справочника нет.
 
@@ -25,7 +27,7 @@ from sqlalchemy.orm import Session
 from . import models, vocab
 from .config import get_settings
 from .db import session_factory
-from .security import CurrentUser, hash_password, verify_password
+from .security import DIRECTORY_HASH_PREFIX, CurrentUser, hash_password, verify_password
 from .services import reference, settings_store
 from .services.helpers import synthetic_reference
 
@@ -63,6 +65,8 @@ def seed_users(db: Session, password: str) -> int:
         if row is None:
             db.add(models.User(login=role, name=name, role=role,
                                password_hash=hash_password(password)))
+            continue
+        if row.password_hash.startswith(DIRECTORY_HASH_PREFIX):
             continue
         row.name = name
         row.role = role

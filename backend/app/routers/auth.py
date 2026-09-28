@@ -8,8 +8,19 @@ cookie SameSite=Lax браузер шлёт и на запрос со стран
 
 Частота входа ограничена здесь, а не в Caddy: в сборке caddy:2-alpine нет модуля
 rate limit. Счётчик неудачных попыток живёт в процессе api (на стенде один процесс)
-и сбрасывается при перезапуске — для перебора паролей этого достаточно.
+и сбрасывается при перезапуске — для перебора паролей этого достаточно. Для каталога
+счётчик ещё и бережёт учётные записи сотрудников: AD блокирует запись после N неверных
+паролей подряд, а 429 до каталога не доходит.
+
+Порядок проверки пароля при заданном LDAP_URL (backend/app/directory.py):
+1. каталог. Пароль верный и группа даёт роль — вход; верный без роли — 403
+   no_role_in_directory, без попытки локального входа;
+2. локальная учётная запись из users, если LDAP_ALLOW_LOCAL=1 (по умолчанию). Сюда
+   доходят и неверный пароль каталога, и отказ каталога: демо-учётки работают без него;
+3. ничего не подошло: 503 directory_unavailable, если каталог не ответил, иначе 401
+   bad_credentials. 503 не считается неудачной попыткой.
 """
+import logging
 import threading
 import time
 from collections import defaultdict, deque
@@ -17,7 +28,7 @@ from collections import defaultdict, deque
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
-from .. import models, vocab
+from .. import directory, models, vocab
 from ..config import get_settings
 from ..db import get_db
 from ..schemas.auth import LoginIn, UserOut
@@ -31,6 +42,8 @@ from ..security import (
     revoke_session,
     verify_password,
 )
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(tags=["auth"])
 
@@ -79,7 +92,43 @@ def _user(row: models.User) -> CurrentUser:
     return CurrentUser(row.login, row.name, row.role, vocab.permissions_of(row.role))
 
 
-@router.post("/auth/login", response_model=UserOut, dependencies=[Depends(_check_csrf)])
+LOGIN_RESPONSES = {
+    401: {"description": "Неверный логин или пароль: `bad_credentials`"},
+    403: {"description": "`no_role_in_directory` — пароль принят каталогом, но ни одна группа "
+                         "сотрудника не сопоставлена роли (LDAP_ROLE_GROUPS); "
+                         "`csrf_rejected` — вход со страницы другого сайта"},
+    429: {"description": "`too_many_attempts` — 10 неудачных входов за 5 минут "
+                         "с одного адреса на один логин"},
+    503: {"description": "`directory_unavailable` — каталог LDAP не ответил, а локальная "
+                         "учётная запись не подошла или выключена (LDAP_ALLOW_LOCAL=0)"},
+}
+
+
+def _directory_user(body: LoginIn, db: Session) -> tuple[models.User | None, bool]:
+    """(строка users, каталог_недоступен). Строка есть, только если каталог принял пароль."""
+    settings = get_settings()
+    try:
+        found = directory.authenticate(body.login, body.password, settings)
+    except directory.BadCredentials:
+        return None, False
+    except directory.Unavailable as exc:
+        log.warning("каталог недоступен при входе %s: %s", body.login, exc)
+        return None, True
+    except directory.NoRole as exc:
+        log.warning("каталог: у %s нет роли (%s)", body.login, exc)
+        raise HTTPException(status_code=403, detail="no_role_in_directory") from None
+    return directory.upsert_user(db, found), False
+
+
+def _local_user(body: LoginIn, db: Session) -> models.User | None:
+    row = db.get(models.User, body.login)
+    if row is None or not verify_password(body.password, row.password_hash):
+        return None
+    return row
+
+
+@router.post("/auth/login", response_model=UserOut, dependencies=[Depends(_check_csrf)],
+             responses=LOGIN_RESPONSES)
 def login(body: LoginIn, request: Request, response: Response,
           db: Session = Depends(get_db)) -> UserOut:
     # Аудит неудачного входа: какую учётную запись пробовали. Пароль в state не кладём.
@@ -88,12 +137,18 @@ def login(body: LoginIn, request: Request, response: Response,
     key = (request.client.host if request.client else "", body.login)
     if throttle.blocked(key):
         raise HTTPException(status_code=429, detail="too_many_attempts")
-    row = db.get(models.User, body.login)
-    if row is None or not verify_password(body.password, row.password_hash):
+    settings = get_settings()
+    row, directory_down = None, False
+    if directory.enabled(settings):
+        row, directory_down = _directory_user(body, db)
+    if row is None and (not directory.enabled(settings) or settings.ldap_allow_local):
+        row = _local_user(body, db)
+    if row is None:
+        if directory_down:
+            raise HTTPException(status_code=503, detail="directory_unavailable")
         throttle.failed(key)
         raise HTTPException(status_code=401, detail="bad_credentials")
     throttle.succeeded(key)
-    settings = get_settings()
     response.set_cookie(COOKIE, issue_session(row), httponly=True, samesite="lax",
                         secure=settings.cookie_secure, max_age=settings.session_hours * 3600)
     user = _user(row)

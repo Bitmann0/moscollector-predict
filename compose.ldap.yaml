@@ -1,0 +1,67 @@
+# Override: тестовый каталог OpenLDAP и вход api через него. ТОЛЬКО ДЛЯ ТЕСТА.
+#   docker compose -f compose.yaml -f compose.ldap.yaml up -d --build
+# Сотрудники и группы — deploy/ldap/bootstrap.ldif, их пароли —
+# deploy/ldap/test-directory.env.example. Демо-учётки из .env тоже работают
+# (LDAP_ALLOW_LOCAL=1). Каталог заполняется при первом старте с пустым томом ldapdata:
+# после правки LDIF — docker compose -f compose.yaml -f compose.ldap.yaml down -v.
+# На стенд (compose.stand.yaml) не ставится: там нужен каталог заказчика.
+services:
+  ldap:
+    image: osixia/openldap:1.5.0
+    hostname: ldap
+    # Свой тестовый CA вместо истёкшего CA образа (комментарий в tls-init.sh).
+    entrypoint: ["/bin/sh", "/seed/tls-init.sh"]
+    env_file: deploy/ldap/test-directory.env.example
+    environment:
+      LDAP_ORGANISATION: Moscollector test
+      LDAP_DOMAIN: moscollector.test
+      LDAP_READONLY_USER: "true"
+      # Сертификат клиента сервер не требует: api входит по паролю.
+      LDAP_TLS_VERIFY_CLIENT: never
+      LDAP_SEED_INTERNAL_LDIF_PATH: /seed/ldif
+      # Образ копирует LDIF в каталог настройки при каждом старте. Если удалить этот
+      # каталог после первого старта (так по умолчанию), повторный старт падает на копировании.
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "false"
+    volumes:
+      - ./deploy/ldap/tls-init.sh:/seed/tls-init.sh:ro
+      - ./deploy/ldap/bootstrap.ldif:/seed/ldif/bootstrap.ldif:ro
+      - ldapdata:/var/lib/ldap
+      - ldapconfig:/etc/ldap/slapd.d
+      # Отсюда api берёт ca.crt для проверки сертификата при StartTLS.
+      - ldapcerts:/container/service/slapd/assets/certs
+    # Только на 127.0.0.1: для tests/test_directory_live.py с хоста.
+    ports:
+      - "127.0.0.1:${LDAP_TEST_PORT:-1389}:389"
+      - "127.0.0.1:${LDAP_TEST_TLS_PORT:-1636}:636"
+    healthcheck:
+      # Готов, когда загружен LDIF: служебная учётная запись видит группу mk-admins.
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost -D cn=readonly,dc=moscollector,dc=test -w \"$$LDAP_READONLY_USER_PASSWORD\" -b ou=groups,dc=moscollector,dc=test '(cn=mk-admins)' cn | grep -q '^# numEntries: 1'"]
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 20
+
+  api:
+    env_file:
+      - .env
+      - deploy/ldap/test-directory.env.example
+    environment:
+      LDAP_URL: ldap://ldap:389
+      LDAP_STARTTLS: "1"
+      LDAP_TLS_CA_FILE: /run/ldap-certs/ca.crt
+      LDAP_BIND_DN: cn=readonly,dc=moscollector,dc=test
+      LDAP_USER_BASE: ou=people,dc=moscollector,dc=test
+      LDAP_USER_FILTER: (uid={login})
+      LDAP_GROUP_BASE: ou=groups,dc=moscollector,dc=test
+      LDAP_ROLE_GROUPS: dispatcher=mk-dispatchers;technician=mk-technicians;analyst=mk-analysts;manager=mk-managers;admin=mk-admins
+      LDAP_ALLOW_LOCAL: "1"
+    volumes:
+      - ldapcerts:/run/ldap-certs:ro
+    depends_on:
+      ldap:
+        condition: service_healthy
+
+volumes:
+  ldapdata:
+  ldapconfig:
+  ldapcerts:

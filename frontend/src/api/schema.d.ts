@@ -2333,6 +2333,20 @@ export interface operations {
                     "application/json": components["schemas"]["UserOut"];
                 };
             };
+            /** @description Неверный логин или пароль: `bad_credentials` */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description `no_role_in_directory` — пароль принят каталогом, но ни одна группа сотрудника не сопоставлена роли (LDAP_ROLE_GROUPS); `csrf_rejected` — вход со страницы другого сайта */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -2341,6 +2355,20 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+            /** @description `too_many_attempts` — 10 неудачных входов за 5 минут с одного адреса на один логин */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description `directory_unavailable` — каталог LDAP не ответил, а локальная учётная запись не подошла или выключена (LDAP_ALLOW_LOCAL=0) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
