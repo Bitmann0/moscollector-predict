@@ -37,6 +37,14 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(300))
 
 
+class RevokedSession(Base):
+    """Сессии, завершённые выходом (jti из токена cookie, миграция 0003). Строка нужна,
+    пока токен не истёк по возрасту: дальше его отклоняет подпись с max_age."""
+    __tablename__ = "revoked_sessions"
+    jti: Mapped[str] = mapped_column(String(64), primary_key=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
 class RefObject(Base):
     """Район → комплекс → объект (справочник_объектов_диспетчер.csv)."""
     __tablename__ = "ref_objects"

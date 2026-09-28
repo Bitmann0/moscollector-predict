@@ -1,9 +1,12 @@
 """Вход, сессия, права по матрице vocabularies.json, блокировка настроек."""
+from datetime import UTC, datetime, timedelta
+
 import pytest
-from app import vocab
+from app import models, vocab
 from app.config import get_settings
 from conftest import DEMO_PASSWORD, ROLES
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
 API = "/api/v1"
 
@@ -42,6 +45,52 @@ def test_logout_drops_session(login):
     client = login("analyst")
     assert client.post(f"{API}/auth/logout").status_code == 204
     assert client.get(f"{API}/me").status_code == 401
+
+
+def test_cookie_copied_before_logout_is_revoked(app, login):
+    client = login("analyst")
+    copied = client.cookies["mk_session"]
+    assert client.post(f"{API}/auth/logout").status_code == 204
+    stolen = TestClient(app, cookies={"mk_session": copied})
+    resp = stolen.get(f"{API}/me")
+    assert resp.status_code == 401
+    assert resp.json()["detail"] == "session_invalid"
+    assert stolen.post(f"{API}/ingest/events", json=[]).status_code == 401
+
+
+def test_logout_keeps_other_session_of_same_login(app, login):
+    # Под демо-логином на стенде сидят несколько экспертов: выход одного — не выход всех.
+    here, elsewhere = login("analyst"), login("analyst")
+    copied = here.cookies["mk_session"]
+    assert here.post(f"{API}/auth/logout").status_code == 204
+    assert TestClient(app, cookies={"mk_session": copied}).get(f"{API}/me").status_code == 401
+    resp = elsewhere.get(f"{API}/me")
+    assert resp.status_code == 200 and resp.json()["login"] == "analyst"
+    assert elsewhere.post(f"{API}/ingest/events", json=[]).status_code == 201
+
+
+def test_logout_purges_expired_revocations(login, db):
+    now = datetime.now(UTC)
+    db.add_all([models.RevokedSession(jti="expired", expires_at=now - timedelta(hours=1)),
+                models.RevokedSession(jti="alive", expires_at=now + timedelta(hours=1))])
+    db.commit()
+    assert login("analyst").post(f"{API}/auth/logout").status_code == 204
+    db.expire_all()
+    jtis = set(db.scalars(select(models.RevokedSession.jti)))
+    assert "expired" not in jtis and "alive" in jtis
+    assert len(jtis) == 2  # «alive» и только что отозванная сессия
+
+
+def test_login_after_logout_gets_new_working_session(app, login):
+    client = login("analyst")
+    assert client.post(f"{API}/auth/logout").status_code == 204
+    resp = client.post(f"{API}/auth/login", json={"login": "analyst", "password": DEMO_PASSWORD})
+    assert resp.status_code == 200
+    assert client.get(f"{API}/me").json()["login"] == "analyst"
+    # Новая cookie несёт свой jti, и второй выход отзывает уже её.
+    copied = client.cookies["mk_session"]
+    assert client.post(f"{API}/auth/logout").status_code == 204
+    assert TestClient(app, cookies={"mk_session": copied}).get(f"{API}/me").status_code == 401
 
 
 def test_api_key_gives_integration_role(integration, app):

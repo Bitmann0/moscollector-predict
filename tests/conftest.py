@@ -11,13 +11,17 @@ ML подменяется FakeMl через app.dependency_overrides[get_ml_clie
 import hashlib
 import os
 import secrets
+import threading
+import time as clock
 from datetime import date, datetime, time, timedelta
 
 import pytest
+import uvicorn
 from app import security
 from app.config import get_settings
 from app.db import Base, get_engine, reset_engine, session_factory
 from app.main import create_app
+from app.routers import stream as stream_router
 from app.schemas.ml import (
     AddressOut,
     AlertOut,
@@ -255,3 +259,22 @@ def ran(admin) -> dict:
     resp = admin.post("/api/v1/admin/run-daily", json={"asof": MONDAY.isoformat()})
     assert resp.status_code == 200, resp.text
     return resp.json()
+
+
+@pytest.fixture
+def live_server(app, monkeypatch):
+    """uvicorn в потоке: TestClient копит тело ответа целиком и бесконечный SSE не отдаст.
+    Нужен и скриптам scripts/_api.py: они ходят через urllib по настоящему HTTP."""
+    monkeypatch.setattr(stream_router, "HEARTBEAT_S", 0.2)
+    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=0, log_level="warning",
+                                           lifespan="off"))
+    thread = threading.Thread(target=server.run, daemon=True)
+    thread.start()
+    deadline = clock.monotonic() + 10
+    while not server.started:
+        assert clock.monotonic() < deadline, "uvicorn не стартовал"
+        clock.sleep(0.02)
+    port = server.servers[0].sockets[0].getsockname()[1]
+    yield f"http://127.0.0.1:{port}"
+    server.should_exit = True
+    thread.join(timeout=10)

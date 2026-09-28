@@ -1,6 +1,6 @@
 """Аудит (ТЗ §11): изменяющие запросы и выгрузки попадают в audit_log, чтение — нет."""
 from app import models
-from conftest import TUESDAY, alert_id
+from conftest import DEMO_PASSWORD, TUESDAY, alert_id
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
@@ -41,10 +41,34 @@ def test_reads_are_not_audited_but_export_is(seeded, admin):
                                                           "admin")
 
 
-def test_failed_login_is_audited_without_user(seeded, app):
-    TestClient(app).post(f"{API}/auth/login", json={"login": "admin", "password": "nope"})
-    last = _rows(seeded)[-1]
-    assert (last.path, last.status, last.user_login) == (f"{API}/auth/login", 401, None)
+def _text(row: models.AuditRecord) -> str:
+    return " ".join(str(getattr(row, c.name)) for c in models.AuditRecord.__table__.columns)
+
+
+def test_failed_login_audit_names_tried_login_not_password(seeded, app):
+    wrong = "неверный-пароль-7Qx"
+    client = TestClient(app)
+    client.post(f"{API}/auth/login", json={"login": "admin", "password": wrong})
+    client.post(f"{API}/auth/login", json={"login": "no-such-user", "password": wrong})
+    client.post(f"{API}/auth/login", json={"login": "admin", "password": DEMO_PASSWORD})
+    known, unknown, ok = _rows(seeded)[-3:]
+    # Роль у неудачной попытки пустая: вход не состоялся, это логин, а не пользователь.
+    assert (known.path, known.status, known.user_login, known.role) == (
+        f"{API}/auth/login", 401, "admin", None)
+    assert (unknown.status, unknown.user_login, unknown.role) == (401, "no-such-user", None)
+    assert (ok.status, ok.user_login, ok.role) == (200, "admin", "admin")
+    for row in (known, unknown, ok):
+        assert row.payload is None
+        assert wrong not in _text(row) and DEMO_PASSWORD not in _text(row)
+
+
+def test_logout_audit_names_user(seeded, login, app):
+    login("analyst").post(f"{API}/auth/logout")
+    TestClient(app).post(f"{API}/auth/logout")  # без сессии: выходить некому
+    named, anonymous = _rows(seeded)[-2:]
+    assert (named.path, named.status, named.user_login, named.role) == (
+        f"{API}/auth/logout", 204, "analyst", "analyst")
+    assert (anonymous.status, anonymous.user_login) == (204, None)
 
 
 def test_audit_endpoint_lists_and_filters(login, admin):
