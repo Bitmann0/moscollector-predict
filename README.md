@@ -244,6 +244,47 @@ curl -c /tmp/mk.cookies -H "Content-Type: application/json" \
 curl -b /tmp/mk.cookies -H "Accept: application/xml" "http://127.0.0.1:8000/api/v1/forecasts?page_size=2"
 ```
 
+## Вход через LDAP/AD
+
+С заданным `LDAP_URL` api сначала проверяет пароль в корпоративном каталоге (simple bind,
+библиотека `ldap3`), роль берёт из групп сотрудника, а при первом входе заводит его в
+`users`. Демо-учётки продолжают работать при `LDAP_ALLOW_LOCAL=1`, это значение по
+умолчанию. Коды отказа: неверный пароль — 401 `bad_credentials`, нет группы с ролью —
+403 `no_role_in_directory`, каталог не ответил — 503 `directory_unavailable`.
+Переменные — в `.env.example`, устройство и ограничения —
+[docs/submission/07-security.md](docs/submission/07-security.md), раздел 5.
+
+Тестовый каталог OpenLDAP (`osixia/openldap:1.5.0`, 373 МБ) поднимает override
+`compose.ldap.yaml`. В нём по сотруднику на роль и один без роли: `ldap-dispatcher`,
+`ldap-technician`, `ldap-analyst`, `ldap-manager`, `ldap-admin`, `ldap-norole`. Их
+пароли лежат только в `deploy/ldap/test-directory.env.example`; это тестовые пароли,
+реальных там нет.
+
+```bash
+docker compose -f compose.yaml -f compose.ldap.yaml up -d --build
+```
+
+api ищет сотрудника под служебной учётной записью `cn=readonly` и подключается к
+каталогу через StartTLS. Сертификат каталога он проверяет по тестовому CA, который
+выпускает `deploy/ldap/tls-init.sh`. Порты каталога 1389 (LDAP) и 1636 (LDAPS)
+открыты только на 127.0.0.1. Правка `deploy/ldap/bootstrap.ldif` вступает в силу после
+`docker compose -f compose.yaml -f compose.ldap.yaml down -v`.
+
+Тесты против этого каталога в CI не входят, без `LDAP_TEST_URL` они пропускаются:
+
+```bash
+docker compose -f compose.yaml -f compose.ldap.yaml up -d --wait ldap
+docker compose -f compose.yaml -f compose.ldap.yaml cp \
+    ldap:/container/service/slapd/assets/certs/ca.crt state/ldap-ca.crt
+LDAP_TEST_URL=ldap://localhost:1389 LDAP_TEST_TLS_URL=ldaps://localhost:1636 \
+    LDAP_TEST_CA_FILE=state/ldap-ca.crt python -m pytest -q tests/test_directory_live.py
+```
+
+PowerShell: `$env:LDAP_TEST_URL="ldap://localhost:1389"` и так же две другие переменные,
+затем `.venv\Scripts\python -m pytest -q tests/test_directory_live.py`. Без Docker
+логику входа проверяют `tests/test_directory.py` на подменном каталоге ldap3
+`MOCK_SYNC`; они идут в CI вместе с остальными тестами.
+
 ## Режим разработки
 
 Python 3.12, Node 22. Для запуска без Docker добавьте в `.env` две строки — compose их
@@ -275,7 +316,7 @@ ML_URL=http://localhost:8001
 ## Раскладка репозитория
 
 ```
-backend/app/         API C2: config, db, models, security, audit, main
+backend/app/         API C2: config, db, models, security, directory (LDAP), audit, main
   routers/           маршруты по разделам C2, только права и параметры
   schemas/           pydantic-модели C2 и зеркало C1 (ml.py)
   services/          прикладная логика; сигнатуры — services/signatures.md
@@ -288,7 +329,8 @@ ml/                  ML-проект CAML целиком; продуктовый
 contracts/           словари C3, схемы C1 и C2, фикстуры, синтетический справочник
 scripts/             смоук, выгрузка контрактов, прелоад, проигрыватель, эмуляторы, нагрузка
 deploy/Caddyfile     обратный прокси стенда
-compose*.yaml        локальный запуск, реальные модели, стенд
+deploy/ldap/         тестовый каталог OpenLDAP: LDIF, тестовые пароли, выпуск сертификата
+compose*.yaml        локальный запуск, реальные модели, стенд, тестовый каталог LDAP
 docs/                план команды, спецификация каркаса, архитектура, владельцы, статус задач
   submission/        сопроводительная документация для сдачи
 analysis/            аудит ТЗ и полного датасета

@@ -2,6 +2,8 @@
 
 Люди входят по логину и паролю, получают подписанную HttpOnly cookie: EventSource
 в браузере не умеет ставить заголовки, поэтому токен в заголовке не подходит.
+Пароль сверяется с хешем в users или, при заданном LDAP_URL, проверяется каталогом
+(backend/app/directory.py); сессия у обоих видов учётных записей одна и та же.
 Машинные клиенты (replay.py, эмуляторы, внешние системы) шлют X-API-Key и
 получают роль integration. Права роли берутся из матрицы vocabularies.json.
 
@@ -32,6 +34,8 @@ from .db import get_db
 
 COOKIE = "mk_session"
 _ITERATIONS = 200_000
+# password_hash учётной записи из каталога: пароля в БД нет, его проверяет каталог.
+DIRECTORY_HASH_PREFIX = "ldap$"
 
 
 @dataclass(frozen=True)
@@ -49,6 +53,8 @@ def hash_password(password: str, salt: bytes | None = None) -> str:
 
 
 def verify_password(password: str, stored: str) -> bool:
+    if stored.startswith(DIRECTORY_HASH_PREFIX):
+        return False
     try:
         _, iterations, salt_hex, digest_hex = stored.split("$")
     except ValueError:

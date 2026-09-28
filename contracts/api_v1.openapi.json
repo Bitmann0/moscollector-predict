@@ -3913,6 +3913,12 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "description": "Неверный логин или пароль: `bad_credentials`"
+          },
+          "403": {
+            "description": "`no_role_in_directory` — пароль принят каталогом, но ни одна группа сотрудника не сопоставлена роли (LDAP_ROLE_GROUPS); `csrf_rejected` — вход со страницы другого сайта"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -3922,6 +3928,12 @@
               }
             },
             "description": "Validation Error"
+          },
+          "429": {
+            "description": "`too_many_attempts` — 10 неудачных входов за 5 минут с одного адреса на один логин"
+          },
+          "503": {
+            "description": "`directory_unavailable` — каталог LDAP не ответил, а локальная учётная запись не подошла или выключена (LDAP_ALLOW_LOCAL=0)"
           }
         },
         "summary": "Login",

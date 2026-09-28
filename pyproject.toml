@@ -21,6 +21,7 @@ dependencies = [
   "openpyxl>=3.1,<4",
   "fpdf2>=2.8,<3",
   "defusedxml>=0.7,<1",
+  "ldap3>=2.9,<3",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +41,9 @@ app = ["static/**/*", "migrations/**/*", "resources/**/*"]
 [tool.pytest.ini_options]
 pythonpath = ["backend"]
 testpaths = ["tests"]
+markers = [
+  "ldap_live: против настоящего OpenLDAP из compose.ldap.yaml; без LDAP_TEST_URL пропускается",
+]
 
 [tool.ruff]
 line-length = 100

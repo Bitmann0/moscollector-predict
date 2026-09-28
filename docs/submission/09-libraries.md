@@ -11,13 +11,14 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
 руководству в PDF, PR #55) и `defusedxml` (разбор XML при приёме, PR #56), а также dev-зависимости
 `pypdf` и `xmlschema`. `defusedxml` раньше приходил в образ транзитивно через `fpdf2`, теперь он прямой.
 Версии `fpdf2` и его транзитивных пакетов сняты с образа api ветки PR #55, собранного 28.09.2026
-в 21:26 МСК; версии `defusedxml`, `pypdf` и `xmlschema` — с venv разработчика.
+в 21:26 МСК; версии `defusedxml`, `pypdf` и `xmlschema` — с venv разработчика. Прямую
+зависимость `ldap3` и её транзитивную `pyasn1` (вход через LDAP/AD) отмечает пометка ³.
 
 ## Сводка
 
 | Компонент | Где исполняется | Прямых | Транзитивных | Лицензии пакетов, попадающих в образ или сборку |
 |---|---|---|---|---|
-| backend | контейнер api | 12 и 4 dev | 25 | MIT — 18, BSD-3-Clause — 10, LGPL-3.0-only — 3, PSF-2.0 — 2, Apache-2.0, MPL-2.0, MIT-CMU, «MIT или Apache-2.0» — по 1 |
+| backend | контейнер api | 13 и 4 dev | 26 | MIT — 18, BSD-3-Clause — 10, LGPL-3.0-only — 3, PSF-2.0 — 2, LGPL-3.0, Apache-2.0, BSD-2-Clause, MPL-2.0, MIT-CMU, «MIT или Apache-2.0» — по 1 |
 | ML | контейнеры ml и replay | 12, 1 в группе `schedules` и 2 dev | 34 | MIT — 21, BSD-3-Clause — 15, Apache-2.0 — 3, ещё 7 — PSF-2.0, MIT-CMU, лицензия Matplotlib и составные (таблицы ниже) |
 | frontend, браузерная сборка | браузер пользователя | 5 | 6 | MIT — 10, OFL-1.1 — 1 (шрифт) |
 | frontend, инструменты сборки | стадия сборки образа api, `npm run dev` | 6 | 136 | MIT — 128, ISC — 7, Apache-2.0 — 3, BSD-3-Clause, Python-2.0, CC-BY-4.0, «MIT или CC0-1.0» — по 1 |
@@ -31,6 +32,7 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
 | Лицензия | Что под ней | Где находится |
 |---|---|---|
 | LGPL-3.0-only | `psycopg` и `psycopg-binary` 3.3.6, `fpdf2` 2.8.8 | образ api; ставятся из PyPI без изменений отдельными пакетами |
+| LGPL-3.0 (в метаданных — «LGPL v3», без уточнения only или or-later) | `ldap3` 2.9.1 | образ api; ставится из PyPI без изменений отдельным пакетом |
 | MPL-2.0 | `certifi` 2026.7.22 | образ api, транзитивно от `httpx` |
 | GPL-3.0-or-later с GCC Runtime Library Exception 3.1 | системная библиотека `libgomp1` 14.2.0-19 | образ ml, ставится `apt-get` в `ml/Dockerfile` |
 | OFL-1.1 | шрифт Golos Text, `@fontsource-variable/golos-text` 5.3.0 | файлы woff2 браузерной сборки |
@@ -47,7 +49,9 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
   `License`. Пометка ¹ означает, что в поле `License` лежит полный текст лицензии или поле
   пустое, и SPDX-идентификатор определён по этому тексту или по файлу лицензии в
   `*.dist-info`. Пометка ² — лицензия определена по классификаторам `License ::` и файлам
-  лицензии. Для dev-пакетов, которых в образах нет, использованы venv разработчиков
+  лицензии. Пометка ³ — пакет добавлен после снятия перечня (вход через LDAP/AD, PR
+  #LDAPPR); версия и лицензия взяты тем же способом из образа api, собранного 28.09 из
+  ветки `feat/ldap-auth`. Для dev-пакетов, которых в образах нет, использованы venv разработчиков
   (Python 3.12.10, Windows).
 - **Транзитивные зависимости Python** выведены из поля `Requires-Dist` установленных
   пакетов, маркеры окружения вычислены для Linux x86_64 и CPython 3.12. Граф объясняет
@@ -94,6 +98,7 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `openpyxl` | `openpyxl>=3.1,<4` | 3.1.5 | MIT | выгрузка в XLSX (`backend/app/services/export.py`) и приём XLSX (`backend/app/services/ingest.py`) |
 | `defusedxml` | `defusedxml>=0.7,<1` | 0.7.1 (venv) | PSF-2.0² | разбор XML-пачек приёма с запретом DTD, сущностей и внешних ссылок (`backend/app/xml_api.py`) |
 | `fpdf2` | `fpdf2>=2.8,<3` | 2.8.8 | LGPL-3.0-only | отчёт руководству в PDF (`backend/app/services/report_pdf.py`) |
+| `ldap3` | `ldap3>=2.9,<3` | 2.9.1³ | LGPL-3.0 | вход через каталог LDAP/AD (`backend/app/directory.py`) |
 | `pytest` (dev) | `pytest>=8,<9` | 8.4.2 (venv; в образ не входит) | MIT | тесты `tests/` (`make test-backend`, CI) |
 | `ruff` (dev) | `ruff>=0.6,<1` | 0.16.9 (venv; в образ не входит) | MIT | линтер (`make lint`, CI) |
 | `pypdf` (dev) | `pypdf>=6,<7` | 6.19.0 (venv; в образ не входит) | BSD-3-Clause | текст PDF отчёта в `tests/test_report_pdf.py` |
@@ -118,6 +123,7 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `MarkupSafe` | 3.0.3 | BSD-3-Clause | Mako |
 | `pillow` | 12.3.0 | MIT-CMU | fpdf2 |
 | `psycopg-binary` | 3.3.6 | LGPL-3.0-only | psycopg |
+| `pyasn1` | 0.6.4³ | BSD-2-Clause | ldap3 |
 | `pydantic` | 2.13.5 | MIT | fastapi, pydantic-settings |
 | `pydantic_core` | 2.46.5 | MIT | pydantic |
 | `python-dotenv` | 1.2.3 | BSD-3-Clause | pydantic-settings, uvicorn |
