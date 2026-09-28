@@ -19,3 +19,9 @@ services:
     healthcheck:
       # Холодная загрузка моделей и фичестора дольше, чем старт заглушки.
       start_period: 180s
+
+  # Настоящий справочник объектов и каналов (BE-03): seed при старте api сверяет с ним
+  # таблицы ref_objects и ref_channels и убирает синтетику (backend/app/seed.py).
+  api:
+    volumes:
+      - ${BUNDLE_DIR:-./bundle}/Materials:/app/data/raw:ro

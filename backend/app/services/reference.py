@@ -54,10 +54,15 @@ def tree(db: Session) -> list[TreeNode]:
     return [build(o) for o in children.get(None, [])]
 
 
+OBJECT_FILE = "справочник_объектов_диспетчер.csv"
+CHANNEL_FILE = "справочник_каналов_датчиков.csv"
+SOURCE_FILES = (OBJECT_FILE, CHANNEL_FILE)
+
+
 def sync(db: Session, user: CurrentUser) -> SyncReport:
     root = get_settings().raw_data_dir
-    object_file = root / "справочник_объектов_диспетчер.csv"
-    channel_file = root / "справочник_каналов_датчиков.csv"
+    object_file = root / OBJECT_FILE
+    channel_file = root / CHANNEL_FILE
     if not object_file.is_file() or not channel_file.is_file():
         objects = db.scalar(select(func.count()).select_from(models.RefObject)) or 0
         channels = db.scalar(select(func.count()).select_from(models.RefChannel)) or 0
