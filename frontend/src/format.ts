@@ -10,6 +10,8 @@ import { title } from "./vocab";
 
 const NUMBER = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
 const PERCENT = new Intl.NumberFormat("ru-RU", { style: "percent", maximumFractionDigits: 1 });
+// Приоритет всегда с двумя знаками: иначе в одной колонке соседствуют «1» и «0,71».
+const PRIORITY = new Intl.NumberFormat("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const DATE_TIME = new Intl.DateTimeFormat("ru-RU", {
   timeZone: "Europe/Moscow",
   day: "2-digit",
@@ -57,8 +59,10 @@ export function pageParam(value: string | null): number {
 
 /** Оценка с подписью смысла: вероятность или относительный приоритет. */
 export function scoreText(item: Pick<Forecast, "score_type" | "risk" | "priority_score">): string {
-  const value = item.score_type === "probability" ? item.risk : item.priority_score;
-  return `${fmtNumber(value)} (${title("score_type", item.score_type)})`;
+  const label = title("score_type", item.score_type);
+  if (item.score_type === "probability") return `${fmtPercent(item.risk)} (${label})`;
+  const value = item.priority_score;
+  return `${value === null || value === undefined ? DASH : PRIORITY.format(value)} (${label})`;
 }
 
 export function placeText(item: Pick<Forecast, "object" | "channel">): string {
