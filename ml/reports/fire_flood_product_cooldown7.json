@@ -1,0 +1,1161 @@
+{
+  "protocol": "monthly_refresh_temporal",
+  "cooldown_days": 7,
+  "rules": {
+    "B": "n_alarms_w7",
+    "E": "n_flood"
+  },
+  "generated_by": "scripts/eval_fire_flood_product.py",
+  "heads": {
+    "E": {
+      "head": "E",
+      "period": [
+        "2025-07-01",
+        "2026-06-29"
+      ],
+      "days": 364,
+      "label_rows": 6120,
+      "positives": 575,
+      "base_rate": 0.094,
+      "positives_new": 344,
+      "panel_last_day": "2026-06-30",
+      "months": [
+        {
+          "month": "2025-07",
+          "source_end": "2025-06-30",
+          "threshold_end": "2025-06-29",
+          "threshold": 0.08,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-08",
+          "source_end": "2025-07-31",
+          "threshold_end": "2025-07-30",
+          "threshold": 0.046296296296296294,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-09",
+          "source_end": "2025-08-31",
+          "threshold_end": "2025-08-30",
+          "threshold": 0.125,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-10",
+          "source_end": "2025-09-30",
+          "threshold_end": "2025-09-29",
+          "threshold": 0.035398230088495575,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-11",
+          "source_end": "2025-10-31",
+          "threshold_end": "2025-10-30",
+          "threshold": 0.10416666666666667,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-12",
+          "source_end": "2025-11-30",
+          "threshold_end": "2025-11-29",
+          "threshold": 0.1267605633802817,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-01",
+          "source_end": "2025-12-31",
+          "threshold_end": "2025-12-30",
+          "threshold": 0.0728476821192053,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-02",
+          "source_end": "2026-01-31",
+          "threshold_end": "2026-01-30",
+          "threshold": 0.01910828025477707,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-03",
+          "source_end": "2026-02-28",
+          "threshold_end": "2026-02-27",
+          "threshold": 0.058823529411764705,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-04",
+          "source_end": "2026-03-31",
+          "threshold_end": "2026-03-30",
+          "threshold": 0.08333333333333333,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-05",
+          "source_end": "2026-04-30",
+          "threshold_end": "2026-04-29",
+          "threshold": 0.027777777777777776,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-06",
+          "source_end": "2026-05-31",
+          "threshold_end": "2026-05-30",
+          "threshold": 0.07142857142857142,
+          "threshold_feasible": true
+        }
+      ],
+      "budgets": {
+        "2": {
+          "model": {
+            "recommendations": 248,
+            "hits": 55,
+            "new_hits": 16,
+            "unknown": 4,
+            "precision_lower": 0.2218,
+            "precision_known": 0.2254,
+            "recall": 0.0957,
+            "recall_new": 0.0465,
+            "per_day": 0.68
+          },
+          "rule": {
+            "recommendations": 261,
+            "hits": 56,
+            "new_hits": 6,
+            "unknown": 10,
+            "precision_lower": 0.2146,
+            "precision_known": 0.2231,
+            "recall": 0.0974,
+            "recall_new": 0.0174,
+            "per_day": 0.72
+          },
+          "model_by_month": {
+            "2025-07": {
+              "recommendations": 21,
+              "hits": 3,
+              "new_hits": 0,
+              "unknown": 0,
+              "precision_lower": 0.1429,
+              "precision_known": 0.1429,
+              "recall": 0.0667,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-08": {
+              "recommendations": 21,
+              "hits": 4,
+              "new_hits": 0,
+              "unknown": 0,
+              "precision_lower": 0.1905,
+              "precision_known": 0.1905,
+              "recall": 0.1,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-09": {
+              "recommendations": 17,
+              "hits": 5,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.2941,
+              "precision_known": 0.2941,
+              "recall": 0.119,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-10": {
+              "recommendations": 22,
+              "hits": 4,
+              "new_hits": 3,
+              "unknown": 0,
+              "precision_lower": 0.1818,
+              "precision_known": 0.1818,
+              "recall": 0.1212,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-11": {
+              "recommendations": 18,
+              "hits": 2,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.1111,
+              "precision_known": 0.1111,
+              "recall": 0.1053,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-12": {
+              "recommendations": 25,
+              "hits": 3,
+              "new_hits": 2,
+              "unknown": 1,
+              "precision_lower": 0.12,
+              "precision_known": 0.125,
+              "recall": 0.0909,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-01": {
+              "recommendations": 20,
+              "hits": 6,
+              "new_hits": 1,
+              "unknown": 2,
+              "precision_lower": 0.3,
+              "precision_known": 0.3333,
+              "recall": 0.12,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-02": {
+              "recommendations": 18,
+              "hits": 1,
+              "new_hits": 0,
+              "unknown": 1,
+              "precision_lower": 0.0556,
+              "precision_known": 0.0588,
+              "recall": 0.0303,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-03": {
+              "recommendations": 25,
+              "hits": 11,
+              "new_hits": 3,
+              "unknown": 0,
+              "precision_lower": 0.44,
+              "precision_known": 0.44,
+              "recall": 0.1294,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-04": {
+              "recommendations": 21,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.2381,
+              "precision_known": 0.2381,
+              "recall": 0.0694,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-05": {
+              "recommendations": 22,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.2273,
+              "precision_known": 0.2273,
+              "recall": 0.0746,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-06": {
+              "recommendations": 18,
+              "hits": 6,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.3333,
+              "precision_known": 0.3333,
+              "recall": 0.1071,
+              "recall_new": null,
+              "per_day": null
+            }
+          }
+        },
+        "3": {
+          "model": {
+            "recommendations": 320,
+            "hits": 63,
+            "new_hits": 24,
+            "unknown": 6,
+            "precision_lower": 0.1969,
+            "precision_known": 0.2006,
+            "recall": 0.1096,
+            "recall_new": 0.0698,
+            "per_day": 0.88
+          },
+          "rule": {
+            "recommendations": 319,
+            "hits": 63,
+            "new_hits": 6,
+            "unknown": 17,
+            "precision_lower": 0.1975,
+            "precision_known": 0.2086,
+            "recall": 0.1096,
+            "recall_new": 0.0174,
+            "per_day": 0.88
+          },
+          "model_by_month": {
+            "2025-07": {
+              "recommendations": 25,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.2,
+              "precision_known": 0.2,
+              "recall": 0.1111,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-08": {
+              "recommendations": 24,
+              "hits": 4,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.1667,
+              "precision_known": 0.1667,
+              "recall": 0.1,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-09": {
+              "recommendations": 22,
+              "hits": 5,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.2273,
+              "precision_known": 0.2273,
+              "recall": 0.119,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-10": {
+              "recommendations": 29,
+              "hits": 3,
+              "new_hits": 0,
+              "unknown": 0,
+              "precision_lower": 0.1034,
+              "precision_known": 0.1034,
+              "recall": 0.0909,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-11": {
+              "recommendations": 27,
+              "hits": 3,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.1111,
+              "precision_known": 0.1111,
+              "recall": 0.1579,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-12": {
+              "recommendations": 34,
+              "hits": 3,
+              "new_hits": 3,
+              "unknown": 1,
+              "precision_lower": 0.0882,
+              "precision_known": 0.0909,
+              "recall": 0.0909,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-01": {
+              "recommendations": 23,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 2,
+              "precision_lower": 0.2174,
+              "precision_known": 0.2381,
+              "recall": 0.1,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-02": {
+              "recommendations": 27,
+              "hits": 1,
+              "new_hits": 0,
+              "unknown": 2,
+              "precision_lower": 0.037,
+              "precision_known": 0.04,
+              "recall": 0.0303,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-03": {
+              "recommendations": 32,
+              "hits": 12,
+              "new_hits": 5,
+              "unknown": 1,
+              "precision_lower": 0.375,
+              "precision_known": 0.3871,
+              "recall": 0.1412,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-04": {
+              "recommendations": 27,
+              "hits": 6,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.2222,
+              "precision_known": 0.2222,
+              "recall": 0.0833,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-05": {
+              "recommendations": 28,
+              "hits": 6,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.2143,
+              "precision_known": 0.2143,
+              "recall": 0.0896,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-06": {
+              "recommendations": 22,
+              "hits": 10,
+              "new_hits": 6,
+              "unknown": 0,
+              "precision_lower": 0.4545,
+              "precision_known": 0.4545,
+              "recall": 0.1786,
+              "recall_new": null,
+              "per_day": null
+            }
+          }
+        },
+        "5": {
+          "model": {
+            "recommendations": 424,
+            "hits": 70,
+            "new_hits": 32,
+            "unknown": 12,
+            "precision_lower": 0.1651,
+            "precision_known": 0.1699,
+            "recall": 0.1217,
+            "recall_new": 0.093,
+            "per_day": 1.16
+          },
+          "rule": {
+            "recommendations": 418,
+            "hits": 67,
+            "new_hits": 12,
+            "unknown": 12,
+            "precision_lower": 0.1603,
+            "precision_known": 0.165,
+            "recall": 0.1165,
+            "recall_new": 0.0349,
+            "per_day": 1.15
+          },
+          "model_by_month": {
+            "2025-07": {
+              "recommendations": 34,
+              "hits": 4,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.1176,
+              "precision_known": 0.1176,
+              "recall": 0.0889,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-08": {
+              "recommendations": 34,
+              "hits": 3,
+              "new_hits": 1,
+              "unknown": 0,
+              "precision_lower": 0.0882,
+              "precision_known": 0.0882,
+              "recall": 0.075,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-09": {
+              "recommendations": 29,
+              "hits": 6,
+              "new_hits": 3,
+              "unknown": 0,
+              "precision_lower": 0.2069,
+              "precision_known": 0.2069,
+              "recall": 0.1429,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-10": {
+              "recommendations": 40,
+              "hits": 5,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.125,
+              "precision_known": 0.125,
+              "recall": 0.1515,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-11": {
+              "recommendations": 34,
+              "hits": 3,
+              "new_hits": 3,
+              "unknown": 4,
+              "precision_lower": 0.0882,
+              "precision_known": 0.1,
+              "recall": 0.1579,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-12": {
+              "recommendations": 40,
+              "hits": 5,
+              "new_hits": 5,
+              "unknown": 1,
+              "precision_lower": 0.125,
+              "precision_known": 0.1282,
+              "recall": 0.1515,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-01": {
+              "recommendations": 34,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 3,
+              "precision_lower": 0.1471,
+              "precision_known": 0.1613,
+              "recall": 0.1,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-02": {
+              "recommendations": 35,
+              "hits": 4,
+              "new_hits": 3,
+              "unknown": 2,
+              "precision_lower": 0.1143,
+              "precision_known": 0.1212,
+              "recall": 0.1212,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-03": {
+              "recommendations": 39,
+              "hits": 9,
+              "new_hits": 3,
+              "unknown": 1,
+              "precision_lower": 0.2308,
+              "precision_known": 0.2368,
+              "recall": 0.1059,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-04": {
+              "recommendations": 37,
+              "hits": 8,
+              "new_hits": 2,
+              "unknown": 0,
+              "precision_lower": 0.2162,
+              "precision_known": 0.2162,
+              "recall": 0.1111,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-05": {
+              "recommendations": 36,
+              "hits": 7,
+              "new_hits": 1,
+              "unknown": 1,
+              "precision_lower": 0.1944,
+              "precision_known": 0.2,
+              "recall": 0.1045,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-06": {
+              "recommendations": 32,
+              "hits": 11,
+              "new_hits": 6,
+              "unknown": 0,
+              "precision_lower": 0.3438,
+              "precision_known": 0.3438,
+              "recall": 0.1964,
+              "recall_new": null,
+              "per_day": null
+            }
+          }
+        }
+      }
+    },
+    "B": {
+      "head": "B",
+      "period": [
+        "2025-07-01",
+        "2026-06-29"
+      ],
+      "days": 364,
+      "label_rows": 169926,
+      "positives": 1528,
+      "base_rate": 0.009,
+      "positives_new": 1246,
+      "panel_last_day": "2026-06-30",
+      "months": [
+        {
+          "month": "2025-07",
+          "source_end": "2025-06-30",
+          "threshold_end": "2025-06-29",
+          "threshold": 0.03048780487804878,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-08",
+          "source_end": "2025-07-31",
+          "threshold_end": "2025-07-30",
+          "threshold": 0.0273972602739726,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-09",
+          "source_end": "2025-08-31",
+          "threshold_end": "2025-08-30",
+          "threshold": 0.025583919004552494,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-10",
+          "source_end": "2025-09-30",
+          "threshold_end": "2025-09-29",
+          "threshold": 0.0022652029970378113,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-11",
+          "source_end": "2025-10-31",
+          "threshold_end": "2025-10-30",
+          "threshold": 0.04230769230769231,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2025-12",
+          "source_end": "2025-11-30",
+          "threshold_end": "2025-11-29",
+          "threshold": 0.011936339522546418,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-01",
+          "source_end": "2025-12-31",
+          "threshold_end": "2025-12-30",
+          "threshold": 0.05,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-02",
+          "source_end": "2026-01-31",
+          "threshold_end": "2026-01-30",
+          "threshold": 0.006993006993006993,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-03",
+          "source_end": "2026-02-28",
+          "threshold_end": "2026-02-27",
+          "threshold": 0.010270455323519343,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-04",
+          "source_end": "2026-03-31",
+          "threshold_end": "2026-03-30",
+          "threshold": 0.020172910662824207,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-05",
+          "source_end": "2026-04-30",
+          "threshold_end": "2026-04-29",
+          "threshold": 0.07344632768361582,
+          "threshold_feasible": true
+        },
+        {
+          "month": "2026-06",
+          "source_end": "2026-05-31",
+          "threshold_end": "2026-05-30",
+          "threshold": 0.11343283582089553,
+          "threshold_feasible": true
+        }
+      ],
+      "budgets": {
+        "3": {
+          "model": {
+            "recommendations": 515,
+            "hits": 46,
+            "new_hits": 4,
+            "unknown": 193,
+            "precision_lower": 0.0893,
+            "precision_known": 0.1429,
+            "recall": 0.0301,
+            "recall_new": 0.0032,
+            "per_day": 1.41
+          },
+          "rule": {
+            "recommendations": 301,
+            "hits": 11,
+            "new_hits": 4,
+            "unknown": 73,
+            "precision_lower": 0.0365,
+            "precision_known": 0.0482,
+            "recall": 0.0072,
+            "recall_new": 0.0032,
+            "per_day": 0.83
+          },
+          "model_by_month": {
+            "2025-07": {
+              "recommendations": 57,
+              "hits": 4,
+              "new_hits": 0,
+              "unknown": 17,
+              "precision_lower": 0.0702,
+              "precision_known": 0.1,
+              "recall": 0.0381,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-08": {
+              "recommendations": 41,
+              "hits": 1,
+              "new_hits": 0,
+              "unknown": 15,
+              "precision_lower": 0.0244,
+              "precision_known": 0.0385,
+              "recall": 0.0196,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-09": {
+              "recommendations": 51,
+              "hits": 3,
+              "new_hits": 1,
+              "unknown": 19,
+              "precision_lower": 0.0588,
+              "precision_known": 0.0938,
+              "recall": 0.025,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-10": {
+              "recommendations": 55,
+              "hits": 0,
+              "new_hits": 0,
+              "unknown": 23,
+              "precision_lower": 0.0,
+              "precision_known": 0.0,
+              "recall": 0.0,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-11": {
+              "recommendations": 44,
+              "hits": 2,
+              "new_hits": 0,
+              "unknown": 11,
+              "precision_lower": 0.0455,
+              "precision_known": 0.0606,
+              "recall": 0.022,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-12": {
+              "recommendations": 43,
+              "hits": 2,
+              "new_hits": 0,
+              "unknown": 18,
+              "precision_lower": 0.0465,
+              "precision_known": 0.08,
+              "recall": 0.0078,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-01": {
+              "recommendations": 39,
+              "hits": 1,
+              "new_hits": 0,
+              "unknown": 19,
+              "precision_lower": 0.0256,
+              "precision_known": 0.05,
+              "recall": 0.0123,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-02": {
+              "recommendations": 39,
+              "hits": 3,
+              "new_hits": 0,
+              "unknown": 16,
+              "precision_lower": 0.0769,
+              "precision_known": 0.1304,
+              "recall": 0.0268,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-03": {
+              "recommendations": 47,
+              "hits": 9,
+              "new_hits": 1,
+              "unknown": 17,
+              "precision_lower": 0.1915,
+              "precision_known": 0.3,
+              "recall": 0.0566,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-04": {
+              "recommendations": 33,
+              "hits": 7,
+              "new_hits": 1,
+              "unknown": 13,
+              "precision_lower": 0.2121,
+              "precision_known": 0.35,
+              "recall": 0.05,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-05": {
+              "recommendations": 35,
+              "hits": 8,
+              "new_hits": 0,
+              "unknown": 14,
+              "precision_lower": 0.2286,
+              "precision_known": 0.381,
+              "recall": 0.0597,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-06": {
+              "recommendations": 31,
+              "hits": 6,
+              "new_hits": 1,
+              "unknown": 11,
+              "precision_lower": 0.1935,
+              "precision_known": 0.3,
+              "recall": 0.04,
+              "recall_new": null,
+              "per_day": null
+            }
+          }
+        },
+        "5": {
+          "model": {
+            "recommendations": 731,
+            "hits": 56,
+            "new_hits": 8,
+            "unknown": 261,
+            "precision_lower": 0.0766,
+            "precision_known": 0.1191,
+            "recall": 0.0366,
+            "recall_new": 0.0064,
+            "per_day": 2.01
+          },
+          "rule": {
+            "recommendations": 500,
+            "hits": 16,
+            "new_hits": 5,
+            "unknown": 117,
+            "precision_lower": 0.032,
+            "precision_known": 0.0418,
+            "recall": 0.0105,
+            "recall_new": 0.004,
+            "per_day": 1.37
+          },
+          "model_by_month": {
+            "2025-07": {
+              "recommendations": 84,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 23,
+              "precision_lower": 0.0595,
+              "precision_known": 0.082,
+              "recall": 0.0476,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-08": {
+              "recommendations": 60,
+              "hits": 2,
+              "new_hits": 0,
+              "unknown": 22,
+              "precision_lower": 0.0333,
+              "precision_known": 0.0526,
+              "recall": 0.0392,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-09": {
+              "recommendations": 68,
+              "hits": 6,
+              "new_hits": 2,
+              "unknown": 21,
+              "precision_lower": 0.0882,
+              "precision_known": 0.1277,
+              "recall": 0.05,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-10": {
+              "recommendations": 79,
+              "hits": 2,
+              "new_hits": 2,
+              "unknown": 25,
+              "precision_lower": 0.0253,
+              "precision_known": 0.037,
+              "recall": 0.0154,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-11": {
+              "recommendations": 60,
+              "hits": 2,
+              "new_hits": 0,
+              "unknown": 18,
+              "precision_lower": 0.0333,
+              "precision_known": 0.0476,
+              "recall": 0.022,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-12": {
+              "recommendations": 58,
+              "hits": 1,
+              "new_hits": 0,
+              "unknown": 23,
+              "precision_lower": 0.0172,
+              "precision_known": 0.0286,
+              "recall": 0.0039,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-01": {
+              "recommendations": 55,
+              "hits": 2,
+              "new_hits": 1,
+              "unknown": 24,
+              "precision_lower": 0.0364,
+              "precision_known": 0.0645,
+              "recall": 0.0247,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-02": {
+              "recommendations": 55,
+              "hits": 3,
+              "new_hits": 0,
+              "unknown": 19,
+              "precision_lower": 0.0545,
+              "precision_known": 0.0833,
+              "recall": 0.0268,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-03": {
+              "recommendations": 72,
+              "hits": 12,
+              "new_hits": 1,
+              "unknown": 27,
+              "precision_lower": 0.1667,
+              "precision_known": 0.2667,
+              "recall": 0.0755,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-04": {
+              "recommendations": 52,
+              "hits": 6,
+              "new_hits": 0,
+              "unknown": 23,
+              "precision_lower": 0.1154,
+              "precision_known": 0.2069,
+              "recall": 0.0429,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-05": {
+              "recommendations": 45,
+              "hits": 8,
+              "new_hits": 0,
+              "unknown": 19,
+              "precision_lower": 0.1778,
+              "precision_known": 0.3077,
+              "recall": 0.0597,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-06": {
+              "recommendations": 43,
+              "hits": 7,
+              "new_hits": 1,
+              "unknown": 17,
+              "precision_lower": 0.1628,
+              "precision_known": 0.2692,
+              "recall": 0.0467,
+              "recall_new": null,
+              "per_day": null
+            }
+          }
+        },
+        "10": {
+          "model": {
+            "recommendations": 1179,
+            "hits": 71,
+            "new_hits": 16,
+            "unknown": 419,
+            "precision_lower": 0.0602,
+            "precision_known": 0.0934,
+            "recall": 0.0465,
+            "recall_new": 0.0128,
+            "per_day": 3.24
+          },
+          "rule": {
+            "recommendations": 945,
+            "hits": 35,
+            "new_hits": 9,
+            "unknown": 286,
+            "precision_lower": 0.037,
+            "precision_known": 0.0531,
+            "recall": 0.0229,
+            "recall_new": 0.0072,
+            "per_day": 2.6
+          },
+          "model_by_month": {
+            "2025-07": {
+              "recommendations": 123,
+              "hits": 5,
+              "new_hits": 1,
+              "unknown": 37,
+              "precision_lower": 0.0407,
+              "precision_known": 0.0581,
+              "recall": 0.0476,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-08": {
+              "recommendations": 94,
+              "hits": 4,
+              "new_hits": 1,
+              "unknown": 28,
+              "precision_lower": 0.0426,
+              "precision_known": 0.0606,
+              "recall": 0.0784,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-09": {
+              "recommendations": 99,
+              "hits": 4,
+              "new_hits": 2,
+              "unknown": 36,
+              "precision_lower": 0.0404,
+              "precision_known": 0.0635,
+              "recall": 0.0333,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-10": {
+              "recommendations": 136,
+              "hits": 4,
+              "new_hits": 4,
+              "unknown": 47,
+              "precision_lower": 0.0294,
+              "precision_known": 0.0449,
+              "recall": 0.0308,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-11": {
+              "recommendations": 104,
+              "hits": 7,
+              "new_hits": 1,
+              "unknown": 32,
+              "precision_lower": 0.0673,
+              "precision_known": 0.0972,
+              "recall": 0.0769,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2025-12": {
+              "recommendations": 104,
+              "hits": 3,
+              "new_hits": 2,
+              "unknown": 51,
+              "precision_lower": 0.0288,
+              "precision_known": 0.0566,
+              "recall": 0.0118,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-01": {
+              "recommendations": 81,
+              "hits": 4,
+              "new_hits": 2,
+              "unknown": 40,
+              "precision_lower": 0.0494,
+              "precision_known": 0.0976,
+              "recall": 0.0494,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-02": {
+              "recommendations": 81,
+              "hits": 4,
+              "new_hits": 1,
+              "unknown": 27,
+              "precision_lower": 0.0494,
+              "precision_known": 0.0741,
+              "recall": 0.0357,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-03": {
+              "recommendations": 121,
+              "hits": 11,
+              "new_hits": 1,
+              "unknown": 43,
+              "precision_lower": 0.0909,
+              "precision_known": 0.141,
+              "recall": 0.0692,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-04": {
+              "recommendations": 86,
+              "hits": 5,
+              "new_hits": 0,
+              "unknown": 28,
+              "precision_lower": 0.0581,
+              "precision_known": 0.0862,
+              "recall": 0.0357,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-05": {
+              "recommendations": 74,
+              "hits": 10,
+              "new_hits": 0,
+              "unknown": 27,
+              "precision_lower": 0.1351,
+              "precision_known": 0.2128,
+              "recall": 0.0746,
+              "recall_new": null,
+              "per_day": null
+            },
+            "2026-06": {
+              "recommendations": 76,
+              "hits": 10,
+              "new_hits": 1,
+              "unknown": 23,
+              "precision_lower": 0.1316,
+              "precision_known": 0.1887,
+              "recall": 0.0667,
+              "recall_new": null,
+              "per_day": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -16,7 +16,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import datetime as dt
 import json
 import re
@@ -32,6 +31,8 @@ TITLES = {
     "sensor_link": "Отказ датчика: риск потери связи",
     "equipment_diag": "Износ: плановая диагностика оборудования",
     "guard_weekly": "НСД: проверка объектов с хроническими охранными тревогами",
+    "fire_risk": "Пожар: риск пожарной или газовой тревоги на участке",
+    "flood_risk": "Подтопление: риск затопления насосной на объекте",
 }
 
 # --- Числа без машинного отчёта в репозитории --------------------------------
@@ -74,6 +75,12 @@ CMD_42D = ("python scripts/audit_second_ml.py --mode historical --data-root <dat
 CMD_GUARD = ("python scripts/build_intrusion_eventtime_labels.py; "
              "python scripts/exp_guard_weekly_repeats.py")
 CMD_GUARD_MODEL = "python scripts/exp_guard_weekly_model.py"
+CMD_FIRE_FLOOD = ("MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py "
+                  "--output reports/fire_flood_product.json")
+CMD_FIRE_FLOOD_CD7 = ("MKL_ROOT=<корень с данными> python scripts/eval_fire_flood_product.py "
+                      "--cooldown 7 --output reports/fire_flood_product_cooldown7.json")
+FIRE_FLOOD_SOURCE = "reports/fire_flood_product.json"
+FIRE_FLOOD_CD7_SOURCE = "reports/fire_flood_product_cooldown7.json"
 
 
 def _load(name: str) -> dict:
@@ -342,6 +349,91 @@ def guard_weekly() -> dict:
     }
 
 
+def _queue_block(head: dict, budget: str, side: str) -> dict:
+    x = head["budgets"][budget][side]
+    return {**_counts(x["recommendations"], x["hits"], x["unknown"]),
+            "new_hits": x["new_hits"], "recall": x["recall"],
+            "recall_new": x["recall_new"], "per_day": x["per_day"]}
+
+
+def _object_queue(code: str, head_name: str, budget: str, rule: str, **fields) -> dict:
+    """B и E: помесячная временная проверка той же политики, что в продукте."""
+    report = _load("fire_flood_product.json")
+    cd7 = _load("fire_flood_product_cooldown7.json")
+    head = report["heads"][head_name]
+    period = head["period"]
+    model = _queue_block(head, budget, "model")
+    return {
+        "code": code, "title": TITLES[code], "head": head_name,
+        **fields,
+        "horizon_hours": 24, "limit_per_day": int(budget),
+        "cooldown_days": report["cooldown_days"],
+        "config": "configs/heads.yaml",
+        "evaluations": [
+            {"id": "monthly_refresh_2025_2026", "period": period, "days": head["days"],
+             "method": "temporal",
+             "method_note": "модель на каждый месяц обучена по данным до его начала; "
+                            "политика (лимит, пауза) выбрана на том же периоде из шести "
+                            "вариантов — ретроспективно",
+             **model,
+             "positives": head["positives"], "positives_new": head["positives_new"],
+             "recall_unit": "положительные строки метки за период",
+             "by_month": {m: {k: v for k, v in x.items() if k in (
+                             "recommendations", "hits", "unknown", "precision_lower")}
+                          for m, x in head["budgets"][budget]["model_by_month"].items()},
+             "source": FIRE_FLOOD_SOURCE, "command": CMD_FIRE_FLOOD},
+        ],
+        "comparison": [
+            {"what": rule, "period": period,
+             **_queue_block(head, budget, "rule"),
+             "source": FIRE_FLOOD_SOURCE, "command": CMD_FIRE_FLOOD},
+            {"what": "та же модель с паузой 7 суток по объекту", "period": period,
+             **_queue_block(cd7["heads"][head_name], budget, "model"),
+             "source": FIRE_FLOOD_CD7_SOURCE, "command": CMD_FIRE_FLOOD_CD7},
+        ] + [
+            {"what": f"та же модель, до {other} в сутки", "period": period,
+             **_queue_block(head, other, "model"),
+             "source": FIRE_FLOOD_SOURCE, "command": CMD_FIRE_FLOOD}
+            for other in head["budgets"] if other != budget
+        ],
+        "base_rate": [
+            {"period": period, "positives": head["positives"],
+             "candidates": head["label_rows"],
+             "rate_with_unknown": _ratio(head["positives"], head["label_rows"]),
+             "known": head["known_label_rows"], "known_positives": head["known_positives"],
+             "rate_known": _ratio(head["known_positives"], head["known_label_rows"]),
+             "note": "rate_with_unknown — доля положительных среди строк метки, сутки без "
+                     "данных считаются отрицательными, как в обучении; rate_known — "
+                     "только строки с данными за следующие сутки",
+             "source": FIRE_FLOOD_SOURCE, "command": CMD_FIRE_FLOOD},
+        ],
+    }
+
+
+def fire_risk() -> dict:
+    return _object_queue(
+        "fire_risk", "B", "10",
+        "правило «тревоги участка за 7 суток» (n_alarms_w7), те же 10 в сутки, без паузы",
+        in_product="LightGBM на участок объекта (10 пикетов), top-10 участков в сутки "
+                   "по риску, без порога точности и без паузы",
+        target="текстовое пожарное или газовое тревожное состояние (дым, газ, "
+               "температура выше 40 °C) на участке в следующие сутки; подтверждённых "
+               "пожаров в данных нет",
+        label="label_fire (src/mkl/labels.py); в факте продукта сутки без данных "
+              "участка — unknown (src/mkl/outcomes.py)")
+
+
+def flood_risk() -> dict:
+    return _object_queue(
+        "flood_risk", "E", "5",
+        "правило «Затоплен сегодня» (n_flood за сутки расчёта), те же 5 в сутки, без паузы",
+        in_product="LightGBM на объект с насосами, top-5 объектов в сутки по риску, "
+                   "без порога точности и без паузы",
+        target="состояние «Затоплен» с каналов насосов объекта в следующие сутки",
+        label="label_flood (src/mkl/labels.py), только объекты с насосами; в факте "
+              "продукта сутки без данных объекта — unknown")
+
+
 # --- время расчёта -------------------------------------------------------------
 
 def runtime() -> list[dict]:
@@ -361,11 +453,6 @@ def runtime() -> list[dict]:
 
 # --- отклонённые постановки и рычаги ----------------------------------------
 
-def _final_row(head: str) -> dict:
-    with (REPORTS / "final_metrics.csv").open(encoding="utf-8") as fh:
-        return next(r for r in csv.DictReader(fh) if r["head"] == head)
-
-
 def _temperature() -> dict:
     """Среднее трёх полугодовых тестов, чистое окно 24 ч, все каналы.
 
@@ -383,30 +470,12 @@ def _temperature() -> dict:
 
 
 def rejected_setups() -> list[dict]:
-    fire25 = _load("fire_history_ablation.json")["history"]
-    fire26 = _load("fire_2026_check.json")
     queue = _load("intrusion_operational_queue.json")["pooled"]
     ml_queue = queue["recorded_full"]["all_top4"]
     rule_queue = _load("guard_review_queue_backtest.json")["pooled"]
     strict = _load("a_strict_top1.json")
-    flood = _final_row("E")
     temperature = _temperature()
     return [
-        {"id": "B_fire", "what": "пожарный риск участка: текстовое пожарное или газовое "
-                                  "тревожное состояние на участке завтра",
-         "limit_per_day": 10,
-         "results": [
-             {"period": [fire25["folds"][0]["start"], fire25["folds"][-1]["end"]],
-              "precision_daily": round(fire25["mean"]["daily_precision_at_k"], 4),
-              "note": "среднее трёх окон 2025 года",
-              "source": "reports/fire_history_ablation.json (history)",
-              "command": "python scripts/exp_fire_history.py"},
-             {"period": [fire26["test_start"], fire26["test_end"]],
-              "precision_daily": round(fire26["results"]["history"]["daily_precision_at_k"], 4),
-              "base_rate": round(fire26["results"]["history"]["base_rate"], 4),
-              "note": "просмотренный период; train_latest.py B при 0,70 порога не нашёл",
-              "source": "reports/fire_2026_check.json",
-              "command": "python scripts/exp_fire_2026_check.py"}]},
         {"id": "C_daily_guard", "what": "дневная охранная очередь: записанный охранный "
                                          "сигнал при охране завтра",
          "limit_per_day": 4,
@@ -432,18 +501,6 @@ def rejected_setups() -> list[dict]:
               "rule_precision_daily": round(strict["pooled"]["rule"]["daily_precision"], 4),
               "source": "reports/a_strict_top1.json",
               "command": "python scripts/exp_a_strict_top1.py"}]},
-        {"id": "E_flood", "what": "риск подтопления объекта (состояние «Затоплен»)",
-         "limit_per_day": int(float(flood["budget_per_day"])),
-         "results": [
-             {"period": ["2026-01-01", "2026-06-30"],
-              "precision": round(float(flood["precision_at_k"]), 4),
-              "recall": round(float(flood["recall_at_k"]), 4),
-              "roc_auc": round(float(flood["roc_auc"]), 4),
-              "base_rate": round(float(flood["base_rate"]), 4),
-              "note": "прежний офлайн-протокол с глобальным бюджетом на период; на текущем "
-                      "коде не перепроверялось",
-              "source": "reports/final_metrics.csv (E); reports/final.md:47",
-              "command": "python scripts/final_eval.py"}]},
         {"id": "temperature", "what": "выход температуры за диапазон 3–40 °C за 24 часа",
          "results": [{**temperature,
                       "note": "среднее трёх полугодовых тестов 2024H1–2026H1; тест 2026H1 — "
@@ -561,6 +618,17 @@ def quality_screen(scenarios: dict[str, dict]) -> dict:
     guard_base = scenarios["guard_weekly"]["base_rate"][0]
     guard_cmp = scenarios["guard_weekly"]["comparison"][0]
 
+    def queue(code: str, rule: str, what: str) -> dict:
+        sc = scenarios[code]
+        base, cmp = sc["base_rate"][0], sc["comparison"][0]
+        return {
+            "base_rate": _ratio(base["known_positives"], base["known"], 3),
+            "rule_precision": _ratio(cmp["hits"], cmp["alerts"] - cmp["unknown"], 3),
+            "period": f"{span(base['period'])}, модель на каждый месяц",
+            "source": "ml/reports/FIRE_FLOOD_PRODUCT.md",
+            "note": f"Простое правило «{rule}» с тем же лимитом {sc['limit_per_day']} в "
+                    f"сутки, без паузы. Обе величины — по известным исходам: {what}."}
+
     def span(period):
         a, b = (dt.date.fromisoformat(x).strftime("%d.%m.%Y") for x in period)
         return f"{a}–{b}"
@@ -593,11 +661,16 @@ def quality_screen(scenarios: dict[str, dict]) -> dict:
                     f"{guard_cmp['model']['hits']} из {guard_cmp['model']['alerts']}, правило — "
                     f"{guard_cmp['rule']['hits']} из {guard_cmp['rule']['alerts']}. База считается "
                     "от всех объект-недель, включая неизвестный исход."},
+        "fire_risk": queue("fire_risk", "тревоги участка за 7 суток",
+                           "сутки, за которые участок не прислал данных, не входят"),
+        "flood_risk": queue("flood_risk", "Затоплен сегодня",
+                            "сутки, за которые объект не прислал данных, не входят"),
     }
 
 
 def build() -> dict:
-    scenarios = {s["code"]: s for s in (sensor_link(), equipment_diag(), guard_weekly())}
+    scenarios = {s["code"]: s for s in (sensor_link(), equipment_diag(), guard_weekly(),
+                                        fire_risk(), flood_risk())}
     return {
         "schema_version": 1,
         "frozen": FROZEN,
