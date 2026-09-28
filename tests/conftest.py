@@ -153,6 +153,16 @@ class FakeMl:
 
 
 @pytest.fixture(autouse=True)
+def reset_login_throttle():
+    """Счётчик неудачных входов общий на процесс: тесты не должны делить его."""
+    from app.routers.auth import throttle
+
+    throttle.reset()
+    yield
+    throttle.reset()
+
+
+@pytest.fixture(autouse=True)
 def fast_password_hash(monkeypatch):
     """200 000 итераций PBKDF2 — это ~0,2 с на хеш; seed в каждом тесте хеширует пять
     паролей. Число итераций хранится в самом хеше, поэтому проверка пароля не меняется."""
@@ -165,12 +175,15 @@ def db_url(tmp_path) -> str:
 
 
 @pytest.fixture
-def env(db_url, monkeypatch):
+def env(db_url, monkeypatch, tmp_path):
     """Переменные окружения сервиса и чистая схема БД."""
     for key, value in {"DATABASE_URL": db_url, "SECRET_KEY": SECRET_KEY,
                        "DEMO_PASSWORD": DEMO_PASSWORD, "INTEGRATION_API_KEY": API_KEY,
                        "DEMO_TODAY": "2026-06-30", "DEMO_SETTINGS_LOCKED": "0",
-                       "SEED_DEMO": "1", "ML_URL": "http://ml.invalid:8001"}.items():
+                       "SEED_DEMO": "1", "ML_URL": "http://ml.invalid:8001",
+                       # Пустой каталог: настоящий справочник с машины разработчика
+                       # не должен подменять синтетику в тестах.
+                       "RAW_DATA_DIR": str(tmp_path / "raw")}.items():
         monkeypatch.setenv(key, value)
     get_settings.cache_clear()
     reset_engine()

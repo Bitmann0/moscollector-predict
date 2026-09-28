@@ -86,8 +86,9 @@ def test_layout_is_the_compose_contract(staging):
     assert (staging / "data").is_dir() and (staging / "models").is_dir()
     assert (staging / "configs/features.yaml").is_file()
     assert (staging / "reports/intrusion_eventtime_v2_build.json").is_file()
+    # Materials монтирует не ml, а api (справочник BE-03), поэтому в LAYOUT его нет.
     assert {rel.split("/")[0] for rel in bb.REQUIRED} == {"data", "models", "configs",
-                                                          "reports"}
+                                                          "reports", "Materials"}
 
 
 def test_missing_required_files_are_named_together_before_copying(root, tmp_path):

@@ -1,10 +1,17 @@
-# ЗАГЛУШКА — владелец PM-10 (стенд, решения D9 и D13).
-# Заменить: домен и TLS для реальной ВМ, бэкап pg_dump (ML1-13), лимиты ресурсов, журналы.
-# Уже живое: сервис replay (ML2-03).
-# Контракт: api снаружи доступен только через Caddy (80/443), демо-настройки закрыты;
-# scripts/smoke_compose.py --base-url https://$STAND_DOMAIN должен остаться зелёным.
+# Стенд (PM-10, решения D9 и D13): Linux-ВМ 4 vCPU / 16 ГБ, Caddy с TLS на 80 и 443,
+# api наружу закрыт, демо-настройки заблокированы, бэкап БД раз в сутки.
 #
 #   docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml up -d --build
+#   python scripts/smoke_compose.py --base-url https://$STAND_DOMAIN
+#
+# Лимиты памяти в сумме — 13 ГБ из 16: остаток на ОС и страничный кеш parquet.
+# Журналы контейнеров — json-file по 10 МБ, 5 файлов на сервис.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   api:
     ports: !reset []
@@ -13,6 +20,25 @@ services:
       COOKIE_SECURE: "1"
       # Caddy в той же сети compose: доверяем его X-Forwarded-Proto и X-Forwarded-For.
       FORWARDED_ALLOW_IPS: "*"
+    logging: *logging
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+  db:
+    logging: *logging
+    deploy:
+      resources:
+        limits:
+          memory: 3g
+
+  ml:
+    logging: *logging
+    deploy:
+      resources:
+        limits:
+          memory: 6g
 
   caddy:
     image: caddy:2-alpine
@@ -25,6 +51,11 @@ services:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    logging: *logging
+    deploy:
+      resources:
+        limits:
+          memory: 256m
     depends_on:
       api:
         condition: service_healthy
@@ -53,12 +84,49 @@ services:
       # корень скрипта в контейнере — /srv.
       - ${BUNDLE_DIR:-./bundle}/data/interim:/srv/bundle/data/interim:ro
       - ./state/replay:/srv/state
+    logging: *logging
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     # HEALTHCHECK образа ml опрашивает :8001, а здесь сервера нет.
     healthcheck:
       disable: true
     depends_on:
       api:
         condition: service_healthy
+    restart: unless-stopped
+
+  # Бэкап БД (ML1-13): pg_dump в custom-формате раз в сутки в ./state/backups на хосте,
+  # хранится 7 последних. Восстановление — README, раздел «Стенд».
+  backup:
+    image: postgres:16-alpine
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-moscollector}
+      PGUSER: ${POSTGRES_USER:-moscollector}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-moscollector}
+      TZ: Europe/Moscow
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          f=/backups/moscollector-$$(date +%Y%m%d-%H%M).dump
+          pg_dump -Fc -f "$$f.part" && mv "$$f.part" "$$f" && echo "бэкап $$f"
+          ls -1t /backups/*.dump 2>/dev/null | tail -n +8 | xargs -r rm -f
+          sleep 86400
+        done
+    volumes:
+      - ./state/backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    logging: *logging
+    deploy:
+      resources:
+        limits:
+          memory: 512m
     restart: unless-stopped
 
 volumes:
