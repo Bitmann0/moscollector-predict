@@ -6,6 +6,7 @@
 git clone https://github.com/Bitmann0/moscollector-predict.git
 cd moscollector-predict
 make install
+make install-ml
 make test
 ```
 

@@ -34,7 +34,7 @@ BE, ML-2 и FE план называет предположительно, по�
 | `ml/src/mkl/product_api.py`: `_real_outcomes` | ML-1 | ML1-07 | C1 |
 | `ml/src/mkl/product_stub.py`, `contracts/fixtures/ml_*.json` | ML-1 | ML1-02 | C1 |
 | `ml/tests/test_product_api.py` | ML-1 | ML1-03 | C1 |
-| `ml/Dockerfile`, `ml/.dockerignore`, `ml/Dockerfile.dockerignore`, `ml/requirements.lock` | ML-2 | ML2-10 | раздел 3 плана |
+| `ml/Dockerfile`, `ml/Dockerfile.dockerignore`, `ml/requirements.lock` | ML-2 | ML2-10 | раздел 3 плана |
 | `ml/scripts/build_bundle.py` | ML-2 | ML2-02, ML2-12 | C4 |
 | `ml/reports/SUBMISSION_METRICS.md` и `.json` | ML-1 | ML1-08 | D12 |
 | `ml/scripts/train_latest.py`, модели окна | ML-1 | ML1-05a, ML1-05b, ML1-10 | C4 |

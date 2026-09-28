@@ -17,9 +17,6 @@ data/*.db
 data/models/
 docs/source/
 
-# При этом сохраняем структуру каталогов.
-!data/.gitkeep
-!docs/.gitkeep
 
 # Reproducible audit outputs are tracked; bulk data and execution caches stay local.
 analysis/deps/
@@ -36,9 +33,17 @@ analysis/tz_page-*.png
 catboost_info/
 *.parquet
 *.pkl
-*.7z
 *.duckdb
-.env
+.env.*
+!.env.example
+*.xlsx
+analysis/*.csv
+/alarm_events.csv
+.playwright-mcp/
+# Документы сдачи собираются вне git: в PDF — учётные данные экспертов (D13)
+docs/submission/*.pdf
+docs/submission/*.docx
+docs/submission/*.pptx
 # Фронтенд
 frontend/node_modules/
 frontend/dist/

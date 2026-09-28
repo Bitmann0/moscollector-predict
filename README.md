@@ -328,7 +328,7 @@ backend/app/         API C2: config, db, models, security, directory (LDAP), aud
   seed.py            пользователи, причины решений, сверка с настоящим справочником или синтетика
 backend/entrypoint.sh  старт контейнера: миграция, seed, uvicorn
 tests/               тесты backend
-frontend/            React + Vite + TypeScript; src/pages — вход и 9 экранов
+frontend/            React + Vite + TypeScript; src/pages — вход и 10 экранов
 ml/                  ML-проект CAML целиком; продуктовый слой — src/mkl/product_*.py
 contracts/           словари C3, схемы C1 и C2, фикстуры, синтетический справочник
 scripts/             смоук, выгрузка контрактов, прелоад, проигрыватель, эмуляторы, нагрузка
