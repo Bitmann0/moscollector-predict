@@ -3682,6 +3682,39 @@
               "description": "Группа аварии: пожар, наводнение, газ, проникновение, аномальная температура",
               "title": "Incident Group"
             }
+          },
+          {
+            "description": "Колонка: время, объект, тип датчика, событие датчика, тип события. Кроме ts — только при from и to не шире 7 суток, иначе 422 sort_needs_range",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "ts",
+              "description": "Колонка: время, объект, тип датчика, событие датчика, тип события. Кроме ts — только при from и to не шире 7 суток, иначе 422 sort_needs_range",
+              "enum": [
+                "ts",
+                "object",
+                "sensor_type",
+                "sensor_event",
+                "event_class"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
+            }
           }
         ],
         "responses": {
