@@ -43,6 +43,11 @@ class ForecastItem(BaseModel):
     rank: int
     object: ObjectRef
     channel: ChannelRef | None = None
+    segment_label: str | None = Field(
+        default=None, description="Участок объекта из адреса ML (address.segment_label): "
+                                  "«ПК 10–20» или «каналы без пикета». Приходит у пожарного "
+                                  "риска (голова B), у которого канала нет; у прогноза по "
+                                  "объекту целиком — null")
     data_status: DataStatus
     decision: DecisionOut | None = None
     outcome_auto: OutcomeAuto | None = None

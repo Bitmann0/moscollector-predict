@@ -25,6 +25,22 @@
       "result_status": "ok",
       "scenario": "guard_weekly",
       "threshold_feasible": null
+    },
+    {
+      "detail": null,
+      "head": "B",
+      "model_lag_days": 7,
+      "result_status": "ok",
+      "scenario": "fire_risk",
+      "threshold_feasible": true
+    },
+    {
+      "detail": null,
+      "head": "E",
+      "model_lag_days": 7,
+      "result_status": "ok",
+      "scenario": "flood_risk",
+      "threshold_feasible": true
     }
   ],
   "planned_like_alarms_24h": 0,
@@ -46,6 +62,18 @@
       "open_forecasts": 0,
       "scenario": "guard_weekly",
       "title": "НСД: проверка объектов с хроническими охранными тревогами"
+    },
+    {
+      "coverage_fraction": 1.0,
+      "open_forecasts": 0,
+      "scenario": "fire_risk",
+      "title": "Пожар: риск пожарной или газовой тревоги на участке"
+    },
+    {
+      "coverage_fraction": 1.0,
+      "open_forecasts": 0,
+      "scenario": "flood_risk",
+      "title": "Подтопление: риск затопления насосной на объекте"
     }
   ],
   "series_coverage_per_day": [],
@@ -55,7 +83,7 @@
     "cancelled": 0,
     "completed": 0,
     "confirmed": 0,
-    "draft": 9,
+    "draft": 15,
     "in_progress": 0
   }
 }

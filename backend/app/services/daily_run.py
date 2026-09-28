@@ -3,8 +3,9 @@
 Точки входа: POST /api/v1/admin/run-daily,
 `python -m app.services.daily_run --asof YYYY-MM-DD` и scripts/preload_demo.py.
 
-1. Запрос к ML: головы A_link и D, журнал выданного из issued_log за 7 дней до asof
-   (день asof не входит), history_complete_from = asof − 7.
+1. Запрос к ML: головы A_link, D, B и E, журнал выданного из issued_log за 7 дней до
+   asof (день asof не входит), history_complete_from = asof − 7. У A_link и D строка
+   журнала — канал, у B (участок объекта) и E (объект) — объект: канала у них нет.
 2. ML недоступен или ответ нарушает C1 → прогон пишется со статусом головы error и
    текстом ошибки, ответ 200 без прогнозов.
 3. Upsert forecasts по alert_id (по recommendation_id у недельной очереди), строка
@@ -13,28 +14,31 @@
 4. По понедельникам — недельная очередь guard_weekly тем же прогоном и черновик
    «Проверка охранной сигнализации объекта» на каждую рекомендацию, срок — valid_to.
 5. Созревшие прогнозы отправляются в ML `/outcomes`; автоматический факт хранится
-   отдельно от ручного исхода.
+   отдельно от ручного исхода. Участок прогноза B уходит в запросе полем segment из
+   сохранённого адреса (forecasts.address): без него ML вернёт unknown.
 6. После commit: alert.new на каждый новый прогноз в бюджете, run.finished на прогон.
 
 Лимит показа (ML2-13, экран «Настройки», parameters.limit_by_head). В бюджете остаются
 первые N рекомендаций ML по рангу у каждой головы, остальные сохраняются с
 in_budget=false и extra.cut_by_limit=true: их не видно в журнале, по ним нет alert.new,
-черновика заявки и запроса факта. N не выше проверенного: 20 у A_link, 3 у D, 4 у
-недельной очереди (schemas/parameters.py, VERIFIED_LIMITS).
+черновика заявки и запроса факта. N не выше проверенного: 20 у A_link, 3 у D, 10 у B,
+5 у E, 4 у недельной очереди (schemas/parameters.py, VERIFIED_LIMITS).
 
 Журнал выданного пишется после лимита, то есть из показанного. От него зависит пауза
 в 7 дней: ML не выдаёт повторно канал, выданный за 7 суток до asof. Если бы журнал брал
 всю выдачу ML, рекомендации с ранга N+1 до 20 ушли бы на паузу, хотя диспетчер их не
 видел, и риск по этим каналам молчал бы неделю. С журналом показанного такие каналы
 завтра снова конкурируют за место в выдаче. Точность top-N при паузе по показанному
-отдельно не замерялась: ML проверял top-20 с паузой по своей выдаче из 20.
+отдельно не замерялась: ML проверял top-20 с паузой по своей выдаче из 20. Паузу B и E
+по объекту задаёт ML (ml/configs/heads.yaml, cooldown_days; сейчас 0), поэтому журнал
+уходит по всем четырём головам независимо от её длины.
 Недельная очередь журнала выданного не читает: паузу в 14 суток ML восстанавливает
 по своей выдаче из 4 объектов (ml/src/mkl/guard_weekly.py, replay). Объект, срезанный
 лимитом, для ML всё равно выдан и две недели в очередь не вернётся.
 
 weekly_only=True не вызывает /score: прогон kind=weekly_guard пишет только недельную
 очередь и её черновики, журнал выданного не меняется. Так прелоад проходит понедельники
-января–мая, не считая на них A_link и D.
+января–мая, не считая на них дневные головы.
 """
 import argparse
 import hashlib
@@ -65,7 +69,7 @@ from .notifications import publish_safe
 
 log = logging.getLogger(__name__)
 
-PILOT_HEADS = ["A_link", "D"]
+PILOT_HEADS = ["A_link", "D", "B", "E"]
 WEEKLY_HEAD = "guard_weekly"
 HISTORY_DAYS = 7
 WEEKLY_HORIZON_HOURS = 168
@@ -248,6 +252,9 @@ def _log_issued(db: Session, asof: date, alerts: list[AlertOut], scored: set[str
 
     Голова с result_status=error алертов не вернула: если стереть её прежнюю выдачу,
     пропадёт пауза в 7 дней, и завтра она выдаст те же каналы повторно.
+
+    Ключ — канал, а без канала объект (entity_key). Несколько участков одного объекта у B
+    дают одну строку: IssuedEntry несёт только канал или объект, пауза ML — по объекту.
     """
     heads = [h for h in PILOT_HEADS if h in scored]
     db.execute(delete(models.IssuedLog).where(models.IssuedLog.asof == asof,
@@ -411,8 +418,11 @@ def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
                models.Outcome.outcome_auto.is_(None))))
     if not forecasts:
         return
+    # segment — участок объекта из адреса ML (у B), у остальных голов его нет или ML его
+    # не читает. Отдельной колонки нет: адрес прогноза хранится целиком.
     queries = [OutcomeQuery(id=row.id, kind=row.kind, head=row.head, channel=row.channel_id,
-                            obj=row.obj_id, asof=row.asof) for row in forecasts]
+                            obj=row.obj_id, segment=(row.address or {}).get("segment"),
+                            asof=row.asof) for row in forecasts]
     try:
         results = ml.outcomes(queries)
     except ML_ERRORS as exc:
@@ -434,13 +444,19 @@ def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
 
 def _alert_new(db: Session, row: models.Forecast) -> None:
     scenario = vocab.scenario(row.scenario)
-    obj = (row.address or {}).get("obj_name") or row.obj_id or "адрес неизвестен"
+    address = row.address or {}
+    obj = address.get("obj_name") or row.obj_id or "адрес неизвестен"
+    # Участок у пожарного риска (B): без него два прогноза по одному объекту в ленте
+    # уведомлений неотличимы.
+    segment = address.get("segment_label")
+    place = f"{obj} (участок: {segment})" if segment else obj
+    title = f"{scenario['title']}: {place}"[:300]  # notifications.title — String(300)
     publish_safe("alert.new", {
         "id": row.id, "kind": row.kind, "scenario": row.scenario, "head": row.head,
         "asof": row.asof.isoformat(), "rank": row.rank, "risk": row.risk,
         "priority_score": row.priority_score, "obj_id": row.obj_id, "obj_name": obj,
-        "channel_id": row.channel_id, "source": row.source,
-    }, severity="warning", title=f"{scenario['title']}: {obj}", db=db)
+        "channel_id": row.channel_id, "segment_label": segment, "source": row.source,
+    }, severity="warning", title=title, db=db)
 
 
 _RUN_LOCK = threading.Lock()
