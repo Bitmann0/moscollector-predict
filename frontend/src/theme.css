@@ -132,6 +132,7 @@ button, input, select, textarea { font-family: inherit; }
 .line-chart__limit span{position:absolute;right:0;bottom:3px;padding:0 4px;color:var(--text-2);background:var(--surface);font-size:11px;white-space:nowrap}
 .line-chart__cursor{position:absolute;top:0;bottom:0;width:0;border-left:1px solid var(--border-strong);pointer-events:none}
 .line-chart__dot{position:absolute;width:10px;height:10px;border:2px solid var(--surface);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.line-chart__point{position:absolute;width:6px;height:6px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
 .line-chart__tip{position:absolute;top:0;z-index:3;display:grid;gap:3px;min-width:160px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);background:var(--surface-raised);box-shadow:var(--shadow-float);font-size:12px;transform:translateX(12px);pointer-events:none}
 .line-chart__tip--left{transform:translateX(calc(-100% - 12px))}
 .line-chart__tip strong{font-weight:600}

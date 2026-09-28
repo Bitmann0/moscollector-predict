@@ -364,12 +364,18 @@
             "format": "date",
             "title": "Day",
             "type": "string"
+          },
+          "events": {
+            "description": "Все события канала за сутки МСК в журнале сервиса. 0 — сутки без событий: состояние неизвестно, alarms и bad_states за них не означают ноль",
+            "title": "Events",
+            "type": "integer"
           }
         },
         "required": [
           "day",
           "alarms",
-          "bad_states"
+          "bad_states",
+          "events"
         ],
         "title": "DynamicsPoint",
         "type": "object"
@@ -686,6 +692,7 @@
             "type": "array"
           },
           "dynamics_30d": {
+            "description": "30 суток МСК до asof включительно. Сутки без событий канала (events=0) не пропускаются и не означают исправность: в журнале сервиса о них нет данных. У прогноза без канала все events=0",
             "items": {
               "$ref": "#/components/schemas/DynamicsPoint"
             },
