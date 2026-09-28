@@ -290,24 +290,34 @@ button, input, select, textarea { font-family: inherit; }
 .scenario-switch a{padding:8px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface);font-size:13px;text-decoration:none}
 .scenario-switch a:hover{border-color:var(--border-strong)}
 .scenario-switch a[aria-current="page"]{border-color:var(--accent);color:var(--accent-text);background:var(--accent)}
-.scenario-status-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:14px}
-.scenario-status-main{min-width:0;padding:22px;border-top:3px solid var(--border-strong)}
+/* Статус сценария: колонки не тянутся по высоте соседа — иначе в левой карточке пустое поле. */
+.scenario-status-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);align-items:start;gap:14px}
+.scenario-status-main{display:flex;min-width:0;flex-direction:column;padding:22px;border-top:3px solid var(--border-strong)}
 .scenario-status-main--sensor_link{border-top-color:var(--s-link)}
 .scenario-status-main--equipment_diag{border-top-color:var(--s-wear)}
 .scenario-status-main--guard_weekly{border-top-color:var(--s-guard)}
-.scenario-status-main>.state{margin:16px 0 0}
-.scenario-status-main>.filter-notice{margin:16px 0 0}
-.scenario-status-note,.scenario-status-run{color:var(--muted);font-size:13px}
-.scenario-status-note{margin:16px 0 0}
-.scenario-status-run{margin:14px 0}
+.scenario-status-main>.state{margin:14px 0 0}
+/* Здесь detail несёт пояснение к «ok», а не текст сервера: цвет как у пояснений других состояний. */
+.scenario-status-main>.state .state__detail{color:inherit}
+.scenario-status-main>.filter-notice{margin:12px 0 0}
+.scenario-status-note{margin:12px 0 0;color:var(--muted);font-size:13px}
+.scenario-status-tech{margin:10px 0 0;color:var(--muted);font-size:13px}.scenario-status-tech summary{width:max-content;max-width:100%;color:var(--link);cursor:pointer}.scenario-status-tech summary:focus-visible{border-radius:2px;outline:2px solid var(--focus);outline-offset:2px}
+.scenario-status-tech code{display:block;margin-top:8px;padding:10px 12px;border-radius:var(--radius-sm);color:var(--text-2);background:var(--surface-sunken);font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.scenario-status-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px 20px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.scenario-status-facts>div{display:flex;min-width:0;flex-direction:column;gap:2px}.scenario-status-facts strong{font-size:24px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}.scenario-status-facts span{font-size:13px;font-weight:500}.scenario-status-facts small{color:var(--muted)}
+.scenario-status-action{align-self:flex-start;margin-top:18px;text-decoration:none}
 .scenario-status-details{padding:22px}
-.scenario-status-details h2{margin:0 0 16px;font-size:16px;font-weight:600}
-.scenario-status-details dl{display:grid;gap:11px;margin:0}
-.scenario-status-details dl>div{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.scenario-status-details h2{margin:0 0 6px;font-size:16px;font-weight:600}
+.scenario-status-details dl{margin:0}
+/* Две auto-колонки: сетка сперва переносит длинное значение, а не подпись («Тип / оценки»), и не рвёт дату посреди числа. Пояснение на всю ширину (contain) в размер колонок не входит, иначе оно их раздувает. */
+.scenario-status-details dl>div{display:grid;grid-template-columns:auto auto;justify-content:space-between;align-items:baseline;column-gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}.scenario-status-details dl>div:last-child{padding-bottom:0;border-bottom:0}
 .scenario-status-details dt{color:var(--muted)}
-.scenario-status-details dd{margin:0;text-align:right}
-.scenario-status-action{margin-top:14px;text-decoration:none}
-@media(max-width:760px){.scenario-status-grid{grid-template-columns:1fr}.scenario-status-main,.scenario-status-details{padding:18px}}
+.scenario-status-details dd{margin:0;text-align:right;overflow-wrap:break-word}
+.scenario-status-details dd.scenario-status-hint{grid-column:1/-1;margin-top:3px;contain:inline-size;color:var(--muted);font-size:12px;text-align:left}
+.scenario-status-value--warn{color:var(--warn-ink);font-weight:600}.scenario-status-value--bad{color:var(--crit-ink);font-weight:600}
+/* На планшете боковая колонка сжималась до 280 px и переносила подписи; одна колонка читается лучше. */
+@media(max-width:900px){.scenario-status-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.scenario-status-main,.scenario-status-details{padding:18px}}
 .filter-panel,.filter-panel.events-filters{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
 .filter-panel.orders-filters{display:flex;flex-wrap:wrap}.filter-panel.orders-filters>.field{flex:0 1 200px;min-width:160px}.filter-panel.orders-filters>.field:last-child{flex:1 1 420px;max-width:480px}@media(max-width:640px){.filter-panel.orders-filters>.field,.filter-panel.orders-filters>.field:last-child{flex:1 1 100%;max-width:none}}.orders-reset{font-size:13px}
 @media(max-width:640px){.filter-panel,.filter-panel.events-filters,.filter-panel.orders-filters{grid-template-columns:1fr}}
