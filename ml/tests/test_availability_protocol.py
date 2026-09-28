@@ -11,7 +11,7 @@ import polars as pl
 import pytest
 from conftest import insert_day
 
-from mkl import cv, labels
+from mkl import cv, label_censoring, labels
 
 D0 = dt.date(2025, 1, 1)  # среда
 
@@ -47,7 +47,7 @@ def test_low_coverage_day_censors_only_the_day_before(daily_con):
     assert daily_con.execute(
         "SELECT count(*), sum(y) FROM label_link WHERE day = ?", [before]
     ).fetchone() == (10, 9)
-    deleted = labels.censor_low_coverage(daily_con, "label_link", horizon_days=1)
+    deleted = label_censoring.censor_low_coverage(daily_con, "label_link", horizon_days=1)
     assert deleted == 10
     assert _rows(daily_con, f"day = DATE '{before}'") == set()
     assert _rows(daily_con, f"day = DATE '{bad}'") == {(1, bad)}
@@ -61,7 +61,7 @@ def test_day_without_any_channel_is_low_coverage(daily_con):
     gap = dt.date(2025, 1, 20)
     for ch in range(1, 4):
         _fill(daily_con, ch, [d for d in _days(D0, dt.date(2025, 1, 31)) if d != gap])
-    labels.coverage_calendar(daily_con)
+    label_censoring.coverage_calendar(daily_con)
     row = daily_con.execute(
         "SELECT n_channels, low FROM coverage_calendar WHERE day = ?", [gap]
     ).fetchone()
@@ -69,8 +69,20 @@ def test_day_without_any_channel_is_low_coverage(daily_con):
     assert daily_con.execute(
         "SELECT count(*) FROM coverage_calendar WHERE low").fetchone() == (1,)
     _link(daily_con)
-    labels.censor_low_coverage(daily_con, "label_link", horizon_days=1)
+    label_censoring.censor_low_coverage(daily_con, "label_link", horizon_days=1)
     assert _rows(daily_con, f"day = DATE '{gap - dt.timedelta(days=1)}'") == set()
+
+
+def test_day_without_any_channel_is_low_even_without_history(daily_con):
+    """Первый четверг календаря: медианы того же дня недели ещё нет, но сутки
+    без единого канала — провал всегда."""
+    thu = D0 + dt.timedelta(days=1)
+    for ch in range(1, 4):
+        _fill(daily_con, ch, [d for d in _days(D0, dt.date(2025, 1, 31)) if d != thu])
+    label_censoring.coverage_calendar(daily_con)
+    assert daily_con.execute(
+        "SELECT n_channels, median_channels, low FROM coverage_calendar WHERE day = ?",
+        [thu]).fetchone() == (0, None, True)
 
 
 def test_weekday_rule_keeps_weekends_that_pr9_rule_drops(daily_con):
@@ -89,14 +101,14 @@ def test_weekday_rule_keeps_weekends_that_pr9_rule_drops(daily_con):
     _link(daily_con)
     total = daily_con.execute("SELECT count(*) FROM label_link").fetchone()[0]
 
-    assert labels.censor_low_coverage(daily_con, "label_link", 1,
+    assert label_censoring.censor_low_coverage(daily_con, "label_link", 1,
                                       by_weekday=True) == 0
 
-    labels.coverage_calendar(daily_con, by_weekday=False)
+    label_censoring.coverage_calendar(daily_con, by_weekday=False)
     low = [r[0] for r in daily_con.execute(
         "SELECT day FROM coverage_calendar WHERE low ORDER BY day").fetchall()]
     assert low == [d for d in days if d.isoweekday() >= 6]
-    deleted = labels.censor_low_coverage(daily_con, "label_link", 1,
+    deleted = label_censoring.censor_low_coverage(daily_con, "label_link", 1,
                                          by_weekday=False)
     assert deleted > 0
     left = daily_con.execute("SELECT count(*) FROM label_link").fetchone()[0]
@@ -119,12 +131,14 @@ def test_unrecovered_gap_is_censored(daily_con):
     _fill(daily_con, 2, jan[:8] + [jan[15]])
     _fill(daily_con, 3, jan[:11])
     _fill(daily_con, 4, jan)
+    # ch5 возвращается ровно через 7 суток: это ещё в окне возврата.
+    _fill(daily_con, 5, jan[:8] + [jan[14], jan[15]])
     _link(daily_con)
     day8 = jan[7]
-    assert _rows(daily_con, "y = 1") == {(1, day8), (2, day8)}
+    assert _rows(daily_con, "y = 1") == {(1, day8), (2, day8), (5, day8)}
 
-    assert labels.censor_unrecovered(daily_con, "label_link", recovery_days=7) == 1
-    assert _rows(daily_con, "y = 1") == {(1, day8)}
+    assert label_censoring.censor_unrecovered(daily_con, "label_link", recovery_days=7) == 1
+    assert _rows(daily_con, "y = 1") == {(1, day8), (5, day8)}
     assert (2, day8) not in _rows(daily_con)
     assert {(2, d) for d in jan[:7]} <= _rows(daily_con, "y = 0")
     assert _rows(daily_con, "ch IN (3, 4) AND y = 1") == set()
@@ -132,13 +146,13 @@ def test_unrecovered_gap_is_censored(daily_con):
 
 def test_recovery_window_shorter_than_a_gap_is_rejected(daily_con):
     with pytest.raises(ValueError, match="at least 2"):
-        labels.censor_unrecovered(daily_con, "label_link", recovery_days=1)
+        label_censoring.censor_unrecovered(daily_con, "label_link", recovery_days=1)
 
 
 def test_weekend_gap_drops_only_friday_with_monday_return(daily_con):
     """Удаляется пятничная строка с возвратом в понедельник и ничего больше:
     ни пятница с возвратом во вторник, ни четверг с возвратом в понедельник,
-    ни пятница ежедневного канала."""
+    ни вторник с возвратом в пятницу, ни пятница ежедневного канала."""
     feb = dt.date(2025, 2, 14)
     # ch1 — только будни, 06.01 (пн) … 31.01 (пт).
     _fill(daily_con, 1, [d for d in _days(dt.date(2025, 1, 6), dt.date(2025, 1, 31))
@@ -149,10 +163,13 @@ def test_weekend_gap_drops_only_friday_with_monday_return(daily_con):
                          and d not in _days(dt.date(2025, 1, 24), dt.date(2025, 1, 26))])
     # ch3 — ежедневно без пропусков.
     _fill(daily_con, 3, _days(D0, feb))
+    # ch4 — ежедневно, но вт 28.01 -> пт 31.01: тот же трёхдневный промежуток не с пятницы.
+    _fill(daily_con, 4, [d for d in _days(D0, feb)
+                         if d not in (dt.date(2025, 1, 29), dt.date(2025, 1, 30))])
     _link(daily_con)
     before = _rows(daily_con)
 
-    deleted = labels.censor_weekend_gap(daily_con, "label_link")
+    deleted = label_censoring.censor_weekend_gap(daily_con, "label_link")
     removed = before - _rows(daily_con)
     fridays = {dt.date(2025, 1, 10), dt.date(2025, 1, 17), dt.date(2025, 1, 24)}
     assert removed == {(1, d) for d in fridays}

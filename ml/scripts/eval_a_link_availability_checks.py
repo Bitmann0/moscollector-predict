@@ -6,7 +6,7 @@ L9c считает началом разрыва любой пропуск су�
 
 - coverage_weekday и coverage_30d_pr9 — окно метки задевает сутки, когда
   журнал пришёл от малой доли каналов. Второй вариант — правило PR #9 как
-  есть, первый — с поправкой на день недели (labels.coverage_calendar);
+  есть, первый — с поправкой на день недели (label_censoring.coverage_calendar);
 - recovery_30d — канал молчал дольше 30 суток: без возврата в журнал
   временный пропуск не отличить от списания (широкая метка PR #9);
 - no_friday_monday — пятница, после которой канал вернулся в понедельник,
@@ -40,7 +40,7 @@ from pathlib import Path
 
 import polars as pl
 
-from mkl import calibrate, cv, db, labels, serve, store, train
+from mkl import calibrate, cv, db, label_censoring, labels, serve, store, train
 try:
     from scripts.eval_a_link_policy import (BASELINE_FEATURE, COOLDOWN_DAYS,
                                             N_SPLITS, TEST_DAYS, WINDOW_DAYS,
@@ -68,17 +68,17 @@ VARIANTS = {
     "coverage_weekday": (
         "без строк, чьё окно задевает сутки с числом каналов меньше 50% "
         "медианы того же дня недели за 8 предыдущих недель",
-        lambda con, t, h: labels.censor_low_coverage(con, t, h, by_weekday=True)),
+        lambda con, t, h: label_censoring.censor_low_coverage(con, t, h, by_weekday=True)),
     "coverage_30d_pr9": (
         "правило PR #9: без строк, чьё окно задевает сутки с числом каналов "
         "меньше 50% медианы за 30 предыдущих суток",
-        lambda con, t, h: labels.censor_low_coverage(con, t, h, by_weekday=False)),
+        lambda con, t, h: label_censoring.censor_low_coverage(con, t, h, by_weekday=False)),
     "recovery_30d": (
         f"без строк, после которых канал молчал дольше {RECOVERY_DAYS} суток",
-        lambda con, t, h: labels.censor_unrecovered(con, t, RECOVERY_DAYS)),
+        lambda con, t, h: label_censoring.censor_unrecovered(con, t, RECOVERY_DAYS)),
     "no_friday_monday": (
         "без пятничных строк, после которых канал вернулся в понедельник",
-        lambda con, t, h: labels.censor_weekend_gap(con, t)),
+        lambda con, t, h: label_censoring.censor_weekend_gap(con, t)),
 }
 
 
@@ -129,7 +129,7 @@ def coverage_audit(con, start: dt.date) -> dict:
     """Провалы выгрузки по обоим правилам: сколько, по каким дням недели."""
     out = {}
     for rule, by_weekday in (("weekday_8w", True), ("trailing_30d_pr9", False)):
-        labels.coverage_calendar(con, by_weekday=by_weekday, table="_cal")
+        label_censoring.coverage_calendar(con, by_weekday=by_weekday, table="_cal")
         cal = con.execute("SELECT * FROM _cal ORDER BY day").pl()
         periods = {}
         for key, lo in (("all", cal["day"].min()), ("since_start", start)):
