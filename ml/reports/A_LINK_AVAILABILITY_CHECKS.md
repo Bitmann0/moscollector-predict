@@ -19,9 +19,11 @@ L9c считает началом разрыва пропуск длиннее �
 64,9% при прежних 0,50
 ([A_LINK_LIVE_POLICY_TEMPORAL.md](A_LINK_LIVE_POLICY_TEMPORAL.md)).
 
-Правила — функции `ml/src/mkl/labels.py`: `coverage_calendar`,
+Правила — функции `ml/src/mkl/label_censoring.py`: `coverage_calendar`,
 `censor_low_coverage`, `censor_unrecovered`, `censor_weekend_gap`. Продуктовая
-метка их не вызывает, `heads.yaml` не менялся.
+метка их не вызывает, `labels.py` и `heads.yaml` не менялись: оба — входы
+стадии `train` в `ml/src/mkl/pipeline.py`, и их правка заставила бы `mkl run`
+переобучить модели.
 
 | Вариант | Что снято с L9c |
 |---|---|
