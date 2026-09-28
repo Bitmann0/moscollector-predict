@@ -46,8 +46,8 @@ Desktop, стек `compose.yaml` + `compose.real.yaml`, ML в режиме `real
 - Лимиты памяти в `compose.stand.yaml`: ml 6 ГБ, db 3 ГБ, api 2 ГБ, replay 1 ГБ, backup
   512 МБ, caddy 256 МБ. По комментарию файла это 13 ГБ из 16, остаток — ОС и страничный
   кеш parquet.
-- Распакованный бандл — 2 129,7 МБ, из них `data/features/sensor.parquet` — 1 287,8 МБ
-  (проверка состава 28.09, раздел «Состав бандла»).
+- Распакованный бандл `bundle-20260928-5` — 2 178,7 МБ, из них
+  `data/features/sensor.parquet` — 1 287,8 МБ (раздел «Состав бандла»).
 - Семь суточных бэкапов займут около 3,6 ГБ — оценка по одному дампу 28.09 размером
   521 МБ (раздел «Бэкап и восстановление»).
 - При обучении DuckDB берёт до 10 ГБ памяти (`ml/src/mkl/db.py`, функция `connect`),
@@ -203,18 +203,20 @@ api стартует после того, как `db` и `ml` прошли healt
 скоринг упадёт на чтении `features.yaml` (оба замечания — в комментарии
 `compose.real.yaml`). Поэтому бандл распаковывается и проверяется до `docker compose up`.
 
-Обязательные файлы перечислены в словаре `REQUIRED` в `ml/scripts/build_bundle.py`, их 13:
+Обязательные файлы перечислены в словаре `REQUIRED` в `ml/scripts/build_bundle.py`, их 16: модель на каждую голову из `MODEL_HEADS` — `A_link`, `B`, `E` — и 13 файлов данных, реестров и справочников:
 
 | Файл | Кто и зачем читает |
 |---|---|
 | `configs/features.yaml` | реестр фичестора; по нему сервис сверяет модель с признаками |
 | `reports/intrusion_eventtime_v2_build.json` | версия и конец v2-кэша охранной очереди; при `version != 2` очередь отвечает `stale` |
 | `models/A_link.pkl` | модель A_link |
+| `models/B.pkl`, `models/E.pkl` | модели пожарного риска и подтопления |
 | `data/features/sensor.parquet` | признаки A_link и D |
-| `data/features/object.parquet` | недельная охранная очередь и её факт |
+| `data/features/object.parquet` | недельная охранная очередь и её факт; признаки E |
+| `data/features/segment.parquet` | признаки B по участкам |
 | `data/features/intrusion_eventtime_days_v2.parquet` | v2-кэш охранной очереди |
-| `data/interim/channels.parquet` | справочник каналов, адреса в алертах |
-| `data/interim/daily_channel.parquet` | факт A_link и D, порог правила D |
+| `data/interim/channels.parquet` | справочник каналов, адреса в алертах; список объектов с насосами для E |
+| `data/interim/daily_channel.parquet` | факт A_link, D, B и E, порог правила D |
 | `data/interim/episodes.parquet` | эпизоды для факта D и порога правила D |
 | `data/interim/group_outages.parquet` | дообучение в контейнере (ML1-10) |
 | `data/interim/events_year=2026.parquet` | `scripts/replay.py`: поток и история событий |
@@ -222,9 +224,9 @@ api стартует после того, как `db` и `ml` прошли healt
 | `Materials/справочник_каналов_датчиков.csv` | api: каналы и пикеты |
 
 Необязательные файлы: `data/interim/maintenance_2026.json` — графики ППР и ТО, без него
-контекст алерта A_link получает статус `schedule_not_loaded`; `models/A_link@*.pkl` —
-датированные модели для дней июня (раздел «Обучение датированных моделей»). У головы D
-файла модели нет: это правило `n_bad_w7`.
+контекст алерта A_link получает статус `schedule_not_loaded`; `models/A_link@*.pkl`,
+`models/B@*.pkl`, `models/E@*.pkl` — датированные модели для дней июня (раздел «Обучение
+датированных моделей»). У головы D файла модели нет: это правило `n_bad_w7`.
 
 При старте api seed сверяет таблицы `ref_objects` и `ref_channels` с двумя CSV из
 `Materials/` и удаляет синтетический справочник прошлых запусков (`backend/app/seed.py`).
@@ -234,8 +236,8 @@ api стартует после того, как `db` и `ml` прошли healt
 - `build_bundle.py` собрал бандл из 15 файлов, 2 128 МБ; `fetch_bundle.sh` сверил 15
   контрольных сумм из 15. Это состав до того, как в `REQUIRED` вошли два CSV из
   `Materials/`.
-- Текущий `build_bundle.py --dry-run` на локальном корне ML отбирает 17 файлов, 2 129,7 МБ:
-  13 обязательных и четыре датированные модели A_link. Самый крупный файл —
+- `build_bundle.py --dry-run` на коде 28.09, до моделей B и E, отбирал на локальном корне ML
+  17 файлов, 2 129,7 МБ: 13 обязательных и четыре датированные модели A_link. Самый крупный файл —
   `data/features/sensor.parquet`, 1 287,8 МБ; файла `maintenance_2026.json` в корне нет.
 - `bundle-20260928-3` собран после перехода A_link на минимум точности 0,70 (PR #30):
   17 файлов, от `bundle-20260928-2` отличаются только пять `models/A_link*.pkl`
@@ -246,6 +248,14 @@ api стартует после того, как `db` и `ml` прошли healt
   и ТО от 25.09, нормализованные `ml/scripts/normalize_maintenance_schedules.py`,
   `available_from` 2026-09-25 (сверка `MANIFEST.sha256`). В продуктовом контракте C1
   контекста плановых работ нет, экраны с этим файлом не меняются.
+- `bundle-20260928-5` — текущая версия для пяти сценариев: тот же `-4` плюс
+  `data/features/segment.parquet` и модели `models/B.pkl`, `models/E.pkl` с четырьмя
+  датированными у каждой. 29 файлов, 2 178,7 МБ по сумме размеров; остальные 18
+  контрольных сумм совпадают с `-4` (сверка `MANIFEST.sha256` двух версий 29.09). На `-4` и
+  более ранних версиях моделей B и E нет: `/ready` сервиса ML перебирает все пилотные
+  головы и ответит `missing_data`, а в расчёте B и E получат `error` (`_real_ready` и
+  `_real_score` в `ml/src/mkl/product_api.py`; вывод из кода, не проверялось). Проверка
+  архива `-5` через `fetch_bundle` в этом разделе не записана.
 
 ### Получение и проверка бандла
 
@@ -254,11 +264,11 @@ api стартует после того, как `db` и `ml` прошли healt
 собирается из своей копии датасета (раздел «Сборка бандла из датасета организаторов»).
 
 ```bash
-sh scripts/fetch_bundle.sh ~/Downloads/bundle-20260928-3.7z ./bundle
+sh scripts/fetch_bundle.sh ~/Downloads/bundle-20260928-5.7z ./bundle
 ```
 
 ```powershell
-powershell -File scripts\fetch_bundle.ps1 -Version $HOME\Downloads\bundle-20260928-3.7z -Dest .\bundle
+powershell -File scripts\fetch_bundle.ps1 -Version $HOME\Downloads\bundle-20260928-5.7z -Dest .\bundle
 ```
 
 Первый аргумент (в PowerShell — `-Version`) принимает путь к `.7z`, URL архива, версию
@@ -290,9 +300,10 @@ docker compose -f compose.yaml -f compose.real.yaml up -d --build
 
 Замер 28.09:
 
-- `/score` ML-сервиса за каждый день 01–30.06 — 7,61 с по медиане, от 0,14 до 10,57 с.
-  0,14 с приходится на 01.06: событий за этот день нет, ML сразу отвечает `no_data`
-  (`docs/submission/08-performance.md`, `docs/submission/perf/ml_score_june.jsonl`).
+- `/score` ML-сервиса по A_link и D за каждый день 01–30.06 — 7,61 с по медиане, от 0,14
+  до 10,57 с. 0,14 с приходится на 01.06: событий за этот день нет, ML сразу отвечает
+  `no_data` (`docs/submission/08-performance.md`, `docs/submission/perf/ml_score_june.jsonl`).
+  B и E в замер не входили.
 - В прелоаде за 01.06–29.06 A_link ответила `ok` на 13 днях, `empty_valid` на 15 и
   `no_data` на 01.06; D — `ok` на 29.06 и `empty_valid` на остальных днях с данными
   (`docs/submission/perf/preload_demo_0928.txt`).
@@ -664,8 +675,10 @@ ML_URL=http://localhost:8001
    `справочник_каналов_датчиков.csv` и `справочник_объектов_диспетчер.csv` — в
    `ml/Materials/`.
 2. `python -m mkl.cli run` — приём, эпизоды, суточная панель, погода, фичестор, обучение
-   A_link. Стадии `ingest` → `states`, `panel`, `weather` → `features` → `train` объявлены в
-   `ml/src/mkl/pipeline.py`; стадия пересобирается, если хоть один её вход новее выхода.
+   A_link, B и E: стадия `train` вызывает `ml/scripts/train_latest.py` без имён голов, и он
+   обучает пилотные головы с моделью. Стадии `ingest` → `states`, `panel`, `weather` →
+   `features` → `train` объявлены в `ml/src/mkl/pipeline.py`; стадия пересобирается, если
+   хоть один её вход новее выхода.
    Состояние стадий печатает `python -m mkl.cli status`. `configs/features.yaml`
    создаётся вместе с фичестором и в git не хранится. `ml/README.md` оценивает полную
    сборку примерно в полтора часа.
@@ -677,9 +690,9 @@ ML_URL=http://localhost:8001
 4. Необязательно: `python scripts/normalize_maintenance_schedules.py --ppr <ППР.xlsx> --to
    <ТО.xlsx> --available-from YYYY-MM-DD` — графики ППР и ТО для контекста алертов A_link
    (по умолчанию пишет `data/interim/maintenance_2026.json`).
-5. Датированные модели A_link для окна демо: `python scripts/train_latest.py A_link
-   --train-window` (раздел «Обучение датированных моделей»). В списке шагов `README.md`
-   этого шага нет. Без него бандл несёт только `models/A_link.pkl` с окном порога по
+5. Датированные модели для окна демо: `python scripts/train_latest.py A_link B E
+   --train-window` (раздел «Обучение датированных моделей»; в `README.md` — внутри шага
+   2). Без него бандл несёт только `models/{голова}.pkl` с окном порога по
    29.06; для дней 01.06–29.06 проверка задержки эту модель отклоняет, и голова отвечает
    `stale` (`ml/README.md`).
 6. `python scripts/build_bundle.py --out ../dist --version bundle-YYYYMMDD-N --archive`.
@@ -701,15 +714,15 @@ ML_URL=http://localhost:8001
 ## Обучение датированных моделей
 
 Сервис принимает пилотную модель для дня `asof`, только если окно выбора порога кончилось
-за 1…`max_model_lag_days` суток до него (`serve.validate_pilot_artifact`): у A_link это 8
-суток, у D — 14 (`ml/configs/heads.yaml`). Модель по всем данным с порогом по 29.06
+за 1…`max_model_lag_days` суток до него (`serve.validate_pilot_artifact`): у A_link, B и E
+это 8 суток, у D — 14 (`ml/configs/heads.yaml`). Модель по всем данным с порогом по 29.06
 проходит проверку только для 30.06; остальным дням июня нужны модели по данным,
 обрезанным раньше (`ml/README.md`).
 
 `--source-end C` показывает обучению данные на конец суток C: панель режется по суткам,
 эпизоды — по концу, групповые отказы и флаг `is_group` пересобираются по оставшимся
-эпизодам. Артефакт пишется в `models/A_link@{конец окна порога}.pkl`, у A_link конец окна
-порога — C − 1; `models/A_link.pkl` не меняется. `serve.artifact_path` выбирает для
+эпизодам. Артефакт пишется в `models/{голова}@{конец окна порога}.pkl`; у A_link, B и E
+горизонт — сутки, и конец окна порога — C − 1; `models/{голова}.pkl` не меняется. `serve.artifact_path` выбирает для
 `asof` датированный файл с самым поздним концом окна порога раньше `asof`, если задержка
 не больше `max_model_lag_days`; иначе берётся `models/A_link.pkl`, и для неподходящего
 дня голова отвечает `stale`.
@@ -719,6 +732,7 @@ ML_URL=http://localhost:8001
 ```bash
 MKL_ROOT=<корень> .venv/Scripts/python scripts/train_latest.py A_link --window-plan
 MKL_ROOT=<корень> .venv/Scripts/python scripts/train_latest.py A_link --train-window
+MKL_ROOT=<корень> .venv/Scripts/python scripts/train_latest.py B E --train-window
 ```
 
 `--window-plan` печатает наименьший набор отсечек для окна 01.06–30.06 и выходит;
@@ -739,11 +753,14 @@ MKL_ROOT=<корень> .venv/Scripts/python scripts/train_latest.py A_link --tr
 | 2026-06-16 | 2026-06-15, `A_link@2026-06-15.pkl` | 16.06–23.06 |
 | 2026-06-24 | 2026-06-23, `A_link@2026-06-23.pkl` | 24.06–01.07 |
 
-Эти четыре артефакта и дал прогон 28.09. Таблица отсечек в `ml/README.md` (06-01, 06-09,
-06-17, 06-25) посчитана без учёта пропуска 01.06.
+Эти четыре артефакта и дал прогон 28.09. У B и E те же концы окна порога и те же имена:
+`B@2026-05-30.pkl` … `B@2026-06-23.pkl`, `E@2026-05-30.pkl` … `E@2026-06-23.pkl`
+(`MANIFEST.sha256` бандла `bundle-20260928-5`). Таблица отсечек в `ml/README.md` (06-01,
+06-09, 06-17, 06-25) посчитана без учёта пропуска 01.06.
 
 Замер 28.09: одна датированная модель A_link обучается 185–193 с, `--train-window` делает
-четыре прогона. На стенде обучение не запускается: каждый прогон — полное обучение на всей
+четыре прогона. Четыре датированные модели E на машине разработчика обучались 10 с, B —
+40 с (`ml/reports/FIRE_FLOOD_PRODUCT.md`, «Пересчёт»). На стенде обучение не запускается: каждый прогон — полное обучение на всей
 истории, DuckDB берёт до 10 ГБ памяти. На стенд кладутся готовые артефакты в бандле.
 
 Голова D — правило `n_bad_w7`, модель не обучается: `train_latest.py` печатает об этом
