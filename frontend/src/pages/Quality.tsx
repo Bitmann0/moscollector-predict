@@ -39,11 +39,6 @@ function deltaText(tenths: number): string {
   return `${tenths > 0 ? "+" : tenths < 0 ? "−" : ""}${fmtNumber(Math.abs(tenths) / 10)} п.п. к базе`;
 }
 
-/** Коды исходов из заметки backend («unknown» и т. п.) показываем словами интерфейса. */
-function humanNote(note: string): string {
-  return note.replace(/\bunknown\b/g, "«неизвестно»").replace(/\bmiss\b/g, "«промах»").replace(/\bhit\b/g, "«попадание»");
-}
-
 export function Quality() {
   const [params, setParams] = useSearchParams();
   const scenario = SCENARIOS.find((s) => s.code === params.get("scenario"))?.code ?? DEFAULT_SCENARIO;
@@ -76,7 +71,7 @@ export function Quality() {
             <div className="quality-outcomes__list">{data.weeks.map((week) => <div key={week.week_start}><div className="quality-outcomes__head"><strong>{weekRange(week.week_start)}</strong><span>{count(week.issued, "прогноз", "прогноза", "прогнозов")}</span></div>{week.issued > 0 ? <><div className="quality-stack" role="img" aria-label={`Попадания ${week.hit}, промахи ${week.miss}, неизвестно ${week.unknown}`}>{week.hit > 0 && <i className="quality-stack__hit" style={{ flexGrow: week.hit }} />}{week.miss > 0 && <i className="quality-stack__miss" style={{ flexGrow: week.miss }} />}{week.unknown > 0 && <i className="quality-stack__unknown" style={{ flexGrow: week.unknown }} />}</div><small><b>{count(week.hit, "попадание", "попадания", "попаданий")}</b> · {count(week.miss, "промах", "промаха", "промахов")} · {fmtNumber(week.unknown)} неизвестно</small></> : <small>Прогнозов на этой неделе не выдавалось</small>}</div>)}</div>
           </article>
         </div>
-        <div className="quality-method"><strong>Как читать метрику</strong>{data.note && <p>{humanNote(data.note)}</p>}<p>Точность (precision) недели — попадания / (попадания + промахи) среди выданных прогнозов. «Неизвестно» — по данным СМВУ день не наблюдаем или окно прогноза ещё не закрылось; такие прогнозы в точность не входят.</p>
+        <div className="quality-method"><strong>Как читать метрику</strong>{data.note && <p>{data.note}</p>}<p>Точность недели — попадания / (попадания + промахи) среди выданных прогнозов. «Неизвестно» — по данным СМВУ день не наблюдаем или окно прогноза ещё не закрылось; такие прогнозы в точность не входят.</p>
           {(period || refNote || source) && <div className="quality-method__ref"><strong>Опорные числа</strong>{period && <p>Период: {period}.</p>}{refNote && <p>{refNote}</p>}{source && <p className="quality-method__source">Источник: <span>{source}</span></p>}</div>}
         </div>
       </>;
