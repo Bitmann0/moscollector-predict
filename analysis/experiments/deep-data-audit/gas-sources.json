@@ -1,0 +1,63 @@
+{
+  "candidate": "gas_alarm",
+  "sensor_type": "Газовый датчик",
+  "target_description": "At least one source alarm=true event on a gas channel",
+  "sources": [
+    {
+      "filename": "ext-journal-2024.csv",
+      "sha256": "d4e65db358896870321f78e95874e3f4dc0c1808218af891a6e9957c429f3d51",
+      "time_zone": "Europe/Moscow",
+      "raw_rows": 49023883,
+      "embedded_headers": 0,
+      "accepted_rows": 49023883,
+      "accepted_source_rows": 49023883,
+      "exact_duplicate_rows": 0,
+      "rejected_source_rows": 0,
+      "ambiguous_event_ids": 0,
+      "channels": 10348,
+      "data_from": "2023-12-31 21:00:00+00:00",
+      "data_to": "2024-12-31 20:59:59+00:00",
+      "skipped": false
+    },
+    {
+      "filename": "ext-journal-2025.csv",
+      "sha256": "0537185661eb5841d898e7d47607650e36a9fbb368b09263e5d8370a25492553",
+      "time_zone": "Europe/Moscow",
+      "raw_rows": 55541797,
+      "embedded_headers": 1,
+      "accepted_rows": 55541796,
+      "accepted_source_rows": 55541796,
+      "exact_duplicate_rows": 0,
+      "rejected_source_rows": 0,
+      "ambiguous_event_ids": 0,
+      "channels": 11483,
+      "data_from": "2024-12-31 21:00:05+00:00",
+      "data_to": "2025-12-31 20:59:59+00:00",
+      "skipped": false
+    },
+    {
+      "filename": "ext-journal-2026.csv",
+      "sha256": "3ecdc8fcc5b08c8238fa74fadb35e9b6439bce3f2f8fe8697da5e483aae55880",
+      "time_zone": "Europe/Moscow",
+      "raw_rows": 30695389,
+      "embedded_headers": 0,
+      "accepted_rows": 30695389,
+      "accepted_source_rows": 30695389,
+      "exact_duplicate_rows": 0,
+      "rejected_source_rows": 0,
+      "ambiguous_event_ids": 0,
+      "channels": 11447,
+      "data_from": "2025-12-31 21:00:00+00:00",
+      "data_to": "2026-06-30 20:59:59+00:00",
+      "skipped": false
+    }
+  ],
+  "catalog_sha256": "fa550d4c23c23c2ea29f47bd7dceca78f52d96bd12667a6f8c5f0e515784c5a5",
+  "daily_rows": 189609,
+  "channels": 529,
+  "coverage_days": 909,
+  "limitations": [
+    "The target is a recorded message or inferred numeric condition, not a confirmed incident.",
+    "The current catalog is applied to historical data without versioning."
+  ]
+}

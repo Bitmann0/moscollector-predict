@@ -1,0 +1,779 @@
+{
+  "candidates": [
+    {
+      "candidate": "door_open_signal",
+      "observed_channels": 917,
+      "observed_channel_days": 398751,
+      "target_channels": 917,
+      "target_channel_days": 359719,
+      "target_events": 2210944.0,
+      "first_target_day": "2019-01-01T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 155278,
+      "starts_after_observed_non_target_day": 5767,
+      "target_day_rate": 0.9021143521
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "observed_channels": 80,
+      "observed_channel_days": 16602,
+      "target_channels": 80,
+      "target_channel_days": 9231,
+      "target_events": 20364.0,
+      "first_target_day": "2019-01-02T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 1443,
+      "starts_after_observed_non_target_day": 444,
+      "target_day_rate": 0.5560173473
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "observed_channels": 180,
+      "observed_channel_days": 97596,
+      "target_channels": 180,
+      "target_channel_days": 25354,
+      "target_events": 108828.0,
+      "first_target_day": "2019-01-02T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 4239,
+      "starts_after_observed_non_target_day": 4195,
+      "target_day_rate": 0.2597852371
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "observed_channels": 4337,
+      "observed_channel_days": 456148,
+      "target_channels": 4337,
+      "target_channel_days": 101278,
+      "target_events": 164128.0,
+      "first_target_day": "2019-01-02T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 3144,
+      "starts_after_observed_non_target_day": 9257,
+      "target_day_rate": 0.2220288152
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "observed_channels": 354,
+      "observed_channel_days": 375467,
+      "target_channels": 235,
+      "target_channel_days": 26476,
+      "target_events": 78668.0,
+      "first_target_day": "2019-01-02T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 3918,
+      "starts_after_observed_non_target_day": 10193,
+      "target_day_rate": 0.0705148522
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "observed_channels": 4337,
+      "observed_channel_days": 456148,
+      "target_channels": 2844,
+      "target_channel_days": 21333,
+      "target_events": 1169178.0,
+      "first_target_day": "2019-01-09T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 6119,
+      "starts_after_observed_non_target_day": 2451,
+      "target_day_rate": 0.0467677157
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "observed_channels": 600,
+      "observed_channel_days": 383583,
+      "target_channels": 588,
+      "target_channel_days": 10671,
+      "target_events": 38015.0,
+      "first_target_day": "2019-01-01T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 1975,
+      "starts_after_observed_non_target_day": 2928,
+      "target_day_rate": 0.0278192725
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "observed_channels": 957,
+      "observed_channel_days": 508263,
+      "target_channels": 294,
+      "target_channel_days": 12614,
+      "target_events": 25437.0,
+      "first_target_day": "2019-01-02T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 916,
+      "starts_after_observed_non_target_day": 2842,
+      "target_day_rate": 0.02481786
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "observed_channels": 80,
+      "observed_channel_days": 16602,
+      "target_channels": 33,
+      "target_channel_days": 351,
+      "target_events": 2915.0,
+      "first_target_day": "2019-01-25T00:00:00.000",
+      "last_target_day": "2026-06-23T00:00:00.000",
+      "repeated_next_day": 100,
+      "starts_after_observed_non_target_day": 27,
+      "target_day_rate": 0.0211420311
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "observed_channels": 529,
+      "observed_channel_days": 482648,
+      "target_channels": 529,
+      "target_channel_days": 5754,
+      "target_events": 53849.0,
+      "first_target_day": "2019-01-03T00:00:00.000",
+      "last_target_day": "2026-06-30T00:00:00.000",
+      "repeated_next_day": 315,
+      "starts_after_observed_non_target_day": 2933,
+      "target_day_rate": 0.0119217318
+    }
+  ],
+  "yearly": [
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 47575,
+      "target_channel_days": 40424,
+      "target_channels": 450
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 50162,
+      "target_channel_days": 41501,
+      "target_channels": 601
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 49212,
+      "target_channel_days": 44486,
+      "target_channels": 684
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 53548,
+      "target_channel_days": 50128,
+      "target_channels": 818
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 54646,
+      "target_channel_days": 51740,
+      "target_channels": 836
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 55777,
+      "target_channel_days": 53109,
+      "target_channels": 838
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 58207,
+      "target_channel_days": 52389,
+      "target_channels": 914
+    },
+    {
+      "candidate": "door_open_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 29624,
+      "target_channel_days": 25942,
+      "target_channels": 896
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 45394,
+      "target_channel_days": 1671,
+      "target_channels": 103
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 66527,
+      "target_channel_days": 1987,
+      "target_channels": 141
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 52845,
+      "target_channel_days": 2855,
+      "target_channels": 161
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 46176,
+      "target_channel_days": 3952,
+      "target_channels": 209
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 49642,
+      "target_channel_days": 3538,
+      "target_channels": 210
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 42371,
+      "target_channel_days": 4206,
+      "target_channels": 209
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 49842,
+      "target_channel_days": 5058,
+      "target_channels": 234
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 22670,
+      "target_channel_days": 3209,
+      "target_channels": 234
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2019,
+      "observed_channel_days": 48366,
+      "target_channel_days": 807,
+      "target_channels": 350
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2020,
+      "observed_channel_days": 36268,
+      "target_channel_days": 707,
+      "target_channels": 285
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2021,
+      "observed_channel_days": 53850,
+      "target_channel_days": 717,
+      "target_channels": 324
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2022,
+      "observed_channel_days": 78225,
+      "target_channel_days": 751,
+      "target_channels": 421
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2023,
+      "observed_channel_days": 76330,
+      "target_channel_days": 597,
+      "target_channels": 440
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2024,
+      "observed_channel_days": 78142,
+      "target_channel_days": 514,
+      "target_channels": 375
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2025,
+      "observed_channel_days": 75151,
+      "target_channel_days": 986,
+      "target_channels": 482
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "calendar_year": 2026,
+      "observed_channel_days": 36316,
+      "target_channel_days": 675,
+      "target_channels": 214
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 60546,
+      "target_channel_days": 131,
+      "target_channels": 49
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 74212,
+      "target_channel_days": 674,
+      "target_channels": 78
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 67035,
+      "target_channel_days": 870,
+      "target_channels": 117
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 66799,
+      "target_channel_days": 1876,
+      "target_channels": 173
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 67776,
+      "target_channel_days": 1857,
+      "target_channels": 211
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 68204,
+      "target_channel_days": 2822,
+      "target_channels": 219
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 66425,
+      "target_channel_days": 2784,
+      "target_channels": 281
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 37266,
+      "target_channel_days": 1600,
+      "target_channels": 281
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 7926,
+      "target_channel_days": 1465,
+      "target_channels": 113
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 12376,
+      "target_channel_days": 2156,
+      "target_channels": 139
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 13781,
+      "target_channel_days": 3335,
+      "target_channels": 153
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 12271,
+      "target_channel_days": 3859,
+      "target_channels": 167
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 13293,
+      "target_channel_days": 3549,
+      "target_channels": 169
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 13755,
+      "target_channel_days": 4214,
+      "target_channels": 169
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 13953,
+      "target_channel_days": 3964,
+      "target_channels": 180
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 10241,
+      "target_channel_days": 2812,
+      "target_channels": 180
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 8772,
+      "target_channel_days": 2709,
+      "target_channels": 377
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 95471,
+      "target_channel_days": 6284,
+      "target_channels": 1380
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 45672,
+      "target_channel_days": 9191,
+      "target_channels": 2055
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 55524,
+      "target_channel_days": 19836,
+      "target_channels": 3714
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 63680,
+      "target_channel_days": 20739,
+      "target_channels": 3742
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 39491,
+      "target_channel_days": 18007,
+      "target_channels": 3744
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 76779,
+      "target_channel_days": 15725,
+      "target_channels": 4336
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 70759,
+      "target_channel_days": 8787,
+      "target_channels": 4336
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 8772,
+      "target_channel_days": 366,
+      "target_channels": 201
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 95471,
+      "target_channel_days": 2380,
+      "target_channels": 810
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 45672,
+      "target_channel_days": 6033,
+      "target_channels": 834
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 55524,
+      "target_channel_days": 3514,
+      "target_channels": 1466
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 63680,
+      "target_channel_days": 2241,
+      "target_channels": 1000
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 39491,
+      "target_channel_days": 2327,
+      "target_channels": 1086
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 76779,
+      "target_channel_days": 2838,
+      "target_channels": 1258
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 70759,
+      "target_channel_days": 1634,
+      "target_channels": 601
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2019,
+      "observed_channel_days": 44003,
+      "target_channel_days": 820,
+      "target_channels": 251
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2020,
+      "observed_channel_days": 49139,
+      "target_channel_days": 1008,
+      "target_channels": 206
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2021,
+      "observed_channel_days": 43309,
+      "target_channel_days": 1652,
+      "target_channels": 328
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2022,
+      "observed_channel_days": 50917,
+      "target_channel_days": 1712,
+      "target_channels": 368
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2023,
+      "observed_channel_days": 57096,
+      "target_channel_days": 1897,
+      "target_channels": 360
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2024,
+      "observed_channel_days": 52938,
+      "target_channel_days": 1152,
+      "target_channels": 383
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2025,
+      "observed_channel_days": 59827,
+      "target_channel_days": 1446,
+      "target_channels": 419
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "calendar_year": 2026,
+      "observed_channel_days": 26354,
+      "target_channel_days": 984,
+      "target_channels": 342
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 1797,
+      "target_channel_days": 12,
+      "target_channels": 6
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 2230,
+      "target_channel_days": 30,
+      "target_channels": 3
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 1989,
+      "target_channel_days": 38,
+      "target_channels": 15
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 2442,
+      "target_channel_days": 55,
+      "target_channels": 15
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 2361,
+      "target_channel_days": 106,
+      "target_channels": 11
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 2033,
+      "target_channel_days": 22,
+      "target_channels": 7
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 2294,
+      "target_channel_days": 78,
+      "target_channels": 16
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 1456,
+      "target_channel_days": 10,
+      "target_channels": 4
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2019,
+      "observed_channel_days": 1797,
+      "target_channel_days": 634,
+      "target_channels": 33
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2020,
+      "observed_channel_days": 2230,
+      "target_channel_days": 744,
+      "target_channels": 41
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2021,
+      "observed_channel_days": 1989,
+      "target_channel_days": 1256,
+      "target_channels": 53
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2022,
+      "observed_channel_days": 2442,
+      "target_channel_days": 1531,
+      "target_channels": 66
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2023,
+      "observed_channel_days": 2361,
+      "target_channel_days": 1483,
+      "target_channels": 68
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2024,
+      "observed_channel_days": 2033,
+      "target_channel_days": 1449,
+      "target_channels": 71
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2025,
+      "observed_channel_days": 2294,
+      "target_channel_days": 1312,
+      "target_channels": 76
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "calendar_year": 2026,
+      "observed_channel_days": 1456,
+      "target_channel_days": 822,
+      "target_channels": 71
+    }
+  ],
+  "channel_concentration": [
+    {
+      "candidate": "door_open_signal",
+      "target_days": 359719.0,
+      "top_1_share": 0.0074530397,
+      "top_5_share": 0.0359558433,
+      "top_10_share": 0.0693291152
+    },
+    {
+      "candidate": "fan_fault_signal",
+      "target_days": 26476.0,
+      "top_1_share": 0.0119353377,
+      "top_5_share": 0.058128116,
+      "top_10_share": 0.1115727451
+    },
+    {
+      "candidate": "gas_alarm_flag",
+      "target_days": 5754.0,
+      "top_1_share": 0.0069516858,
+      "top_5_share": 0.0318039625,
+      "top_10_share": 0.0578727842
+    },
+    {
+      "candidate": "phase_fault_signal",
+      "target_days": 12614.0,
+      "top_1_share": 0.0189472015,
+      "top_5_share": 0.0925955288,
+      "top_10_share": 0.1651339781
+    },
+    {
+      "candidate": "pump_fault_signal",
+      "target_days": 25354.0,
+      "top_1_share": 0.0153427467,
+      "top_5_share": 0.0686676659,
+      "top_10_share": 0.1205726907
+    },
+    {
+      "candidate": "smoke_detected_signal",
+      "target_days": 101278.0,
+      "top_1_share": 0.0007306621,
+      "top_5_share": 0.0034163392,
+      "top_10_share": 0.0066253283
+    },
+    {
+      "candidate": "smoke_fault_signal",
+      "target_days": 21333.0,
+      "top_1_share": 0.0042188159,
+      "top_5_share": 0.015234613,
+      "top_10_share": 0.0283598181
+    },
+    {
+      "candidate": "temperature_outside_3_40",
+      "target_days": 10671.0,
+      "top_1_share": 0.0097460407,
+      "top_5_share": 0.0444194546,
+      "top_10_share": 0.0809671071
+    },
+    {
+      "candidate": "ups_battery_fault_signal",
+      "target_days": 351.0,
+      "top_1_share": 0.3048433048,
+      "top_5_share": 0.603988604,
+      "top_10_share": 0.7692307692
+    },
+    {
+      "candidate": "ups_on_battery_signal",
+      "target_days": 9231.0,
+      "top_1_share": 0.0691149388,
+      "top_5_share": 0.2191528545,
+      "top_10_share": 0.3491496046
+    }
+  ],
+  "target_definitions": {
+    "*_signal": "Presence of the named recorded state during a local calendar day.",
+    "gas_alarm_flag": "At least one source alarm=true event on a gas channel.",
+    "temperature_outside_3_40": "Numeric recorded value below 3 or above 40; hypothesis inferred from the recorded text 'В норме от +3 до +40', not a confirmed equipment threshold.",
+    "starts_after_observed_non_target_day": "Target day preceded by an observed calendar day for the channel without target."
+  },
+  "limitations": [
+    "All targets are messages, source flags or inferred thresholds, not confirmed incidents.",
+    "Current catalog is applied to history without historical versions.",
+    "Daily presence collapses repeated records and does not reconstruct physical episodes."
+  ]
+}

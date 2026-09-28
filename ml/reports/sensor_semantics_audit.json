@@ -1,0 +1,5903 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "source": "events_year=*.parquet и daily_channel.parquet из mkl.ingest и mkl.panel",
+    "catalog": "справочник_каналов_датчиков.csv",
+    "catalog_sha256": "87b3230e93ae00e3f03d915336acde6b3990c8b58d7378175cf02c000f67a45f",
+    "catalog_channels": 11485,
+    "catalog_sensor_types": 19,
+    "events": 312982076,
+    "observed_channels": 12627,
+    "first_day": "2019-01-01",
+    "last_day": "2026-06-30",
+    "note": "Текущий справочник применён ко всей истории: исторических версий нет. Тип датчика берётся из ev.stype, его заполнил ingest по channels.parquet."
+  },
+  "inputs": [
+    {
+      "file": "events_year=2019.parquet",
+      "bytes": 299522943,
+      "rows": 20991837,
+      "sha256": "ac84d92190fcd7ef49823fea8b4c8e577f1a7cbc4a2f57be251c35f2b70fc4ca"
+    },
+    {
+      "file": "events_year=2020.parquet",
+      "bytes": 397376839,
+      "rows": 28172398,
+      "sha256": "f44094ad79879cc16518726956234e87dc37634a56545eede91dfe0788ac9b90"
+    },
+    {
+      "file": "events_year=2021.parquet",
+      "bytes": 759391557,
+      "rows": 53698948,
+      "sha256": "4045449654b73953b5a5d0ed710c28392dcc7650fc636d414456e8910fca09ff"
+    },
+    {
+      "file": "events_year=2022.parquet",
+      "bytes": 619135762,
+      "rows": 43483149,
+      "sha256": "5b80eb82ebb338997a6eebb737a78c8818a879330ae89a5b90633ddc6ed290aa"
+    },
+    {
+      "file": "events_year=2023.parquet",
+      "bytes": 458613325,
+      "rows": 31374676,
+      "sha256": "fa10487b025c5cf51a0c12902f04abe29b0816828aae07714e950d727b42e906"
+    },
+    {
+      "file": "events_year=2024.parquet",
+      "bytes": 670357044,
+      "rows": 49023883,
+      "sha256": "1eef1e24bf37b6a85212113056f10ef438f29bdf929fbc38e966e3290121ee65"
+    },
+    {
+      "file": "events_year=2025.parquet",
+      "bytes": 775312947,
+      "rows": 55541796,
+      "sha256": "9869a28ad86027d5fdbbd2bd60ef19d4ba095f8e7152d4b639369b54b3a2d172"
+    },
+    {
+      "file": "events_year=2026.parquet",
+      "bytes": 430205209,
+      "rows": 30695389,
+      "sha256": "66bc99066e9c2d6f35c9bff77dea0fc8277735d284cb318edbce7c49488043d3"
+    },
+    {
+      "file": "daily_channel.parquet",
+      "bytes": 149325574,
+      "rows": 4273083,
+      "sha256": "9da7d7f3340e8098e7c81487beb7fedcfcb1f131ca1b6d0900740104493a5a37"
+    }
+  ],
+  "parameters": {
+    "second_start": "2024-01-01",
+    "second_end": "2026-06-30",
+    "span_start": "2024-01-07",
+    "span_end": "2026-06-23",
+    "top_values": 30
+  },
+  "sensor_types": [
+    {
+      "sensor_type": "Газовый датчик",
+      "observed_channels": 529,
+      "observed_channel_days": 482648,
+      "observed_dates": 2735,
+      "events": 223537019,
+      "alarms": 53849,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 1425,
+      "numeric_events": 222591481,
+      "non_null_events": 223537019,
+      "channels": 529,
+      "median_observed_days": 881.0,
+      "p10_observed_days": 112.80000000000001,
+      "p90_observed_days": 1876.6,
+      "median_span_days": 2628.0,
+      "channels_spanning_model_period": 317,
+      "alarm_rate": 0.00024089522281765777,
+      "numeric_event_fraction": 0.9957701055322743
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "observed_channels": 804,
+      "observed_channel_days": 365629,
+      "observed_dates": 2734,
+      "events": 51406214,
+      "alarms": 204679,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 15,
+      "numeric_events": 5,
+      "non_null_events": 51406214,
+      "channels": 804,
+      "median_observed_days": 290.0,
+      "p10_observed_days": 89.30000000000001,
+      "p90_observed_days": 985.3000000000004,
+      "median_span_days": 2676.0,
+      "channels_spanning_model_period": 457,
+      "alarm_rate": 0.00398160035671952,
+      "numeric_event_fraction": 9.726450580468734e-08
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "observed_channels": 1142,
+      "observed_channel_days": 264558,
+      "observed_dates": 2146,
+      "events": 9439655,
+      "alarms": 151696,
+      "first_day": "2019-01-01",
+      "last_day": "2026-03-18",
+      "distinct_values": 2945,
+      "numeric_events": 954342,
+      "non_null_events": 9439655,
+      "channels": 1142,
+      "median_observed_days": 89.0,
+      "p10_observed_days": 22.10000000000001,
+      "p90_observed_days": 668.8000000000002,
+      "median_span_days": 942.5,
+      "channels_spanning_model_period": 0,
+      "alarm_rate": 0.016070078832330206,
+      "numeric_event_fraction": 0.101099245682178
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "observed_channels": 762,
+      "observed_channel_days": 118754,
+      "observed_dates": 2647,
+      "events": 5684242,
+      "alarms": 6079,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 12,
+      "numeric_events": 0,
+      "non_null_events": 5684242,
+      "channels": 762,
+      "median_observed_days": 117.0,
+      "p10_observed_days": 49.0,
+      "p90_observed_days": 359.79999999999995,
+      "median_span_days": 2345.0,
+      "channels_spanning_model_period": 165,
+      "alarm_rate": 0.001069447782131725,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "observed_channels": 917,
+      "observed_channel_days": 398751,
+      "observed_dates": 2734,
+      "events": 4976090,
+      "alarms": 37506,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 16,
+      "numeric_events": 5,
+      "non_null_events": 4976090,
+      "channels": 917,
+      "median_observed_days": 315.0,
+      "p10_observed_days": 77.0,
+      "p90_observed_days": 862.8,
+      "median_span_days": 2350.0,
+      "channels_spanning_model_period": 566,
+      "alarm_rate": 0.007537243096487403,
+      "numeric_event_fraction": 1.004804977401936e-06
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "observed_channels": 4337,
+      "observed_channel_days": 456148,
+      "observed_dates": 2283,
+      "events": 3959526,
+      "alarms": 1170647,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 11,
+      "numeric_events": 0,
+      "non_null_events": 3959526,
+      "channels": 4337,
+      "median_observed_days": 80.0,
+      "p10_observed_days": 27.0,
+      "p90_observed_days": 257.0,
+      "median_span_days": 1622.0,
+      "channels_spanning_model_period": 1289,
+      "alarm_rate": 0.2956533180991866,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "observed_channels": 957,
+      "observed_channel_days": 508263,
+      "observed_dates": 2734,
+      "events": 3803624,
+      "alarms": 25956,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 13,
+      "numeric_events": 4,
+      "non_null_events": 3803624,
+      "channels": 957,
+      "median_observed_days": 362.0,
+      "p10_observed_days": 25.0,
+      "p90_observed_days": 1291.0,
+      "median_span_days": 2393.0,
+      "channels_spanning_model_period": 539,
+      "alarm_rate": 0.0068240183572298415,
+      "numeric_event_fraction": 1.0516286573015629e-06
+    },
+    {
+      "sensor_type": "Переключатель",
+      "observed_channels": 801,
+      "observed_channel_days": 590853,
+      "observed_dates": 2730,
+      "events": 3117251,
+      "alarms": 477,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 5,
+      "numeric_events": 0,
+      "non_null_events": 3117251,
+      "channels": 801,
+      "median_observed_days": 784.0,
+      "p10_observed_days": 31.0,
+      "p90_observed_days": 1495.0,
+      "median_span_days": 2638.0,
+      "channels_spanning_model_period": 490,
+      "alarm_rate": 0.00015301943924310235,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "observed_channels": 354,
+      "observed_channel_days": 375467,
+      "observed_dates": 2704,
+      "events": 1987434,
+      "alarms": 145654,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 7,
+      "numeric_events": 0,
+      "non_null_events": 1987434,
+      "channels": 354,
+      "median_observed_days": 1081.5,
+      "p10_observed_days": 575.8000000000001,
+      "p90_observed_days": 1615.4,
+      "median_span_days": 2696.0,
+      "channels_spanning_model_period": 306,
+      "alarm_rate": 0.07328746514349659,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "observed_channels": 180,
+      "observed_channel_days": 97596,
+      "observed_dates": 2734,
+      "events": 1975912,
+      "alarms": 317853,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 9,
+      "numeric_events": 0,
+      "non_null_events": 1975912,
+      "channels": 180,
+      "median_observed_days": 336.0,
+      "p10_observed_days": 154.70000000000002,
+      "p90_observed_days": 1330.6999999999998,
+      "median_span_days": 2696.0,
+      "channels_spanning_model_period": 107,
+      "alarm_rate": 0.16086394535789042,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "observed_channels": 600,
+      "observed_channel_days": 383583,
+      "observed_dates": 2735,
+      "events": 1407576,
+      "alarms": 60048,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 260,
+      "numeric_events": 1062528,
+      "non_null_events": 1407576,
+      "channels": 600,
+      "median_observed_days": 532.5,
+      "p10_observed_days": 195.9,
+      "p90_observed_days": 1213.4,
+      "median_span_days": 2711.5,
+      "channels_spanning_model_period": 372,
+      "alarm_rate": 0.042660573922829036,
+      "numeric_event_fraction": 0.7548636805401626
+    },
+    {
+      "sensor_type": "КД АВ",
+      "observed_channels": 397,
+      "observed_channel_days": 90143,
+      "observed_dates": 2710,
+      "events": 620249,
+      "alarms": 230817,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 11,
+      "numeric_events": 1,
+      "non_null_events": 620249,
+      "channels": 397,
+      "median_observed_days": 188.0,
+      "p10_observed_days": 66.2,
+      "p90_observed_days": 409.40000000000003,
+      "median_span_days": 2666.0,
+      "channels_spanning_model_period": 212,
+      "alarm_rate": 0.37213602923986977,
+      "numeric_event_fraction": 1.612255723104753e-06
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "observed_channels": 472,
+      "observed_channel_days": 40625,
+      "observed_dates": 935,
+      "events": 501064,
+      "alarms": 2278,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "distinct_values": 6,
+      "numeric_events": 0,
+      "non_null_events": 501064,
+      "channels": 472,
+      "median_observed_days": 98.0,
+      "p10_observed_days": 23.0,
+      "p90_observed_days": 136.0,
+      "median_span_days": 2652.0,
+      "channels_spanning_model_period": 101,
+      "alarm_rate": 0.004546325419507289,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "observed_channels": 47,
+      "observed_channel_days": 62777,
+      "observed_dates": 2734,
+      "events": 315111,
+      "alarms": 8083,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 45574,
+      "numeric_events": 0,
+      "non_null_events": 315111,
+      "channels": 47,
+      "median_observed_days": 1544.0,
+      "p10_observed_days": 135.60000000000002,
+      "p90_observed_days": 2418.6,
+      "median_span_days": 2684.0,
+      "channels_spanning_model_period": 35,
+      "alarm_rate": 0.025651278438391552,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "ИБП",
+      "observed_channels": 80,
+      "observed_channel_days": 16602,
+      "observed_dates": 2656,
+      "events": 125805,
+      "alarms": 22315,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 57,
+      "numeric_events": 4699,
+      "non_null_events": 125805,
+      "channels": 80,
+      "median_observed_days": 188.5,
+      "p10_observed_days": 28.9,
+      "p90_observed_days": 350.3000000000002,
+      "median_span_days": 2241.5,
+      "channels_spanning_model_period": 28,
+      "alarm_rate": 0.17737768769126824,
+      "numeric_event_fraction": 0.03735145661937125
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "observed_channels": 130,
+      "observed_channel_days": 6417,
+      "observed_dates": 1427,
+      "events": 46064,
+      "alarms": 11768,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 10,
+      "numeric_events": 0,
+      "non_null_events": 46064,
+      "channels": 130,
+      "median_observed_days": 27.0,
+      "p10_observed_days": 20.9,
+      "p90_observed_days": 105.90000000000008,
+      "median_span_days": 194.0,
+      "channels_spanning_model_period": 6,
+      "alarm_rate": 0.25547064953108717,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "КД Люк",
+      "observed_channels": 55,
+      "observed_channel_days": 6028,
+      "observed_dates": 1464,
+      "events": 36043,
+      "alarms": 3836,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 7,
+      "numeric_events": 0,
+      "non_null_events": 36043,
+      "channels": 55,
+      "median_observed_days": 106.0,
+      "p10_observed_days": 46.6,
+      "p90_observed_days": 157.8,
+      "median_span_days": 2659.0,
+      "channels_spanning_model_period": 4,
+      "alarm_rate": 0.10642843270537969,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Стекло",
+      "observed_channels": 29,
+      "observed_channel_days": 6028,
+      "observed_dates": 2047,
+      "events": 30281,
+      "alarms": 9611,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 5,
+      "numeric_events": 0,
+      "non_null_events": 30281,
+      "channels": 29,
+      "median_observed_days": 137.0,
+      "p10_observed_days": 46.0,
+      "p90_observed_days": 477.79999999999995,
+      "median_span_days": 1688.0,
+      "channels_spanning_model_period": 11,
+      "alarm_rate": 0.3173937452527988,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "observed_channels": 25,
+      "observed_channel_days": 2035,
+      "observed_dates": 1006,
+      "events": 12414,
+      "alarms": 3739,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "distinct_values": 7,
+      "numeric_events": 0,
+      "non_null_events": 12414,
+      "channels": 25,
+      "median_observed_days": 61.0,
+      "p10_observed_days": 34.8,
+      "p90_observed_days": 107.00000000000003,
+      "median_span_days": 1636.0,
+      "channels_spanning_model_period": 3,
+      "alarm_rate": 0.301192202352183,
+      "numeric_event_fraction": 0.0
+    },
+    {
+      "sensor_type": "9-секционный люк",
+      "observed_channels": 9,
+      "observed_channel_days": 178,
+      "observed_dates": 43,
+      "events": 502,
+      "alarms": 87,
+      "first_day": "2025-06-11",
+      "last_day": "2026-06-11",
+      "distinct_values": 5,
+      "numeric_events": 0,
+      "non_null_events": 502,
+      "channels": 9,
+      "median_observed_days": 21.0,
+      "p10_observed_days": 11.0,
+      "p90_observed_days": 24.0,
+      "median_span_days": 232.0,
+      "channels_spanning_model_period": 0,
+      "alarm_rate": 0.17330677290836655,
+      "numeric_event_fraction": 0.0
+    }
+  ],
+  "yearly": [
+    {
+      "sensor_type": "9-секционный люк",
+      "calendar_year": 2025,
+      "observed_channels": 9,
+      "observed_channel_days": 96,
+      "observed_dates": 23,
+      "events": 264,
+      "alarms": 24
+    },
+    {
+      "sensor_type": "9-секционный люк",
+      "calendar_year": 2026,
+      "observed_channels": 9,
+      "observed_channel_days": 82,
+      "observed_dates": 20,
+      "events": 238,
+      "alarms": 63
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2019,
+      "observed_channels": 1004,
+      "observed_channel_days": 92466,
+      "observed_dates": 365,
+      "events": 2481504,
+      "alarms": 15173
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2020,
+      "observed_channels": 990,
+      "observed_channel_days": 92619,
+      "observed_dates": 366,
+      "events": 3278453,
+      "alarms": 84246
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2021,
+      "observed_channels": 829,
+      "observed_channel_days": 66483,
+      "observed_dates": 365,
+      "events": 3323693,
+      "alarms": 41221
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2022,
+      "observed_channels": 558,
+      "observed_channel_days": 10413,
+      "observed_dates": 365,
+      "events": 328990,
+      "alarms": 7660
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2023,
+      "observed_channels": 106,
+      "observed_channel_days": 1935,
+      "observed_dates": 347,
+      "events": 21106,
+      "alarms": 2624
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2024,
+      "observed_channels": 30,
+      "observed_channel_days": 479,
+      "observed_dates": 225,
+      "events": 5257,
+      "alarms": 641
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2025,
+      "observed_channels": 12,
+      "observed_channel_days": 150,
+      "observed_dates": 100,
+      "events": 530,
+      "alarms": 122
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "calendar_year": 2026,
+      "observed_channels": 2,
+      "observed_channel_days": 13,
+      "observed_dates": 13,
+      "events": 122,
+      "alarms": 9
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2019,
+      "observed_channels": 368,
+      "observed_channel_days": 48366,
+      "observed_dates": 365,
+      "events": 8809559,
+      "alarms": 1892
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2020,
+      "observed_channels": 320,
+      "observed_channel_days": 36268,
+      "observed_dates": 366,
+      "events": 12657998,
+      "alarms": 2180
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2021,
+      "observed_channels": 428,
+      "observed_channel_days": 53850,
+      "observed_dates": 365,
+      "events": 36174821,
+      "alarms": 9224
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2022,
+      "observed_channels": 500,
+      "observed_channel_days": 78225,
+      "observed_dates": 365,
+      "events": 33800576,
+      "alarms": 1264
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2023,
+      "observed_channels": 503,
+      "observed_channel_days": 76330,
+      "observed_dates": 365,
+      "events": 22645868,
+      "alarms": 940
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2024,
+      "observed_channels": 492,
+      "observed_channel_days": 78142,
+      "observed_dates": 364,
+      "events": 38995357,
+      "alarms": 845
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2025,
+      "observed_channels": 529,
+      "observed_channel_days": 75151,
+      "observed_dates": 365,
+      "events": 45743228,
+      "alarms": 35864
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "calendar_year": 2026,
+      "observed_channels": 511,
+      "observed_channel_days": 36316,
+      "observed_dates": 180,
+      "events": 24709612,
+      "alarms": 1640
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2019,
+      "observed_channels": 455,
+      "observed_channel_days": 49213,
+      "observed_dates": 365,
+      "events": 7218976,
+      "alarms": 19747
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2020,
+      "observed_channels": 577,
+      "observed_channel_days": 51137,
+      "observed_dates": 366,
+      "events": 7308939,
+      "alarms": 107067
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2021,
+      "observed_channels": 629,
+      "observed_channel_days": 45194,
+      "observed_dates": 365,
+      "events": 6774776,
+      "alarms": 12910
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2022,
+      "observed_channels": 752,
+      "observed_channel_days": 46710,
+      "observed_dates": 365,
+      "events": 6374701,
+      "alarms": 16020
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2023,
+      "observed_channels": 761,
+      "observed_channel_days": 48028,
+      "observed_dates": 365,
+      "events": 6421430,
+      "alarms": 5678
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2024,
+      "observed_channels": 761,
+      "observed_channel_days": 48085,
+      "observed_dates": 363,
+      "events": 6950976,
+      "alarms": 10928
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2025,
+      "observed_channels": 804,
+      "observed_channel_days": 50762,
+      "observed_dates": 365,
+      "events": 6951980,
+      "alarms": 22542
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "calendar_year": 2026,
+      "observed_channels": 804,
+      "observed_channel_days": 26500,
+      "observed_dates": 180,
+      "events": 3404436,
+      "alarms": 9787
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2019,
+      "observed_channels": 385,
+      "observed_channel_days": 8772,
+      "observed_dates": 252,
+      "events": 51559,
+      "alarms": 2387
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2020,
+      "observed_channels": 1381,
+      "observed_channel_days": 95471,
+      "observed_dates": 307,
+      "events": 408466,
+      "alarms": 24318
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2021,
+      "observed_channels": 2387,
+      "observed_channel_days": 45672,
+      "observed_dates": 295,
+      "events": 2212041,
+      "alarms": 1038814
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2022,
+      "observed_channels": 3715,
+      "observed_channel_days": 55524,
+      "observed_dates": 307,
+      "events": 209960,
+      "alarms": 6189
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2023,
+      "observed_channels": 3743,
+      "observed_channel_days": 63680,
+      "observed_dates": 313,
+      "events": 220354,
+      "alarms": 3235
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2024,
+      "observed_channels": 3745,
+      "observed_channel_days": 39491,
+      "observed_dates": 301,
+      "events": 160695,
+      "alarms": 4048
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2025,
+      "observed_channels": 4337,
+      "observed_channel_days": 76779,
+      "observed_dates": 332,
+      "events": 341971,
+      "alarms": 13731
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "calendar_year": 2026,
+      "observed_channels": 4337,
+      "observed_channel_days": 70759,
+      "observed_dates": 176,
+      "events": 354480,
+      "alarms": 77925
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2019,
+      "observed_channels": 6,
+      "observed_channel_days": 223,
+      "observed_dates": 163,
+      "events": 825,
+      "alarms": 88
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2020,
+      "observed_channels": 8,
+      "observed_channel_days": 325,
+      "observed_dates": 193,
+      "events": 1152,
+      "alarms": 95
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2021,
+      "observed_channels": 13,
+      "observed_channel_days": 110,
+      "observed_dates": 69,
+      "events": 363,
+      "alarms": 94
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2022,
+      "observed_channels": 23,
+      "observed_channel_days": 282,
+      "observed_dates": 112,
+      "events": 1248,
+      "alarms": 328
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2023,
+      "observed_channels": 23,
+      "observed_channel_days": 276,
+      "observed_dates": 137,
+      "events": 2735,
+      "alarms": 1123
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2024,
+      "observed_channels": 23,
+      "observed_channel_days": 212,
+      "observed_dates": 100,
+      "events": 2849,
+      "alarms": 1267
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2025,
+      "observed_channels": 25,
+      "observed_channel_days": 354,
+      "observed_dates": 147,
+      "events": 2404,
+      "alarms": 604
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "calendar_year": 2026,
+      "observed_channels": 25,
+      "observed_channel_days": 253,
+      "observed_dates": 85,
+      "events": 838,
+      "alarms": 140
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2019,
+      "observed_channels": 420,
+      "observed_channel_days": 44003,
+      "observed_dates": 365,
+      "events": 143528,
+      "alarms": 1339
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2020,
+      "observed_channels": 466,
+      "observed_channel_days": 49139,
+      "observed_dates": 366,
+      "events": 170786,
+      "alarms": 2216
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2021,
+      "observed_channels": 487,
+      "observed_channel_days": 43309,
+      "observed_dates": 365,
+      "events": 154041,
+      "alarms": 2566
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2022,
+      "observed_channels": 589,
+      "observed_channel_days": 50917,
+      "observed_dates": 365,
+      "events": 174455,
+      "alarms": 2373
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2023,
+      "observed_channels": 591,
+      "observed_channel_days": 57096,
+      "observed_dates": 365,
+      "events": 189548,
+      "alarms": 3838
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2024,
+      "observed_channels": 591,
+      "observed_channel_days": 52938,
+      "observed_dates": 364,
+      "events": 185918,
+      "alarms": 3132
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2025,
+      "observed_channels": 600,
+      "observed_channel_days": 59827,
+      "observed_dates": 365,
+      "events": 258927,
+      "alarms": 25241
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "calendar_year": 2026,
+      "observed_channels": 598,
+      "observed_channel_days": 26354,
+      "observed_dates": 180,
+      "events": 130373,
+      "alarms": 19343
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2019,
+      "observed_channels": 35,
+      "observed_channel_days": 1797,
+      "observed_dates": 349,
+      "events": 12733,
+      "alarms": 1517
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2020,
+      "observed_channels": 42,
+      "observed_channel_days": 2230,
+      "observed_dates": 363,
+      "events": 38051,
+      "alarms": 1247
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2021,
+      "observed_channels": 59,
+      "observed_channel_days": 1989,
+      "observed_dates": 356,
+      "events": 14113,
+      "alarms": 4877
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2022,
+      "observed_channels": 68,
+      "observed_channel_days": 2442,
+      "observed_dates": 352,
+      "events": 17249,
+      "alarms": 4112
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2023,
+      "observed_channels": 69,
+      "observed_channel_days": 2361,
+      "observed_dates": 355,
+      "events": 13222,
+      "alarms": 2857
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2024,
+      "observed_channels": 72,
+      "observed_channel_days": 2033,
+      "observed_dates": 347,
+      "events": 10386,
+      "alarms": 2635
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2025,
+      "observed_channels": 79,
+      "observed_channel_days": 2294,
+      "observed_dates": 355,
+      "events": 13392,
+      "alarms": 3578
+    },
+    {
+      "sensor_type": "ИБП",
+      "calendar_year": 2026,
+      "observed_channels": 80,
+      "observed_channel_days": 1456,
+      "observed_dates": 179,
+      "events": 6659,
+      "alarms": 1492
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2019,
+      "observed_channels": 220,
+      "observed_channel_days": 14666,
+      "observed_dates": 365,
+      "events": 105631,
+      "alarms": 32759
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2020,
+      "observed_channels": 272,
+      "observed_channel_days": 15316,
+      "observed_dates": 366,
+      "events": 77747,
+      "alarms": 23615
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2021,
+      "observed_channels": 290,
+      "observed_channel_days": 9876,
+      "observed_dates": 358,
+      "events": 58394,
+      "alarms": 20437
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2022,
+      "observed_channels": 359,
+      "observed_channel_days": 10995,
+      "observed_dates": 363,
+      "events": 70221,
+      "alarms": 25538
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2023,
+      "observed_channels": 373,
+      "observed_channel_days": 11368,
+      "observed_dates": 363,
+      "events": 65567,
+      "alarms": 26664
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2024,
+      "observed_channels": 373,
+      "observed_channel_days": 10398,
+      "observed_dates": 357,
+      "events": 66461,
+      "alarms": 24937
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2025,
+      "observed_channels": 397,
+      "observed_channel_days": 11555,
+      "observed_dates": 358,
+      "events": 139553,
+      "alarms": 62923
+    },
+    {
+      "sensor_type": "КД АВ",
+      "calendar_year": 2026,
+      "observed_channels": 397,
+      "observed_channel_days": 5969,
+      "observed_dates": 180,
+      "events": 36675,
+      "alarms": 13944
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2019,
+      "observed_channels": 452,
+      "observed_channel_days": 47575,
+      "observed_dates": 365,
+      "events": 619678,
+      "alarms": 2571
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2020,
+      "observed_channels": 615,
+      "observed_channel_days": 50162,
+      "observed_dates": 366,
+      "events": 693055,
+      "alarms": 14661
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2021,
+      "observed_channels": 692,
+      "observed_channel_days": 49212,
+      "observed_dates": 365,
+      "events": 645046,
+      "alarms": 6340
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2022,
+      "observed_channels": 820,
+      "observed_channel_days": 53548,
+      "observed_dates": 365,
+      "events": 633971,
+      "alarms": 2307
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2023,
+      "observed_channels": 838,
+      "observed_channel_days": 54646,
+      "observed_dates": 365,
+      "events": 655026,
+      "alarms": 826
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2024,
+      "observed_channels": 840,
+      "observed_channel_days": 55777,
+      "observed_dates": 363,
+      "events": 735761,
+      "alarms": 1328
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2025,
+      "observed_channels": 916,
+      "observed_channel_days": 58207,
+      "observed_dates": 365,
+      "events": 685823,
+      "alarms": 6850
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "calendar_year": 2026,
+      "observed_channels": 917,
+      "observed_channel_days": 29624,
+      "observed_dates": 180,
+      "events": 307730,
+      "alarms": 2623
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2019,
+      "observed_channels": 38,
+      "observed_channel_days": 1002,
+      "observed_dates": 249,
+      "events": 3481,
+      "alarms": 474
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2020,
+      "observed_channels": 38,
+      "observed_channel_days": 1266,
+      "observed_dates": 251,
+      "events": 4765,
+      "alarms": 472
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2021,
+      "observed_channels": 40,
+      "observed_channel_days": 719,
+      "observed_dates": 195,
+      "events": 7215,
+      "alarms": 473
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2022,
+      "observed_channels": 55,
+      "observed_channel_days": 594,
+      "observed_dates": 176,
+      "events": 8854,
+      "alarms": 529
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2023,
+      "observed_channels": 55,
+      "observed_channel_days": 629,
+      "observed_dates": 160,
+      "events": 2579,
+      "alarms": 482
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2024,
+      "observed_channels": 55,
+      "observed_channel_days": 602,
+      "observed_dates": 157,
+      "events": 2033,
+      "alarms": 562
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2025,
+      "observed_channels": 55,
+      "observed_channel_days": 721,
+      "observed_dates": 170,
+      "events": 2887,
+      "alarms": 525
+    },
+    {
+      "sensor_type": "КД Люк",
+      "calendar_year": 2026,
+      "observed_channels": 55,
+      "observed_channel_days": 495,
+      "observed_dates": 106,
+      "events": 4229,
+      "alarms": 319
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2019,
+      "observed_channels": 504,
+      "observed_channel_days": 74407,
+      "observed_dates": 365,
+      "events": 335966,
+      "alarms": 0
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2020,
+      "observed_channels": 554,
+      "observed_channel_days": 100311,
+      "observed_dates": 366,
+      "events": 434759,
+      "alarms": 5
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2021,
+      "observed_channels": 603,
+      "observed_channel_days": 82766,
+      "observed_dates": 365,
+      "events": 1086148,
+      "alarms": 2
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2022,
+      "observed_channels": 707,
+      "observed_channel_days": 73556,
+      "observed_dates": 363,
+      "events": 271211,
+      "alarms": 7
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2023,
+      "observed_channels": 706,
+      "observed_channel_days": 77140,
+      "observed_dates": 365,
+      "events": 244624,
+      "alarms": 3
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2024,
+      "observed_channels": 709,
+      "observed_channel_days": 69087,
+      "observed_dates": 363,
+      "events": 205720,
+      "alarms": 3
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2025,
+      "observed_channels": 794,
+      "observed_channel_days": 76221,
+      "observed_dates": 364,
+      "events": 222591,
+      "alarms": 3
+    },
+    {
+      "sensor_type": "Переключатель",
+      "calendar_year": 2026,
+      "observed_channels": 792,
+      "observed_channel_days": 37365,
+      "observed_dates": 179,
+      "events": 316232,
+      "alarms": 454
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2019,
+      "observed_channels": 29,
+      "observed_channel_days": 684,
+      "observed_dates": 211,
+      "events": 2928,
+      "alarms": 54
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2020,
+      "observed_channels": 31,
+      "observed_channel_days": 758,
+      "observed_dates": 242,
+      "events": 2991,
+      "alarms": 72
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2021,
+      "observed_channels": 32,
+      "observed_channel_days": 472,
+      "observed_dates": 174,
+      "events": 1940,
+      "alarms": 16
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2022,
+      "observed_channels": 35,
+      "observed_channel_days": 406,
+      "observed_dates": 145,
+      "events": 1688,
+      "alarms": 41
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2023,
+      "observed_channels": 39,
+      "observed_channel_days": 396,
+      "observed_dates": 166,
+      "events": 1687,
+      "alarms": 6
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2024,
+      "observed_channels": 39,
+      "observed_channel_days": 404,
+      "observed_dates": 161,
+      "events": 2099,
+      "alarms": 14
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2025,
+      "observed_channels": 130,
+      "observed_channel_days": 1649,
+      "observed_dates": 198,
+      "events": 7726,
+      "alarms": 1429
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "calendar_year": 2026,
+      "observed_channels": 130,
+      "observed_channel_days": 1648,
+      "observed_dates": 130,
+      "events": 25005,
+      "alarms": 10136
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2019,
+      "observed_channels": 367,
+      "observed_channel_days": 16068,
+      "observed_dates": 365,
+      "events": 108049,
+      "alarms": 720
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2020,
+      "observed_channels": 488,
+      "observed_channel_days": 21201,
+      "observed_dates": 364,
+      "events": 2021402,
+      "alarms": 433
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2021,
+      "observed_channels": 570,
+      "observed_channel_days": 18790,
+      "observed_dates": 365,
+      "events": 900102,
+      "alarms": 232
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2022,
+      "observed_channels": 759,
+      "observed_channel_days": 17786,
+      "observed_dates": 364,
+      "events": 735625,
+      "alarms": 351
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2023,
+      "observed_channels": 759,
+      "observed_channel_days": 9554,
+      "observed_dates": 329,
+      "events": 201695,
+      "alarms": 125
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2024,
+      "observed_channels": 759,
+      "observed_channel_days": 10746,
+      "observed_dates": 339,
+      "events": 934598,
+      "alarms": 518
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2025,
+      "observed_channels": 762,
+      "observed_channel_days": 14184,
+      "observed_dates": 350,
+      "events": 331732,
+      "alarms": 1109
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "calendar_year": 2026,
+      "observed_channels": 762,
+      "observed_channel_days": 10425,
+      "observed_dates": 171,
+      "events": 451039,
+      "alarms": 2591
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2019,
+      "observed_channels": 223,
+      "observed_channel_days": 45394,
+      "observed_dates": 363,
+      "events": 189336,
+      "alarms": 7218
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2020,
+      "observed_channels": 261,
+      "observed_channel_days": 66527,
+      "observed_dates": 365,
+      "events": 324222,
+      "alarms": 24662
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2021,
+      "observed_channels": 281,
+      "observed_channel_days": 52845,
+      "observed_dates": 365,
+      "events": 592059,
+      "alarms": 17173
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2022,
+      "observed_channels": 329,
+      "observed_channel_days": 46176,
+      "observed_dates": 350,
+      "events": 179362,
+      "alarms": 18760
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2023,
+      "observed_channels": 330,
+      "observed_channel_days": 49642,
+      "observed_dates": 363,
+      "events": 166174,
+      "alarms": 15938
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2024,
+      "observed_channels": 330,
+      "observed_channel_days": 42371,
+      "observed_dates": 359,
+      "events": 144113,
+      "alarms": 18028
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2025,
+      "observed_channels": 354,
+      "observed_channel_days": 49842,
+      "observed_dates": 361,
+      "events": 179062,
+      "alarms": 25216
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "calendar_year": 2026,
+      "observed_channels": 354,
+      "observed_channel_days": 22670,
+      "observed_dates": 178,
+      "events": 213106,
+      "alarms": 18659
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2019,
+      "observed_channels": 114,
+      "observed_channel_days": 7926,
+      "observed_dates": 365,
+      "events": 132779,
+      "alarms": 45908
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2020,
+      "observed_channels": 139,
+      "observed_channel_days": 12376,
+      "observed_dates": 366,
+      "events": 165047,
+      "alarms": 36588
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2021,
+      "observed_channels": 153,
+      "observed_channel_days": 13781,
+      "observed_dates": 365,
+      "events": 497991,
+      "alarms": 41681
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2022,
+      "observed_channels": 167,
+      "observed_channel_days": 12271,
+      "observed_dates": 365,
+      "events": 195161,
+      "alarms": 41802
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2023,
+      "observed_channels": 169,
+      "observed_channel_days": 13293,
+      "observed_dates": 365,
+      "events": 202776,
+      "alarms": 36382
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2024,
+      "observed_channels": 169,
+      "observed_channel_days": 13755,
+      "observed_dates": 363,
+      "events": 251473,
+      "alarms": 37873
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2025,
+      "observed_channels": 180,
+      "observed_channel_days": 13953,
+      "observed_dates": 365,
+      "events": 247849,
+      "alarms": 46451
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "calendar_year": 2026,
+      "observed_channels": 180,
+      "observed_channel_days": 10241,
+      "observed_dates": 180,
+      "events": 282836,
+      "alarms": 31168
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2019,
+      "observed_channels": 32,
+      "observed_channel_days": 6476,
+      "observed_dates": 365,
+      "events": 20593,
+      "alarms": 749
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2020,
+      "observed_channels": 38,
+      "observed_channel_days": 7512,
+      "observed_dates": 366,
+      "events": 28686,
+      "alarms": 1158
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2021,
+      "observed_channels": 43,
+      "observed_channel_days": 7717,
+      "observed_dates": 365,
+      "events": 38636,
+      "alarms": 738
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2022,
+      "observed_channels": 46,
+      "observed_channel_days": 8653,
+      "observed_dates": 365,
+      "events": 46713,
+      "alarms": 819
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2023,
+      "observed_channels": 46,
+      "observed_channel_days": 9295,
+      "observed_dates": 365,
+      "events": 50743,
+      "alarms": 925
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2024,
+      "observed_channels": 46,
+      "observed_channel_days": 9347,
+      "observed_dates": 363,
+      "events": 52145,
+      "alarms": 1247
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2025,
+      "observed_channels": 47,
+      "observed_channel_days": 9387,
+      "observed_dates": 365,
+      "events": 54498,
+      "alarms": 1976
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "calendar_year": 2026,
+      "observed_channels": 45,
+      "observed_channel_days": 4390,
+      "observed_dates": 180,
+      "events": 23097,
+      "alarms": 471
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2019,
+      "observed_channels": 551,
+      "observed_channel_days": 60546,
+      "observed_dates": 365,
+      "events": 653796,
+      "alarms": 366
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2020,
+      "observed_channels": 611,
+      "observed_channel_days": 74212,
+      "observed_dates": 366,
+      "events": 521244,
+      "alarms": 1150
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2021,
+      "observed_channels": 666,
+      "observed_channel_days": 67035,
+      "observed_dates": 365,
+      "events": 1198034,
+      "alarms": 1404
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2022,
+      "observed_channels": 821,
+      "observed_channel_days": 66799,
+      "observed_dates": 365,
+      "events": 304403,
+      "alarms": 3966
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2023,
+      "observed_channels": 845,
+      "observed_channel_days": 67776,
+      "observed_dates": 365,
+      "events": 247982,
+      "alarms": 3809
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2024,
+      "observed_channels": 850,
+      "observed_channel_days": 68204,
+      "observed_dates": 363,
+      "events": 244002,
+      "alarms": 5599
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2025,
+      "observed_channels": 952,
+      "observed_channel_days": 66425,
+      "observed_dates": 365,
+      "events": 253431,
+      "alarms": 5970
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "calendar_year": 2026,
+      "observed_channels": 948,
+      "observed_channel_days": 37266,
+      "observed_dates": 180,
+      "events": 380732,
+      "alarms": 3692
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2019,
+      "observed_channels": 11,
+      "observed_channel_days": 683,
+      "observed_dates": 271,
+      "events": 3096,
+      "alarms": 1137
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2020,
+      "observed_channels": 11,
+      "observed_channel_days": 774,
+      "observed_dates": 268,
+      "events": 3666,
+      "alarms": 1471
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2021,
+      "observed_channels": 15,
+      "observed_channel_days": 740,
+      "observed_dates": 271,
+      "events": 3173,
+      "alarms": 1184
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2022,
+      "observed_channels": 22,
+      "observed_channel_days": 732,
+      "observed_dates": 273,
+      "events": 5136,
+      "alarms": 1250
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2023,
+      "observed_channels": 29,
+      "observed_channel_days": 613,
+      "observed_dates": 274,
+      "events": 5020,
+      "alarms": 1343
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2024,
+      "observed_channels": 29,
+      "observed_channel_days": 781,
+      "observed_dates": 275,
+      "events": 3500,
+      "alarms": 1236
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2025,
+      "observed_channels": 29,
+      "observed_channel_days": 1188,
+      "observed_dates": 289,
+      "events": 4594,
+      "alarms": 1425
+    },
+    {
+      "sensor_type": "Стекло",
+      "calendar_year": 2026,
+      "observed_channels": 29,
+      "observed_channel_days": 517,
+      "observed_dates": 126,
+      "events": 2096,
+      "alarms": 565
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2019,
+      "observed_channels": 408,
+      "observed_channel_days": 12782,
+      "observed_dates": 126,
+      "events": 97820,
+      "alarms": 33
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2020,
+      "observed_channels": 408,
+      "observed_channel_days": 8718,
+      "observed_dates": 112,
+      "events": 30969,
+      "alarms": 6
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2021,
+      "observed_channels": 408,
+      "observed_channel_days": 4034,
+      "observed_dates": 115,
+      "events": 16362,
+      "alarms": 253
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2022,
+      "observed_channels": 397,
+      "observed_channel_days": 2821,
+      "observed_dates": 203,
+      "events": 123625,
+      "alarms": 188
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2023,
+      "observed_channels": 415,
+      "observed_channel_days": 1598,
+      "observed_dates": 79,
+      "events": 16540,
+      "alarms": 147
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2024,
+      "observed_channels": 435,
+      "observed_channel_days": 2155,
+      "observed_dates": 120,
+      "events": 70540,
+      "alarms": 362
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2025,
+      "observed_channels": 472,
+      "observed_channel_days": 5882,
+      "observed_dates": 102,
+      "events": 99354,
+      "alarms": 888
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "calendar_year": 2026,
+      "observed_channels": 472,
+      "observed_channel_days": 2635,
+      "observed_dates": 78,
+      "events": 45854,
+      "alarms": 401
+    }
+  ],
+  "top_values": [
+    {
+      "sensor_type": "9-секционный люк",
+      "sensor_value": "Норма",
+      "events": 252,
+      "channels": 9,
+      "alarms": 0,
+      "first_day": "2025-06-11",
+      "last_day": "2026-06-11",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "9-секционный люк",
+      "sensor_value": "Неопределен",
+      "events": 159,
+      "channels": 9,
+      "alarms": 0,
+      "first_day": "2025-06-11",
+      "last_day": "2026-06-11",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "9-секционный люк",
+      "sensor_value": "Не замкнут",
+      "events": 73,
+      "channels": 9,
+      "alarms": 73,
+      "first_day": "2025-12-09",
+      "last_day": "2026-04-27",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "9-секционный люк",
+      "sensor_value": "Неисправен",
+      "events": 14,
+      "channels": 9,
+      "alarms": 14,
+      "first_day": "2025-12-09",
+      "last_day": "2026-03-17",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "9-секционный люк",
+      "sensor_value": "Выключен",
+      "events": 4,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2025-06-11",
+      "last_day": "2025-06-11",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Обнаружено движение",
+      "events": 2728305,
+      "channels": 89,
+      "alarms": 4442,
+      "first_day": "2019-01-01",
+      "last_day": "2023-02-07",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Движения нет",
+      "events": 2728304,
+      "channels": 88,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2023-02-07",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Норма",
+      "events": 1322515,
+      "channels": 1136,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-03-18",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Неопределен",
+      "events": 1099989,
+      "channels": 1136,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-03-18",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.01",
+      "events": 244286,
+      "channels": 19,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2020-07-07",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Не замкнут",
+      "events": 205001,
+      "channels": 320,
+      "alarms": 110928,
+      "first_day": "2019-01-01",
+      "last_day": "2025-10-16",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.00",
+      "events": 192606,
+      "channels": 21,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2020-07-07",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Выключен",
+      "events": 122201,
+      "channels": 543,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2025-06-11",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Включен",
+      "events": 116096,
+      "channels": 142,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2023-08-21",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.02",
+      "events": 94407,
+      "channels": 17,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2020-07-19",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.03",
+      "events": 60015,
+      "channels": 17,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2020-07-19",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Обесточен",
+      "events": 44955,
+      "channels": 166,
+      "alarms": 3180,
+      "first_day": "2019-01-02",
+      "last_day": "2024-04-25",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.05",
+      "events": 43705,
+      "channels": 15,
+      "alarms": 0,
+      "first_day": "2019-01-27",
+      "last_day": "2020-07-24",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Есть питание",
+      "events": 41349,
+      "channels": 139,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2023-08-21",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.06",
+      "events": 30746,
+      "channels": 14,
+      "alarms": 0,
+      "first_day": "2019-01-29",
+      "last_day": "2020-07-29",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "0.07",
+      "events": 21239,
+      "channels": 12,
+      "alarms": 0,
+      "first_day": "2019-02-12",
+      "last_day": "2020-07-31",
+      "value_rank": 16
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "24",
+      "events": 15512,
+      "channels": 140,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-09-04",
+      "value_rank": 17
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "26",
+      "events": 14703,
+      "channels": 129,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2022-08-30",
+      "value_rank": 18
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "22",
+      "events": 14087,
+      "channels": 145,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-09-12",
+      "value_rank": 19
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "23",
+      "events": 12809,
+      "channels": 146,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-09-07",
+      "value_rank": 20
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Неисправен",
+      "events": 12645,
+      "channels": 274,
+      "alarms": 9589,
+      "first_day": "2019-01-02",
+      "last_day": "2026-02-03",
+      "value_rank": 21
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "25",
+      "events": 12642,
+      "channels": 138,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-09-04",
+      "value_rank": 22
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "28",
+      "events": 12529,
+      "channels": 116,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-08-30",
+      "value_rank": 23
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "21",
+      "events": 11983,
+      "channels": 142,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-09-20",
+      "value_rank": 24
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "20",
+      "events": 11707,
+      "channels": 139,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2023-08-04",
+      "value_rank": 25
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "Работают все насосы в АНС",
+      "events": 11429,
+      "channels": 8,
+      "alarms": 11418,
+      "first_day": "2019-01-13",
+      "last_day": "2023-08-21",
+      "value_rank": 26
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "27",
+      "events": 11087,
+      "channels": 122,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2022-09-01",
+      "value_rank": 27
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "18",
+      "events": 10700,
+      "channels": 126,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2023-08-25",
+      "value_rank": 28
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "19",
+      "events": 10332,
+      "channels": 133,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2022-10-07",
+      "value_rank": 29
+    },
+    {
+      "sensor_type": "__UNMAPPED__",
+      "sensor_value": "16",
+      "events": 9656,
+      "channels": 109,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2023-09-26",
+      "value_rank": 30
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.01",
+      "events": 87214038,
+      "channels": 472,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.00",
+      "events": 81739471,
+      "channels": 482,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.02",
+      "events": 13471495,
+      "channels": 468,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.03",
+      "events": 7316992,
+      "channels": 463,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.04",
+      "events": 5636783,
+      "channels": 459,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.05",
+      "events": 4930721,
+      "channels": 465,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.06",
+      "events": 4126048,
+      "channels": 461,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.07",
+      "events": 2770336,
+      "channels": 457,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.08",
+      "events": 2241710,
+      "channels": 465,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.09",
+      "events": 1955720,
+      "channels": 458,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.10",
+      "events": 1496995,
+      "channels": 462,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.11",
+      "events": 1172574,
+      "channels": 456,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.12",
+      "events": 946748,
+      "channels": 453,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.13",
+      "events": 804093,
+      "channels": 459,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "-0.01",
+      "events": 712826,
+      "channels": 44,
+      "alarms": 0,
+      "first_day": "2020-10-08",
+      "last_day": "2021-06-29",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.14",
+      "events": 630273,
+      "channels": 455,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 16
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.15",
+      "events": 605712,
+      "channels": 456,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 17
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.16",
+      "events": 482719,
+      "channels": 457,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 18
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "Норма",
+      "events": 469361,
+      "channels": 529,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 19
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.17",
+      "events": 445982,
+      "channels": 458,
+      "alarms": 0,
+      "first_day": "2019-01-12",
+      "last_day": "2026-06-30",
+      "value_rank": 20
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "Неопределен",
+      "events": 403465,
+      "channels": 529,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 21
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "-0.02",
+      "events": 324693,
+      "channels": 41,
+      "alarms": 0,
+      "first_day": "2020-10-08",
+      "last_day": "2021-07-02",
+      "value_rank": 22
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.18",
+      "events": 319155,
+      "channels": 455,
+      "alarms": 0,
+      "first_day": "2019-02-24",
+      "last_day": "2026-06-30",
+      "value_rank": 23
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.19",
+      "events": 299991,
+      "channels": 452,
+      "alarms": 0,
+      "first_day": "2019-02-06",
+      "last_day": "2026-06-30",
+      "value_rank": 24
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.20",
+      "events": 289712,
+      "channels": 450,
+      "alarms": 0,
+      "first_day": "2019-01-10",
+      "last_day": "2026-06-30",
+      "value_rank": 25
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "-0.03",
+      "events": 212756,
+      "channels": 38,
+      "alarms": 0,
+      "first_day": "2020-10-08",
+      "last_day": "2021-06-29",
+      "value_rank": 26
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.22",
+      "events": 178674,
+      "channels": 422,
+      "alarms": 0,
+      "first_day": "2019-01-07",
+      "last_day": "2026-06-30",
+      "value_rank": 27
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.21",
+      "events": 174176,
+      "channels": 443,
+      "alarms": 0,
+      "first_day": "2019-01-24",
+      "last_day": "2026-06-30",
+      "value_rank": 28
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.23",
+      "events": 173235,
+      "channels": 423,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 29
+    },
+    {
+      "sensor_type": "Газовый датчик",
+      "sensor_value": "0.24",
+      "events": 137068,
+      "channels": 431,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 30
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Движения нет",
+      "events": 25468145,
+      "channels": 804,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Обнаружено движение",
+      "events": 25468123,
+      "channels": 804,
+      "alarms": 202943,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Норма",
+      "events": 234697,
+      "channels": 804,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Неопределен",
+      "events": 132176,
+      "channels": 804,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Не замкнут",
+      "events": 99389,
+      "channels": 4,
+      "alarms": 197,
+      "first_day": "2019-01-02",
+      "last_day": "2022-01-26",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Неисправен",
+      "events": 1815,
+      "channels": 133,
+      "alarms": 1185,
+      "first_day": "2019-01-13",
+      "last_day": "2026-06-26",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Отключено устройство",
+      "events": 1158,
+      "channels": 78,
+      "alarms": 354,
+      "first_day": "2020-02-14",
+      "last_day": "2026-06-30",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Выключен",
+      "events": 699,
+      "channels": 227,
+      "alarms": 0,
+      "first_day": "2019-01-09",
+      "last_day": "2025-10-05",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "В норме от +3 до +40",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "9",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Обесточен",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2023-06-07",
+      "last_day": "2023-08-16",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "10",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "4.9",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2023-08-16",
+      "last_day": "2023-08-16",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "7",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "Датчик движения",
+      "sensor_value": "Питание от сети",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Норма",
+      "events": 1807913,
+      "channels": 4337,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неисправен",
+      "events": 1169178,
+      "channels": 2844,
+      "alarms": 1124754,
+      "first_day": "2019-01-09",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Неопределен",
+      "events": 644782,
+      "channels": 4337,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Дыма нет",
+      "events": 165663,
+      "channels": 4337,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обнаружен дым",
+      "events": 164128,
+      "channels": 4337,
+      "alarms": 42427,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Отключено устройство",
+      "events": 3965,
+      "channels": 1805,
+      "alarms": 3429,
+      "first_day": "2019-05-14",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Выключен",
+      "events": 3632,
+      "channels": 1279,
+      "alarms": 0,
+      "first_day": "2019-01-09",
+      "last_day": "2026-01-12",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Не замкнут",
+      "events": 248,
+      "channels": 8,
+      "alarms": 37,
+      "first_day": "2019-02-04",
+      "last_day": "2026-05-07",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Движения нет",
+      "events": 14,
+      "channels": 14,
+      "alarms": 0,
+      "first_day": "2019-12-30",
+      "last_day": "2026-01-20",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Обесточен",
+      "events": 2,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2021-02-01",
+      "last_day": "2021-02-02",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Датчик дыма",
+      "sensor_value": "Есть питание",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2021-02-02",
+      "last_day": "2021-02-02",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Норма",
+      "events": 6201,
+      "channels": 25,
+      "alarms": 0,
+      "first_day": "2019-01-09",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Не замкнут",
+      "events": 3732,
+      "channels": 25,
+      "alarms": 3726,
+      "first_day": "2019-01-10",
+      "last_day": "2026-06-28",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Неопределен",
+      "events": 2457,
+      "channels": 25,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-11",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Выключен",
+      "events": 9,
+      "channels": 7,
+      "alarms": 0,
+      "first_day": "2019-04-09",
+      "last_day": "2025-09-16",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Неисправен",
+      "events": 8,
+      "channels": 1,
+      "alarms": 8,
+      "first_day": "2024-09-06",
+      "last_day": "2025-09-20",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Отключено устройство",
+      "events": 5,
+      "channels": 4,
+      "alarms": 5,
+      "first_day": "2024-06-23",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Датчик затопления",
+      "sensor_value": "Движения нет",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Норма",
+      "events": 152210,
+      "channels": 600,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Неопределен",
+      "events": 111478,
+      "channels": 600,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "17",
+      "events": 60837,
+      "channels": 538,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "19",
+      "events": 58415,
+      "channels": 531,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "20",
+      "events": 57276,
+      "channels": 513,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "18",
+      "events": 57221,
+      "channels": 524,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "15",
+      "events": 55815,
+      "channels": 528,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "21",
+      "events": 55800,
+      "channels": 486,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "16",
+      "events": 55313,
+      "channels": 537,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "22",
+      "events": 53136,
+      "channels": 465,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "14",
+      "events": 52866,
+      "channels": 524,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "23",
+      "events": 51168,
+      "channels": 450,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "13",
+      "events": 46498,
+      "channels": 516,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "24",
+      "events": 45648,
+      "channels": 438,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "12",
+      "events": 42771,
+      "channels": 490,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Неисправен",
+      "events": 40388,
+      "channels": 43,
+      "alarms": 40387,
+      "first_day": "2019-09-23",
+      "last_day": "2026-06-26",
+      "value_rank": 16
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "11",
+      "events": 38746,
+      "channels": 472,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 17
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "25",
+      "events": 37362,
+      "channels": 407,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 18
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "26",
+      "events": 35856,
+      "channels": 381,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 19
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "10",
+      "events": 28799,
+      "channels": 444,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 20
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "9",
+      "events": 28127,
+      "channels": 411,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 21
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "27",
+      "events": 26203,
+      "channels": 350,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 22
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "8",
+      "events": 21432,
+      "channels": 394,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 23
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "28",
+      "events": 19185,
+      "channels": 291,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 24
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "В норме от +3 до +40",
+      "events": 17984,
+      "channels": 590,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 25
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "29",
+      "events": 16042,
+      "channels": 255,
+      "alarms": 0,
+      "first_day": "2019-01-07",
+      "last_day": "2026-06-30",
+      "value_rank": 26
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "7",
+      "events": 15531,
+      "channels": 361,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-04",
+      "value_rank": 27
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "6",
+      "events": 15296,
+      "channels": 337,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-05-07",
+      "value_rank": 28
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "5",
+      "events": 12092,
+      "channels": 305,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 29
+    },
+    {
+      "sensor_type": "Датчик температуры",
+      "sensor_value": "Не определено",
+      "events": 10306,
+      "channels": 400,
+      "alarms": 9164,
+      "first_day": "2019-02-09",
+      "last_day": "2026-06-24",
+      "value_rank": 30
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Норма",
+      "events": 37197,
+      "channels": 80,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Неопределен",
+      "events": 35232,
+      "channels": 80,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Питание от сети",
+      "events": 22846,
+      "channels": 80,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Питание от батарей",
+      "events": 20364,
+      "channels": 80,
+      "alarms": 20090,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Батарея неисправна",
+      "events": 2691,
+      "channels": 31,
+      "alarms": 0,
+      "first_day": "2019-01-25",
+      "last_day": "2026-06-23",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "5",
+      "events": 2064,
+      "channels": 39,
+      "alarms": 0,
+      "first_day": "2019-01-31",
+      "last_day": "2026-06-28",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Неисправен",
+      "events": 2008,
+      "channels": 56,
+      "alarms": 1995,
+      "first_day": "2019-01-25",
+      "last_day": "2026-06-10",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "4",
+      "events": 1577,
+      "channels": 27,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-28",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "6",
+      "events": 533,
+      "channels": 27,
+      "alarms": 0,
+      "first_day": "2019-01-31",
+      "last_day": "2026-06-17",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Выключен",
+      "events": 514,
+      "channels": 41,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2025-10-20",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Батарея разряжена",
+      "events": 224,
+      "channels": 27,
+      "alarms": 202,
+      "first_day": "2019-01-25",
+      "last_day": "2026-05-26",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "7",
+      "events": 121,
+      "channels": 14,
+      "alarms": 0,
+      "first_day": "2019-03-13",
+      "last_day": "2026-06-11",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "8",
+      "events": 88,
+      "channels": 10,
+      "alarms": 0,
+      "first_day": "2019-06-13",
+      "last_day": "2026-04-21",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "9",
+      "events": 88,
+      "channels": 5,
+      "alarms": 0,
+      "first_day": "2019-11-21",
+      "last_day": "2026-06-10",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "10",
+      "events": 55,
+      "channels": 7,
+      "alarms": 0,
+      "first_day": "2019-04-23",
+      "last_day": "2025-09-20",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "3",
+      "events": 55,
+      "channels": 8,
+      "alarms": 0,
+      "first_day": "2019-02-19",
+      "last_day": "2026-03-27",
+      "value_rank": 16
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "Отключено устройство",
+      "events": 25,
+      "channels": 17,
+      "alarms": 25,
+      "first_day": "2020-07-21",
+      "last_day": "2026-06-30",
+      "value_rank": 17
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "11",
+      "events": 15,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2020-02-21",
+      "last_day": "2025-11-28",
+      "value_rank": 18
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "0",
+      "events": 11,
+      "channels": 8,
+      "alarms": 0,
+      "first_day": "2021-07-28",
+      "last_day": "2025-09-10",
+      "value_rank": 19
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "12",
+      "events": 8,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2020-02-17",
+      "last_day": "2025-10-20",
+      "value_rank": 20
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "17",
+      "events": 8,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2022-01-18",
+      "last_day": "2025-03-20",
+      "value_rank": 21
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "18",
+      "events": 8,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2021-08-05",
+      "last_day": "2024-06-04",
+      "value_rank": 22
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "2",
+      "events": 7,
+      "channels": 5,
+      "alarms": 0,
+      "first_day": "2020-02-12",
+      "last_day": "2023-12-19",
+      "value_rank": 23
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "13",
+      "events": 5,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2019-11-29",
+      "last_day": "2025-10-20",
+      "value_rank": 24
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "19",
+      "events": 5,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2021-08-05",
+      "last_day": "2026-06-12",
+      "value_rank": 25
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "100",
+      "events": 4,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2023-12-28",
+      "last_day": "2025-10-21",
+      "value_rank": 26
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "14",
+      "events": 4,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2021-04-10",
+      "last_day": "2023-01-12",
+      "value_rank": 27
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "15",
+      "events": 3,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2021-04-20",
+      "last_day": "2022-08-05",
+      "value_rank": 28
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "16",
+      "events": 3,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2019-11-29",
+      "last_day": "2022-10-17",
+      "value_rank": 29
+    },
+    {
+      "sensor_type": "ИБП",
+      "sensor_value": "27",
+      "events": 3,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2019-11-29",
+      "last_day": "2022-07-22",
+      "value_rank": 30
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Норма",
+      "events": 310002,
+      "channels": 397,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Не замкнут",
+      "events": 238863,
+      "channels": 397,
+      "alarms": 229513,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Неопределен",
+      "events": 69585,
+      "channels": 397,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Неисправен",
+      "events": 914,
+      "channels": 99,
+      "alarms": 914,
+      "first_day": "2019-06-18",
+      "last_day": "2026-06-26",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Выключен",
+      "events": 479,
+      "channels": 158,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2025-09-26",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Отключено устройство",
+      "events": 389,
+      "channels": 55,
+      "alarms": 389,
+      "first_day": "2019-04-01",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Движения нет",
+      "events": 9,
+      "channels": 8,
+      "alarms": 0,
+      "first_day": "2026-01-20",
+      "last_day": "2026-01-28",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Обесточен",
+      "events": 4,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2023-01-13",
+      "last_day": "2023-04-25",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Есть питание",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2023-01-13",
+      "last_day": "2023-04-25",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "0",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2023-01-13",
+      "last_day": "2023-01-13",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "КД АВ",
+      "sensor_value": "Обнаружено движение",
+      "events": 1,
+      "channels": 1,
+      "alarms": 1,
+      "first_day": "2026-01-28",
+      "last_day": "2026-01-28",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Норма",
+      "events": 2363653,
+      "channels": 917,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Не замкнут",
+      "events": 2210944,
+      "channels": 917,
+      "alarms": 37193,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Неопределен",
+      "events": 151656,
+      "channels": 917,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Движения нет",
+      "events": 124316,
+      "channels": 21,
+      "alarms": 0,
+      "first_day": "2019-02-26",
+      "last_day": "2026-06-29",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Обнаружено движение",
+      "events": 124300,
+      "channels": 9,
+      "alarms": 133,
+      "first_day": "2019-02-26",
+      "last_day": "2026-06-29",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Выключен",
+      "events": 623,
+      "channels": 238,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2025-09-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Неисправен",
+      "events": 360,
+      "channels": 81,
+      "alarms": 66,
+      "first_day": "2019-11-08",
+      "last_day": "2026-06-02",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Отключено устройство",
+      "events": 227,
+      "channels": 128,
+      "alarms": 113,
+      "first_day": "2019-12-06",
+      "last_day": "2026-06-30",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "5",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "В норме от +3 до +40",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Обесточен",
+      "events": 2,
+      "channels": 2,
+      "alarms": 0,
+      "first_day": "2022-06-02",
+      "last_day": "2024-01-09",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "0",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "4.9",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2024-01-09",
+      "last_day": "2024-01-09",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "995",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Не определено",
+      "events": 1,
+      "channels": 1,
+      "alarms": 1,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "КД Дверь",
+      "sensor_value": "Питание от сети",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2022-01-25",
+      "last_day": "2022-01-25",
+      "value_rank": 16
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Норма",
+      "events": 17981,
+      "channels": 55,
+      "alarms": 0,
+      "first_day": "2019-01-05",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Неопределен",
+      "events": 14146,
+      "channels": 55,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-26",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Не замкнут",
+      "events": 3686,
+      "channels": 55,
+      "alarms": 3681,
+      "first_day": "2019-01-06",
+      "last_day": "2026-06-19",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Неисправен",
+      "events": 120,
+      "channels": 8,
+      "alarms": 120,
+      "first_day": "2022-05-31",
+      "last_day": "2026-03-12",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Выключен",
+      "events": 72,
+      "channels": 31,
+      "alarms": 0,
+      "first_day": "2019-01-23",
+      "last_day": "2025-10-02",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Отключено устройство",
+      "events": 35,
+      "channels": 9,
+      "alarms": 35,
+      "first_day": "2020-07-30",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "КД Люк",
+      "sensor_value": "Движения нет",
+      "events": 3,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2026-01-20",
+      "last_day": "2026-01-20",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Выключен",
+      "events": 933325,
+      "channels": 801,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Включен",
+      "events": 924691,
+      "channels": 801,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Норма",
+      "events": 629669,
+      "channels": 801,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Неопределен",
+      "events": 629087,
+      "channels": 784,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Переключатель",
+      "sensor_value": "Отключено устройство",
+      "events": 479,
+      "channels": 180,
+      "alarms": 477,
+      "first_day": "2020-01-31",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Норма",
+      "events": 22449,
+      "channels": 130,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Неисправен",
+      "events": 10660,
+      "channels": 99,
+      "alarms": 10643,
+      "first_day": "2019-12-30",
+      "last_day": "2026-06-15",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Неопределен",
+      "events": 9894,
+      "channels": 130,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Не замкнут",
+      "events": 2324,
+      "channels": 130,
+      "alarms": 836,
+      "first_day": "2019-01-10",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Отключено устройство",
+      "events": 232,
+      "channels": 94,
+      "alarms": 231,
+      "first_day": "2022-07-22",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Рычаг норма",
+      "events": 189,
+      "channels": 8,
+      "alarms": 0,
+      "first_day": "2019-01-10",
+      "last_day": "2021-06-25",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Рычаг сдернут",
+      "events": 189,
+      "channels": 8,
+      "alarms": 19,
+      "first_day": "2019-01-10",
+      "last_day": "2021-06-25",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Выключен",
+      "events": 46,
+      "channels": 10,
+      "alarms": 0,
+      "first_day": "2019-01-23",
+      "last_day": "2022-05-23",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Движения нет",
+      "events": 42,
+      "channels": 3,
+      "alarms": 0,
+      "first_day": "2020-01-13",
+      "last_day": "2026-01-20",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Ручной извещатель",
+      "sensor_value": "Обнаружено движение",
+      "events": 39,
+      "channels": 1,
+      "alarms": 39,
+      "first_day": "2020-01-13",
+      "last_day": "2020-01-13",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Норма",
+      "events": 2753571,
+      "channels": 762,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Неопределен",
+      "events": 2642992,
+      "channels": 762,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Разговор",
+      "events": 106728,
+      "channels": 751,
+      "alarms": 0,
+      "first_day": "2019-01-03",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Вызов",
+      "events": 92636,
+      "channels": 715,
+      "alarms": 0,
+      "first_day": "2019-01-03",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Рычаг норма",
+      "events": 41424,
+      "channels": 762,
+      "alarms": 0,
+      "first_day": "2019-01-09",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Рычаг сдернут",
+      "events": 41416,
+      "channels": 762,
+      "alarms": 5455,
+      "first_day": "2019-01-09",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Выключен",
+      "events": 3463,
+      "channels": 373,
+      "alarms": 0,
+      "first_day": "2019-01-08",
+      "last_day": "2026-03-06",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Не замкнут",
+      "events": 1324,
+      "channels": 35,
+      "alarms": 143,
+      "first_day": "2021-07-08",
+      "last_day": "2026-05-18",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Отключено устройство",
+      "events": 566,
+      "channels": 187,
+      "alarms": 434,
+      "first_day": "2019-07-27",
+      "last_day": "2026-06-30",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Неисправен",
+      "events": 97,
+      "channels": 57,
+      "alarms": 39,
+      "first_day": "2019-02-18",
+      "last_day": "2025-10-01",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Движения нет",
+      "events": 17,
+      "channels": 9,
+      "alarms": 0,
+      "first_day": "2026-01-20",
+      "last_day": "2026-01-28",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Состояние УИР-Р",
+      "sensor_value": "Обнаружено движение",
+      "events": 8,
+      "channels": 8,
+      "alarms": 8,
+      "first_day": "2026-01-28",
+      "last_day": "2026-01-28",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Выключен",
+      "events": 632471,
+      "channels": 354,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Включен",
+      "events": 552775,
+      "channels": 354,
+      "alarms": 0,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Норма",
+      "events": 358564,
+      "channels": 354,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неопределен",
+      "events": 282028,
+      "channels": 345,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Обесточен",
+      "events": 82679,
+      "channels": 235,
+      "alarms": 74725,
+      "first_day": "2019-01-03",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Неисправен",
+      "events": 78668,
+      "channels": 235,
+      "alarms": 70680,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Состояние вентилятора",
+      "sensor_value": "Отключено устройство",
+      "events": 249,
+      "channels": 82,
+      "alarms": 249,
+      "first_day": "2019-04-29",
+      "last_day": "2026-06-30",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Выключен",
+      "events": 613495,
+      "channels": 180,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Включен",
+      "events": 506326,
+      "channels": 180,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Норма",
+      "events": 309229,
+      "channels": 180,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неопределен",
+      "events": 198008,
+      "channels": 179,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Неисправен",
+      "events": 108828,
+      "channels": 180,
+      "alarms": 97525,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Обесточен",
+      "events": 96235,
+      "channels": 180,
+      "alarms": 85577,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Работают все насосы в АНС",
+      "events": 80783,
+      "channels": 51,
+      "alarms": 80349,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-15",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Затоплен",
+      "events": 62262,
+      "channels": 178,
+      "alarms": 53656,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Состояние насоса",
+      "sensor_value": "Отключено устройство",
+      "events": 746,
+      "channels": 56,
+      "alarms": 746,
+      "first_day": "2019-03-13",
+      "last_day": "2026-06-30",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "На охране",
+      "events": 78307,
+      "channels": 47,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Снято с охраны",
+      "events": 78302,
+      "channels": 47,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "01.01.1970 03:00:01",
+      "events": 40151,
+      "channels": 29,
+      "alarms": 0,
+      "first_day": "2020-11-17",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "01.01.1970 03:00:00",
+      "events": 40145,
+      "channels": 29,
+      "alarms": 0,
+      "first_day": "2020-11-17",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Много неисправных устройств",
+      "events": 8117,
+      "channels": 47,
+      "alarms": 8083,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Устройства на объекте исправны",
+      "events": 8114,
+      "channels": 47,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Норма",
+      "events": 8102,
+      "channels": 47,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Неопределен",
+      "events": 8094,
+      "channels": 47,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "Выключен",
+      "events": 32,
+      "channels": 13,
+      "alarms": 0,
+      "first_day": "2020-09-16",
+      "last_day": "2026-01-12",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "22.09.2019 09:11:10",
+      "events": 8,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2019-09-22",
+      "last_day": "2020-05-29",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "20.09.2019 17:29:40",
+      "events": 7,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2019-09-20",
+      "last_day": "2020-05-29",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "01.09.2020 13:19:24",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2020-09-01",
+      "last_day": "2020-09-01",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "02.09.2020 10:47:34",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2020-09-02",
+      "last_day": "2020-09-02",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "06.07.2020 12:38:04",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2020-07-06",
+      "last_day": "2020-07-06",
+      "value_rank": 14
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "10.05.2023 15:26:56",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2023-05-10",
+      "last_day": "2023-05-10",
+      "value_rank": 15
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "10.05.2023 21:10:44",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2023-05-10",
+      "last_day": "2023-05-10",
+      "value_rank": 16
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "11.12.2025 10:25:15",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2025-12-11",
+      "last_day": "2025-12-11",
+      "value_rank": 17
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "13.10.2021 11:34:30",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2021-10-13",
+      "last_day": "2021-10-13",
+      "value_rank": 18
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "14.12.2023 13:59:18",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2023-12-14",
+      "last_day": "2023-12-14",
+      "value_rank": 19
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "16.04.2025 00:31:10",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2025-04-16",
+      "last_day": "2025-04-16",
+      "value_rank": 20
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "16.12.2024 10:48:46",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2024-12-16",
+      "last_day": "2024-12-16",
+      "value_rank": 21
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "19.04.2021 16:28:50",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2021-04-19",
+      "last_day": "2021-04-19",
+      "value_rank": 22
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "19.08.2024 11:51:24",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2024-08-19",
+      "last_day": "2024-08-19",
+      "value_rank": 23
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "20.04.2021 13:48:37",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2021-04-20",
+      "last_day": "2021-04-20",
+      "value_rank": 24
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "20.09.2019 21:14:51",
+      "events": 4,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2019-09-20",
+      "last_day": "2020-05-28",
+      "value_rank": 25
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "23.11.2021 07:52:03",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2021-11-23",
+      "last_day": "2021-11-23",
+      "value_rank": 26
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "25.04.2020 18:53:27",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2020-04-25",
+      "last_day": "2020-04-25",
+      "value_rank": 27
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "28.05.2024 19:35:30",
+      "events": 4,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2024-05-28",
+      "last_day": "2024-05-28",
+      "value_rank": 28
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "31.12.2024 15:07:53",
+      "events": 4,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2024-12-31",
+      "last_day": "2026-04-24",
+      "value_rank": 29
+    },
+    {
+      "sensor_type": "Состояние охраны",
+      "sensor_value": "01.06.2025 01:10:26",
+      "events": 3,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2025-06-01",
+      "last_day": "2025-12-05",
+      "value_rank": 30
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Обесточен",
+      "events": 1063875,
+      "channels": 953,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Есть питание",
+      "events": 1063849,
+      "channels": 949,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Норма",
+      "events": 836272,
+      "channels": 957,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Неопределен",
+      "events": 811318,
+      "channels": 929,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Неисправен",
+      "events": 25437,
+      "channels": 294,
+      "alarms": 25268,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Выключен",
+      "events": 1315,
+      "channels": 172,
+      "alarms": 0,
+      "first_day": "2019-01-06",
+      "last_day": "2025-08-27",
+      "value_rank": 6
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Включен",
+      "events": 866,
+      "channels": 4,
+      "alarms": 0,
+      "first_day": "2019-01-06",
+      "last_day": "2019-12-02",
+      "value_rank": 7
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Отключено устройство",
+      "events": 684,
+      "channels": 224,
+      "alarms": 684,
+      "first_day": "2020-01-31",
+      "last_day": "2026-06-30",
+      "value_rank": 8
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Не замкнут",
+      "events": 3,
+      "channels": 3,
+      "alarms": 3,
+      "first_day": "2019-12-02",
+      "last_day": "2019-12-02",
+      "value_rank": 9
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "0",
+      "events": 2,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2021-08-19",
+      "last_day": "2021-08-19",
+      "value_rank": 10
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "1",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2021-08-19",
+      "last_day": "2021-08-19",
+      "value_rank": 11
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "35.3",
+      "events": 1,
+      "channels": 1,
+      "alarms": 0,
+      "first_day": "2025-07-22",
+      "last_day": "2025-07-22",
+      "value_rank": 12
+    },
+    {
+      "sensor_type": "Состояние фазы",
+      "sensor_value": "Температура ниже 3ºC",
+      "events": 1,
+      "channels": 1,
+      "alarms": 1,
+      "first_day": "2021-08-19",
+      "last_day": "2021-08-19",
+      "value_rank": 13
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Норма",
+      "events": 15127,
+      "channels": 29,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-30",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Не замкнут",
+      "events": 10592,
+      "channels": 29,
+      "alarms": 9610,
+      "first_day": "2019-01-02",
+      "last_day": "2026-06-30",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Неопределен",
+      "events": 4373,
+      "channels": 29,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Выключен",
+      "events": 188,
+      "channels": 9,
+      "alarms": 0,
+      "first_day": "2019-01-23",
+      "last_day": "2024-06-19",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Стекло",
+      "sensor_value": "Отключено устройство",
+      "events": 1,
+      "channels": 1,
+      "alarms": 1,
+      "first_day": "2026-04-21",
+      "last_day": "2026-04-21",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Норма",
+      "events": 250462,
+      "channels": 472,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 1
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Неопределен",
+      "events": 246676,
+      "channels": 472,
+      "alarms": 0,
+      "first_day": "2019-01-01",
+      "last_day": "2026-06-24",
+      "value_rank": 2
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Не замкнут",
+      "events": 3706,
+      "channels": 371,
+      "alarms": 2237,
+      "first_day": "2019-01-26",
+      "last_day": "2026-06-24",
+      "value_rank": 3
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Выключен",
+      "events": 174,
+      "channels": 72,
+      "alarms": 0,
+      "first_day": "2019-01-24",
+      "last_day": "2025-10-02",
+      "value_rank": 4
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Отключено устройство",
+      "events": 24,
+      "channels": 22,
+      "alarms": 24,
+      "first_day": "2022-07-01",
+      "last_day": "2026-06-13",
+      "value_rank": 5
+    },
+    {
+      "sensor_type": "Тепловой датчик",
+      "sensor_value": "Неисправен",
+      "events": 22,
+      "channels": 7,
+      "alarms": 17,
+      "first_day": "2022-07-30",
+      "last_day": "2026-03-27",
+      "value_rank": 6
+    }
+  ],
+  "same_second_state_audit": {
+    "start": "2024-01-01",
+    "end": "2026-06-30",
+    "types": [
+      "9-секционный люк",
+      "Датчик дыма",
+      "Датчик затопления",
+      "ИБП",
+      "КД АВ",
+      "КД Дверь",
+      "КД Люк",
+      "Переключатель",
+      "Ручной извещатель",
+      "Состояние УИР-Р",
+      "Состояние вентилятора",
+      "Состояние насоса",
+      "Состояние охраны",
+      "Состояние фазы",
+      "Стекло",
+      "Тепловой датчик"
+    ],
+    "rows": [
+      {
+        "sensor_type": "КД Дверь",
+        "observed_seconds": 1704666,
+        "mixed_state_seconds": 20094,
+        "alarm_seconds": 10754,
+        "mixed_alarm_seconds": 778,
+        "fault_seconds": 150,
+        "mixed_fault_seconds": 7,
+        "maximum_states_in_one_second": 3
+      },
+      {
+        "sensor_type": "Состояние УИР-Р",
+        "observed_seconds": 1687134,
+        "mixed_state_seconds": 22173,
+        "alarm_seconds": 4191,
+        "mixed_alarm_seconds": 124,
+        "fault_seconds": 18,
+        "mixed_fault_seconds": 1,
+        "maximum_states_in_one_second": 5
+      },
+      {
+        "sensor_type": "Состояние фазы",
+        "observed_seconds": 847562,
+        "mixed_state_seconds": 21957,
+        "alarm_seconds": 15118,
+        "mixed_alarm_seconds": 3196,
+        "fault_seconds": 14529,
+        "mixed_fault_seconds": 3244,
+        "maximum_states_in_one_second": 4
+      },
+      {
+        "sensor_type": "Датчик дыма",
+        "observed_seconds": 844945,
+        "mixed_state_seconds": 10964,
+        "alarm_seconds": 95655,
+        "mixed_alarm_seconds": 3739,
+        "fault_seconds": 74903,
+        "mixed_fault_seconds": 4177,
+        "maximum_states_in_one_second": 3
+      },
+      {
+        "sensor_type": "Переключатель",
+        "observed_seconds": 719905,
+        "mixed_state_seconds": 2759,
+        "alarm_seconds": 460,
+        "mixed_alarm_seconds": 0,
+        "fault_seconds": 0,
+        "mixed_fault_seconds": 0,
+        "maximum_states_in_one_second": 3
+      },
+      {
+        "sensor_type": "Состояние насоса",
+        "observed_seconds": 662639,
+        "mixed_state_seconds": 94289,
+        "alarm_seconds": 63998,
+        "mixed_alarm_seconds": 49186,
+        "fault_seconds": 41952,
+        "mixed_fault_seconds": 41851,
+        "maximum_states_in_one_second": 6
+      },
+      {
+        "sensor_type": "Состояние вентилятора",
+        "observed_seconds": 466206,
+        "mixed_state_seconds": 60785,
+        "alarm_seconds": 30901,
+        "mixed_alarm_seconds": 30513,
+        "fault_seconds": 31053,
+        "mixed_fault_seconds": 30891,
+        "maximum_states_in_one_second": 5
+      },
+      {
+        "sensor_type": "КД АВ",
+        "observed_seconds": 224757,
+        "mixed_state_seconds": 17246,
+        "alarm_seconds": 101647,
+        "mixed_alarm_seconds": 17153,
+        "fault_seconds": 370,
+        "mixed_fault_seconds": 47,
+        "maximum_states_in_one_second": 3
+      },
+      {
+        "sensor_type": "Тепловой датчик",
+        "observed_seconds": 213911,
+        "mixed_state_seconds": 1461,
+        "alarm_seconds": 1651,
+        "mixed_alarm_seconds": 46,
+        "fault_seconds": 12,
+        "mixed_fault_seconds": 1,
+        "maximum_states_in_one_second": 2
+      },
+      {
+        "sensor_type": "Состояние охраны",
+        "observed_seconds": 64863,
+        "mixed_state_seconds": 64617,
+        "alarm_seconds": 3655,
+        "mixed_alarm_seconds": 3631,
+        "fault_seconds": 0,
+        "mixed_fault_seconds": 0,
+        "maximum_states_in_one_second": 4
+      },
+      {
+        "sensor_type": "ИБП",
+        "observed_seconds": 29237,
+        "mixed_state_seconds": 1027,
+        "alarm_seconds": 7629,
+        "mixed_alarm_seconds": 423,
+        "fault_seconds": 374,
+        "mixed_fault_seconds": 69,
+        "maximum_states_in_one_second": 4
+      },
+      {
+        "sensor_type": "Ручной извещатель",
+        "observed_seconds": 26147,
+        "mixed_state_seconds": 5788,
+        "alarm_seconds": 10213,
+        "mixed_alarm_seconds": 5756,
+        "fault_seconds": 9271,
+        "mixed_fault_seconds": 5680,
+        "maximum_states_in_one_second": 3
+      },
+      {
+        "sensor_type": "Стекло",
+        "observed_seconds": 9979,
+        "mixed_state_seconds": 34,
+        "alarm_seconds": 3177,
+        "mixed_alarm_seconds": 23,
+        "fault_seconds": 0,
+        "mixed_fault_seconds": 0,
+        "maximum_states_in_one_second": 2
+      },
+      {
+        "sensor_type": "КД Люк",
+        "observed_seconds": 8962,
+        "mixed_state_seconds": 91,
+        "alarm_seconds": 1405,
+        "mixed_alarm_seconds": 73,
+        "fault_seconds": 85,
+        "mixed_fault_seconds": 3,
+        "maximum_states_in_one_second": 2
+      },
+      {
+        "sensor_type": "Датчик затопления",
+        "observed_seconds": 4418,
+        "mixed_state_seconds": 1205,
+        "alarm_seconds": 1785,
+        "mixed_alarm_seconds": 1197,
+        "fault_seconds": 8,
+        "mixed_fault_seconds": 2,
+        "maximum_states_in_one_second": 2
+      },
+      {
+        "sensor_type": "9-секционный люк",
+        "observed_seconds": 474,
+        "mixed_state_seconds": 23,
+        "alarm_seconds": 87,
+        "mixed_alarm_seconds": 5,
+        "fault_seconds": 14,
+        "mixed_fault_seconds": 0,
+        "maximum_states_in_one_second": 2
+      }
+    ]
+  },
+  "targets": {
+    "candidates": [
+      {
+        "candidate": "door_open_signal",
+        "observed_channels": 917,
+        "observed_channel_days": 398751,
+        "target_channels": 917,
+        "target_channel_days": 359719,
+        "target_events": 2210944,
+        "first_target_day": "2019-01-01",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 155278,
+        "starts_after_observed_non_target_day": 5767,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.9021143520643209
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "observed_channels": 80,
+        "observed_channel_days": 16602,
+        "target_channels": 80,
+        "target_channel_days": 9231,
+        "target_events": 20364,
+        "first_target_day": "2019-01-02",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 1443,
+        "starts_after_observed_non_target_day": 444,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.5560173473075533
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "observed_channels": 180,
+        "observed_channel_days": 97596,
+        "target_channels": 180,
+        "target_channel_days": 25354,
+        "target_events": 108828,
+        "first_target_day": "2019-01-02",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 4239,
+        "starts_after_observed_non_target_day": 4195,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.25978523709988116
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "observed_channels": 4337,
+        "observed_channel_days": 456148,
+        "target_channels": 4337,
+        "target_channel_days": 101278,
+        "target_events": 164128,
+        "first_target_day": "2019-01-02",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 3144,
+        "starts_after_observed_non_target_day": 9257,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.2220288152090988
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "observed_channels": 354,
+        "observed_channel_days": 375467,
+        "target_channels": 235,
+        "target_channel_days": 26476,
+        "target_events": 78668,
+        "first_target_day": "2019-01-02",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 3918,
+        "starts_after_observed_non_target_day": 10193,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.07051485217076334
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "observed_channels": 4337,
+        "observed_channel_days": 456148,
+        "target_channels": 2844,
+        "target_channel_days": 21333,
+        "target_events": 1169178,
+        "first_target_day": "2019-01-09",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 6119,
+        "starts_after_observed_non_target_day": 2451,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.046767715741382186
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "observed_channels": 600,
+        "observed_channel_days": 383583,
+        "target_channels": 588,
+        "target_channel_days": 10671,
+        "target_events": 38015,
+        "first_target_day": "2019-01-01",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 1975,
+        "starts_after_observed_non_target_day": 2928,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.027819272491220935
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "observed_channels": 957,
+        "observed_channel_days": 508263,
+        "target_channels": 294,
+        "target_channel_days": 12614,
+        "target_events": 25437,
+        "first_target_day": "2019-01-02",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 916,
+        "starts_after_observed_non_target_day": 2842,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.024817860044898016
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "observed_channels": 80,
+        "observed_channel_days": 16602,
+        "target_channels": 33,
+        "target_channel_days": 351,
+        "target_events": 2915,
+        "first_target_day": "2019-01-25",
+        "last_target_day": "2026-06-23",
+        "repeated_next_day": 100,
+        "starts_after_observed_non_target_day": 27,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.0211420310805927
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "observed_channels": 600,
+        "observed_channel_days": 383583,
+        "target_channels": 399,
+        "target_channel_days": 5526,
+        "target_events": 29610,
+        "first_target_day": "2019-01-01",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 1352,
+        "starts_after_observed_non_target_day": 1736,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.014406269308076739
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "observed_channels": 529,
+        "observed_channel_days": 482648,
+        "target_channels": 529,
+        "target_channel_days": 5754,
+        "target_events": 53849,
+        "first_target_day": "2019-01-03",
+        "last_target_day": "2026-06-30",
+        "repeated_next_day": 315,
+        "starts_after_observed_non_target_day": 2933,
+        "target_days_outside_panel": 0,
+        "target_day_rate": 0.011921731779682088
+      }
+    ],
+    "yearly": [
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 47575,
+        "target_channel_days": 40424,
+        "target_channels": 450
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 50162,
+        "target_channel_days": 41501,
+        "target_channels": 601
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 49212,
+        "target_channel_days": 44486,
+        "target_channels": 684
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 53548,
+        "target_channel_days": 50128,
+        "target_channels": 818
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 54646,
+        "target_channel_days": 51740,
+        "target_channels": 836
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 55777,
+        "target_channel_days": 53109,
+        "target_channels": 838
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 58207,
+        "target_channel_days": 52389,
+        "target_channels": 914
+      },
+      {
+        "candidate": "door_open_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 29624,
+        "target_channel_days": 25942,
+        "target_channels": 896
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 45394,
+        "target_channel_days": 1671,
+        "target_channels": 103
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 66527,
+        "target_channel_days": 1987,
+        "target_channels": 141
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 52845,
+        "target_channel_days": 2855,
+        "target_channels": 161
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 46176,
+        "target_channel_days": 3952,
+        "target_channels": 209
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 49642,
+        "target_channel_days": 3538,
+        "target_channels": 210
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 42371,
+        "target_channel_days": 4206,
+        "target_channels": 209
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 49842,
+        "target_channel_days": 5058,
+        "target_channels": 234
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 22670,
+        "target_channel_days": 3209,
+        "target_channels": 234
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2019,
+        "observed_channel_days": 48366,
+        "target_channel_days": 807,
+        "target_channels": 350
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2020,
+        "observed_channel_days": 36268,
+        "target_channel_days": 707,
+        "target_channels": 285
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2021,
+        "observed_channel_days": 53850,
+        "target_channel_days": 717,
+        "target_channels": 324
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2022,
+        "observed_channel_days": 78225,
+        "target_channel_days": 751,
+        "target_channels": 421
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2023,
+        "observed_channel_days": 76330,
+        "target_channel_days": 597,
+        "target_channels": 440
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2024,
+        "observed_channel_days": 78142,
+        "target_channel_days": 514,
+        "target_channels": 375
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2025,
+        "observed_channel_days": 75151,
+        "target_channel_days": 986,
+        "target_channels": 482
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "calendar_year": 2026,
+        "observed_channel_days": 36316,
+        "target_channel_days": 675,
+        "target_channels": 214
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 60546,
+        "target_channel_days": 131,
+        "target_channels": 49
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 74212,
+        "target_channel_days": 674,
+        "target_channels": 78
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 67035,
+        "target_channel_days": 870,
+        "target_channels": 117
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 66799,
+        "target_channel_days": 1876,
+        "target_channels": 173
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 67776,
+        "target_channel_days": 1857,
+        "target_channels": 211
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 68204,
+        "target_channel_days": 2822,
+        "target_channels": 219
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 66425,
+        "target_channel_days": 2784,
+        "target_channels": 281
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 37266,
+        "target_channel_days": 1600,
+        "target_channels": 281
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 7926,
+        "target_channel_days": 1465,
+        "target_channels": 113
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 12376,
+        "target_channel_days": 2156,
+        "target_channels": 139
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 13781,
+        "target_channel_days": 3335,
+        "target_channels": 153
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 12271,
+        "target_channel_days": 3859,
+        "target_channels": 167
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 13293,
+        "target_channel_days": 3549,
+        "target_channels": 169
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 13755,
+        "target_channel_days": 4214,
+        "target_channels": 169
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 13953,
+        "target_channel_days": 3964,
+        "target_channels": 180
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 10241,
+        "target_channel_days": 2812,
+        "target_channels": 180
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 8772,
+        "target_channel_days": 2709,
+        "target_channels": 377
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 95471,
+        "target_channel_days": 6284,
+        "target_channels": 1380
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 45672,
+        "target_channel_days": 9191,
+        "target_channels": 2055
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 55524,
+        "target_channel_days": 19836,
+        "target_channels": 3714
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 63680,
+        "target_channel_days": 20739,
+        "target_channels": 3742
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 39491,
+        "target_channel_days": 18007,
+        "target_channels": 3744
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 76779,
+        "target_channel_days": 15725,
+        "target_channels": 4336
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 70759,
+        "target_channel_days": 8787,
+        "target_channels": 4336
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 8772,
+        "target_channel_days": 366,
+        "target_channels": 201
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 95471,
+        "target_channel_days": 2380,
+        "target_channels": 810
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 45672,
+        "target_channel_days": 6033,
+        "target_channels": 834
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 55524,
+        "target_channel_days": 3514,
+        "target_channels": 1466
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 63680,
+        "target_channel_days": 2241,
+        "target_channels": 1000
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 39491,
+        "target_channel_days": 2327,
+        "target_channels": 1086
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 76779,
+        "target_channel_days": 2838,
+        "target_channels": 1258
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 70759,
+        "target_channel_days": 1634,
+        "target_channels": 601
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2019,
+        "observed_channel_days": 44003,
+        "target_channel_days": 820,
+        "target_channels": 251
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2020,
+        "observed_channel_days": 49139,
+        "target_channel_days": 1008,
+        "target_channels": 206
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2021,
+        "observed_channel_days": 43309,
+        "target_channel_days": 1652,
+        "target_channels": 328
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2022,
+        "observed_channel_days": 50917,
+        "target_channel_days": 1712,
+        "target_channels": 368
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2023,
+        "observed_channel_days": 57096,
+        "target_channel_days": 1897,
+        "target_channels": 360
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2024,
+        "observed_channel_days": 52938,
+        "target_channel_days": 1152,
+        "target_channels": 383
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2025,
+        "observed_channel_days": 59827,
+        "target_channel_days": 1446,
+        "target_channels": 419
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "calendar_year": 2026,
+        "observed_channel_days": 26354,
+        "target_channel_days": 984,
+        "target_channels": 342
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2019,
+        "observed_channel_days": 44003,
+        "target_channel_days": 178,
+        "target_channels": 71
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2020,
+        "observed_channel_days": 49139,
+        "target_channel_days": 611,
+        "target_channels": 115
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2021,
+        "observed_channel_days": 43309,
+        "target_channel_days": 804,
+        "target_channels": 186
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2022,
+        "observed_channel_days": 50917,
+        "target_channel_days": 969,
+        "target_channels": 197
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2023,
+        "observed_channel_days": 57096,
+        "target_channel_days": 873,
+        "target_channels": 211
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2024,
+        "observed_channel_days": 52938,
+        "target_channel_days": 662,
+        "target_channels": 191
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2025,
+        "observed_channel_days": 59827,
+        "target_channel_days": 909,
+        "target_channels": 203
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "calendar_year": 2026,
+        "observed_channel_days": 26354,
+        "target_channel_days": 520,
+        "target_channels": 145
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 1797,
+        "target_channel_days": 12,
+        "target_channels": 6
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 2230,
+        "target_channel_days": 30,
+        "target_channels": 3
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 1989,
+        "target_channel_days": 38,
+        "target_channels": 15
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 2442,
+        "target_channel_days": 55,
+        "target_channels": 15
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 2361,
+        "target_channel_days": 106,
+        "target_channels": 11
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 2033,
+        "target_channel_days": 22,
+        "target_channels": 7
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 2294,
+        "target_channel_days": 78,
+        "target_channels": 16
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 1456,
+        "target_channel_days": 10,
+        "target_channels": 4
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2019,
+        "observed_channel_days": 1797,
+        "target_channel_days": 634,
+        "target_channels": 33
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2020,
+        "observed_channel_days": 2230,
+        "target_channel_days": 744,
+        "target_channels": 41
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2021,
+        "observed_channel_days": 1989,
+        "target_channel_days": 1256,
+        "target_channels": 53
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2022,
+        "observed_channel_days": 2442,
+        "target_channel_days": 1531,
+        "target_channels": 66
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2023,
+        "observed_channel_days": 2361,
+        "target_channel_days": 1483,
+        "target_channels": 68
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2024,
+        "observed_channel_days": 2033,
+        "target_channel_days": 1449,
+        "target_channels": 71
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2025,
+        "observed_channel_days": 2294,
+        "target_channel_days": 1312,
+        "target_channels": 76
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "calendar_year": 2026,
+        "observed_channel_days": 1456,
+        "target_channel_days": 822,
+        "target_channels": 71
+      }
+    ],
+    "channel_concentration": [
+      {
+        "candidate": "door_open_signal",
+        "target_days": 359719,
+        "top_1_share": 0.00745303973379221,
+        "top_5_share": 0.035955843311028884,
+        "top_10_share": 0.06932911522605145
+      },
+      {
+        "candidate": "fan_fault_signal",
+        "target_days": 26476,
+        "top_1_share": 0.011935337664299743,
+        "top_5_share": 0.05812811602961172,
+        "top_10_share": 0.11157274512766278
+      },
+      {
+        "candidate": "gas_alarm_flag",
+        "target_days": 5754,
+        "top_1_share": 0.006951685783802572,
+        "top_5_share": 0.03180396246089677,
+        "top_10_share": 0.05787278415015641
+      },
+      {
+        "candidate": "phase_fault_signal",
+        "target_days": 12614,
+        "top_1_share": 0.018947201522118283,
+        "top_5_share": 0.09259552877754876,
+        "top_10_share": 0.16513397811954972
+      },
+      {
+        "candidate": "pump_fault_signal",
+        "target_days": 25354,
+        "top_1_share": 0.015342746706634061,
+        "top_5_share": 0.06866766585154216,
+        "top_10_share": 0.12057269069969236
+      },
+      {
+        "candidate": "smoke_detected_signal",
+        "target_days": 101278,
+        "top_1_share": 0.0007306621378779202,
+        "top_5_share": 0.003416339185212978,
+        "top_10_share": 0.006625328304271412
+      },
+      {
+        "candidate": "smoke_fault_signal",
+        "target_days": 21333,
+        "top_1_share": 0.004218815918998735,
+        "top_5_share": 0.015234613040828763,
+        "top_10_share": 0.028359818122158157
+      },
+      {
+        "candidate": "temperature_outside_3_40",
+        "target_days": 10671,
+        "top_1_share": 0.009746040670977415,
+        "top_5_share": 0.044419454596570145,
+        "top_10_share": 0.08096710711273546
+      },
+      {
+        "candidate": "temperature_outside_3_40_valid",
+        "target_days": 5526,
+        "top_1_share": 0.018820123054650743,
+        "top_5_share": 0.08269996380745566,
+        "top_10_share": 0.14802750633369527
+      },
+      {
+        "candidate": "ups_battery_fault_signal",
+        "target_days": 351,
+        "top_1_share": 0.30484330484330485,
+        "top_5_share": 0.603988603988604,
+        "top_10_share": 0.7692307692307693
+      },
+      {
+        "candidate": "ups_on_battery_signal",
+        "target_days": 9231,
+        "top_1_share": 0.06911493879319684,
+        "top_5_share": 0.21915285451197053,
+        "top_10_share": 0.3491496045932185
+      }
+    ],
+    "target_definitions": {
+      "door_open_signal": {
+        "sensor_type": "КД Дверь",
+        "event_condition": "val_raw = 'Не замкнут'"
+      },
+      "fan_fault_signal": {
+        "sensor_type": "Состояние вентилятора",
+        "event_condition": "val_raw = 'Неисправен'"
+      },
+      "gas_alarm_flag": {
+        "sensor_type": "Газовый датчик",
+        "event_condition": "alarm"
+      },
+      "phase_fault_signal": {
+        "sensor_type": "Состояние фазы",
+        "event_condition": "val_raw = 'Неисправен'"
+      },
+      "pump_fault_signal": {
+        "sensor_type": "Состояние насоса",
+        "event_condition": "val_raw = 'Неисправен'"
+      },
+      "smoke_detected_signal": {
+        "sensor_type": "Датчик дыма",
+        "event_condition": "val_raw = 'Обнаружен дым'"
+      },
+      "smoke_fault_signal": {
+        "sensor_type": "Датчик дыма",
+        "event_condition": "val_raw = 'Неисправен'"
+      },
+      "temperature_outside_3_40": {
+        "sensor_type": "Датчик температуры",
+        "event_condition": "(val_num < 3 OR val_num > 40)"
+      },
+      "temperature_outside_3_40_valid": {
+        "sensor_type": "Датчик температуры",
+        "event_condition": "val_num BETWEEN -60.0 AND 150.0 AND (val_num < 3 OR val_num > 40)"
+      },
+      "ups_battery_fault_signal": {
+        "sensor_type": "ИБП",
+        "event_condition": "val_raw IN ('Батарея неисправна', 'Батарея разряжена')"
+      },
+      "ups_on_battery_signal": {
+        "sensor_type": "ИБП",
+        "event_condition": "val_raw = 'Питание от батарей'"
+      }
+    }
+  },
+  "parity_with_pr7": {
+    "checked_values": 342,
+    "mismatches": [],
+    "reference": {
+      "sensor-audit.json": "6262c9bd29be72ceedb2b2ce13e5b283ef3c389854b887e83c3691f6019c9889",
+      "target-audit.json": "14fc31959f9163c1a81b450047504c077b4164e2128e475c616e51b00ebdf627"
+    }
+  },
+  "definitions": {
+    "observed_channel_days": "Строки daily_channel; отсутствующая строка — сутки без наблюдений, а не здоровые сутки.",
+    "numeric_events": "События с val_num IS NOT NULL (TRY_CAST значения в ingest).",
+    "channels_spanning_model_period": "Первое и последнее наблюдение канала накрывают span_start…span_end; пропуски внутри возможны.",
+    "alarms": "Число исходных флагов тревожное=true; бизнес-смысл флага независимо не подтверждён.",
+    "same_second_state_audit": "Секунда канала как неупорядоченный набор значений: порядок записей внутри секунды в журнале не определён.",
+    "starts_after_observed_non_target_day": "Целевые сутки, перед которыми у канала была строка панели без цели.",
+    "temperature_outside_3_40": "По сырому val_num, как в PR #7: переполнения -3276 и 999 не отсечены. Диапазон выведен из значения «В норме от +3 до +40», заказчиком не подтверждён.",
+    "temperature_outside_3_40_valid": "То же после отсечки config.VALUE_LIMITS (от -60 до 150 °C), в PR #7 такого варианта нет."
+  },
+  "limitations": [
+    "Цели — сообщения, исходные флаги и выведенные пороги, а не подтверждённые инциденты.",
+    "Присутствие состояния за сутки схлопывает повторы и не восстанавливает физический эпизод.",
+    "Сверка с PR #7 сравнивает сборки разных хранилищ: normalized.duckdb PR #4 и parquet mkl."
+  ],
+  "runtime": {
+    "wall_seconds": 110.45908190000046,
+    "cpu_seconds": 198.1875,
+    "memory_limit": "1500MB",
+    "threads": 2,
+    "duckdb": "1.5.5",
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "code_commit": "9a543f92b0a52a84c89d65b806bf5e6c97f44ebc",
+  "code_dirty": false,
+  "code_files_sha256": {
+    "scripts/audit_sensor_semantics.py": "73e8a4e37612d10f8d8396abc0e7799e1deb64fbd4edd029d6f6e6ec3d35ed86",
+    "src/mkl/sensor_audit.py": "a7e9c2c1ec77e6e9b91bad540af6d01b3ef02279feaaf267fd404041c00f1551"
+  }
+}
