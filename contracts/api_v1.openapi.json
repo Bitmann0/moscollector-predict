@@ -3465,6 +3465,7 @@
     },
     "/api/v1/auth/logout": {
       "post": {
+        "description": "Завершает эту сессию на сервере и удаляет cookie. Другие сессии того же логина\nостаются. Без действующей сессии тоже 204.",
         "operationId": "logout_api_v1_auth_logout_post",
         "responses": {
           "204": {

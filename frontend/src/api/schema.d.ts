@@ -104,7 +104,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Logout */
+        /**
+         * Logout
+         * @description Завершает эту сессию на сервере и удаляет cookie. Другие сессии того же логина
+         *     остаются. Без действующей сессии тоже 204.
+         */
         post: operations["logout_api_v1_auth_logout_post"];
         delete?: never;
         options?: never;

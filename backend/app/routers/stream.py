@@ -1,9 +1,13 @@
 """SSE: /api/v1/stream. Живое.
 
 Сессию БД держим только на время проверки входа: соединение живёт долго.
+Вход проверяется при подключении и затем раз в HEARTBEAT_S: после выхода поток,
+открытый по этой cookie или по её копии, закрывается, а не идёт по отозванной сессии
+до обрыва. Переподключение EventSource получит 401.
 """
 import asyncio
 import json
+import time
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -36,7 +40,16 @@ async def stream(request: Request) -> StreamingResponse:
         try:
             yield "retry: 5000\n\n"
             yield _frame("hello", {})
+            recheck_at = time.monotonic() + HEARTBEAT_S
             while not await request.is_disconnected():
+                # По времени, а не по ping: в воспроизведении события могут идти чаще
+                # раза в HEARTBEAT_S, и ping тогда не наступит.
+                if time.monotonic() >= recheck_at:
+                    try:
+                        await asyncio.to_thread(check)
+                    except HTTPException:
+                        return
+                    recheck_at = time.monotonic() + HEARTBEAT_S
                 try:
                     event = await asyncio.wait_for(queue.get(), timeout=HEARTBEAT_S)
                 except TimeoutError:
