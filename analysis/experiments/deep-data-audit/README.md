@@ -7,7 +7,8 @@
 `normalized.duckdb` из PR #4, которого в `main` нет: решение D8 в
 [плане команды](../../../docs/superpowers/plans/2026-09-25-team-plan-to-submission.md).
 Итоги по журналу совпадают с [data_quality.md](../../../ml/reports/data_quality.md):
-312 982 076 событий, из них 9 439 655 у каналов вне справочника и 224 613 065 числовых.
+312 982 076 событий, из них 9 439 655 у каналов вне справочника и 224 613 065 числовых
+(два последних числа — суммы колонок таблицы по годам).
 
 **Что пересчитано на `main` 28.09.2026.** Аудит типов датчиков, значений, секунд с
 несколькими состояниями и дневных целей перенесён в `ml/src/mkl/sensor_audit.py` и
@@ -36,13 +37,16 @@ python scripts/audit_sensor_semantics.py --temp-dir <каталог для сб�
 `ml/src/mkl/config.py`). После отсечки значений вне −60…150 °C целевых канал-суток
 за всю историю остаётся 5 526 из 10 671, за 2026 год — 520 из 984
 (кандидат `temperature_outside_3_40_valid`). Бэктест температуры учил ту же сырую
-цель (`target_description` в `temperature-sources.json`). Сколько из 258 положительных
-точек его теста — переполнения, не измерено: для этого нужен его код.
+цель: `backend/ml/candidate_from_warehouse.py` в `792a630` сравнивает с 3 и 40
+результат `try_cast` без отсечки (описание цели — `target_description` в
+`temperature-sources.json`). Сколько из 258 положительных точек его теста —
+переполнения, не измерено: для этого его код надо прогнать на хранилище PR #4.
 
 Продолжения этой работы: почасовая температура — PR #8, ветка
-[`feature/episode-hourly-backtest`](https://github.com/Bitmann0/moscollector-predict/tree/feature/episode-hourly-backtest/docs/experiments/temperature-episode-hourly);
-проверка сигнала потери телеметрии — PR #9, ветка
-[`feature/availability-risk-backtest`](https://github.com/Bitmann0/moscollector-predict/tree/feature/availability-risk-backtest/docs/experiments/availability-risk);
+`feature/episode-hourly-backtest`, коммит
+[`135a6a3`](https://github.com/Bitmann0/moscollector-predict/tree/135a6a39e5f602802aaac7bbca78737dcecf1aed/docs/experiments/temperature-episode-hourly);
+проверка сигнала потери телеметрии — PR #9, ветка `feature/availability-risk-backtest`,
+коммит [`58c1019`](https://github.com/Bitmann0/moscollector-predict/tree/58c1019e64bb56ecc2a0b034b703db2b6dcbb711/docs/experiments/availability-risk);
 схема разделённых голов — [MULTI_HEAD_ML_STRATEGY.md](../../MULTI_HEAD_ML_STRATEGY.md).
 Ниже — текст PR #7 с пометками о том, что изменилось в `main`.
 
@@ -163,7 +167,9 @@ python scripts/audit_sensor_semantics.py --temp-dir <каталог для сб�
 
 Числа — `overall` и `subgroups` в `pump-error-analysis.json`. Исходный отчёт
 модели — `docs/experiments/pump-signal-v1/report.json` в ветке PR #3
-[`feature/signal-backtest`](https://github.com/Bitmann0/moscollector-predict/tree/feature/signal-backtest/docs/experiments/pump-signal-v1).
+`feature/signal-backtest`, коммит
+[`607e270`](https://github.com/Bitmann0/moscollector-predict/tree/607e27060978c7697be8d612e5de9f91e7ca7d92/docs/experiments/pump-signal-v1);
+его раздел `test` совпадает с `overall`.
 Этой модели в `main` нет, но насосы входят в метку D (`EQUIPMENT_STYPES` в
 `ml/src/mkl/config.py`), и то же ограничение записано в
 [ml/README.md](../../../ml/README.md), раздел «Чему нельзя верить».
@@ -206,8 +212,8 @@ Precision к доле положительного класса; 1 означа�
 
 | Шаг | Где сделано | Состояние |
 |---|---|---|
-| 1. Начало эпизода | `ml/src/mkl/second_ml_audit.py`: `build_outcomes` отделяет эпизоды сигнала D наблюдаемыми нормальными днями, начало без нормального отчёта накануне помечено как неопределённое | сделано для D и A_link |
-| 2. Часовая температура | PR #8, ветка `feature/episode-hourly-backtest`: Precision 0,354, Recall 0,439 по трём тестам (`ml/docs/ML_BACKEND_HANDOFF.md`, строка 35) | исследовательский сценарий, в продукт не входит |
+| 1. Начало эпизода | `ml/src/mkl/second_ml_audit.py`: `build_outcomes` отделяет эпизоды сигнала D наблюдаемыми нормальными днями, начало без нормального отчёта накануне помечено как неопределённое | сделано в независимой оценке D и A_link; обучающая метка D (`labels.build_wear`) начала эпизода не требует |
+| 2. Часовая температура | PR #8, ветка `feature/episode-hourly-backtest` (`135a6a3`): Precision 0,354, Recall 0,439 по трём тестам (`ml/docs/ML_BACKEND_HANDOFF.md`, строка 35) | исследовательский сценарий, в продукт не входит |
 | 3. Газ | [gas_threshold_2026_audit.json](../../gas_threshold_2026_audit.json); решение D5 плана — событийные уведомления вместо прогноза | закрыто решением D5 |
 | 4. Скользящая проверка | `ml/src/mkl/cv.py` (`walk_forward`, `live_windows`, `live_threshold_end`), исключение весны 2021 — `EXCLUDED_PERIODS` в `ml/src/mkl/config.py` | сделано в другой разбивке: пять 90-дневных окон в `ml/reports/D_LIVE_POLICY_TEMPORAL.md` |
 | 5. 20% каналов вне обучения | — | в `main` не сделано |

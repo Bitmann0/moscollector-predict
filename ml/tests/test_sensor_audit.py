@@ -61,6 +61,34 @@ def test_fault_counts_as_mixed_only_when_another_state_shares_the_second(ev_con)
     assert row["observed_seconds"] == 2
 
 
+def test_alarm_second_is_mixed_only_when_another_state_shares_it(ev_con):
+    """mixed_alarm_seconds — источник «49 186 из 63 998» в ml/README.md."""
+    insert_event(ev_con, 1, 10, "2024-03-01 10:00:00", "Неисправен", alarm=True, stype=PUMP)
+    insert_event(ev_con, 2, 10, "2024-03-01 10:00:00", "Обесточен", stype=PUMP)
+    insert_event(ev_con, 3, 10, "2024-03-01 11:00:00", "Неисправен", alarm=True, stype=PUMP)
+    row = _by(audit.same_second_states(ev_con, dt.date(2024, 1, 1), dt.date(2026, 6, 30)),
+              "sensor_type")[PUMP]
+    assert (row["alarm_seconds"], row["mixed_alarm_seconds"]) == (2, 1)
+
+
+def test_spanning_channel_must_cover_both_ends_of_the_period(ev_con):
+    for i, (ch, day) in enumerate([(1, "2024-01-01"), (1, "2024-01-05"),
+                                   (2, "2024-01-03"), (2, "2024-01-05"),
+                                   (3, "2024-01-01"), (3, "2024-01-03")]):
+        insert_event(ev_con, i, ch, f"{day} 08:00:00", "Норма", stype=PUMP)
+    panel.build_daily_channel(ev_con)
+    rows = _by(audit.sensor_overview(ev_con, dt.date(2024, 1, 2), dt.date(2024, 1, 4)),
+               "sensor_type")
+    assert rows[PUMP]["channels_spanning_model_period"] == 1
+
+
+def test_value_top_keeps_only_top_n_per_type(ev_con):
+    for i, value in enumerate(["Норма", "Норма", "Неисправен"]):
+        insert_event(ev_con, i, 1, f"2024-01-01 08:00:0{i}", value, stype=PUMP)
+    rows = audit.value_top(ev_con, top_n=1)
+    assert [(r["sensor_value"], r["value_rank"]) for r in rows] == [("Норма", 1)]
+
+
 def test_same_second_window_and_type_filter(ev_con):
     """Окно режется по суткам, типы вне списка PR #7 не считаются."""
     insert_event(ev_con, 1, 10, "2023-12-31 23:59:59", "Неисправен", stype=PUMP)
@@ -94,6 +122,17 @@ def test_day_without_telemetry_is_not_a_clean_day(ev_con):
     row = _by(audit.target_candidates(ev_con)["candidates"], "candidate")["pump_fault_signal"]
     assert row["target_channel_days"] == 1
     assert row["starts_after_observed_non_target_day"] == 0
+
+
+def test_target_day_missing_from_panel_is_counted(ev_con):
+    """Событие дописано после сборки панели: события и панель из разных сборок."""
+    insert_event(ev_con, 1, 1, "2024-01-01 08:00:00", "Неисправен", stype=PUMP)
+    panel.build_daily_channel(ev_con)
+    insert_event(ev_con, 2, 1, "2024-01-02 08:00:00", "Неисправен", stype=PUMP)
+
+    row = _by(audit.target_candidates(ev_con)["candidates"], "candidate")["pump_fault_signal"]
+    assert row["target_channel_days"] == 2
+    assert row["target_days_outside_panel"] == 1
 
 
 def test_temperature_overflow_counts_only_in_raw_variant(ev_con):
@@ -144,8 +183,9 @@ def test_comparison_reports_delta_and_missing_rows():
 def test_script_runs_end_to_end_on_synthetic_parquet(ev_con, tmp_path, monkeypatch):
     """Скрипт целиком: parquet в interim, справочник CSV, строгий JSON на выходе.
 
-    На данных заказчика прогон стоит десятки минут, поэтому чтение файлов,
-    запрос scope и запись отчёта проверяются здесь, на трёх событиях.
+    Полный прогон читает 313 млн событий и в CI не запускается, поэтому
+    чтение файлов, запрос scope и запись отчёта проверяются здесь, на трёх
+    событиях.
     """
     import sys
 
