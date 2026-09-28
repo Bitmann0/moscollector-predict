@@ -5,10 +5,11 @@
  * пользователя с правом view. Адреса совпадают с таблицей раздела Frontend
  * спецификации каркаса; backend отдаёт index.html на любой путь вне /api.
  */
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
 
 import { RequireAuth } from "./auth/AuthContext";
 import { Layout } from "./components/Layout";
+import { PageHeader } from "./components/PageHeader";
 import { Dashboard } from "./pages/Dashboard";
 import { Events } from "./pages/Events";
 import { ForecastCard } from "./pages/ForecastCard";
@@ -46,13 +47,18 @@ export function App() {
   );
 }
 
+/** Неизвестный адрес внутри рабочего места: меню остаётся, а путь назад — одной кнопкой. */
 function NotFound() {
+  const { pathname } = useLocation();
   return (
     <section>
-      <h1>Страница не найдена</h1>
-      <p>
-        <Link to="/">На обзор</Link>
-      </p>
+      <PageHeader
+        title="Страница не найдена"
+        description={`Адреса ${pathname} в рабочем месте нет: ссылка устарела или в ней опечатка. Разделы — в меню.`}
+      />
+      <Link to="/" className="button button--primary">
+        Перейти в центр управления
+      </Link>
     </section>
   );
 }
