@@ -43,10 +43,11 @@ JUNE_LABELED_ROWS = 42_648
 JUNE_LABELS_SOURCE = ("выход шага labels scripts/eval_a_link_operating_point.py "
                       "(label_link за 02.06–29.06.2026); файл данных в git не кладётся")
 # Замер ML2-04: сырой вывод scripts/measure_ml.py лежит вне ml/, в документации сдачи.
-RUNTIME_FILE = ROOT.parent / "docs" / "submission" / "perf" / "ml_score_june.jsonl"
-RUNTIME_CONDITIONS = ("28.09, машина разработчика: Windows 11, Docker Desktop на WSL2, "
-                      "ML_MODE=real, бандл bundle-20260928-3 (модели A_link 0,70); запросы "
-                      "по одному из контейнера api")
+# Замер 28.09 по A_link и D — ml_score_june.jsonl, остаётся в perf/ для сравнения.
+RUNTIME_FILE = ROOT.parent / "docs" / "submission" / "perf" / "ml_score_june_4heads.jsonl"
+RUNTIME_CONDITIONS = ("29.09, машина разработчика: Windows 11, Docker Desktop на WSL2, "
+                      "ML_MODE=real, бандл bundle-20260928-5 (A_link 0,70, модели B и E); "
+                      "запросы по одному из контейнера api")
 RUNTIME_COMMAND = ("docker compose -f compose.yaml -f compose.real.yaml exec -T api "
                    "python - < scripts/measure_ml.py")
 GAS_PLANNED = {
@@ -440,13 +441,13 @@ def runtime() -> list[dict]:
     """Время ответа ML за каждый день 01–30.06: итоговая строка вывода measure_ml.py."""
     lines = RUNTIME_FILE.read_text(encoding="utf-8").splitlines()
     summary = json.loads(lines[-1])["summary"]
-    what = {"score": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link и D, "
-                      "с факторами и пустым журналом выданного",
+    what = {"score": "POST /api/v1/score сервиса ML, один день расчёта, головы A_link, D, "
+                      "B и E, с факторами и пустым журналом выданного",
             "guard_weekly": "GET /api/v1/guard-weekly-inspections, понедельники 01–29.06"}
     return [{"what": what[kind], "calls": s["n"],
              "seconds": {"min": s["min"], "median": s["median"], "max": s["max"]},
              "conditions": RUNTIME_CONDITIONS,
-             "source": "docs/submission/perf/ml_score_june.jsonl (строка summary)",
+             "source": "docs/submission/perf/ml_score_june_4heads.jsonl (строка summary)",
              "command": RUNTIME_COMMAND}
             for kind, s in summary.items()]
 
