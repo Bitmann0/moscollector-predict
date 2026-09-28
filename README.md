@@ -89,9 +89,40 @@ Real-режим требует совместимый бандл моделей 
 `ML_MODE=stub`. Backend всегда сохраняет явные состояния `no_data`, `stale`,
 `empty_valid` и `error`, не подменяя их прошлой успешной выдачей.
 
-Стенд (PM-10) добавляет третий файл, `compose.stand.yaml`: Caddy с TLS на портах 80 и 443
-для домена из `STAND_DOMAIN`, порт 8000 наружу закрыт, `DEMO_SETTINGS_LOCKED=1`,
-`COOKIE_SECURE=1`. Для `!reset` в этом файле нужен Compose v2.24 или новее.
+### Стенд
+
+Стенд (PM-10) добавляет третий файл, `compose.stand.yaml`. Для `!reset` в нём нужен
+Compose v2.24 или новее.
+
+- Caddy с TLS на портах 80 и 443 для домена из `STAND_DOMAIN`: сертификат выпускается
+  сам, DNS домена должен указывать на ВМ. Заголовки безопасности и журнал доступа в JSON —
+  `deploy/Caddyfile`. Для проверки на своей машине подходит `STAND_DOMAIN=localhost`.
+- Порт 8000 наружу закрыт, `DEMO_SETTINGS_LOCKED=1`, `COOKIE_SECURE=1`. После 10 неудачных
+  входов с одного адреса на один логин api 5 минут отвечает 429.
+- Сервис `replay` — поток событий 30.06 (ниже, «События на стенде»).
+- Лимиты памяти: ml 6 ГБ, db 3 ГБ, api 2 ГБ, replay 1 ГБ, backup 512 МБ, caddy 256 МБ.
+  Журналы контейнеров — по 10 МБ, 5 файлов на сервис.
+- Сервис `backup` раз в сутки пишет `pg_dump -Fc` в `./state/backups/` и хранит 7
+  последних файлов.
+
+```bash
+docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml up -d --build
+python scripts/smoke_compose.py --base-url https://$STAND_DOMAIN
+```
+
+Восстановление БД из бэкапа (api на время останавливаем, чтобы не писал в пустую схему):
+
+```bash
+docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml stop api replay
+docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml exec -T db pg_restore --clean --if-exists -U moscollector -d moscollector < state/backups/<файл>.dump
+docker compose -f compose.yaml -f compose.real.yaml -f compose.stand.yaml start api replay
+```
+
+Замер 28.09 на машине разработчика (Docker Desktop, база после прелоада и загрузки истории
+02.05–29.06): `pg_dump -Fc` — 74 с, файл 521 МБ; `pg_restore` в чистый postgres:16 — 133 с
+без нагрузки и 309 с, пока параллельно шёл подсчёт строк в исходной базе. После восстановления
+совпали счётчики: `events` 10 277 666, `forecasts` 55 942, `decisions` 338, `work_orders` 222,
+`outcomes` 475, `audit_log` 2 145. Норматив ТЗ на восстановление — 4 часа.
 
 ### Сборка бандла из датасета
 

@@ -12,7 +12,8 @@
 # Пароль архива — тот же, что у датасета организаторов (D10): 7z спросит его сам.
 # Без консоли пароль берётся из $env:BUNDLE_PASSWORD; тогда он уходит в 7z ключом -p и
 # на время распаковки виден в списке процессов. Пароль нигде не записываем.
-# Итог: <Dest>\{data,models,configs\features.yaml,reports\intrusion_eventtime_v2_build.json}.
+# Итог: <Dest>\{data,models,Materials,configs\features.yaml,reports\intrusion_eventtime_v2_build.json}.
+# Materials — справочники объектов и каналов для api (BE-03, compose.real.yaml).
 # Файл сохранён в UTF-8 с BOM: без BOM Windows PowerShell 5.1 читает кириллицу как ANSI.
 param(
     [string]$Version = "",
@@ -23,7 +24,7 @@ $ErrorActionPreference = "Stop"
 # Индикатор Invoke-WebRequest в PowerShell 5.1 замедляет скачивание в разы.
 $ProgressPreference = "SilentlyContinue"
 
-$LayoutDirs = @("data", "models")
+$LayoutDirs = @("data", "models", "Materials")
 $LayoutFiles = @("configs\features.yaml", "reports\intrusion_eventtime_v2_build.json")
 
 function Fail([string]$Message) {

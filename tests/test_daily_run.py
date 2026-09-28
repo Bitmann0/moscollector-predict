@@ -83,7 +83,8 @@ def test_forecast_fields_follow_contract(admin, fake_ml):
     card = admin.get(f"{API}/forecasts/{first['id']}").json()
     assert card["factors"][0]["feature"] == "gap_days"
     assert len(card["versions"]) == 1 and len(card["dynamics_30d"]) == 30
-    assert card["calendar"] == {"weekday": 2, "weekday_title": "вторник", "holiday": None}
+    # Календарь дня, на который прогноз: окно начинается 17.06, в среду.
+    assert card["calendar"] == {"weekday": 3, "weekday_title": "среда", "holiday": None}
     assert card["coverage_note"].startswith("Оценено 27 из 30")
 
 
