@@ -108,7 +108,7 @@ function Metric({ icon, tone, value, label, detail }: { icon: Parameters<typeof 
   return <article className={`metric-card metric-card--${tone}`}><div className="metric-card__icon"><Icon name={icon} /></div><div><strong>{value}</strong><span>{label}</span><small>{detail}</small></div></article>;
 }
 
-/** «Износ: плановая диагностика…» → «Износ»: так сценарии названы и в строке статуса, полное имя — в подсказке. */
+/** «Износ: плановая диагностика…» → «Износ»: полное имя — в подсказке. */
 function shortScenario(value: string): string {
   return value.split(":")[0].trim() || value;
 }

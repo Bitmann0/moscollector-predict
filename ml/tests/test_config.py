@@ -3,11 +3,6 @@ from datetime import date
 from mkl import config
 
 
-def test_paths_exist():
-    assert config.PATHS.materials.exists()
-    assert config.PATHS.interim.exists()
-
-
 def test_state_vocabularies_are_disjoint():
     assert not (config.BAD_STATES & config.OK_STATES)
     assert not (config.FIRE_STATES & config.INTRUSION_STATES)

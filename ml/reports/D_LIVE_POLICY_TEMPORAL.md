@@ -1,5 +1,7 @@
 # D: проверка полной политики ручной диагностики
 
+> **В продукте не модель, а правило `n_bad_w7`** ([RULE_VS_MODEL_RESULT.md](RULE_VS_MODEL_RESULT.md)); метка `label_wear` этого отчёта считает сутки без телеметрии отрицательными ([SUBMISSION_METRICS.md](SUBMISSION_METRICS.md), раздел «Износ»).
+
 25.09.2026. Машинный отчёт: [d_live_policy_temporal.json](d_live_policy_temporal.json).
 Воспроизведение: `python scripts/eval_d_live_policy.py --end-date 2026-06-23`.
 Без аргумента скрипт берёт последний день со зрелой меткой и может проверить

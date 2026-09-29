@@ -1,5 +1,5 @@
 /**
- * Подписка на SSE /api/v1/stream. Живое; FE-08 добавляет тосты, BE-08 — хранение.
+ * Подписка на SSE /api/v1/stream.
  *
  * Одно соединение EventSource на вкладку: его открывает AuthContext после входа
  * (startStream) и закрывает при выходе (stopStream). Экраны читают общее
@@ -19,7 +19,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 
 import { api, type Schemas } from "../api/client";
 
-export type StreamKind = Schemas["NotificationItem"]["kind"];
+type StreamKind = Schemas["NotificationItem"]["kind"];
 export type Severity = Schemas["NotificationItem"]["severity"];
 
 /** Подписи видов событий. Record ловит на typecheck новый вид в контракте. */
@@ -47,7 +47,7 @@ export interface StreamEvent {
 
 export type Connection = "idle" | "connecting" | "open" | "reconnecting";
 
-export interface StreamSnapshot {
+interface StreamSnapshot {
   connection: Connection;
   /** Последние 50 событий, новые сверху. */
   events: StreamEvent[];
@@ -230,7 +230,7 @@ export function useReloadOn(
 }
 
 /** Вызывает handler на каждое событие перечисленных видов, пока экран открыт. */
-export function useStreamEvents(kinds: readonly StreamKind[], handler: (event: StreamEvent) => void): void {
+function useStreamEvents(kinds: readonly StreamKind[], handler: (event: StreamEvent) => void): void {
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
   const key = kinds.join(",");

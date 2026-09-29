@@ -1,5 +1,5 @@
 /* Оформление каркаса: CSS-переменные из tokens.css, без UI-библиотек.
-   Экраны FE-02…FE-10 добавляют свои правила сюда или в свои файлы рядом со страницей. */
+   Правила экранов — в theme.css, он подключается после этого файла. */
 
 /* Цвета, шрифт и радиусы — в tokens.css. */
 
@@ -38,88 +38,7 @@ a {
   color: var(--muted);
 }
 
-.nowrap {
-  white-space: nowrap;
-}
-
 /* Оболочка */
-
-.topbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 24px;
-  padding: 10px var(--gap);
-  background: var(--topbar);
-  color: var(--topbar-text);
-}
-
-.brand {
-  font-weight: 700;
-  font-size: 17px;
-}
-
-.menu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.menu__link {
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  color: var(--topbar-text);
-  text-decoration: none;
-}
-
-.menu__link:hover {
-  background: rgb(255 255 255 / 0.1);
-}
-
-.menu__link.active {
-  background: rgb(255 255 255 / 0.18);
-  font-weight: 600;
-}
-
-.topbar__right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-left: auto;
-}
-
-.bell {
-  position: relative;
-  display: inline-flex;
-  padding: 4px;
-  color: var(--topbar-text);
-}
-
-.bell__count {
-  position: absolute;
-  top: -4px;
-  right: -8px;
-  min-width: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background: var(--crit);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: center;
-}
-
-.user {
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  line-height: 1.2;
-}
-
-.user__role {
-  opacity: 0.75;
-}
 
 .statusbar {
   display: flex;
@@ -130,14 +49,6 @@ a {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   font-size: 13px;
-}
-
-.demo-banner {
-  padding: 2px 8px;
-  border-radius: var(--radius);
-  background: var(--warn-bg);
-  color: var(--warn-text);
-  font-weight: 600;
 }
 
 .content {
@@ -258,13 +169,6 @@ a {
   color: var(--info-text);
 }
 
-.note {
-  padding: 8px 12px;
-  border-radius: var(--radius);
-  background: var(--info-bg);
-  color: var(--info-text);
-}
-
 /* Формы и кнопки */
 
 .button {
@@ -277,33 +181,9 @@ a {
   cursor: pointer;
 }
 
-.button:hover:not(:disabled) {
-  border-color: var(--accent);
-}
-
 .button:disabled {
   opacity: 0.55;
   cursor: default;
-}
-
-.button--primary {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
-.button--ghost {
-  border-color: rgb(255 255 255 / 0.35);
-  background: transparent;
-  color: var(--topbar-text);
-}
-
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
 }
 
 .field {
@@ -412,24 +292,9 @@ a {
   white-space: nowrap;
 }
 
-.table tbody tr:hover {
-  background: var(--surface-sunken);
-}
-
 .table .num {
   text-align: right;
   font-variant-numeric: tabular-nums;
-}
-
-.event--alarm td:last-child,
-.event--critical td:last-child {
-  color: var(--bad-text);
-  font-weight: 600;
-}
-
-.event--fault td:last-child,
-.event--warning td:last-child {
-  color: var(--warn-text);
 }
 
 .pager {
@@ -440,18 +305,6 @@ a {
   font-size: 14px;
 }
 
-.kpi,
-.fields {
-  display: grid;
-  gap: 1px;
-  margin: 0 0 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--border);
-  overflow: hidden;
-}
-
-.kpi__row,
 .fields__row {
   display: grid;
   grid-template-columns: minmax(180px, 320px) 1fr;
@@ -460,19 +313,8 @@ a {
   background: var(--surface);
 }
 
-.kpi dt,
-.fields dt {
-  color: var(--muted);
-}
-
-.kpi dd,
-.fields dd {
-  margin: 0;
-}
-
 .factors,
-.history,
-.feed {
+.history {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -490,35 +332,6 @@ a {
 
 .down {
   color: var(--ok-text);
-}
-
-.feed__item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 12px;
-  padding: 8px 12px;
-  border-left: 3px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.feed__item--warning {
-  border-left-color: var(--warn-text);
-}
-
-.feed__item--critical {
-  border-left-color: var(--bad-text);
-}
-
-.feed__time {
-  color: var(--muted);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.feed__kind {
-  font-weight: 600;
 }
 
 /* Вход */
@@ -545,13 +358,9 @@ a {
 }
 
 @media (max-width: 640px) {
-  .kpi__row,
   .fields__row {
     grid-template-columns: 1fr;
     gap: 2px;
   }
 
-  .topbar__right {
-    margin-left: 0;
-  }
 }

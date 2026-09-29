@@ -11,7 +11,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
-from .common import IncidentGroup, Scenario
+from .common import IncidentGroup
 
 Weekday = Annotated[int, Field(ge=0, le=6, description="0 — понедельник, 6 — воскресенье")]
 # Предупреждение и неисправность уведомлений не создают и здесь не включаются:
@@ -174,5 +174,3 @@ class ReclassifyOut(BaseModel):
     seconds: float
 
 
-LIMIT_SCENARIOS: tuple[Scenario, ...] = ("sensor_link", "equipment_diag", "guard_weekly",
-                                         "fire_risk", "flood_risk")

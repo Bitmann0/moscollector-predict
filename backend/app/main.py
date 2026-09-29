@@ -55,7 +55,7 @@ def create_app() -> FastAPI:
         openapi_tags=[
             {"name": "auth", "description": "Вход, выход и определение роли текущей сессии."},
             {"name": "system", "description": "Готовность API и ML-контура."},
-            {"name": "forecast", "description": "Журнал, карточки, решения и исходы рекомендаций."},
+            {"name": "forecasts", "description": "Журнал, карточки, решения и исходы рекомендаций."},
             {"name": "ingest", "description": "Идемпотентная загрузка СМВУ и журнала ОДС."},
             {"name": "reference", "description": "Справочники объектов, каналов и причин решений."},
         ],

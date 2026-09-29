@@ -14,6 +14,8 @@ TreeSHAP даёт вклад каждого признака в предсказ
 словарь человеческих названий. Признак без перевода отдаётся как есть: лучше
 непонятное имя, чем выдуманное объяснение.
 """
+import logging
+
 import numpy as np
 
 # Человеческие названия. Пополняется по мере того, как признаки попадают в
@@ -187,6 +189,6 @@ def _shap(model, X: np.ndarray):
             from catboost import Pool
             return model.get_feature_importance(Pool(X), type="ShapValues")
     except Exception as exc:                        # noqa: BLE001
-        print(f"вклады признаков недоступны ({type(exc).__name__}: {exc})",
-              flush=True)
+        logging.getLogger(__name__).warning(
+            "вклады признаков недоступны (%s: %s)", type(exc).__name__, exc)
     return None

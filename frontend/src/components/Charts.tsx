@@ -15,9 +15,9 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEve
 
 import { fmtDate } from "../format";
 
-export interface ChartPoint { day: string; value: number | null }
+interface ChartPoint { day: string; value: number | null }
 
-export interface ChartSeries {
+interface ChartSeries {
   key: string;
   label: string;
   color: string;
@@ -35,7 +35,7 @@ interface Scale { max: number; ticks: number[] }
  * integer — ряд из счётчиков: шаг не меньше 1, иначе при одной тревоге в сутки
  * ось подписала бы «0,25» и «0,75» тревоги.
  */
-export function niceScale(maxValue: number, percent: boolean, integer = false): Scale {
+function niceScale(maxValue: number, percent: boolean, integer = false): Scale {
   if (percent) return { max: 1, ticks: [0, 0.25, 0.5, 0.75, 1] };
   const top = Math.max(maxValue, 1);
   const raw = top / 4;
@@ -210,7 +210,7 @@ export function LineChart({ days, series, percent = false, limit, height = 180, 
   );
 }
 
-/** Одна серия по дням — обёртка над LineChart для дашборда и «Качества». */
+/** Одна серия по дням — обёртка над LineChart для дашборда. */
 export function TrendChart({ data, limit, limitLabel = "лимит", percent = false, color = "var(--data)", label = "Динамика по дням", seriesLabel = "Значение", bars = false, gapLabel }: {
   data: ChartPoint[];
   limit?: number;

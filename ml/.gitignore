@@ -10,6 +10,7 @@ catboost_info/
 models/
 configs/features.yaml
 reports/latest_model_refresh.json
+reports/model_refresh@*.json
 Materials/
 ChatExport_2026-09-19/
 

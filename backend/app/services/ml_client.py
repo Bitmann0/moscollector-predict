@@ -53,9 +53,6 @@ class MlClient:
         except ValueError as exc:  # например, ML_URL указывает не на ML и отдаёт HTML
             raise MlUnavailable(f"ответ не JSON: {resp.text[:200]}") from exc
 
-    def health(self) -> dict:
-        return self._get("/health")
-
     def ready(self, asof: date | None = None, timeout: float = 5.0) -> ReadyResponse:
         """Короткий таймаут: /system/status не должен ждать зависший ML две минуты."""
         params = {"asof": asof.isoformat()} if asof else {}

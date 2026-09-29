@@ -4,7 +4,6 @@
 растёт, чем падает (135 против 4 случаев), поэтому ускорение задано явным
 признаком, а не оставлено на откуп модели.
 """
-import duckdb
 import pytest
 
 from conftest import insert_day

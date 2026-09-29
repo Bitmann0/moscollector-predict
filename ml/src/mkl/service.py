@@ -13,7 +13,7 @@ import json
 
 import polars as pl
 
-from . import address, contract, explain, maintenance, serve, store, train
+from . import address, contract, explain, maintenance, serve, train
 from .config import PATHS
 from .contract import Address, Alert, Coverage
 

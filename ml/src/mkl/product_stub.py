@@ -246,6 +246,9 @@ def _blocked(spec: HeadSpec, req: ScoreRequest) -> set[int]:
 
 
 def _journal_note(spec: HeadSpec, req: ScoreRequest) -> str | None:
+    if spec.cooldown_days == 0:
+        # Паузы нет (B, E): service.alerts_for_head журнал у такой головы не проверяет.
+        return None
     need = req.asof - dt.timedelta(days=spec.cooldown_days)
     if spec.head in req.issued_histories and req.history_complete_from is not None \
             and req.history_complete_from <= need:

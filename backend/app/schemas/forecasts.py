@@ -131,7 +131,7 @@ class OutcomeIn(BaseModel):
     outcome: OutcomeManual
     comment: str | None = Field(default=None, max_length=2000)
     event_at: datetime | None = None
-    channel: int | None = None
+    channel: int | None = Field(default=None, ge=-2**63, lt=2**63)
 
 
 class OutcomeOut(BaseModel):

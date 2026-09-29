@@ -32,4 +32,7 @@ def test_successful_login_clears_failures(app):
         client.post(f"{API}/auth/login", json=wrong)
     right = {"login": "analyst", "password": DEMO_PASSWORD}
     assert client.post(f"{API}/auth/login", json=right).status_code == 200
-    assert client.post(f"{API}/auth/login", json=wrong).status_code == 401
+    # Счётчик сброшен: снова доступны все MAX_FAILURES попыток, без сброса
+    # вторая же неудача дала бы 429.
+    for _ in range(auth.MAX_FAILURES):
+        assert client.post(f"{API}/auth/login", json=wrong).status_code == 401
