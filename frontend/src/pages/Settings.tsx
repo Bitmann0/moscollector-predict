@@ -16,6 +16,7 @@ import { Icon, type IconName } from "../components/Icons";
 import { PageHeader } from "../components/PageHeader";
 import { Loaded } from "../components/StateView";
 import { fmtDate, fmtDateTime, fmtNumber } from "../format";
+import { getAt, reconcile, same, setAt } from "../settingsConflict";
 import { INCIDENT_GROUPS, title } from "../vocab";
 
 type Out = Schemas["ParametersOut"];
@@ -34,20 +35,24 @@ const LIMITS = [
 ] as const;
 const RECLASSIFY_MAX_DAYS = 31;
 
-function getAt(values: unknown, path: string): unknown {
-  return path.split(".").reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], values);
-}
+const FIELD_NAMES: Record<string, string> = {
+  "gas.alarm_pct": "Метан · тревога от", "gas.critical_pct": "Метан · критическое от",
+  "gas_window.hour_from": "Газ · начало окна", "gas_window.hour_to": "Газ · конец окна", "gas_window.days": "Газ · дни окна",
+  "series.window_min": "Серии · окно", "series.fire_min": "Серии · пожарные извещатели", "series.gas_min": "Серии · газоанализаторы",
+  "series.work.hour_from": "Серии · начало рабочего времени", "series.work.hour_to": "Серии · конец рабочего времени", "series.work.days": "Серии · рабочие дни",
+  "notify.classes": "Уведомления · классы", "notify.groups": "Уведомления · группы",
+  ...Object.fromEntries(LIMITS.map(({ key, label }) => [`limits.${key}`, `Лимит · ${label}`])),
+};
 
-function setAt(values: Values, path: string, value: unknown): Values {
-  const next = structuredClone(values);
-  const keys = path.split(".");
-  const last = keys.pop() as string;
-  const parent = keys.reduce<Record<string, unknown>>((node, key) => node[key] as Record<string, unknown>, next as unknown as Record<string, unknown>);
-  parent[last] = value;
-  return next;
+function valueText(path: string, value: unknown): string {
+  if (Array.isArray(value)) {
+    if (path.endsWith(".days")) return daysText(value as number[]);
+    if (path === "notify.classes") return value.map((code) => title("event_class", String(code))).join(", ") || "выключены";
+    if (path === "notify.groups") return value.map((code) => INCIDENT_GROUPS.find((item) => item.code === code)?.title ?? String(code)).join(", ") || "выключены";
+    return value.join(", ");
+  }
+  return typeof value === "number" ? fmtNumber(value) : String(value ?? "—");
 }
-
-const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** «с 9:00 до 14:59» — конец окна в схеме не включается: 15 значит «до 14:59». */
 function hoursText(from: number, to: number): string {
@@ -88,6 +93,7 @@ function SettingsForm({ initial }: { initial: Out }) {
   const [form, setForm] = useState<Values>(initial.values);
   const [errors, setErrors] = useState<Errors>({});
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [conflicts, setConflicts] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const locked = saved.locked;
   const dirty = !same(form, saved.values);
@@ -108,7 +114,24 @@ function SettingsForm({ initial }: { initial: Out }) {
         setSaved(data);
         setForm(data.values);
         setErrors({});
+        setConflicts([]);
         setMessage({ ok: true, text: `Сохранено, версия ${data.version}. Новые события классифицируются по новым параметрам сразу, лимиты действуют со следующего дневного расчёта. Принятые раньше события — после пересчёта ниже.` });
+      } else if (response.status === 409) {
+        // Не перезагружаем страницу: берём актуальную версию и переносим только
+        // локально изменённые поля. Совпавшие правки требуют явного выбора.
+        const latest = await api.GET("/api/v1/settings/parameters");
+        if (!latest.data) {
+          setMessage({ ok: false, text: "Параметры изменились у другого администратора, но получить актуальные значения не удалось. Ваши правки сохранены на экране; обновите страницу позже." });
+        } else {
+          const { values: merged, conflicts: overlap } = reconcile(saved.values, form, latest.data.values);
+          setSaved(latest.data);
+          setForm(merged);
+          setErrors({});
+          setConflicts(overlap);
+          setMessage({ ok: false, text: overlap.length
+            ? `Другой администратор сохранил версию ${latest.data.version}. Ваши правки оставлены, остальные поля обновлены. Выберите значения в конфликтующих полях (${overlap.length}), затем сохраните снова.`
+            : `Другой администратор сохранил версию ${latest.data.version}. Его изменения учтены, ваши правки оставлены. Проверьте и нажмите «Сохранить» ещё раз.` });
+        }
       } else if (response.status === 422) {
         const found = errorsOf(error);
         setErrors(found);
@@ -125,6 +148,10 @@ function SettingsForm({ initial }: { initial: Out }) {
   };
 
   const field = (path: string, label: string, unit: string, step = 1) => <NumberField key={path} path={path} label={label} unit={unit} step={step} value={getAt(form, path) as number} verified={getAt(saved.verified, path) as number} bounds={saved.bounds} error={errors[path]} onChange={(value) => set(path, value)} />;
+  const resolve = (path: string, acceptCurrent: boolean) => {
+    if (acceptCurrent) setForm((prev) => setAt(prev, path, getAt(saved.values, path)));
+    setConflicts((prev) => prev.filter((item) => item !== path));
+  };
   const sectionError = (key: string) => errors[key] && <p className="settings-card__error" role="alert">{errors[key]}</p>;
   const state = saved.version === 0 ? "Действуют проверенные значения" : `Версия ${saved.version}${saved.updated_by ? ` · ${saved.updated_by}` : ""}${saved.updated_at ? `, ${fmtDateTime(saved.updated_at)}` : ""}`;
 
@@ -160,13 +187,23 @@ function SettingsForm({ initial }: { initial: Out }) {
           <p className="settings-preview">Пауза в 7 дней у каналов считается по показанному: рекомендация за лимитом не уходит на паузу и завтра может попасть в выдачу. У пожарного риска участков и подтопления паузы по объекту нет: объект с высоким риском выдаётся и назавтра. Недельную очередь ML ставит на паузу в 14 суток по своей выдаче из 4 объектов, объект за лимитом тоже.</p>
         </Card>
       </div>
+      {conflicts.length > 0 && <div className="panel settings-conflict" role="group" aria-label="Совпавшие изменения настроек">
+        <h2>Выберите значения совпавших правок</h2>
+        <p>Сохранение остановлено, пока вы не решите, чьё значение оставить в каждом поле.</p>
+        {conflicts.map((path) => <div className="settings-conflict__row" key={path}>
+          <strong>{FIELD_NAMES[path] ?? path}</strong>
+          <span>Ваше: {valueText(path, getAt(form, path))}</span>
+          <span>Актуальное: {valueText(path, getAt(saved.values, path))}</span>
+          <div><button type="button" className="button" onClick={() => resolve(path, false)}>Оставить моё</button><button type="button" className="button" onClick={() => resolve(path, true)}>Принять актуальное</button></div>
+        </div>)}
+      </div>}
       {/* На стенде менять нечего: панели действий нет, версия — в плашке сверху. Сообщение
           о сохранении — внутри панели: она прилипает к низу экрана, и ответ виден рядом с кнопкой. */}
       {!locked && <div className="settings-actions">
         <span className="settings-actions__state">{state}{dirty && <b> · есть несохранённые изменения</b>}</span>
-        <button type="button" className="button" disabled={atVerified} onClick={() => { setForm(structuredClone(saved.verified)); setErrors({}); setMessage(null); }}>Сбросить к проверенным</button>
-        <button type="button" className="button" disabled={!dirty} onClick={() => { setForm(saved.values); setErrors({}); setMessage(null); }}>Отменить изменения</button>
-        <button type="button" className="button button--primary" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Сохранение…" : "Сохранить"}</button>
+        <button type="button" className="button" disabled={atVerified} onClick={() => { setForm(structuredClone(saved.verified)); setErrors({}); setConflicts([]); setMessage(null); }}>Сбросить к проверенным</button>
+        <button type="button" className="button" disabled={!dirty} onClick={() => { setForm(saved.values); setErrors({}); setConflicts([]); setMessage(null); }}>Отменить изменения</button>
+        <button type="button" className="button button--primary" disabled={!dirty || busy || conflicts.length > 0} onClick={() => void save()}>{busy ? "Сохранение…" : "Сохранить"}</button>
         {message && <p className={`settings-feedback${message.ok ? "" : " settings-feedback--error"}`} role={message.ok ? "status" : "alert"}>{message.text}{!message.ok && errors._ ? ` ${errors._}` : ""}</p>}
       </div>}
     </fieldset>
