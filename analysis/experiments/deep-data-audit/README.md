@@ -45,7 +45,7 @@ python scripts/audit_sensor_semantics.py --temp-dir <каталог для сб�
 Продолжения этой работы: почасовая температура — PR #8, отчёт
 [TEMPERATURE_EPISODE_HOURLY.md](../../../ml/reports/TEMPERATURE_EPISODE_HOURLY.md);
 проверка сигнала потери телеметрии — PR #9, ветка `feature/availability-risk-backtest`,
-коммит [`e2e4b22`](https://github.com/Bitmann0/moscollector-predict/tree/e2e4b220e82b3392099f6f78e7cb52812907df77/docs/experiments/availability-risk);
+коммит [`cf38b02`](https://github.com/Bitmann0/moscollector-predict/tree/cf38b02c21ae8e95af2716a6c77aaf7364c5347f/docs/experiments/availability-risk);
 схема разделённых голов — [MULTI_HEAD_ML_STRATEGY.md](../../MULTI_HEAD_ML_STRATEGY.md).
 Ниже — текст PR #7 с пометками о том, что изменилось в `main`.
 

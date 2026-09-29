@@ -10,12 +10,13 @@
 Python исполняются из исходников; их сборка — установка зависимостей в образ Docker или
 в venv.
 
-Пометка «замер 28.09» означает проверку 28.09.2026 на машине разработчика: Windows, Docker
+Пометки «замер 28.09» и «замер 29.09» — проверки на машине разработчика: Windows, Docker
 Desktop, стек `compose.yaml` + `compose.real.yaml`, ML в режиме `real` на бандле из данных
-заказчика `bundle-20260928-3` (модели A_link 0,70, PR #30; номера pull request — в
-`Bitmann0/moscollector-predict`), код из `main`. `compose.stand.yaml` в этот замер не
-входил, замеров на Linux-ВМ в разделе нет. Условия и сырые результаты —
-`docs/submission/08-performance.md` и `docs/submission/perf/`.
+заказчика, код из `main`. 28.09 — бандл `bundle-20260928-3` (модели A_link 0,70, PR #30;
+номера pull request — в `Bitmann0/moscollector-predict`), 29.09 — `bundle-20260928-5` с
+пятью сценариями. `compose.stand.yaml` в замеры не входил, замеров на Linux-ВМ в разделе
+нет. Условия и сырые результаты — `docs/submission/08-performance.md` и
+`docs/submission/perf/`.
 
 ## Требования
 
@@ -95,8 +96,8 @@ docker build -f ml/Dockerfile -t mkl-ml .
 `pip install --no-deps -e .`. В `ml/requirements.lock` вместо `xgboost` закреплён
 `xgboost-cpu` той же версии 3.4.1: модуль тот же, без CUDA. Процесс —
 `uvicorn mkl.product_api:app` на порту 8001. При `ML_MODE=stub` (значение образа по
-умолчанию) сервис стартует без данных, при `ML_MODE=real` читает бандл из томов. Этот же
-образ запускает сервис `replay` стенда: в нём есть duckdb.
+умолчанию) сервис стартует без данных, при `ML_MODE=real` читает бандл из томов. На этом
+же образе работает сервис `replay` стенда: ему нужен duckdb.
 
 ### Что в образы не попадает
 
@@ -148,7 +149,7 @@ cp .env.example .env        # PowerShell: Copy-Item .env.example .env
 | Переменная | Кто читает | Назначение |
 |---|---|---|
 | `BUNDLE_URL` | `scripts/fetch_bundle.sh`, `scripts/fetch_bundle.ps1` | адрес папки с архивами: по версии `bundle-YYYYMMDD-N` скачивается `$BUNDLE_URL/<версия>.7z` |
-| `BUNDLE_PASSWORD` | `scripts/fetch_bundle.*`, `ml/scripts/build_bundle.py` | пароль 7z для запуска без терминала. Уходит в 7z ключом `-p` и на время работы 7z виден в списке процессов |
+| `BUNDLE_PASSWORD` | `scripts/fetch_bundle.*`, `ml/scripts/build_bundle.py` | пароль 7z для запуска без терминала, если архив под паролем. Уходит в 7z ключом `-p` и на время работы 7z виден в списке процессов |
 | `MKL_ROOT` | `ml/src/mkl/config.py`, через него — код ML и `ml/scripts/train_latest.py` | корень данных ML; по умолчанию `ml/`, в образе ml — `/srv/ml` |
 | `LOAD_MUTATIONS` | `scripts/load_test/locustfile.py` | `1` добавляет в нагрузочный сценарий решения диспетчера |
 | `TEST_DATABASE_URL` | `tests/conftest.py` | тесты backend на PostgreSQL вместо временной SQLite |
@@ -231,37 +232,46 @@ api стартует после того, как `db` и `ml` прошли healt
 При старте api seed сверяет таблицы `ref_objects` и `ref_channels` с двумя CSV из
 `Materials/` и удаляет синтетический справочник прошлых запусков (`backend/app/seed.py`).
 
-Замер 28.09:
+Версии бандла:
 
-- `build_bundle.py` собрал бандл из 15 файлов, 2 128 МБ; `fetch_bundle.sh` сверил 15
-  контрольных сумм из 15. Это состав до того, как в `REQUIRED` вошли два CSV из
-  `Materials/`.
-- `build_bundle.py --dry-run` на коде 28.09, до моделей B и E, отбирал на локальном корне ML
-  17 файлов, 2 129,7 МБ: 13 обязательных и четыре датированные модели A_link. Самый крупный файл —
-  `data/features/sensor.parquet`, 1 287,8 МБ; файла `maintenance_2026.json` в корне нет.
-- `bundle-20260928-3` собран после перехода A_link на минимум точности 0,70 (PR #30):
-  17 файлов, от `bundle-20260928-2` отличаются только пять `models/A_link*.pkl`
-  (сверка `MANIFEST.sha256` двух версий). Ранние версии с текущим `main` не работают:
-  в `-1` нет каталога `Materials/`, и `fetch_bundle` отклоняет раскладку; модели 0,50
-  из `-2` отвергает проверка метаданных `validate_pilot_artifact`.
-- `bundle-20260928-4` — тот же `-3` плюс `data/interim/maintenance_2026.json`: графики ППР
-  и ТО от 25.09, нормализованные `ml/scripts/normalize_maintenance_schedules.py`,
-  `available_from` 2026-09-25 (сверка `MANIFEST.sha256`). В продуктовом контракте C1
-  контекста плановых работ нет, экраны с этим файлом не меняются.
 - `bundle-20260928-5` — текущая версия для пяти сценариев: тот же `-4` плюс
   `data/features/segment.parquet` и модели `models/B.pkl`, `models/E.pkl` с четырьмя
   датированными у каждой. 29 файлов, 2 178,7 МБ по сумме размеров; остальные 18
-  контрольных сумм совпадают с `-4` (сверка `MANIFEST.sha256` двух версий 29.09). На `-4` и
-  более ранних версиях моделей B и E нет: `/ready` сервиса ML перебирает все пилотные
-  головы и ответит `missing_data`, а в расчёте B и E получат `error` (`_real_ready` и
-  `_real_score` в `ml/src/mkl/product_api.py`; вывод из кода, не проверялось). Проверка
-  архива `-5` через `fetch_bundle` в этом разделе не записана.
+  контрольных сумм совпадают с `-4` (сверка `MANIFEST.sha256` двух версий 29.09). 29.09
+  `fetch_bundle.sh` распаковал архив `-5` без `BUNDLE_PASSWORD` и сверил 29 контрольных
+  сумм из 29.
+- `bundle-20260928-4` — тот же `-3` плюс `data/interim/maintenance_2026.json`: графики ППР
+  и ТО от 25.09, нормализованные `ml/scripts/normalize_maintenance_schedules.py`,
+  `available_from` 2026-09-25 (сверка `MANIFEST.sha256`). В продуктовом контракте C1
+  контекста плановых работ нет, экраны с этим файлом не меняются. Моделей B и E в `-4` и
+  более ранних версиях нет: `/ready` сервиса ML перебирает все пилотные головы и ответит
+  `missing_data`, а в расчёте B и E получат `error` (`_real_ready` и `_real_score` в
+  `ml/src/mkl/product_api.py`; вывод из кода, не проверялось).
+- `bundle-20260928-3` собран после перехода A_link на минимум точности 0,70 (PR #30):
+  17 файлов, от `bundle-20260928-2` отличаются только пять `models/A_link*.pkl`
+  (сверка `MANIFEST.sha256` двух версий). Версии `-1` и `-2` с текущим `main` не работают:
+  в `-1` нет каталога `Materials/`, и `fetch_bundle` отклоняет раскладку; модели 0,50
+  из `-2` отвергает проверка метаданных `validate_pilot_artifact`.
+
+Замер 28.09, до моделей B и E:
+
+- `build_bundle.py` собрал бандл из 15 файлов, 2 128 МБ; `fetch_bundle.sh` сверил 15
+  контрольных сумм из 15. Два CSV из `Materials/` тогда ещё не входили в `REQUIRED`.
+- `build_bundle.py --dry-run` отбирал на локальном корне ML 17 файлов, 2 129,7 МБ:
+  13 обязательных и четыре датированные модели A_link. Самый крупный файл —
+  `data/features/sensor.parquet`, 1 287,8 МБ; файла `maintenance_2026.json` в корне нет.
 
 ### Получение и проверка бандла
 
-Бандл распространяется архивом `bundle-YYYYMMDD-N.7z` под паролем датасета организаторов
-(решение D10), ссылка на архив — в поле «Доп. материалы» формы сдачи. Тот же архив
-собирается из своей копии датасета (раздел «Сборка бандла из датасета организаторов»).
+Бандл распространяется архивом `bundle-YYYYMMDD-N.7z`. Текущий архив
+`bundle-20260928-5.7z` (2 144 923 082 байт) лежит на Google Диске:
+<https://drive.google.com/file/d/17Dh6tC8sPO0bWPf3ukHCuErg15_bSIg-/view?usp=sharing>.
+SHA-256 архива: `b50e2d11f4db53d7c3d2a5e2f423dac63ea576554e1263c7c8325d95d7885705`.
+Скачивать его нужно в браузере: для файлов больше 100 МБ Google Диск вместо файла
+отдаёт страницу с предупреждением, и `fetch_bundle` по этому URL архив не получит.
+Архив упакован без пароля (`7z a -t7z -mx=1`). Тот же бандл собирается из своей копии датасета (раздел «Сборка
+бандла из датасета организаторов»); `build_bundle.py --archive` упаковывает его под
+паролем датасета организаторов (решение D10).
 
 ```bash
 sh scripts/fetch_bundle.sh ~/Downloads/bundle-20260928-5.7z ./bundle
@@ -285,7 +295,7 @@ powershell -File scripts\fetch_bundle.ps1 -Version $HOME\Downloads\bundle-202609
 печатает строку `BUNDLE_DIR=…`; её вписывают в `.env`, без неё compose берёт `./bundle`.
 В Git Bash на Windows путь печатается в виде `C:/…`, как его ждёт docker compose.
 
-Пароль 7z спрашивает сам; без терминала пароль берётся из `BUNDLE_PASSWORD`.
+Если архив под паролем, 7z спросит его или возьмёт из `BUNDLE_PASSWORD`.
 `fetch_bundle.ps1` сохранён в UTF-8 с BOM, чтобы Windows PowerShell 5.1 читал кириллицу.
 
 ### Запуск
@@ -298,12 +308,13 @@ docker compose -f compose.yaml -f compose.real.yaml up -d --build
 поэтому `compose.real.yaml` увеличивает `start_period` healthcheck ml до 180 с. Журнал
 прогнозов, история событий и поток наполняются командами раздела «Наполнение и проверка».
 
-Замер 28.09:
+Замер 29.09: `/score` ML-сервиса по A_link, D, B и E за каждый день 01–30.06 — 9,08 с по
+медиане, от 0,21 до 10,63 с. 0,21 с приходится на 01.06: событий за этот день нет, ML сразу
+отвечает `no_data` (`docs/submission/08-performance.md`,
+`docs/submission/perf/ml_score_june_4heads.jsonl`).
 
-- `/score` ML-сервиса по A_link, D, B и E за каждый день 01–30.06 — 9,08 с по медиане, от 0,21
-  до 10,63 с. 0,21 с приходится на 01.06: событий за этот день нет, ML сразу отвечает
-  `no_data` (`docs/submission/08-performance.md`, `docs/submission/perf/ml_score_june_4heads.jsonl`).
-  B и E в замер не входили.
+Замер 28.09, A_link и D:
+
 - В прелоаде за 01.06–29.06 A_link ответила `ok` на 13 днях, `empty_valid` на 15 и
   `no_data` на 01.06; D — `ok` на 29.06 и `empty_valid` на остальных днях с данными
   (`docs/submission/perf/preload_demo_0928.txt`).
@@ -336,7 +347,8 @@ api отвечает 429 до конца пятиминутного окна (`b
 ### Развёртывание
 
 1. Поставить Docker с Compose v2.24+, 7-Zip и Python 3.12; клонировать репозиторий:
-   `git clone https://github.com/Bitmann0/moscollector-predict.git`.
+   `git clone https://github.com/Bitmann0/moscollector-predict.git` и перейти в
+   `moscollector-predict/`; следующие команды выполняются оттуда.
 2. `cp .env.example .env` и вписать `DEMO_PASSWORD`, `SECRET_KEY`, `INTEGRATION_API_KEY`,
    `STAND_DOMAIN`.
 3. Получить и проверить бандл (`sh scripts/fetch_bundle.sh <архив> ./bundle`), вписать
@@ -539,6 +551,10 @@ run-daily), `--dry-run` (только напечатать план). 30.06 не
 `equipment_diag` 3, `guard_weekly` 14; у 149 есть факт, 109 эмулированных решений, 87
 итогов проверки. Заявок 65: выполнено 36, отменено 8, черновиков 21, эмуляция сдвинула из
 черновика 44 (`docs/submission/perf/preload_demo_0928.txt`, `journal_counts_0928.txt`).
+Эти числа — по трём сценариям на `bundle-20260928-3`. Замер 29.09 на `bundle-20260928-5` с
+пятью сценариями: 460 с, ошибок 0, run-daily за день — 11,6–22,8 с; в журнале за
+2026-01-05…2026-06-29 — 499 прогнозов в бюджете, 352 с решением, 352 заявки
+(`docs/submission/perf/preload_demo_0929.txt`).
 
 ### История событий: `scripts/replay.py --bulk`
 
@@ -706,7 +722,8 @@ ML_URL=http://localhost:8001
 7z дописал бы в старый архив, а не заменил его. Затем копирует файлы в `<out>/<версия>/`,
 пишет `MANIFEST.sha256` в формате `sha256sum` и упаковывает каталог в `<out>/<версия>.7z`
 с шифрованием имён файлов (`-mhe=on`) и уровнем сжатия 1 (ключ `--level`; parquet уже
-сжат zstd). Пароль 7z спрашивает сам или берёт из `BUNDLE_PASSWORD`. `--dry-run` только
+сжат zstd). Пароль скрипт берёт из `BUNDLE_PASSWORD`; без неё передаёт 7z пустой ключ
+`-p`, и 7z спрашивает пароль сам (`archive_command`). `--dry-run` только
 проверяет состав и печатает размеры. Замер 28.09 — в разделе «Состав бандла».
 
 Время всей цепочки из исходного 7z-архива датасета не замерено (задача ML2-12).
@@ -724,7 +741,7 @@ ML_URL=http://localhost:8001
 эпизодам. Артефакт пишется в `models/{голова}@{конец окна порога}.pkl`; у A_link, B и E
 горизонт — сутки, и конец окна порога — C − 1; `models/{голова}.pkl` не меняется. `serve.artifact_path` выбирает для
 `asof` датированный файл с самым поздним концом окна порога раньше `asof`, если задержка
-не больше `max_model_lag_days`; иначе берётся `models/A_link.pkl`, и для неподходящего
+не больше `max_model_lag_days`; иначе берётся `models/{голова}.pkl`, и для неподходящего
 дня голова отвечает `stale`.
 
 Команды из `ml/`, по `ml/README.md`; `MKL_ROOT` нужен, если данные лежат вне `ml/`:
@@ -755,8 +772,8 @@ MKL_ROOT=<корень> .venv/Scripts/python scripts/train_latest.py B E --train
 
 Эти четыре артефакта и дал прогон 28.09. У B и E те же концы окна порога и те же имена:
 `B@2026-05-30.pkl` … `B@2026-06-23.pkl`, `E@2026-05-30.pkl` … `E@2026-06-23.pkl`
-(`MANIFEST.sha256` бандла `bundle-20260928-5`). Таблица отсечек в `ml/README.md` (06-01,
-06-09, 06-17, 06-25) посчитана без учёта пропуска 01.06.
+(`MANIFEST.sha256` бандла `bundle-20260928-5`). Те же отсечки приведены в таблице окна
+демо в `ml/README.md`.
 
 Замер 28.09: одна датированная модель A_link обучается 185–193 с, `--train-window` делает
 четыре прогона. Четыре датированные модели E на машине разработчика обучались 10 с, B —
