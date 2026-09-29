@@ -130,7 +130,9 @@ function SettingsForm({ initial }: { initial: Out }) {
           setConflicts(overlap);
           setMessage({ ok: false, text: overlap.length
             ? `Другой администратор сохранил версию ${latest.data.version}. Ваши правки оставлены, остальные поля обновлены. Выберите значения в конфликтующих полях (${overlap.length}), затем сохраните снова.`
-            : `Другой администратор сохранил версию ${latest.data.version}. Его изменения учтены, ваши правки оставлены. Проверьте и нажмите «Сохранить» ещё раз.` });
+            : same(merged, latest.data.values)
+              ? `Другой администратор сохранил версию ${latest.data.version} с теми же значениями. Повторное сохранение не требуется.`
+              : `Другой администратор сохранил версию ${latest.data.version}. Его изменения учтены, ваши правки оставлены. Проверьте и нажмите «Сохранить» ещё раз.` });
         }
       } else if (response.status === 422) {
         const found = errorsOf(error);
@@ -149,8 +151,12 @@ function SettingsForm({ initial }: { initial: Out }) {
 
   const field = (path: string, label: string, unit: string, step = 1) => <NumberField key={path} path={path} label={label} unit={unit} step={step} value={getAt(form, path) as number} verified={getAt(saved.verified, path) as number} bounds={saved.bounds} error={errors[path]} onChange={(value) => set(path, value)} />;
   const resolve = (path: string, acceptCurrent: boolean) => {
-    if (acceptCurrent) setForm((prev) => setAt(prev, path, getAt(saved.values, path)));
+    const next = acceptCurrent ? setAt(form, path, getAt(saved.values, path)) : form;
+    setForm(next);
     setConflicts((prev) => prev.filter((item) => item !== path));
+    if (conflicts.length === 1) setMessage(same(next, saved.values)
+      ? { ok: true, text: "Актуальные значения уже действуют. Повторное сохранение не требуется." }
+      : { ok: true, text: "Конфликт разрешён. Проверьте правки и нажмите «Сохранить»." });
   };
   const sectionError = (key: string) => errors[key] && <p className="settings-card__error" role="alert">{errors[key]}</p>;
   const state = saved.version === 0 ? "Действуют проверенные значения" : `Версия ${saved.version}${saved.updated_by ? ` · ${saved.updated_by}` : ""}${saved.updated_at ? `, ${fmtDateTime(saved.updated_at)}` : ""}`;
