@@ -1,6 +1,6 @@
 """Walk-forward бэктест температурных эпизодов: признаки, модели, порог, отчёт.
 
-Перенос rolling_backtest.py из PR #8 (135a6a3) поверх событий mkl. Метка и
+Перенос rolling_backtest.py из PR #8 (7aa50f9) поверх событий mkl. Метка и
 признаки — в mkl.temperature_episode. Подкоманды:
 
   features                    почасовые признаки в data/features и манифест

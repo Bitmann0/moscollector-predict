@@ -2,13 +2,13 @@
 
 ## Происхождение
 
-Отчёт перенесён из PR #6: ветка `feature/lead-time-validation`, коммит `cbb834dc8b8c8c3d0ce980c2ffa7b454be10aa03` от 16.09.2026, автор Alexandr Scherbakov (skyll1111). PR стоит поверх PR #3 (коммит `607e270`); воспроизведённый отчёт PR #3 — [pump-signal-v1](../pump-signal-v1/README.md). Пять JSON скопированы без изменений. К тексту при переносе добавлены разделы «Происхождение» и «Связь с main», абзац об ответе 422 и ссылки на JSON под таблицей и под аудитом метки, переписан раздел «Воспроизведение».
+Отчёт перенесён из PR #6: ветка `feature/lead-time-validation`, коммит `ece834e349103426a3c096f3c2a12d21c1fbe8d8` от 16.09.2026, автор Alexandr Scherbakov (skyll1111). PR стоит поверх PR #3 (коммит `1abe689`); воспроизведённый отчёт PR #3 — [pump-signal-v1](../pump-signal-v1/README.md). Пять JSON скопированы без изменений. К тексту при переносе добавлены разделы «Происхождение» и «Связь с main», абзац об ответе 422 и ссылки на JSON под таблицей и под аудитом метки, переписан раздел «Воспроизведение».
 
 Код PR (`backend/ml/backtest.py`, `backend/ml/from_warehouse.py`) в main не переносился по решению D8 из [плана команды](../../../docs/superpowers/plans/2026-09-25-team-plan-to-submission.md). Числа ниже — исследование ветки PR #6, а не метрики продукта, и в main не пересчитываются. «План минимум» и «План максимум» — позиция автора на 16.09; текущий план — по ссылке выше.
 
 ## Что проверено
 
-Проверена ветка `feature/signal-backtest`, коммит `607e270`. Её исходные признаки
+Проверена ветка `feature/signal-backtest`, коммит `1abe689`. Её исходные признаки
 воспроизведены из нормализованного годового хранилища, без повторного распаковывания
 архивов. SHA-256 обоих подготовленных CSV и все метрики общего теста совпали с
 опубликованным экспериментом. Канонический разделитель строк CSV — LF, включая Windows.
@@ -106,11 +106,11 @@
 
 В main этих модулей нет: `ml/` теперь проект `mkl`, а пакета `backend/ml` не существует. Повторить прогон можно только на замороженных коммитах двух веток, которые по решению D8 не удаляются.
 
-1. Хранилище DuckDB строит код PR #4: ветка `feature/annual-ingestion`, последний коммит `31a1af8`. На каком коммите этой ветки PR #6 строил хранилище, в исходном отчёте не указано. Команда `python -m app.ingest` из `docs/annual-ingestion.md` той ветки принимает распакованные `ext-journal-2024.csv`, `ext-journal-2025.csv` и `ext-journal-2026.csv`. SHA-256 этих файлов — в [sources-and-label-audit.json](sources-and-label-audit.json).
-2. Отчёты строит worktree от `cbb834d`. Команды из исходного README PR #6:
+1. Хранилище DuckDB строит код PR #4: ветка `feature/annual-ingestion`, последний коммит `f6c6fbe`. На каком коммите этой ветки PR #6 строил хранилище, в исходном отчёте не указано. Команда `python -m app.ingest` из `docs/annual-ingestion.md` той ветки принимает распакованные `ext-journal-2024.csv`, `ext-journal-2025.csv` и `ext-journal-2026.csv`. SHA-256 этих файлов — в [sources-and-label-audit.json](sources-and-label-audit.json).
+2. Отчёты строит worktree от `ece834e`. Команды из исходного README PR #6:
 
 ```bash
-git worktree add ../pump-validation-review cbb834d
+git worktree add ../pump-validation-review ece834e
 cd ../pump-validation-review
 python -m pip install -e '.[dev,ml]'
 python -m ml.from_warehouse --database /path/normalized.duckdb --catalog /path/catalog.csv --output data/processed/pumps

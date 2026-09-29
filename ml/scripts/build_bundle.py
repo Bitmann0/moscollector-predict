@@ -50,7 +50,7 @@ LAYOUT = ("data", "models", "configs/features.yaml",
 MODEL_HEADS = ("A_link", "B", "E")
 
 # Путь в бандле → кто его читает. Пути ведутся от корня ML-проекта, строки —
-# на момент origin/main 9856984. tests/test_build_bundle.py сверяет список с
+# на момент origin/main ca183b4. tests/test_build_bundle.py сверяет список с
 # константами модулей mkl и с томами compose.real.yaml.
 REQUIRED = {
     "configs/features.yaml":

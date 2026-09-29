@@ -1,6 +1,6 @@
 """Почасовые признаки температурных каналов и метка «выход за [3, 40] °C завтра».
 
-Перенос из PR #8 (ветка feature/episode-hourly-backtest, коммит 135a6a3). Там
+Перенос из PR #8 (ветка feature/episode-hourly-backtest, коммит 7aa50f9). Там
 признаки строились SQL-запросом к DuckDB-хранилищу PR #4, которого в mkl нет;
 здесь источник — представление ev над data/interim/events_year=*.parquet
 (db.attach_events). Суточная панель daily_channel для этой постановки не годится:

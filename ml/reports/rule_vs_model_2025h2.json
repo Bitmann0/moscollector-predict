@@ -19017,7 +19017,7 @@
       "scikit-learn": "1.9.1"
     }
   },
-  "code_commit": "d5b6d44b5b746ca65582639350162e373016e0ca",
+  "code_commit": "bd0e843ecb42540b9568917ef7bd6a870d356e66",
   "code_files_sha256": {
     "scripts/audit_second_ml.py": "ba67cc344de063cec9cba9e831de3b9f757b022d136d1b17c9e523d5f77ce2d8",
     "src/mkl/second_ml_audit.py": "a011478e8e5be00c011a559d8a1e61acb0539a5a19f7db8d08993ad61efe8fc7",

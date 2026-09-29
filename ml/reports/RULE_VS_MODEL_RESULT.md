@@ -1,6 +1,6 @@
 # Правило или модель: результат
 
-27.09.2026. Решение принято по заранее записанному протоколу [RULE_VS_MODEL_PROTOCOL.md](RULE_VS_MODEL_PROTOCOL.md), коммит `d5b6d44`. Прогон сделан на том же коммите, машинный результат — [rule_vs_model_2025h2.json](rule_vs_model_2025h2.json).
+27.09.2026. Решение принято по заранее записанному протоколу [RULE_VS_MODEL_PROTOCOL.md](RULE_VS_MODEL_PROTOCOL.md), коммит `bd0e843`. Прогон сделан на том же коммите, машинный результат — [rule_vs_model_2025h2.json](rule_vs_model_2025h2.json).
 
 ## Итог
 

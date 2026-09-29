@@ -68,7 +68,7 @@
 | Что | Факт | Источник |
 |---|---|---|
 | Кодовые базы | Две кодовые базы без общей истории. `main`: FastAPI + SQLite + ванильный JS, прогноз — эвристическая формула по одному дню 01.08.2026. `src/mkl`: ML со своим FastAPI, без UI | `git merge-base origin/main origin/feat/ml-pipeline` — пусто |
-| PR | Ни один из 9 открытых не влит; `main` стоит на `ade33e2` от 15.09 | `gh pr list` |
+| PR | Ни один из 9 открытых не влит; `main` стоит на `c58b3f0` от 15.09 | `gh pr list` |
 | Активность | У Bitmann0 нет коммитов в origin после 15.09 22:22. У коллабораторов holodnayazvezda и itbert нет ни одного коммита. Весь `backend/app/static` написан не фронтендером | `git log --all`, `gh api .../collaborators` |
 | ML-линия | CAML = `feat/ml-pipeline` + 28 коммитов Александра за 24–25.09. Перемотка проходит без конфликтов. Тесты: 508 из 511, 3 падения — нет данных в снимке | `git merge-tree`, прогон в scratchpad |
 | Что ML разрешает показывать | Три сценария: недельная охранная очередь, D (диагностика оборудования), A_link (потеря связи с датчиком). Остальные головы — «не показывать» | CAML `docs/ML_PRODUCT_GATE.md`, `reports/ML_PRODUCTION_STATUS.md`, `docs/ML_BACKEND_HANDOFF.md` |

@@ -3,7 +3,7 @@
 ## Статус записи
 
 Документ и 16 JSON перенесены из PR #7 (ветка `analysis/deep-data-model-audit`,
-коммиты `ae4dac5` и `792a630` от 19.09.2026). Тогда аудит читал хранилище
+коммиты `7dfda68` и `9e4f7f8` от 19.09.2026). Тогда аудит читал хранилище
 `normalized.duckdb` из PR #4, которого в `main` нет: решение D8 в
 [плане команды](../../../docs/superpowers/plans/2026-09-25-team-plan-to-submission.md).
 Итоги по журналу совпадают с [data_quality.md](../../../ml/reports/data_quality.md):
@@ -37,7 +37,7 @@ python scripts/audit_sensor_semantics.py --temp-dir <каталог для сб�
 `ml/src/mkl/config.py`). После отсечки значений вне −60…150 °C целевых канал-суток
 за всю историю остаётся 5 526 из 10 671, за 2026 год — 520 из 984
 (кандидат `temperature_outside_3_40_valid`). Бэктест температуры учил ту же сырую
-цель: `backend/ml/candidate_from_warehouse.py` в `792a630` сравнивает с 3 и 40
+цель: `backend/ml/candidate_from_warehouse.py` в `9e4f7f8` сравнивает с 3 и 40
 результат `try_cast` без отсечки (описание цели — `target_description` в
 `temperature-sources.json`). Сколько из 258 положительных точек его теста —
 переполнения, не измерено: для этого его код надо прогнать на хранилище PR #4.
@@ -45,7 +45,7 @@ python scripts/audit_sensor_semantics.py --temp-dir <каталог для сб�
 Продолжения этой работы: почасовая температура — PR #8, отчёт
 [TEMPERATURE_EPISODE_HOURLY.md](../../../ml/reports/TEMPERATURE_EPISODE_HOURLY.md);
 проверка сигнала потери телеметрии — PR #9, ветка `feature/availability-risk-backtest`,
-коммит [`58c1019`](https://github.com/Bitmann0/moscollector-predict/tree/58c1019e64bb56ecc2a0b034b703db2b6dcbb711/docs/experiments/availability-risk);
+коммит [`e2e4b22`](https://github.com/Bitmann0/moscollector-predict/tree/e2e4b220e82b3392099f6f78e7cb52812907df77/docs/experiments/availability-risk);
 схема разделённых голов — [MULTI_HEAD_ML_STRATEGY.md](../../MULTI_HEAD_ML_STRATEGY.md).
 Ниже — текст PR #7 с пометками о том, что изменилось в `main`.
 
