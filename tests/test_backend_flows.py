@@ -35,6 +35,21 @@ def test_export_writes_forecast_rows(admin, ran):
     assert any(row["Заявка"] in orders for row in rows)
 
 
+def test_manual_outcome_correction_keeps_history(admin, ran, db):
+    forecast_id = admin.get(f"{API}/forecasts").json()["items"][0]["id"]
+    first = admin.post(f"{API}/forecasts/{forecast_id}/outcome",
+                       json={"outcome": "confirmed_event", "comment": "первая проверка"})
+    second = admin.post(f"{API}/forecasts/{forecast_id}/outcome",
+                        json={"outcome": "no_event", "comment": "исправлено"})
+    assert first.status_code == second.status_code == 200
+    assert second.json()["outcome_manual"] == "no_event"
+    history = admin.get(f"{API}/forecasts/{forecast_id}/outcome-history")
+    assert history.status_code == 200
+    assert [(row["outcome"], row["comment"]) for row in history.json()] == [
+        ("no_event", "исправлено"), ("confirmed_event", "первая проверка")]
+    assert db.scalar(select(func.count()).select_from(models.ManualOutcomeRevision)) == 2
+
+
 def test_xlsx_with_native_cells_is_accepted(admin):
     book = openpyxl.Workbook()
     book.active.append(list(ROW))

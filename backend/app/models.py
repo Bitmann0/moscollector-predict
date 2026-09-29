@@ -159,6 +159,20 @@ class Outcome(Base):
     source: Mapped[str] = mapped_column(String(16), default="live")
 
 
+class ManualOutcomeRevision(Base):
+    """Неизменяемая история ручных итогов; текущий итог остаётся в outcomes."""
+    __tablename__ = "manual_outcome_revisions"
+    id: Mapped[int] = mapped_column(BigIntPK, primary_key=True, autoincrement=True)
+    forecast_id: Mapped[str] = mapped_column(ForeignKey("forecasts.id"), index=True)
+    outcome: Mapped[str | None] = mapped_column(String(32))
+    comment: Mapped[str | None] = mapped_column(Text)
+    event_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    channel_id: Mapped[int | None] = mapped_column(BigInteger)
+    author: Mapped[str] = mapped_column(String(64))
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    source: Mapped[str] = mapped_column(String(16))
+
+
 class WorkOrder(Base):
     __tablename__ = "work_orders"
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
@@ -236,6 +250,7 @@ class OdsRecord(Base):
     decision: Mapped[str | None] = mapped_column(String(64))
     reason: Mapped[str | None] = mapped_column(Text)
     batch_id: Mapped[int | None] = mapped_column(ForeignKey("ingest_batches.id"))
+    ingest_key: Mapped[str | None] = mapped_column(String(64), unique=True)
 
 
 class Notification(Base):

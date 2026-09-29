@@ -116,8 +116,9 @@ FEEDER_NAME = "Фидер ФВ2 (В23)"
 def feeder_run(seeded, fake_ml, admin):
     """Прогон понедельника, где к выдаче добавлен алерт и заявка по фидеру.
 
-    Заявка смешанная: фидер и газовый канал 9000001 одного объекта. Перечень обязан
-    относиться только к фидеру.
+    ML присылает смешанную заявку: фидер и газовый канал 9000001 одного объекта.
+    По газовому каналу уже есть другая заявка, поэтому backend оставляет в WO-FEEDER
+    только свободный прогноз фидера. Перечень относится только к нему.
     """
     seeded.add(models.RefChannel(id=FEEDER, obj_id="9101", system="Диспетчерский контроль",
                                  sensor_type=PHASE, name=FEEDER_NAME, picket=None))
@@ -148,7 +149,12 @@ def feeder_run(seeded, fake_ml, admin):
 
 def test_feeder_order_lists_checks_for_feeder_only(admin, feeder_run):
     card = admin.get(f"{API}/work-orders/WO-FEEDER").json()
-    assert card["channels"] == [9000001, FEEDER]
+    assert card["channels"] == [FEEDER]
+    assert card["forecast_ids"] == ["feeder-alert"]
+    active = [order for order in admin.get(f"{API}/work-orders").json()["items"]
+              if order["status"] in {"draft", "confirmed", "in_progress"}]
+    assert sum(9000001 in admin.get(f"{API}/work-orders/{order['id']}").json()["channels"]
+               for order in active) == 1
     [group] = card["checklist"]
     assert group["items"] == ["Автомат", "Кабель", "Контактор", "Модуль связи",
                               "Питание шкафа"]

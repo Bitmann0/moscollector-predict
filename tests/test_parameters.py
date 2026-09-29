@@ -252,8 +252,8 @@ def test_parameters_are_read_once_per_ttl_not_per_event(plant, db, monkeypatch):
 @pytest.fixture
 def published(monkeypatch) -> list[tuple[str, dict]]:
     events: list[tuple[str, dict]] = []
-    monkeypatch.setattr(daily_run, "publish_safe",
-                        lambda kind, payload, **kw: events.append((kind, payload)))
+    monkeypatch.setattr(daily_run, "publish_recorded",
+                        lambda row: events.append((row.kind, row.payload)))
     return events
 
 

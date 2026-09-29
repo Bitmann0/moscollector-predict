@@ -173,6 +173,7 @@
 |---|---|---|
 | `POST /api/v1/ingest/events` — JSON-пачка строк C5 | 5 000 строк | `MAX_BATCH_ROWS` в `backend/app/routers/ingest.py` |
 | `POST /api/v1/ingest/events/upload` — файл CSV или XLSX | 200 МиБ, 209 715 200 байт; на стенде Caddy отсекает раньше: `200MB` он читает по go-humanize десятично, 200 000 000 байт | `UPLOAD_MAX_BYTES` в `backend/app/limits.py`; `request_body max_size 200MB` в `deploy/Caddyfile`; <https://caddyserver.com/docs/caddyfile/directives/request_body>, `bytes.go` в <https://github.com/dustin/go-humanize> |
+| CSV/XLSX после распаковки | не больше 150 000 строк данных; у XLSX сумма размеров содержимого ZIP не больше 512 МиБ | `MAX_UPLOAD_ROWS`, `MAX_XLSX_UNCOMPRESSED_BYTES` в `backend/app/services/ingest.py`; иначе 413 |
 | остальные изменяющие запросы | 10 МиБ | `DEFAULT_MAX_BYTES` в `backend/app/limits.py` |
 | `DELETE /api/v1/ingest/day/{day}` — удалить события одних суток МСК | роли `integration`, `admin` | `backend/app/routers/ingest.py` |
 

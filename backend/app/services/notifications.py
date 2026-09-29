@@ -59,15 +59,31 @@ def publish_safe(kind: str, payload: dict, *, severity: str = "info", title: str
     call_soon_threadsafe — прогноз уже в БД, поэтому ошибку только пишем в лог.
     """
     if db is not None:
-        row = models.Notification(ts=datetime.now(UTC), kind=kind, severity=severity,
-                                  title=title, payload=payload, read_by=[])
-        db.add(row)
+        row = record(db, kind, payload, severity=severity, title=title)
         db.commit()
         payload = {**payload, "notification_id": row.id}
     try:
         broker.publish(kind, payload, severity=severity, title=title)
     except RuntimeError:
         log.exception("SSE publish failed: %s", kind)
+
+
+def record(db: Session, kind: str, payload: dict, *, severity: str = "info",
+           title: str = "") -> models.Notification:
+    """Добавляет уведомление в транзакцию предметного действия; коммитит вызывающий код."""
+    row = models.Notification(ts=datetime.now(UTC), kind=kind, severity=severity,
+                              title=title, payload=payload, read_by=[])
+    db.add(row)
+    return row
+
+
+def publish_recorded(row: models.Notification) -> None:
+    """После коммита посылает уже сохранённое уведомление в SSE."""
+    try:
+        broker.publish(row.kind, {**(row.payload or {}), "notification_id": row.id},
+                       severity=row.severity, title=row.title)
+    except RuntimeError:
+        log.exception("SSE publish failed: %s", row.kind)
 
 
 def _item(row: models.Notification, user: CurrentUser) -> NotificationItem:
@@ -86,7 +102,10 @@ def list_notifications(db: Session, user: CurrentUser, page: int,
 
 
 def mark_read(db: Session, notification_id: int, user: CurrentUser) -> None:
-    row = db.get(models.Notification, notification_id)
+    # Два сотрудника могут отметить одну строку одновременно. FOR UPDATE на PostgreSQL
+    # сериализует чтение и изменение JSON-списка, чтобы ни один логин не потерялся.
+    row = db.get(models.Notification, notification_id, with_for_update=True,
+                 populate_existing=True)
     if row is None:
         raise HTTPException(status_code=404, detail="notification_not_found")
     if user.login not in (row.read_by or []):

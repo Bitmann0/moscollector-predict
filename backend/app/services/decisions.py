@@ -1,9 +1,16 @@
 """История решений диспетчера и текущий итог проверки прогноза."""
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import models
-from ..schemas.forecasts import DecisionIn, DecisionOut, OutcomeIn, OutcomeOut
+from ..schemas.forecasts import (
+    DecisionIn,
+    DecisionOut,
+    ManualOutcomeRevisionOut,
+    OutcomeIn,
+    OutcomeOut,
+)
 from ..security import CurrentUser
 from .forecasts import decision_out
 from .helpers import assume_msk, from_db, now_utc, to_db
@@ -35,15 +42,32 @@ def set_outcome(db: Session, forecast_id: str, body: OutcomeIn, user: CurrentUse
     if row is None:
         row = models.Outcome(forecast_id=forecast_id)
         db.add(row)
+    recorded_at = now_utc()
+    event_at = to_db(assume_msk(body.event_at)) if body.event_at else None
+    db.add(models.ManualOutcomeRevision(
+        forecast_id=forecast_id, outcome=body.outcome, comment=body.comment,
+        event_at=event_at, channel_id=body.channel, author=user.login,
+        recorded_at=recorded_at, source="live"))
     row.outcome_manual = body.outcome
     row.comment = body.comment
-    row.event_at = to_db(assume_msk(body.event_at)) if body.event_at else None
+    row.event_at = event_at
     row.channel_id = body.channel
     row.author = user.login
-    row.updated_at = now_utc()
+    row.updated_at = recorded_at
     row.source = "live"
     db.commit()
     return OutcomeOut(forecast_id=forecast_id, outcome_auto=row.outcome_auto,
                       outcome_manual=row.outcome_manual, comment=row.comment,
                       event_at=from_db(row.event_at), channel=row.channel_id,
                       author=row.author, updated_at=from_db(row.updated_at), source=row.source)
+
+
+def outcome_history(db: Session, forecast_id: str) -> list[ManualOutcomeRevisionOut]:
+    _forecast_or_404(db, forecast_id)
+    rows = db.scalars(select(models.ManualOutcomeRevision).where(
+        models.ManualOutcomeRevision.forecast_id == forecast_id)
+        .order_by(models.ManualOutcomeRevision.id.desc()))
+    return [ManualOutcomeRevisionOut(
+        id=row.id, forecast_id=row.forecast_id, outcome=row.outcome,
+        comment=row.comment, event_at=from_db(row.event_at), channel=row.channel_id,
+        author=row.author, recorded_at=from_db(row.recorded_at), source=row.source) for row in rows]

@@ -117,6 +117,12 @@ def emulate(db: Session, body: EmulateDecisionsIn) -> EmulateDecisionsOut:
 
         manual = want[2] if want is not None else None
         if manual is not None:
+            if outcome.outcome_manual != manual or outcome.source != SOURCE:
+                db.add(models.ManualOutcomeRevision(
+                    forecast_id=forecast.id, outcome=manual, comment=COMMENT,
+                    event_at=outcome.event_at, channel_id=outcome.channel_id,
+                    author=AUTHOR, recorded_at=to_db(decided_at + timedelta(
+                        hours=CHECKED_AFTER_H)), source=SOURCE))
             outcome.outcome_manual = manual
             outcome.comment = COMMENT
             outcome.author = AUTHOR
@@ -126,6 +132,12 @@ def emulate(db: Session, body: EmulateDecisionsIn) -> EmulateDecisionsOut:
         elif outcome is not None and outcome.source == SOURCE:
             # эмулированный итог прошлого засева больше не нужен: строка снова несёт
             # только автоматический факт с происхождением прогноза
+            if outcome.outcome_manual is not None:
+                db.add(models.ManualOutcomeRevision(
+                    forecast_id=forecast.id, outcome=None, comment=None,
+                    event_at=None, channel_id=None, author=AUTHOR,
+                    recorded_at=to_db(decided_at + timedelta(hours=CHECKED_AFTER_H)),
+                    source=SOURCE))
             outcome.outcome_manual = outcome.comment = outcome.author = None
             outcome.source = forecast.source
     window_ids = {forecast.id for forecast, _ in rows}

@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from app import models
 from app.schemas.ml import ScoreResponse, WeeklyResponse
-from app.services import daily_run
+from app.services import daily_run, notifications
 from conftest import ALERT_PLAN, MONDAY, TUESDAY, FakeMl, alert_id
 from sqlalchemy import func, select
 
@@ -22,8 +22,8 @@ def _count(db, model) -> int:
 @pytest.fixture
 def published(monkeypatch) -> list[tuple[str, dict]]:
     events: list[tuple[str, dict]] = []
-    monkeypatch.setattr(daily_run, "publish_safe",
-                        lambda kind, payload, **kw: events.append((kind, payload)))
+    monkeypatch.setattr(daily_run, "publish_recorded",
+                        lambda row: events.append((row.kind, row.payload)))
     return events
 
 
@@ -53,6 +53,19 @@ def test_run_creates_forecasts_and_repeat_adds_only_versions(seeded, fake_ml, pu
     assert [k for k, _ in published] == ["run.finished"]  # повтор — без новых alert.new
     row = seeded.get(models.Forecast, alert_id("A_link", 9000001, TUESDAY))
     assert (row.first_run_id, row.last_run_id) == (out.run_id, again.run_id)
+
+
+def test_run_notifications_persist_when_sse_is_unavailable(admin, db, monkeypatch):
+    def unavailable(*args, **kwargs):
+        raise RuntimeError("subscriber loop closed")
+
+    monkeypatch.setattr(notifications.broker, "publish", unavailable)
+    response = admin.post(f"{API}/admin/run-daily", json={"asof": TUESDAY.isoformat()})
+    assert response.status_code == 200
+    db.expire_all()
+    kinds = db.scalars(select(models.Notification.kind)).all()
+    assert kinds.count("alert.new") == len(IN_BUDGET)
+    assert kinds.count("run.finished") == 1
 
 
 def test_forecast_fields_follow_contract(admin, fake_ml):

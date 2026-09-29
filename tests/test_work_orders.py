@@ -6,6 +6,8 @@
 детерминированно двумя сессиями, без потоков:
 SQLite в тестах сериализует запись, и тест с потоками был бы нестабилен.
 """
+import threading
+
 import pytest
 from app import models, vocab
 from app.db import session_factory
@@ -122,6 +124,35 @@ def test_concurrent_manual_create_returns_same_order(ran, admin):
         second.close()
     assert card.id == won["card"].id and card.id.startswith("WO-")
     assert _history(admin, card.id) == [(None, "draft")]
+
+
+def test_postgres_forecast_lock_serializes_transactions(db):
+    if db.get_bind().dialect.name != "postgresql":
+        pytest.skip("нужен PostgreSQL для проверки advisory lock")
+    first, second = session_factory()(), session_factory()()
+    acquired = threading.Event()
+    started = threading.Event()
+
+    def contender():
+        started.set()
+        work_orders.lock_forecasts(second, {"shared-forecast"})
+        acquired.set()
+        second.rollback()
+
+    thread = threading.Thread(target=contender)
+    try:
+        work_orders.lock_forecasts(first, {"shared-forecast"})
+        thread.start()
+        assert started.wait(2)
+        assert not acquired.wait(0.1)
+        first.commit()
+        assert acquired.wait(2)
+    finally:
+        first.rollback()
+        thread.join(timeout=2)
+        second.rollback()
+        first.close()
+        second.close()
 
 
 def test_manual_create_reuses_active_ml_order(ran, admin):

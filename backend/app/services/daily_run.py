@@ -16,7 +16,8 @@
 5. Созревшие прогнозы отправляются в ML `/outcomes`; автоматический факт хранится
    отдельно от ручного исхода. Участок прогноза B уходит в запросе полем segment из
    сохранённого адреса (forecasts.address): без него ML вернёт unknown.
-6. После commit: alert.new на каждый новый прогноз в бюджете, run.finished на прогон.
+6. alert.new и run.finished записываются вместе с прогоном; после commit кадры
+   рассылаются по SSE.
 
 Лимит показа (ML2-13, экран «Настройки», parameters.limit_by_head). В бюджете остаются
 первые N рекомендаций ML по рангу у каждой головы, остальные сохраняются с
@@ -62,10 +63,10 @@ from ..schemas.ml import (
     WeeklyResponse,
     WorkOrderOut,
 )
-from . import parameters
+from . import parameters, work_orders
 from .helpers import assume_msk, msk_midnight, now_utc, to_db
 from .ml_client import MlClient, MlUnavailable, get_ml_client
-from .notifications import publish_safe
+from .notifications import publish_recorded, record
 
 log = logging.getLogger(__name__)
 
@@ -319,7 +320,32 @@ def _scenario_of_order(db: Session, order: WorkOrderOut) -> str | None:
 
 def _save_work_orders(db: Session, orders: list[WorkOrderOut], source: str) -> int:
     saved = 0
+    work_orders.lock_forecasts(db, {fid for order in orders for fid in order.alert_ids})
     for order in orders:
+        forecast_ids = set(order.alert_ids)
+        active_id = work_orders._active_order_for(db, forecast_ids)
+        if active_id is not None and active_id != order.order_id:
+            free = [fid for fid in order.alert_ids
+                    if work_orders._active_order_for(db, {fid}) is None]
+            if not free:
+                log.info("work order %s: все прогнозы уже в активных заявках",
+                         order.order_id)
+                continue
+            forecasts = [db.get(models.Forecast, fid) for fid in free]
+            channels = {row.channel_id for row in forecasts if row and row.channel_id is not None}
+            risks = [score for row in forecasts if row
+                     if (score := row.risk if row.risk is not None else row.priority_score)
+                     is not None]
+            order = order.model_copy(update={
+                "alert_ids": free, "n_alerts": len(free),
+                "case_keys": [row.case_key for row in forecasts if row],
+                "channels": [cid for cid in order.channels if cid in channels],
+                "pickets": sorted({(row.address or {}).get("picket") for row in forecasts
+                                   if row and (row.address or {}).get("picket") is not None}),
+                "max_risk": max(risks, default=order.max_risk),
+                "rationale": [*order.rationale,
+                              "Прогнозы из других активных заявок исключены"],
+            })
         scenario = _scenario_of_order(db, order)
         if scenario is None:
             log.warning("work order %s: направление %s вне словаря", order.order_id,
@@ -442,7 +468,7 @@ def _refresh_outcomes(db: Session, asof: date, ml: MlClient, raw: dict) -> None:
     raw["outcomes_refreshed"] = len(by_id)
 
 
-def _alert_new(db: Session, row: models.Forecast) -> None:
+def _alert_new(db: Session, row: models.Forecast) -> models.Notification:
     scenario = vocab.scenario(row.scenario)
     address = row.address or {}
     obj = address.get("obj_name") or row.obj_id or "адрес неизвестен"
@@ -451,12 +477,12 @@ def _alert_new(db: Session, row: models.Forecast) -> None:
     segment = address.get("segment_label")
     place = f"{obj} (участок: {segment})" if segment else obj
     title = f"{scenario['title']}: {place}"[:300]  # notifications.title — String(300)
-    publish_safe("alert.new", {
+    return record(db, "alert.new", {
         "id": row.id, "kind": row.kind, "scenario": row.scenario, "head": row.head,
         "asof": row.asof.isoformat(), "rank": row.rank, "risk": row.risk,
         "priority_score": row.priority_score, "obj_id": row.obj_id, "obj_name": obj,
         "channel_id": row.channel_id, "segment_label": segment, "source": row.source,
-    }, severity="warning", title=title, db=db)
+    }, severity="warning", title=title)
 
 
 _RUN_LOCK = threading.Lock()
@@ -489,14 +515,16 @@ def _run_daily(db: Session, asof: date, ml: MlClient, weekly_only: bool) -> RunD
     run.heads = heads
     run.raw = raw
     run.finished_at = now_utc()
-    db.commit()
-    for row in saver.new:
-        _alert_new(db, row)
+    notifications = [_alert_new(db, row) for row in saver.new]
     failed = [h for h, s in heads.items() if s["result_status"] == "error"]
-    publish_safe("run.finished", {"run_id": run.id, "asof": asof.isoformat(),
-                                  "heads": {h: s["result_status"] for h, s in heads.items()}},
-                 severity="warning" if failed else "info",
-                 title=f"Расчёт за {asof:%d.%m.%Y}" + (" с ошибкой" if failed else ""), db=db)
+    notifications.append(record(
+        db, "run.finished", {"run_id": run.id, "asof": asof.isoformat(),
+                            "heads": {h: s["result_status"] for h, s in heads.items()}},
+        severity="warning" if failed else "info",
+        title=f"Расчёт за {asof:%d.%m.%Y}" + (" с ошибкой" if failed else "")))
+    db.commit()
+    for notification in notifications:
+        publish_recorded(notification)
     return RunDailyOut(
         run_id=run.id, asof=asof,
         heads={h: HeadRunResult(result_status=s["result_status"],

@@ -81,7 +81,7 @@ SEED_USER = CurrentUser("seed", "seed", "admin", frozenset())
 def sync_real_reference(db: Session) -> dict | None:
     """Отчёт reference.sync, если настоящий справочник лежит в RAW_DATA_DIR, иначе None."""
     root = get_settings().raw_data_dir
-    if not all((root / name).is_file() for name in reference.SOURCE_FILES):
+    if not any((root / name).is_file() for name in reference.SOURCE_FILES):
         return None
     return reference.sync(db, SEED_USER).model_dump()
 

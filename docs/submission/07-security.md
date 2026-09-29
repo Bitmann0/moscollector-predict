@@ -53,7 +53,7 @@
 |---|---|
 | `view` | `GET /dashboard/summary`, `/forecasts`, `/forecasts/{id}`, `/work-orders`, `/work-orders/{id}`, `/events`, `/schema.geojson`, `/schema.wkt`, `/quality`, `/reason-codes`, `/reference/tree`, `/system/status`, `/notifications`, `/stream`; `POST /notifications/{id}/read` |
 | `decide` | `POST /forecasts/{id}/decisions` — решение диспетчера с причиной |
-| `outcome` | `POST /forecasts/{id}/outcome` — итог проверки |
+| `outcome` | `POST /forecasts/{id}/outcome` — итог проверки; история исправлений доступна через `GET /forecasts/{id}/outcome-history` с правом `view` |
 | `work_order_manage` | `POST /work-orders`; `PATCH /work-orders/{id}` в статусы `confirmed` и `cancelled` |
 | `work_order_progress` | `PATCH /work-orders/{id}` в статусы `in_progress` и `completed` |
 | `ingest` | `POST /ingest/events`, `/ingest/events/upload`, `/ingest/ods-journal`; `GET /ingest/batches` |
@@ -131,6 +131,8 @@ FastAPI читает тело запроса раньше, чем проверя
 | Условие | Ответ |
 |---|---|
 | `POST /api/v1/ingest/events/upload` больше 200 МБ | 413 `request_too_large` |
+| CSV/XLSX содержит больше 150 000 строк данных | 413 `file_too_many_rows` |
+| распакованный XLSX больше 512 МиБ | 413 `xlsx_uncompressed_too_large` |
 | любой другой запрос, кроме `GET`, `HEAD`, `OPTIONS`, больше 10 МБ | 413 `request_too_large` |
 | запрос к `/api/v1/ingest/*` без `X-API-Key` и без cookie `mk_session` | 401 до чтения тела |
 | JSON-пачка `/ingest/events` или `/ingest/ods-journal` больше 5 000 строк | 422 (`Body(max_length=5000)` в `backend/app/routers/ingest.py`) |

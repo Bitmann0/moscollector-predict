@@ -2,6 +2,7 @@
 import csv
 import re
 
+from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -59,11 +60,53 @@ CHANNEL_FILE = "справочник_каналов_датчиков.csv"
 SOURCE_FILES = (OBJECT_FILE, CHANNEL_FILE)
 
 
+def _validate_snapshot(objects: list[dict], channels: list[dict]) -> None:
+    """Не допускаем частичный снимок, дубли и цикл до первого изменения БД.
+
+    Справочник заказчика содержит объект с отсутствующим родителем; такой объект
+    остаётся корнем в tree(), поэтому отсутствующего родителя не запрещаем.
+    """
+    if not objects or not channels:
+        raise HTTPException(status_code=422, detail="reference_snapshot_empty")
+    parents: dict[str, str | None] = {}
+    try:
+        for row in objects:
+            object_id = row["ид_объект"].strip()
+            parent = (row.get("родитель") or "").strip() or None
+            name = (row.get("диспетчерское_название_объекта") or "").strip()
+            if not object_id or len(object_id) > 32 or not name or len(name) > 300:
+                raise ValueError("invalid_object")
+            if object_id in parents:
+                raise ValueError("duplicate_object")
+            int(row["иерархия_уровень"])
+            parents[object_id] = parent
+        seen: set[int] = set()
+        for row in channels:
+            channel_id = int(row["ид_канала_данных"])
+            obj_id = row["ид_объект"].strip()
+            if channel_id in seen or obj_id not in parents:
+                raise ValueError("duplicate_or_orphan_channel")
+            seen.add(channel_id)
+        for object_id in parents:
+            path: set[str] = set()
+            cursor = object_id
+            while cursor in parents:
+                if cursor in path:
+                    raise ValueError("reference_cycle")
+                path.add(cursor)
+                cursor = parents[cursor]
+    except (AttributeError, KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=f"invalid_reference_snapshot: {exc}") from exc
+
+
 def sync(db: Session, user: CurrentUser) -> SyncReport:
     root = get_settings().raw_data_dir
     object_file = root / OBJECT_FILE
     channel_file = root / CHANNEL_FILE
-    if not object_file.is_file() or not channel_file.is_file():
+    present = (object_file.is_file(), channel_file.is_file())
+    if present.count(True) == 1:
+        raise HTTPException(status_code=422, detail="reference_snapshot_incomplete")
+    if not any(present):
         objects = db.scalar(select(func.count()).select_from(models.RefObject)) or 0
         channels = db.scalar(select(func.count()).select_from(models.RefChannel)) or 0
         return SyncReport(objects=objects, channels=channels, added=0, changed=0, removed=0)
@@ -71,6 +114,7 @@ def sync(db: Session, user: CurrentUser) -> SyncReport:
         objects = list(csv.DictReader(stream))
     with channel_file.open(encoding="utf-8-sig", newline="") as stream:
         channels = list(csv.DictReader(stream))
+    _validate_snapshot(objects, channels)
     current_objects = {row.id: row for row in db.scalars(select(models.RefObject))}
     current_channels = {row.id: row for row in db.scalars(select(models.RefChannel))}
     incoming_object_ids: set[str] = set()

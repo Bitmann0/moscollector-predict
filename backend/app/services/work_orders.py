@@ -2,7 +2,7 @@
 import hashlib
 
 from fastapi import HTTPException
-from sqlalchemy import select, update
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -18,7 +18,7 @@ from ..schemas.work_orders import (
 )
 from ..security import CurrentUser
 from .helpers import Refs, count, from_db, now_utc, page_of, to_db
-from .notifications import publish_safe
+from .notifications import publish_recorded, record
 from .phase_channels import CHECKLISTS
 
 MANUAL_PRIORITY = "planned"
@@ -115,6 +115,21 @@ def _active_order_for(db: Session, forecast_ids: set[str]) -> str | None:
     return None
 
 
+def lock_forecasts(db: Session, forecast_ids: set[str]) -> None:
+    """Один прогноз — одна активная заявка и при разных наборах forecast_ids.
+
+    PostgreSQL advisory transaction lock общий для ручного создания и дневного
+    расчёта. Порядок ключей фиксирован, чтобы два пересекающихся набора не
+    заблокировали друг друга навсегда. SQLite в тестах сериализует писателей.
+    """
+    if db.get_bind().dialect.name != "postgresql":
+        return
+    for forecast_id in sorted(forecast_ids):
+        digest = hashlib.sha256(forecast_id.encode()).digest()[:8]
+        key = int.from_bytes(digest, "big", signed=True)
+        db.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
+
+
 def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCard:
     forecasts = []
     for forecast_id in dict.fromkeys(body.forecast_ids):
@@ -124,6 +139,7 @@ def create(db: Session, body: WorkOrderCreate, user: CurrentUser) -> WorkOrderCa
         forecasts.append(row)
     if len({f.scenario for f in forecasts}) != 1 or len({f.obj_id for f in forecasts}) != 1:
         raise HTTPException(status_code=422, detail="work_order_requires_one_scenario_and_object")
+    lock_forecasts(db, {f.id for f in forecasts})
     # На прогноз одна активная заявка: если дневной расчёт или другой диспетчер её уже
     # завёл, отдаём её. Закрытые (completed, cancelled) здесь не учитываются.
     active_id = _active_order_for(db, {f.id for f in forecasts})
@@ -199,7 +215,9 @@ def transition(db: Session, order_id: str, body: WorkOrderTransition,
     db.add(models.WorkOrderHistory(order_id=order_id, from_status=body.expected_status,
                                    to_status=body.status, author=user.login,
                                    reason=body.reason, at=now_utc()))
+    notification = record(db, "workorder.changed", {
+        "id": row.id, "from_status": body.expected_status, "to_status": body.status,
+    }, title=f"Заявка {row.id}")
     db.commit()
-    publish_safe("workorder.changed", {"id": row.id, "from_status": body.expected_status,
-                                        "to_status": body.status}, title=f"Заявка {row.id}", db=db)
+    publish_recorded(notification)
     return get(db, order_id)

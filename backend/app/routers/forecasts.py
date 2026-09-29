@@ -12,6 +12,7 @@ from ..schemas.forecasts import (
     ForecastCard,
     ForecastItem,
     ForecastSummary,
+    ManualOutcomeRevisionOut,
     OutcomeIn,
     OutcomeOut,
 )
@@ -78,3 +79,12 @@ def create_decision(forecast_id: str, body: DecisionIn, db: Session = Depends(ge
 def set_outcome(forecast_id: str, body: OutcomeIn, db: Session = Depends(get_db),
                 user: CurrentUser = Depends(require_perm("outcome"))) -> OutcomeOut:
     return decisions.set_outcome(db, forecast_id, body, user)
+
+
+@router.get("/forecasts/{forecast_id}/outcome-history",
+            response_model=list[ManualOutcomeRevisionOut],
+            dependencies=[Depends(require_perm("view"))])
+def outcome_history(forecast_id: str,
+                    db: Session = Depends(get_db)) -> list[ManualOutcomeRevisionOut]:
+    """Ручные итоги проверки от новых к старым; миграция 0005 перенесла последний старый итог."""
+    return decisions.outcome_history(db, forecast_id)

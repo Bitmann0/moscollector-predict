@@ -310,6 +310,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forecasts/{forecast_id}/outcome-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Outcome History
+         * @description Ручные итоги проверки от новых к старым; миграция 0005 перенесла последний старый итог.
+         */
+        get: operations["outcome_history_api_v1_forecasts__forecast_id__outcome_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -1394,6 +1414,33 @@ export interface components {
             login: string;
             /** Password */
             password: string;
+        };
+        /** ManualOutcomeRevisionOut */
+        ManualOutcomeRevisionOut: {
+            /** Author */
+            author: string;
+            /** Channel */
+            channel?: number | null;
+            /** Comment */
+            comment?: string | null;
+            /** Event At */
+            event_at?: string | null;
+            /** Forecast Id */
+            forecast_id: string;
+            /** Id */
+            id: number;
+            /** Outcome */
+            outcome?: ("confirmed_event" | "sensor_fault" | "normal_activation" | "no_event" | "unknown") | null;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "live" | "emulated" | "stub";
         };
         /** MlReady */
         MlReady: {
@@ -2823,6 +2870,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OutcomeOut"];
+                };
+            };
+            /** @description Сессия отсутствует, истекла или недействительна */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description У роли нет требуемого права */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    outcome_history_api_v1_forecasts__forecast_id__outcome_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                forecast_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManualOutcomeRevisionOut"][];
                 };
             };
             /** @description Сессия отсутствует, истекла или недействительна */

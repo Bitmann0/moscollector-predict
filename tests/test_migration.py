@@ -97,3 +97,19 @@ def test_revoked_sessions_on_filled_db(migration_url):
             assert conn.execute(text("SELECT login FROM users")).scalars().all() == ["old"]
     finally:
         engine.dispose()
+
+
+def test_ods_key_migration_preserves_old_journal(migration_url):
+    cfg = _config()
+    command.upgrade(cfg, "0003_revoked_sessions")
+    engine = create_engine(migration_url, poolclass=pool.NullPool)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("INSERT INTO ods_journal (ts, obj_id, record_type, decision, reason) "
+                              "VALUES ('2026-06-30 07:00:00', '1', 'inspection', NULL, NULL)"))
+        command.upgrade(cfg, "head")
+        with engine.connect() as conn:
+            assert conn.execute(text("SELECT obj_id, ingest_key FROM ods_journal")
+                                ).one() == ("1", None)
+    finally:
+        engine.dispose()

@@ -144,3 +144,15 @@ class OutcomeOut(BaseModel):
     author: str | None = None
     updated_at: datetime
     source: Source
+
+
+class ManualOutcomeRevisionOut(BaseModel):
+    id: int
+    forecast_id: str
+    outcome: OutcomeManual | None = None
+    comment: str | None = None
+    event_at: datetime | None = None
+    channel: int | None = None
+    author: str
+    recorded_at: datetime
+    source: Source

@@ -1752,6 +1752,97 @@
         "title": "LoginIn",
         "type": "object"
       },
+      "ManualOutcomeRevisionOut": {
+        "properties": {
+          "author": {
+            "title": "Author",
+            "type": "string"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "event_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event At"
+          },
+          "forecast_id": {
+            "title": "Forecast Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed_event",
+                  "sensor_fault",
+                  "normal_activation",
+                  "no_event",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "emulated",
+              "stub"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "forecast_id",
+          "author",
+          "recorded_at",
+          "source"
+        ],
+        "title": "ManualOutcomeRevisionOut",
+        "type": "object"
+      },
       "MlReady": {
         "properties": {
           "data_last_day": {
@@ -5049,6 +5140,67 @@
           }
         ],
         "summary": "Set Outcome",
+        "tags": [
+          "forecasts"
+        ]
+      }
+    },
+    "/api/v1/forecasts/{forecast_id}/outcome-history": {
+      "get": {
+        "description": "Ручные итоги проверки от новых к старым; миграция 0005 перенесла последний старый итог.",
+        "operationId": "outcome_history_api_v1_forecasts__forecast_id__outcome_history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "forecast_id",
+            "required": true,
+            "schema": {
+              "title": "Forecast Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ManualOutcomeRevisionOut"
+                  },
+                  "title": "Response Outcome History Api V1 Forecasts  Forecast Id  Outcome History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Сессия отсутствует, истекла или недействительна"
+          },
+          "403": {
+            "description": "У роли нет требуемого права"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "summary": "Outcome History",
         "tags": [
           "forecasts"
         ]

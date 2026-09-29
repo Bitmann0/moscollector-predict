@@ -29,12 +29,18 @@ Cookie называется `mk_session`, имеет флаги `HttpOnly` и `S
 4. Откройте `GET /api/v1/forecasts`, затем карточку `GET /api/v1/forecasts/{forecast_id}`.
 5. Сохраните решение `POST /api/v1/forecasts/{forecast_id}/decisions`; причина должна быть
    допустима для выбранного действия, что можно проверить через `GET /api/v1/reason-codes`.
+   Итог проверки сохраните через `POST /api/v1/forecasts/{forecast_id}/outcome`; последующие
+   исправления доступны в `GET /api/v1/forecasts/{forecast_id}/outcome-history`.
 6. Создайте черновик заявки `POST /api/v1/work-orders` и меняйте статус через
    `PATCH /api/v1/work-orders/{order_id}`, передавая текущий `expected_status`
    (раздел «Жизненный цикл заявки»).
 
 События можно загрузить JSON-пачкой (`POST /api/v1/ingest/events`) или CSV/XLSX
 (`POST /api/v1/ingest/events/upload`).
+Файл ограничен 200 МиБ и 150 000 строками данных: при превышении количества строк
+возвращается `413 file_too_many_rows`. Большую историю загружайте пачками JSON через
+`scripts/replay.py`. У XLSX дополнительно ограничен суммарный распакованный размер
+архива 512 МиБ (`413 xlsx_uncompressed_too_large`).
 Точная дедупликация использует весь нормализованный кортеж события, поэтому повторная загрузка
 безопасна. Результат каждой загрузки показывает принятые, повторные, отклонённые и вышедшие за
 демонстрационное окно строки. С `?notify=false` (загрузка истории) события сохраняются и

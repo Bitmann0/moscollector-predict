@@ -2,6 +2,7 @@
 import csv
 import hashlib
 import io
+import json
 import zipfile
 from datetime import date, datetime, time
 from typing import NamedTuple
@@ -10,19 +11,24 @@ import openpyxl
 from fastapi import HTTPException
 from openpyxl.utils.exceptions import InvalidFileException
 from sqlalchemy import and_, delete, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .. import models
 from ..schemas.common import Page
 from ..schemas.events import EventRowIn, IngestBatchOut, OdsRowIn, ResetDayOut
 from ..security import CurrentUser
-from . import parameters, semantics, settings_store
+from . import parameters, reclassify, semantics, settings_store
 from .helpers import assume_msk, count, from_db, now_utc, page_of, to_db
 from .notifications import publish_safe
 
 # Тот же лимит, что в routers/ingest.py: роутер читает на байт больше, чтобы сервис
 # отличил файл ровно в лимит от файла больше лимита.
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
+# XLSX — ZIP: небольшой файл может содержать миллионы распакованных строк.
+# Крупную историю replay.py шлёт пачками через JSON, поэтому у файлов есть предел строк.
+MAX_UPLOAD_ROWS = 150_000
+MAX_XLSX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
 # Размер пачки для IN (...): SQLite до 3.32 принимает не больше 999 параметров.
 LOOKUP_CHUNK = 500
 # «Тревожное сообщение» — термин заказчика для записи с флагом «тревожное» (ответ 1,
@@ -231,17 +237,28 @@ def _save_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
 
 
 def _count_rows(filename: str, content: bytes) -> int:
+    def count_nonempty(values) -> int:
+        total = 0
+        for row in values:
+            if any(value is not None and str(value).strip() for value in row):
+                total += 1
+                if total > MAX_UPLOAD_ROWS + 1:  # включая строку заголовка
+                    raise HTTPException(status_code=413, detail="file_too_many_rows")
+        return total
+
     if filename.lower().endswith(".xlsx") or content[:2] == b"PK":
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            if sum(member.file_size for member in archive.infolist()) > MAX_XLSX_UNCOMPRESSED_BYTES:
+                raise HTTPException(status_code=413, detail="xlsx_uncompressed_too_large")
         book = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
         try:
             sheet = book.worksheets[0]
-            rows = sum(1 for r in sheet.iter_rows(values_only=True)
-                       if any(v is not None for v in r))
+            rows = count_nonempty(sheet.iter_rows(values_only=True))
         finally:
             book.close()
     else:
-        text = content.decode("utf-8-sig")
-        rows = sum(1 for r in csv.reader(io.StringIO(text)) if any(cell.strip() for cell in r))
+        with io.TextIOWrapper(io.BytesIO(content), encoding="utf-8-sig", newline="") as stream:
+            rows = count_nonempty(csv.reader(stream))
     return max(rows - 1, 0)  # первая строка — заголовок
 
 
@@ -264,9 +281,38 @@ def _cell_text(header: str | None, value):
     return str(value)
 
 
+def _file_records(filename: str, content: bytes):
+    """Читаем строки по одной: XLSX может распаковываться намного больше размера файла."""
+    if filename.lower().endswith(".xlsx") or content[:2] == b"PK":
+        book = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+        try:
+            values = iter(book.worksheets[0].iter_rows(values_only=True))
+            header = next(values)
+            for cells in values:
+                if any(value is not None for value in cells):
+                    yield {name: _cell_text(name, cell) for name, cell in zip(header, cells)}
+        finally:
+            book.close()
+    else:
+        with io.TextIOWrapper(io.BytesIO(content), encoding="utf-8-sig", newline="") as stream:
+            yield from csv.DictReader(stream)
+
+
 def ingest_rows(db: Session, rows: list[EventRowIn], user: CurrentUser,
                 *, notify: bool = True) -> IngestBatchOut:
-    return _save_rows(db, rows, user, notify=notify)
+    return _retry_duplicate(db, lambda: _save_rows(db, rows, user, notify=notify))
+
+
+def _retry_duplicate(db: Session, save):
+    """Параллельный приём мог записать ту же строку после нашего SELECT. После отката
+    читаем БД заново и учитываем её как дубль; ответ не превращается в 500."""
+    for attempt in range(3):
+        try:
+            return save()
+        except IntegrityError:
+            db.rollback()
+            if attempt == 2:
+                raise
 
 
 def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser,
@@ -276,42 +322,48 @@ def ingest_file(db: Session, filename: str, content: bytes, user: CurrentUser,
     try:
         rows_total = _count_rows(filename, content)
     except (ValueError, KeyError, OSError, csv.Error, zipfile.BadZipFile, InvalidFileException):
+        rows_total = 0
+    if rows_total == 0:
         batch = _new_batch(db, "smvu", 0)
         batch.status = "rejected"
         db.commit()
         return _out(batch)
     try:
-        if filename.lower().endswith(".xlsx") or content[:2] == b"PK":
-            book = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
-            try:
-                values = list(book.worksheets[0].iter_rows(values_only=True))
-            finally:
-                book.close()
-            header, data = values[0], values[1:]
-            records = [{name: _cell_text(name, cell) for name, cell in zip(header, cells)}
-                       for cells in data if any(v is not None for v in cells)]
-        else:
-            records = list(csv.DictReader(io.StringIO(content.decode("utf-8-sig"))))
         rows = []
         rejected = 0
-        for record in records:
+        for record in _file_records(filename, content):
             try:
                 rows.append(EventRowIn.model_validate(record))
             except (ValueError, TypeError):
                 rejected += 1
-    except (IndexError, ValueError, TypeError):
+    except (IndexError, StopIteration, ValueError, TypeError, csv.Error, zipfile.BadZipFile,
+            InvalidFileException):
         batch = _new_batch(db, "smvu", rows_total)
         batch.rejected = rows_total
         batch.status = "rejected"
         db.commit()
         return _out(batch)
-    return _save_rows(db, rows, user, rejected=rejected, notify=notify)
+    return _retry_duplicate(db, lambda: _save_rows(
+        db, rows, user, rejected=rejected, notify=notify))
 
 
 def reset_day(db: Session, day: date, user: CurrentUser) -> ResetDayOut:
     start = to_db(assume_msk(datetime.combine(day, datetime.min.time())))
     end = to_db(assume_msk(datetime.combine(day.fromordinal(day.toordinal() + 1), datetime.min.time())))
     result = db.execute(delete(models.Event).where(models.Event.ts >= start, models.Event.ts < end))
+    # Уведомление о событии сохраняет его время, но не FK на events. После удаления
+    # дня оно больше не должно показывать диспетчеру несуществующую запись.
+    db.execute(delete(models.Notification).where(
+        models.Notification.kind == "event.alarm", models.Notification.ts >= start,
+        models.Notification.ts < end))
+    # Серия ППР/ТО может пересекать полночь. После сброса пересчитываем подсказки
+    # соседних суток по оставшимся событиям в той же транзакции.
+    channels = reclassify.channel_map(db.connection())
+    rules = parameters.current(db).rules
+    for neighbor in (day.fromordinal(day.toordinal() - 1),
+                     day.fromordinal(day.toordinal() + 1)):
+        reclassify.reclassify_day(db.connection(), neighbor, channels,
+                                  group_column=True, write=True, rules=rules)
     batch = _new_batch(db, "reset", 0)
     batch.accepted = result.rowcount or 0
     db.commit()
@@ -323,12 +375,18 @@ def _same(column, value):
 
 
 def ingest_ods(db: Session, rows: list[OdsRowIn], user: CurrentUser) -> IngestBatchOut:
+    return _retry_duplicate(db, lambda: _save_ods(db, rows))
+
+
+def _save_ods(db: Session, rows: list[OdsRowIn]) -> IngestBatchOut:
     """Повтор той же записи (эмулятор после таймаута) считается дублем, а не новой записью."""
     batch = _new_batch(db, "ods", len(rows))
     seen: set[tuple] = set()
     for row in rows:
         ts = to_db(assume_msk(row.ts))
         key = (ts, row.obj_id, row.record_type, row.decision, row.reason)
+        ingest_key = hashlib.sha256(json.dumps(key, ensure_ascii=False, default=str,
+                                               separators=(",", ":")).encode()).hexdigest()
         stored = db.scalar(select(models.OdsRecord.id).where(
             models.OdsRecord.ts == ts, _same(models.OdsRecord.obj_id, row.obj_id),
             models.OdsRecord.record_type == row.record_type,
@@ -339,7 +397,8 @@ def ingest_ods(db: Session, rows: list[OdsRowIn], user: CurrentUser) -> IngestBa
             continue
         seen.add(key)
         db.add(models.OdsRecord(ts=ts, obj_id=row.obj_id, record_type=row.record_type,
-                                decision=row.decision, reason=row.reason, batch_id=batch.id))
+                                decision=row.decision, reason=row.reason, batch_id=batch.id,
+                                ingest_key=ingest_key))
         batch.accepted += 1
     db.commit()
     return _out(batch)
