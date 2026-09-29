@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "gen:api": "openapi-typescript ../contracts/api_v1.openapi.json -o src/api/schema.d.ts",
     "preview": "vite preview"
   },
