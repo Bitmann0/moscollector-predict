@@ -4,15 +4,20 @@
 использованных библиотек и компонентов». Перечень снят 28.09.2026 на машине разработчика с образов api и
 ml, собранных в тот же день в 00:59 МСК по `Dockerfile` и `ml/Dockerfile`, с lock-файлов
 `frontend/package-lock.json` и `ml/requirements.lock` и с базовых образов из compose-файлов.
-Пути даны от корня репозитория. После снятия перечня `pandas>=2.2` стал прямой
-зависимостью ML (`ml/pyproject.toml`, PR #34, температурный бэктест); версия в
-`ml/requirements.lock` та же, 3.0.5, поэтому состав образа ml не изменился — пакет
-перенесён из транзитивных в прямые. Позже backend получил прямые зависимости `fpdf2` (отчёт
-руководству в PDF, PR #55) и `defusedxml` (разбор XML при приёме, PR #56), а также dev-зависимости
-`pypdf` и `xmlschema`. `defusedxml` раньше приходил в образ транзитивно через `fpdf2`, теперь он прямой.
-Версии `fpdf2` и его транзитивных пакетов сняты с образа api ветки PR #55, собранного 28.09.2026
-в 21:26 МСК; версии `defusedxml`, `pypdf` и `xmlschema` — с venv разработчика. Прямую
-зависимость `ldap3` и её транзитивную `pyasn1` (вход через LDAP/AD) отмечает пометка ³.
+Пути даны от корня репозитория.
+
+Изменения после снятия перечня, которые таблицы ниже уже учитывают:
+
+- `pandas>=2.2` стал прямой зависимостью ML (`ml/pyproject.toml`, PR #34, температурный
+  бэктест). Версия в `ml/requirements.lock` та же, 3.0.5: пакет перешёл из транзитивных в
+  прямые, состав образа ml не изменился.
+- backend получил прямые зависимости `fpdf2` (отчёт руководству в PDF, PR #55) и
+  `defusedxml` (разбор XML при приёме, PR #56) и dev-зависимости `pypdf` и `xmlschema`.
+  `defusedxml` до этого приходил в образ транзитивно через `fpdf2`. Версии `fpdf2` и его
+  транзитивных пакетов сняты с образа api ветки PR #55, собранного 28.09.2026 в 21:26 МСК;
+  версии `defusedxml`, `pypdf` и `xmlschema` — с venv разработчика.
+- backend получил прямую зависимость `ldap3` и её транзитивную `pyasn1` (вход через LDAP/AD,
+  #58); обе отмечены пометкой ³.
 
 ## Сводка
 
@@ -53,7 +58,7 @@ ml, собранных в тот же день в 00:59 МСК по `Dockerfile`
   ветки `feat/ldap-auth`. Для dev-пакетов, которых в образах нет, использованы venv разработчиков
   (Python 3.12.10, Windows).
 - **Транзитивные зависимости Python** выведены из поля `Requires-Dist` установленных
-  пакетов, маркеры окружения вычислены для Linux x86_64 и CPython 3.12. Граф объясняет
+  пакетов, маркеры окружения вычислены для Linux x86_64 и CPython 3.12. Из графа выводятся
   все пакеты образов, кроме `pip` 25.0.1 (MIT, приходит с базовым образом) и собственного
   пакета `mkl`.
 - **npm.** Версии — из `frontend/package-lock.json` (формат lockfileVersion 3, 153 записи).
@@ -144,10 +149,11 @@ cd frontend && npm ci && npm ls --all --omit=dev
 Требование `xgboost>=3.0` из `ml/pyproject.toml` в образе закрывает пакет `xgboost-cpu`
 3.4.1: модуль тот же (`import xgboost`), но без CUDA. По комментарию в
 `ml/requirements.lock`, пакет `xgboost` на Linux тянет `nvidia-nccl-cu13` (290 МБ), а GPU в
-контейнере нет. В venv разработчика ML стоит `xgboost` 3.4.1 с CUDA; продуктовые модели
-обучаются LightGBM (`--backend lgbm` по умолчанию, `ml/README.md`), XGBoost и CatBoost
-на GPU использовались в экспериментах, например в ансамбле A_link. Остальные пакеты этого venv, кроме dev-зависимостей и их
-транзитивных, в `ml/pyproject.toml` не значатся и в перечень не включены.
+контейнере нет. В venv разработчика ML стоит `xgboost` 3.4.1 с CUDA. Продуктовые модели
+обучены LightGBM (`--backend lgbm` по умолчанию в `ml/scripts/train_latest.py`,
+`ml/README.md`); XGBoost и CatBoost на GPU использовались в экспериментах, например в
+ансамбле A_link (`ml/reports/A_LINK_ENSEMBLE.md`). Остальных пакетов этого venv, кроме
+dev-зависимостей и их транзитивных, в `ml/pyproject.toml` нет, и в перечень они не включены.
 
 Группа `schedules` (`openpyxl`) в lock-файл и образ не входит: она нужна только скрипту
 подготовки графиков ППР и ТО.
@@ -162,7 +168,7 @@ cd frontend && npm ci && npm ls --all --omit=dev
 | `pandas` | `pandas>=2.2` | 3.0.5 | BSD-3-Clause¹ | таблицы температурного почасового бэктеста (`ml/src/mkl/temperature_episode.py`, `ml/scripts/exp_temperature_episode.py`); транзитивно его тянет и `catboost` |
 | `scikit-learn` | `scikit-learn>=1.4` | 1.9.1 | BSD-3-Clause | изотоническая калибровка (`ml/src/mkl/calibrate.py`); PR-AUC, ROC-AUC, Брайер (`ml/src/mkl/metrics.py`) |
 | `lightgbm` | `lightgbm>=4.5` | 4.7.0 | MIT | бустинг, бэкенд `MKL_BACKEND=lgbm` (`ml/src/mkl/train.py`) |
-| `xgboost-cpu` | `xgboost>=3.0` | 3.4.1 | Apache-2.0 | бустинг, бэкенд по умолчанию `MKL_BACKEND=xgb`; вклады признаков (`ml/src/mkl/explain.py`) |
+| `xgboost-cpu` | `xgboost>=3.0` | 3.4.1 | Apache-2.0 | бустинг, бэкенд по умолчанию в `mkl.train` (`MKL_BACKEND=xgb`); вклады признаков (`ml/src/mkl/explain.py`) |
 | `catboost` | `catboost>=1.2` | 1.2.10 | Apache-2.0 | бустинг, бэкенд `MKL_BACKEND=cat`; вклады признаков (`ml/src/mkl/explain.py`) |
 | `PyYAML` | `pyyaml>=6.0` | 6.0.3 | MIT | чтение `ml/configs/heads.yaml` (`ml/src/mkl/serve.py`) и реестра признаков `configs/features.yaml` из бандла (`ml/src/mkl/store.py`) |
 | `pyarrow` | `pyarrow>=16.0` | 25.0.1 | Apache-2.0 | выдача результата DuckDB в Polars, `.pl()` (`ml/src/mkl/features/decay.py`) |
@@ -312,9 +318,10 @@ postgres и caddy собраны 17.09.2026 (UTC). Новая загрузка �
 отдаётся самим api.
 
 Скрипты `scripts/*.py` импортируют только стандартную библиотеку Python. Исключения:
-`scripts/replay.py` импортирует `duckdb` для parquet, а `scripts/export_contracts.py`
-загружает приложение backend и ML-заглушку, поэтому в CI перед ним выполняется
-`python -m pip install -e . pyyaml`. `scripts/fetch_bundle.sh`
+`scripts/replay.py` импортирует `duckdb` для parquet; `scripts/reclassify_events.py`
+импортирует SQLAlchemy и `app.services` из backend, поэтому ему нужны зависимости из
+`pyproject.toml`; `scripts/export_contracts.py` загружает приложение backend и ML-заглушку,
+поэтому в CI перед ним выполняется `python -m pip install -e . pyyaml`. `scripts/fetch_bundle.sh`
 вызывает также системные `curl` или `wget` и `sha256sum` или `shasum`; их лицензии не
 проверялись: это утилиты ОС хоста.
 

@@ -2,7 +2,7 @@
 -- Машина разработчика (Windows 11, Docker Desktop на WSL2, 16 логических процессоров).
 -- Compose-проект mkinteg: compose.yaml + compose.real.yaml, api на 127.0.0.1:8010, ML_MODE=real,
 -- бандл bundle-20260928-4 смонтирован с диска U: (в контейнере это 9p, drvfs, cache=0x5).
--- «До» — образ ml из origin/main 7f32c3f, «после» — из ветки feat/ML2-10-warmup.
+-- «До» — образ ml из origin/main f4d5462, «после» — из ветки feat/ML2-10-warmup.
 -- Контейнеры api и db не пересоздавались.
 --
 -- Один прогон:
