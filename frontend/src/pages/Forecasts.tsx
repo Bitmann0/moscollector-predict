@@ -131,7 +131,9 @@ export function Forecasts() {
       {createError && <div className="state state--bad">{createError}</div>}
       {can("work_order_manage") && selected.length > 0 && <div className="bulk-bar"><div><strong>Выбрано: {selected.length}</strong><span>{selected[0].object.name ?? selected[0].object.id} · {selected[0].scenario_title}</span></div><button className="button" type="button" onClick={() => setSelected([])}>Отменить</button><button className="button button--primary" type="button" disabled={creating} onClick={() => void createOrder()}>{creating ? "Формирование…" : "Создать общую заявку"}</button></div>}
       {data.items.length === 0 ? <StateView state="empty" detail={emptyDetail} /> : <ForecastTable items={data.items} selectable={can("work_order_manage")} selected={selected} compatible={compatible} onToggle={toggle} />}
-      <WeekTotals items={data.items} weeks={summary.data?.weeks} />
+      {data.items.length > 0 && summary.status === "loading" && !summary.data && <p className="muted" role="status">Считаем недельные итоги по всему журналу…</p>}
+      {data.items.length > 0 && summary.status === "error" && <div className="filter-notice" role="alert">Недельные итоги не загрузились: {summary.message}. Строки журнала доступны, но итоговые числа сейчас не показаны. <button type="button" className="button" onClick={summary.reload}>Повторить</button></div>}
+      <WeekTotals items={data.items} weeks={summary.status === "error" ? undefined : summary.data?.weeks} />
       <Pager page={data.page} pageSize={data.page_size} total={data.total} onPage={(value) => update("page", value)} />
     </>}</Loaded>
   </section>;
